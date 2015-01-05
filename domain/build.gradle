@@ -1,0 +1,25 @@
+apply plugin: 'groovy'
+
+dependencies {
+  compile project(':toolingapi')
+  compile "org.gradle:gradle-tooling-api:$toolingApiVersion"
+  compile "com.google.guava:guava:$guavaVersion"
+  compile "org.slf4j:slf4j-api:$slf4jVersion"
+  testCompile project(':testing')
+  testCompile "org.spockframework:spock-core:$spockVersion"
+  testCompile "nl.jqno.equalsverifier:equalsverifier:$equalsverifierVersion"
+  testRuntime "cglib:cglib-nodep:$cglibVersion"
+  testRuntime "org.objenesis:objenesis:$objenesisVersion"
+  testRuntime "ch.qos.logback:logback-classic:$logbackVersion"
+}
+
+description = "Contains the domain part of the Gradle Tower."
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+tasks.withType(AbstractCompile).all {
+  options.compilerArgs << '-Xlint:all'
+  options.fork = true
+  options.forkOptions.executable = "/usr/libexec/java_home -v $targetCompatibility".execute().text.trim() + "/bin/javac"
+}

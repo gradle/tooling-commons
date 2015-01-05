@@ -1,0 +1,21 @@
+package com.gradleware.tooling.domain;
+
+import com.google.common.base.Preconditions;
+import org.gradle.tooling.model.GradleProject;
+
+/**
+ * Event that is broadcast when {@code GradleProject} has been updated.
+ */
+public final class GradleProjectUpdateEvent {
+
+    private final GradleProject gradleProject;
+
+    public GradleProjectUpdateEvent(GradleProject gradleProject) {
+        this.gradleProject = Preconditions.checkNotNull(gradleProject);
+    }
+
+    public GradleProject getGradleProject() {
+        return gradleProject;
+    }
+
+}
