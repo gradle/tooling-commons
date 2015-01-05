@@ -13,7 +13,7 @@ dependencies {
   testRuntime "ch.qos.logback:logback-classic:$logbackVersion"
 }
 
-description = "Contains the domain part of the Gradle Tower."
+description = "IDE-agnostic Domain component of the Commons project of the Gradle Tooling Platform."
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6

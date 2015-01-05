@@ -9,7 +9,7 @@ dependencies {
   testRuntime "org.objenesis:objenesis:$objenesisVersion"
 }
 
-description = "Contains the testing infrastructure of the Gradle Tower."
+description = "IDE-agnostic Testing component of the Commons project of the Gradle Tooling Platform."
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
