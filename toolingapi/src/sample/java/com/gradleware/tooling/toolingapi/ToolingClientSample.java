@@ -14,9 +14,9 @@ import static com.gradleware.tooling.toolingapi.ToolingClient.CleanUpStrategy;
 
 public final class ToolingClientSample {
 
-    private static final File pathToProjectDir = new File("/Users/etiennestuder/Development/git/private/gradle-tower/ui/src/sample/simple-multi-project");
-
     public static void main(String[] args) throws URISyntaxException {
+        final File pathToProjectDir = new File(args[0]);
+
         ToolingClient client = ToolingClient.newClient();
 
         try {
