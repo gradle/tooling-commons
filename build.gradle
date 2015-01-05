@@ -36,7 +36,7 @@ subprojects {
   // configure publications
   apply plugin: 'maven-publish'
 
-  // publish to Gradleware repo
+  // publish to private Gradleware repository
   publishing {
     repositories {
       maven {
