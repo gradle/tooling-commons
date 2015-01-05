@@ -11,15 +11,6 @@ dependencies {
 
 description = "IDE-agnostic Tooling API component of the Commons project of the Gradle Tooling Platform."
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
-
-tasks.withType(AbstractCompile).all {
-  options.compilerArgs << '-Xlint:all'
-  options.fork = true
-  options.forkOptions.executable = "/usr/libexec/java_home -v $targetCompatibility".execute().text.trim() + "/bin/javac"
-}
-
 sourceSets {
   sample {
     java {

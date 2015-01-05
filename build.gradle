@@ -24,6 +24,17 @@ subprojects {
   // apply Java plugin (production code) and Groovy plugin (test code)
   apply plugin: 'groovy'
 
+  // make sure it compiles and runs with Java 6
+  sourceCompatibility = 1.6
+  targetCompatibility = 1.6
+
+  // turn all compiler warnings into errors and use the correct compiler version (rather than just working with the compatibility flags)
+  tasks.withType(AbstractCompile).all {
+    options.compilerArgs << '-Xlint:all'
+    options.fork = true
+    options.forkOptions.executable = "/usr/libexec/java_home -v $targetCompatibility".execute().text.trim() + "/bin/javac"
+  }
+
   // bundle sources
   task sourcesJar(type: Jar) {
     from sourceSets.main.allJava
