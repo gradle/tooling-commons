@@ -7,6 +7,8 @@ version = '1.0.0-' + new SimpleDateFormat("yyyyMMddkkmmssZ").format(new Date())
 
 wrapper.gradleVersion = '2.2'
 
+boolean isMacOs = System.properties.getProperty('os.name').toLowerCase().contains('mac')
+
 subprojects {
 
   group = rootProject.group
@@ -28,11 +30,13 @@ subprojects {
   sourceCompatibility = 1.6
   targetCompatibility = 1.6
 
-  // turn all compiler warnings into errors and use the correct compiler version (rather than just working with the compatibility flags)
+  // report all compiler warnings and on Mac OS, use the correct compiler version (rather than just working with the compatibility flags)
   tasks.withType(AbstractCompile).all {
     options.compilerArgs << '-Xlint:all' // << '-Werror'
-    options.fork = true
-    options.forkOptions.executable = "/usr/libexec/java_home -v $targetCompatibility".execute().text.trim() + "/bin/javac"
+    if (isMacOs) {
+      options.fork = true
+      options.forkOptions.executable = "/usr/libexec/java_home -v $targetCompatibility".execute().text.trim() + "/bin/javac"
+    }
   }
 
   // bundle sources
