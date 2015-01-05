@@ -1,0 +1,21 @@
+apply plugin: 'groovy'
+
+dependencies {
+  compile project(':toolingapi')
+  compile "org.gradle:gradle-tooling-api:$toolingApiVersion"
+  compile "com.google.guava:guava:$guavaVersion"
+  testCompile "org.spockframework:spock-core:$spockVersion"
+  testRuntime "cglib:cglib-nodep:$cglibVersion"
+  testRuntime "org.objenesis:objenesis:$objenesisVersion"
+}
+
+description = "Contains the testing infrastructure of the Gradle Tower."
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+tasks.withType(AbstractCompile).all {
+  options.compilerArgs << '-Xlint:all'
+  options.fork = true
+  options.forkOptions.executable = "/usr/libexec/java_home -v $targetCompatibility".execute().text.trim() + "/bin/javac"
+}
