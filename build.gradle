@@ -21,8 +21,8 @@ subprojects {
     }
   }
 
-  // apply Java plugin
-  apply plugin: 'java'
+  // apply Java plugin (production code) and Groovy plugin (test code)
+  apply plugin: 'groovy'
 
   // bundle sources
   task sourcesJar(type: Jar) {

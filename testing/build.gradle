@@ -1,5 +1,3 @@
-apply plugin: 'groovy'
-
 dependencies {
   compile project(':toolingapi')
   compile "org.gradle:gradle-tooling-api:$toolingApiVersion"

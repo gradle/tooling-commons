@@ -1,5 +1,3 @@
-apply plugin: 'groovy'
-
 dependencies {
   compile "org.gradle:gradle-tooling-api:$toolingApiVersion"
   compile "com.google.guava:guava:$guavaVersion"
