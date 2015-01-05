@@ -17,7 +17,6 @@ package com.gradleware.tooling.junit;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
-import org.junit.rules.MethodRule;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.FrameworkMethod;
@@ -34,7 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * A JUnit rule which provides a unique temporary folder for the test.
  */
 @SuppressWarnings("deprecation")
-public final class TestDirectoryProvider implements TestRule, MethodRule {
+public final class TestDirectoryProvider implements TestRule, org.junit.rules.MethodRule {
 
     private static File root;
     private static AtomicInteger testCounter;
@@ -50,6 +49,7 @@ public final class TestDirectoryProvider implements TestRule, MethodRule {
         testCounter = new AtomicInteger(1);
     }
 
+    @Deprecated
     @Override
     public Statement apply(Statement base, FrameworkMethod method, Object target) {
         // already calculate the test directory prefix since the method name is known to this method

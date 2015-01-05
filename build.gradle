@@ -30,7 +30,7 @@ subprojects {
 
   // turn all compiler warnings into errors and use the correct compiler version (rather than just working with the compatibility flags)
   tasks.withType(AbstractCompile).all {
-    options.compilerArgs << '-Xlint:all'
+    options.compilerArgs << '-Xlint:all' // << '-Werror'
     options.fork = true
     options.forkOptions.executable = "/usr/libexec/java_home -v $targetCompatibility".execute().text.trim() + "/bin/javac"
   }
