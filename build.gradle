@@ -16,8 +16,8 @@ subprojects {
   repositories {
     jcenter()
     maven {
-      name = 'gradle-public'
-      url 'http://repo.gradle.org/gradle/libs-snapshots'
+      name = 'gradle-public-snapshots'
+      url gradlePublicSnapshotsRepositoryUrl
     }
   }
 
@@ -41,7 +41,7 @@ subprojects {
     repositories {
       maven {
         name = 'gradle-private'
-        url 'https://repo.gradle.org/gradle/tooling-private'
+        url gradlePrivateRepositoryUrl
         credentials {
           username GRADLE_REPO_USER
           password GRADLE_REPO_PASSWORD
