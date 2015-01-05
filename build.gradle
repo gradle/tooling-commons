@@ -1,0 +1,78 @@
+import java.text.SimpleDateFormat
+
+description = "Root project of the Commons project of the Gradle Tooling Platform."
+
+group = 'com.gradleware.tooling'
+version = '1.0.0-' + new SimpleDateFormat("yyyyMMddkkmmssZ").format(new Date())
+
+wrapper.gradleVersion = '2.2'
+
+subprojects {
+
+  group = rootProject.group
+  version = rootProject.version
+
+  // add required repositories for external dependencies
+  repositories {
+    jcenter()
+    maven {
+      name = 'gradle-public'
+      url 'http://repo.gradle.org/gradle/libs-snapshots'
+    }
+  }
+
+  // apply Java plugin
+  apply plugin: 'java'
+
+  // bundle sources
+  task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+  }
+
+  // generate javadoc as part of the build once all tests have passed
+  build.dependsOn javadoc
+  javadoc.shouldRunAfter check
+
+  // configure publications
+  apply plugin: 'maven-publish'
+
+  // publish to Gradleware repo
+  publishing {
+    repositories {
+      maven {
+        name = 'gradle-private'
+        url 'https://repo.gradle.org/gradle/tooling-private'
+        credentials {
+          username GRADLE_REPO_USER
+          password GRADLE_REPO_PASSWORD
+        }
+      }
+    }
+    publications {
+      mavenJava(MavenPublication) {
+        from components.java
+        artifact sourcesJar {
+          classifier "sources"
+        }
+      }
+    }
+  }
+
+  // allow to
+  //  - run cross-version tests in 'domain' sub-project by passing the relevant system property to the forked test process
+  //  - run cross-version tests in embedded mode in 'domain' sub-project by passing the relevant system property to the forked test process
+  if (path in [':domain']) {
+    tasks.withType(Test).all {
+      def propertyKeyVersions = 'com.gradleware.tooling.integtest.versions'
+      if (System.properties.containsKey(propertyKeyVersions)) {
+        systemProperty propertyKeyVersions, System.properties.get(propertyKeyVersions)
+      }
+      def propertyKeyEmbedded = 'com.gradleware.tooling.integtest.embedded'
+      if (System.properties.containsKey(propertyKeyEmbedded)) {
+        systemProperty propertyKeyEmbedded, System.properties.get(propertyKeyEmbedded)
+      }
+      maxParallelForks = 1
+    }
+  }
+
+}
