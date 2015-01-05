@@ -1,0 +1,22 @@
+<configuration debug="false" scan="false">
+
+    <!--context name-->
+    <contextName>toolingapi</contextName>
+
+    <!-- console appender -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%file:%line] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- log levels -->
+    <logger name="com.gradleware.tooling" level="DEBUG"/>
+
+    <!-- root configuration -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+</configuration>
