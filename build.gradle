@@ -74,17 +74,17 @@ subprojects {
   }
 
   // allow to
-  //  - run cross-version tests in 'domain' sub-project by passing the relevant system property to the forked test process
-  //  - run cross-version tests in embedded mode in 'domain' sub-project by passing the relevant system property to the forked test process
+  //  - run cross-version tests in 'domain' sub-project by mapping the relevant system property from the project properties to the forked test process
+  //  - run cross-version tests in embedded mode in 'domain' sub-project by passing the relevant system property from the project properties to the forked test process
   if (path in [':domain']) {
     tasks.withType(Test).all {
       def propertyKeyVersions = 'com.gradleware.tooling.integtest.versions'
-      if (System.properties.containsKey(propertyKeyVersions)) {
-        systemProperty propertyKeyVersions, System.properties.get(propertyKeyVersions)
+      if (project.properties.containsKey(propertyKeyVersions)) {
+        systemProperty propertyKeyVersions, project.properties.get(propertyKeyVersions)
       }
       def propertyKeyEmbedded = 'com.gradleware.tooling.integtest.embedded'
-      if (System.properties.containsKey(propertyKeyEmbedded)) {
-        systemProperty propertyKeyEmbedded, System.properties.get(propertyKeyEmbedded)
+      if (project.properties.containsKey(propertyKeyEmbedded)) {
+        systemProperty propertyKeyEmbedded, project.properties.get(propertyKeyEmbedded)
       }
       maxParallelForks = 1
     }
