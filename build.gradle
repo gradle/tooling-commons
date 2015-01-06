@@ -33,8 +33,8 @@ subprojects {
   // report all compiler warnings and on Mac OS, use the correct compiler version (rather than just working with the compatibility flags)
   tasks.withType(AbstractCompile).all {
     options.compilerArgs << '-Xlint:all' // << '-Werror'
+    options.fork = true
     if (isMacOs) {
-      options.fork = true
       options.forkOptions.executable = "/usr/libexec/java_home -v $targetCompatibility".execute().text.trim() + "/bin/javac"
     }
   }
