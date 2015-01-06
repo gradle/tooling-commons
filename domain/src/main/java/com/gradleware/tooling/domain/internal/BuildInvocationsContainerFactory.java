@@ -112,14 +112,24 @@ public final class BuildInvocationsContainerFactory {
             //      store null description as empty string to avoid that Guava chokes
             tasksWithDescription.put(task.getName(), task.getPath(), task.getDescription() != null ? task.getDescription() : NULL_STRING);
 
-            // visible tasks are specified as those that have a non-empty group
-            if (task.isPublic()) {
+            // visible tasks are specified by Gradle as those that have a non-empty group
+            if (isPublic(task)) {
                 publicTasks.add(task.getName());
             }
         }
 
         for (GradleProject childProject : project.getChildren()) {
             collectAllTasksRecursively(childProject, tasksWithDescription, publicTasks);
+        }
+    }
+
+    private static boolean isPublic(GradleTask task) {
+        try {
+            return task.isPublic();
+        } catch (Exception e) {
+            // expected exception for Gradle versions < 2.1
+            // treat those tasks as being public
+            return true;
         }
     }
 
