@@ -16,6 +16,7 @@ import com.gradleware.tooling.spock.VerboseUnroll
 import com.gradleware.tooling.testing.GradleVersionExtractor
 import com.gradleware.tooling.testing.GradleVersionParameterization
 import com.gradleware.tooling.toolingapi.GradleDistribution
+import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
 import org.gradle.tooling.model.build.BuildEnvironment
@@ -141,29 +142,33 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
-//  def "fetchGradleBuildAndWaitWhenExceptionIsThrown"() {
-//    given:
-//    def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildStructure.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
-//    transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-//    def repository = new NewDefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
-//
-//    AtomicReference<BuildInvocationsUpdateEvent> publishedEvent = new AtomicReference<>();
-//    repository.register(new Object() {
-//
-//      @Subscribe
-//      public void listen(BuildInvocationsUpdateEvent event) {
-//        publishedEvent.set(event)
-//      }
-//    })
-//
-//    when:
-//    repository.fetchGradleBuildAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-//
-//    then:
-//    thrown(GradleConnectionException)
-//
-//    publishedEvent.get() == null
-//  }
+  def "fetchGradleBuildAndWait - when exception is thrown"(GradleDistribution distribution, Environment environment) {
+    given:
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildStructure.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def repository = new NewDefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
+
+    AtomicReference<GradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
+    repository.register(new Object() {
+
+      @SuppressWarnings("GroovyUnusedDeclaration")
+      @Subscribe
+      public void listen(GradleBuildUpdateEvent event) {
+        publishedEvent.set(event)
+      }
+    })
+
+    when:
+    repository.fetchGradleBuildAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+
+    then:
+    thrown(GradleConnectionException)
+
+    publishedEvent.get() == null
+
+    where:
+    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+  }
 
   def "registerUnregister"() {
     given:
