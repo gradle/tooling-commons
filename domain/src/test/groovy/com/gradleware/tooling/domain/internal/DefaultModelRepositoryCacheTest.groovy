@@ -6,13 +6,13 @@ import com.gradleware.tooling.domain.FetchStrategy
 import com.gradleware.tooling.domain.FixedRequestAttributes
 import com.gradleware.tooling.domain.TransientRequestAttributes
 import com.gradleware.tooling.junit.TestDirectoryProvider
-import com.gradleware.tooling.spock.ToolingClientSpecification
+import com.gradleware.tooling.spock.DomainToolingClientSpecification
 import com.gradleware.tooling.toolingapi.GradleDistribution
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
 import org.junit.Rule
 
-class DefaultModelRepositoryCacheTest extends ToolingClientSpecification {
+class DefaultModelRepositoryCacheTest extends DomainToolingClientSpecification {
 
   @Rule
   TestDirectoryProvider directoryProvider = new TestDirectoryProvider();

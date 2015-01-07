@@ -3,14 +3,14 @@ package com.gradleware.tooling.domain.buildaction
 import com.gradleware.tooling.domain.util.Pair
 import com.gradleware.tooling.domain.util.Triple
 import com.gradleware.tooling.junit.TestDirectoryProvider
-import com.gradleware.tooling.spock.ToolingClientSpecification
+import com.gradleware.tooling.spock.DomainToolingClientSpecification
 import com.gradleware.tooling.toolingapi.BuildActionRequest
 import org.gradle.tooling.model.GradleProject
 import org.gradle.tooling.model.gradle.BuildInvocations
 import org.gradle.tooling.model.gradle.ProjectPublications
 import org.junit.Rule
 
-class BuildActionFactoryTest extends ToolingClientSpecification {
+class BuildActionFactoryTest extends DomainToolingClientSpecification {
 
   @Rule
   TestDirectoryProvider directoryProvider = new TestDirectoryProvider();

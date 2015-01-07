@@ -10,7 +10,7 @@ import com.gradleware.tooling.domain.TransientRequestAttributes
 import com.gradleware.tooling.domain.util.Pair
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DataValueFormatter
-import com.gradleware.tooling.spock.ToolingClientSpecification
+import com.gradleware.tooling.spock.DomainToolingClientSpecification
 import com.gradleware.tooling.spock.VerboseUnroll
 import com.gradleware.tooling.testing.GradleVersionExtractor
 import com.gradleware.tooling.testing.GradleVersionParameterization
@@ -22,7 +22,7 @@ import org.gradle.util.GradleVersion
 import org.junit.Rule
 
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
-class ContextAwareModelRepositoryCrossVersionTest extends ToolingClientSpecification {
+class ContextAwareModelRepositoryCrossVersionTest extends DomainToolingClientSpecification {
 
   @Rule
   public TestDirectoryProvider directoryProvider = new TestDirectoryProvider();

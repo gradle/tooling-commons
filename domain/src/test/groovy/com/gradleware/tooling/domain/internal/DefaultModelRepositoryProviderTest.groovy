@@ -3,11 +3,11 @@ package com.gradleware.tooling.domain.internal
 import com.google.common.collect.ImmutableList
 import com.gradleware.tooling.domain.FixedRequestAttributes
 import com.gradleware.tooling.junit.TestDirectoryProvider
-import com.gradleware.tooling.spock.ToolingClientSpecification
+import com.gradleware.tooling.spock.DomainToolingClientSpecification
 import com.gradleware.tooling.toolingapi.GradleDistribution
 import org.junit.Rule
 
-class DefaultModelRepositoryProviderTest extends ToolingClientSpecification {
+class DefaultModelRepositoryProviderTest extends DomainToolingClientSpecification {
 
   @Rule
   TestDirectoryProvider directoryProvider = new TestDirectoryProvider();

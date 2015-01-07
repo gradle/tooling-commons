@@ -12,7 +12,7 @@ import com.gradleware.tooling.domain.GradleBuildUpdateEvent
 import com.gradleware.tooling.domain.GradleProjectUpdateEvent
 import com.gradleware.tooling.domain.TransientRequestAttributes
 import com.gradleware.tooling.junit.TestDirectoryProvider
-import com.gradleware.tooling.spock.ToolingClientSpecification
+import com.gradleware.tooling.spock.DomainToolingClientSpecification
 import com.gradleware.tooling.toolingapi.GradleDistribution
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
@@ -21,7 +21,7 @@ import org.junit.Rule
 
 import java.util.concurrent.atomic.AtomicReference
 
-class DefaultModelRepositoryTest extends ToolingClientSpecification {
+class DefaultModelRepositoryTest extends DomainToolingClientSpecification {
 
   @Rule
   TestDirectoryProvider directoryProvider = new TestDirectoryProvider();

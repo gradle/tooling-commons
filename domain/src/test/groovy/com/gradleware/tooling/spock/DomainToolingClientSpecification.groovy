@@ -9,11 +9,11 @@ import org.slf4j.LoggerFactory
 import spock.lang.Shared
 import spock.lang.Specification
 
-class ToolingClientSpecification extends Specification {
+class DomainToolingClientSpecification extends Specification {
 
   public static final String EMBEDDED_MODE_SYSTEM_PROPERTY_NAME = 'com.gradleware.tooling.integtest.embedded';
 
-  private static final Logger LOG = LoggerFactory.getLogger(ToolingClientSpecification.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DomainToolingClientSpecification.class);
 
   @Shared
   ToolingClient toolingClient

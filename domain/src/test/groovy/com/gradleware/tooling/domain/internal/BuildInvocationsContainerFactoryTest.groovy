@@ -1,7 +1,7 @@
 package com.gradleware.tooling.domain.internal
 
 import com.gradleware.tooling.junit.TestDirectoryProvider
-import com.gradleware.tooling.spock.ToolingClientSpecification
+import com.gradleware.tooling.spock.DomainToolingClientSpecification
 import org.gradle.tooling.internal.gradle.TaskListingLaunchable
 import org.gradle.tooling.model.GradleProject
 import org.gradle.tooling.model.Task
@@ -9,7 +9,7 @@ import org.gradle.tooling.model.TaskSelector
 import org.gradle.tooling.model.gradle.BuildInvocations
 import org.junit.Rule
 
-class BuildInvocationsContainerFactoryTest extends ToolingClientSpecification {
+class BuildInvocationsContainerFactoryTest extends DomainToolingClientSpecification {
 
   @Rule
   public TestDirectoryProvider directoryProvider = new TestDirectoryProvider();
