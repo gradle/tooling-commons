@@ -46,4 +46,6 @@ public @interface VerboseUnroll {
 
     String value() default "";
 
+    Class<? extends DataValueFormatter> formatter() default DataValueFormatter.DefaultDataValueFormatter.class;
+
 }

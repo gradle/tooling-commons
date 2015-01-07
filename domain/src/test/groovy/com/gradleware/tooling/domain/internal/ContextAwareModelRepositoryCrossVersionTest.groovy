@@ -2,13 +2,10 @@ package com.gradleware.tooling.domain.internal
 
 import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
-import com.gradleware.tooling.domain.BuildInvocationsContainer
-import com.gradleware.tooling.domain.Environment
-import com.gradleware.tooling.domain.FetchStrategy
-import com.gradleware.tooling.domain.FixedRequestAttributes
-import com.gradleware.tooling.domain.TransientRequestAttributes
+import com.gradleware.tooling.domain.*
 import com.gradleware.tooling.domain.util.Pair
 import com.gradleware.tooling.junit.TestDirectoryProvider
+import com.gradleware.tooling.spock.DataValueFormatter
 import com.gradleware.tooling.spock.ToolingClientSpecification
 import com.gradleware.tooling.spock.VerboseUnroll
 import com.gradleware.tooling.testing.GradleVersionExtractor
@@ -20,7 +17,7 @@ import org.gradle.tooling.model.GradleProject
 import org.gradle.util.GradleVersion
 import org.junit.Rule
 
-@VerboseUnroll
+@VerboseUnroll(formatter = GradleDistributionFormatter.class)
 class ContextAwareModelRepositoryCrossVersionTest extends ToolingClientSpecification {
 
   @Rule
@@ -250,6 +247,18 @@ rootProject.name = 'TestProject'
 
   private static ImmutableList<List<Object>> runInAllEnvironmentsForGradleTargetVersions(String versionPattern) {
     GradleVersionParameterization.Default.INSTANCE.getPermutations(versionPattern, Environment.values() as List)
+  }
+
+  public static class GradleDistributionFormatter implements DataValueFormatter {
+
+    @Override
+    public String format(Object input) {
+      if (input instanceof GradleDistribution) {
+        def gradleDistribution = (GradleDistribution) input
+      }
+      return String.valueOf(input);
+    }
+
   }
 
 }
