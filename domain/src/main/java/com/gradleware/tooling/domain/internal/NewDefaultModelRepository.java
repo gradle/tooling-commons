@@ -10,6 +10,7 @@ import com.gradleware.tooling.domain.BuildEnvironmentUpdateEvent;
 import com.gradleware.tooling.domain.FetchStrategy;
 import com.gradleware.tooling.domain.FixedRequestAttributes;
 import com.gradleware.tooling.domain.GradleBuildUpdateEvent;
+import com.gradleware.tooling.domain.GradleProjectUpdateEvent;
 import com.gradleware.tooling.domain.NewModelRepository;
 import com.gradleware.tooling.domain.TransientRequestAttributes;
 import com.gradleware.tooling.domain.buildaction.BuildActionFactory;
@@ -20,6 +21,7 @@ import com.gradleware.tooling.toolingapi.ModelRequest;
 import com.gradleware.tooling.toolingapi.Request;
 import com.gradleware.tooling.toolingapi.ToolingClient;
 import org.gradle.tooling.BuildAction;
+import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.gradle.GradleBuild;
 
@@ -119,22 +121,22 @@ public final class NewDefaultModelRepository implements NewModelRepository {
 //        return executeRequest(request, successHandler, fetchStrategy, EclipseProject.class);
 //    }
 //
-//    @Override
-//    public GradleProject fetchGradleProjectAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
-//        Preconditions.checkNotNull(transientRequestAttributes);
-//        Preconditions.checkNotNull(fetchStrategy);
-//
-//        ModelRequest<GradleProject> request = createModelRequestForBuildModel(GradleProject.class, transientRequestAttributes);
-//        Consumer<GradleProject> successHandler = new Consumer<GradleProject>() {
-//            @Override
-//            public void accept(GradleProject result) {
-//                eventBus.post(new GradleProjectUpdateEvent(result));
-//            }
-//        };
-//
-//        return executeRequest(request, successHandler, fetchStrategy, GradleProject.class);
-//    }
-//
+    @Override
+    public GradleProject fetchGradleProjectAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
+        Preconditions.checkNotNull(transientRequestAttributes);
+        Preconditions.checkNotNull(fetchStrategy);
+
+        ModelRequest<GradleProject> request = createModelRequestForBuildModel(GradleProject.class, transientRequestAttributes);
+        Consumer<GradleProject> successHandler = new Consumer<GradleProject>() {
+            @Override
+            public void accept(GradleProject result) {
+                eventBus.post(new GradleProjectUpdateEvent(result));
+            }
+        };
+
+        return executeRequest(request, successHandler, fetchStrategy, GradleProject.class);
+    }
+
 //    @Override
 //    public BuildInvocationsContainer fetchBuildInvocationsAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
 //        Preconditions.checkNotNull(transientRequestAttributes);

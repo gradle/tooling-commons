@@ -1,5 +1,6 @@
 package com.gradleware.tooling.domain;
 
+import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.gradle.GradleBuild;
 
@@ -50,15 +51,15 @@ public interface NewModelRepository {
 //     */
 //    EclipseProject fetchEclipseProjectAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 //
-//    /**
-//     * Fetches the {@link org.gradle.tooling.model.GradleProject} synchronously and broadcasts it through a {@link com.gradleware.tooling.domain.GradleProjectUpdateEvent}.
-//     *
-//     * @param transientRequestAttributes the transient request attributes
-//     * @param fetchStrategy the fetch strategy
-//     * @return the gradle project, never null unless strategy {@link com.gradleware.tooling.domain.FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
-//     */
-//    GradleProject fetchGradleProjectAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
-//
+    /**
+     * Fetches the {@link org.gradle.tooling.model.GradleProject} synchronously and broadcasts it through a {@link com.gradleware.tooling.domain.GradleProjectUpdateEvent}.
+     *
+     * @param transientRequestAttributes the transient request attributes
+     * @param fetchStrategy the fetch strategy
+     * @return the gradle project, never null unless strategy {@link com.gradleware.tooling.domain.FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
+     */
+    GradleProject fetchGradleProjectAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
+
 //    /**
 //     * Fetches the {@link org.gradle.tooling.model.gradle.BuildInvocations} synchronously and broadcasts them through a {@link com.gradleware.tooling.domain.BuildInvocationsUpdateEvent}.
 //     *

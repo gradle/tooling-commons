@@ -4,10 +4,12 @@ import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
 import com.google.common.eventbus.Subscribe
 import com.gradleware.tooling.domain.BuildEnvironmentUpdateEvent
+import com.gradleware.tooling.domain.BuildInvocationsUpdateEvent
 import com.gradleware.tooling.domain.Environment
 import com.gradleware.tooling.domain.FetchStrategy
 import com.gradleware.tooling.domain.FixedRequestAttributes
 import com.gradleware.tooling.domain.GradleBuildUpdateEvent
+import com.gradleware.tooling.domain.GradleProjectUpdateEvent
 import com.gradleware.tooling.domain.TransientRequestAttributes
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DataValueFormatter
@@ -19,6 +21,7 @@ import com.gradleware.tooling.toolingapi.GradleDistribution
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
+import org.gradle.tooling.model.GradleProject
 import org.gradle.tooling.model.build.BuildEnvironment
 import org.gradle.tooling.model.gradle.GradleBuild
 import org.gradle.util.GradleVersion
@@ -47,7 +50,10 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
        include 'sub2'
        include 'sub2:subSub1'
     '''
-    directoryProvider.createFile('build.gradle') << 'task myTask {}'
+    directoryProvider.createFile('build.gradle') << '''
+       description = 'a sample root project'
+       task myTask {}
+    '''
 
     directoryProvider.createDir('sub1')
     directoryProvider.createFile('sub1', 'build.gradle') << '''
@@ -193,6 +199,100 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
+  def "fetchGradleProjectAndWait - send event after cache update"(GradleDistribution distribution, Environment environment) {
+    given:
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def repository = new NewDefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
+
+    AtomicReference<GradleProjectUpdateEvent> publishedEvent = new AtomicReference<>();
+    AtomicReference<GradleProject> modelInRepository = new AtomicReference<>();
+    repository.register(new Object() {
+
+      @SuppressWarnings("GroovyUnusedDeclaration")
+      @Subscribe
+      public void listen(GradleProjectUpdateEvent event) {
+        publishedEvent.set(event)
+        modelInRepository.set(repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
+      }
+    })
+
+    when:
+    GradleProject gradleProject = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+
+    then:
+    gradleProject != null
+    gradleProject.name == 'my root project'
+    gradleProject.description == 'a sample root project'
+    gradleProject.path == ':'
+    gradleProject.tasks.size() == getImplicitlyAddedGradleProjectTasksCount(distribution) + 1
+    gradleProject.parent == null
+    gradleProject.children.size() == 2
+    gradleProject.children*.name as Set == ['sub1', 'sub2'] as Set
+    gradleProject.children*.path as Set == [':sub1', ':sub2'] as Set
+    gradleProject.children*.parent as Set == [gradleProject] as Set
+
+    if (higherOrEqual("1.8", distribution)) {
+      gradleProject.buildScript.sourceFile.absolutePath == directoryProvider.file('build.gradle').absolutePath
+    } else {
+      try {
+        gradleProject.buildScript
+        Assert.fail("GradleProject#buildScript should not be supported", distribution)
+      } catch (Exception ignored) {
+        // expected
+      }
+    }
+
+    if (higherOrEqual("2.0", distribution)) {
+      gradleProject.buildDirectory.absolutePath == new File(directoryProvider.testDirectory, 'build').absolutePath
+    } else {
+      try {
+        gradleProject.buildDirectory
+        Assert.fail("GradleProject#buildDirectory should not be supported", distribution)
+      } catch (Exception ignored) {
+        // expected
+      }
+    }
+
+    def event = publishedEvent.get()
+    event != null
+    event.gradleProject == gradleProject
+
+    def model = modelInRepository.get()
+    model == gradleProject
+
+    where:
+    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+  }
+
+  def "fetchGradleProjectAndWait - when exception is thrown"(GradleDistribution distribution, Environment environment) {
+    given:
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def repository = new NewDefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
+
+    AtomicReference<BuildInvocationsUpdateEvent> publishedEvent = new AtomicReference<>();
+    repository.register(new Object() {
+
+      @SuppressWarnings("GroovyUnusedDeclaration")
+      @Subscribe
+      public void listen(BuildInvocationsUpdateEvent event) {
+        publishedEvent.set(event)
+      }
+    })
+
+    when:
+    repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+
+    then:
+    thrown(GradleConnectionException)
+
+    publishedEvent.get() == null
+
+    where:
+    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+  }
+
   def "registerUnregister - no more events are sent to receiver once he is unregistered"() {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
@@ -224,6 +324,12 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
 
     then:
     publishedEvent.get() == null
+  }
+
+  private static int getImplicitlyAddedGradleProjectTasksCount(GradleDistribution distribution) {
+    // tasks implicitly provided by GradleProject#getTasks(): setupBuild
+    def version = GradleVersion.version(extractVersion(distribution))
+    version.compareTo(GradleVersion.version("1.6")) == 0 ? 1 : 0
   }
 
   private static boolean higherOrEqual(String referenceVersion, GradleDistribution distribution) {
