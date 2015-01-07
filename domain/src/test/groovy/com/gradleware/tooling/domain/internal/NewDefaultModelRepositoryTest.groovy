@@ -40,12 +40,26 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
   TestDirectoryProvider directoryProviderErroneousBuildFile = new TestDirectoryProvider();
 
   def setup() {
-    // Gradle projects for testing
-    directoryProvider.createFile('settings.gradle') << "rootProject.name = 'my root project'"
+    // prepare a Gradle build that has a root project and two child projects
+    directoryProvider.createFile('settings.gradle') << '''
+       rootProject.name = 'my root project'
+       include 'sub1'
+       include 'sub2'
+    '''
     directoryProvider.createFile('build.gradle') << 'task myTask {}'
 
+    directoryProvider.createDir('sub1')
+    directoryProvider.createFile('sub1', 'build.gradle') << '''
+    '''
+
+    directoryProvider.createDir('sub2')
+    directoryProvider.createFile('sub2', 'build.gradle') << '''
+    '''
+
+    // prepare a Gradle build that has an erroneous structure
     directoryProviderErroneousBuildStructure.createFile('settings.gradle') << 'include foo'
 
+    // prepare a Gradle build that has a valid structure but an erroneous build script
     directoryProviderErroneousBuildFile.createFile('settings.gradle')
     directoryProviderErroneousBuildFile.createFile('build.gradle') << 'task myTask {'
   }
@@ -117,8 +131,12 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     gradleBuild.rootProject.name == 'my root project'
     gradleBuild.rootProject.path == ':'
     gradleBuild.rootProject.parent == null
-    gradleBuild.rootProject.children.size() == 0
-    gradleBuild.projects.size() == 1
+    gradleBuild.rootProject.children.size() == 2
+    gradleBuild.rootProject.children*.name as Set == ['sub1', 'sub2'] as Set
+    gradleBuild.rootProject.children*.path as Set == [':sub1', ':sub2'] as Set
+    gradleBuild.rootProject.children*.parent as Set == [gradleBuild.rootProject] as Set
+    gradleBuild.projects.size() == 3
+    gradleBuild.projects*.name as Set == ['my root project', 'sub1', 'sub2'] as Set
 
     if (higherOrEqual("1.8", distribution)) {
       gradleBuild.rootProject.projectDirectory.absolutePath == directoryProvider.testDirectory.absolutePath
@@ -126,7 +144,7 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
       try {
         gradleBuild.rootProject.projectDirectory
         Assert.fail("BasicGradleProject#projectDirectory should not be supported", distribution)
-      } catch (Exception e) {
+      } catch (Exception ignored) {
         // expected
       }
     }
@@ -170,7 +188,7 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
-  def "registerUnregister"() {
+  def "registerUnregister - no more events are sent to receiver once he is unregistered"() {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
