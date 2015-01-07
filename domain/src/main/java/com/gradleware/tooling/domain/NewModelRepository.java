@@ -1,6 +1,7 @@
 package com.gradleware.tooling.domain;
 
 import org.gradle.tooling.model.build.BuildEnvironment;
+import org.gradle.tooling.model.gradle.GradleBuild;
 
 /**
  * Repository for Gradle build models. Listeners can be registered to get notified about model updates. It is left to the implementation through which channel the events are
@@ -31,15 +32,15 @@ public interface NewModelRepository {
      */
     BuildEnvironment fetchBuildEnvironmentAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
-//    /**
-//     * Fetches the {@link org.gradle.tooling.model.gradle.GradleBuild} synchronously and broadcasts it through a {@link com.gradleware.tooling.domain.GradleBuildUpdateEvent}.
-//     *
-//     * @param transientRequestAttributes the transient request attributes
-//     * @param fetchStrategy the fetch strategy
-//     * @return the gradle build, never null unless strategy {@link com.gradleware.tooling.domain.FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
-//     */
-//    GradleBuild fetchGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
-//
+    /**
+     * Fetches the {@link org.gradle.tooling.model.gradle.GradleBuild} synchronously and broadcasts it through a {@link com.gradleware.tooling.domain.GradleBuildUpdateEvent}.
+     *
+     * @param transientRequestAttributes the transient request attributes
+     * @param fetchStrategy the fetch strategy
+     * @return the gradle build, never null unless strategy {@link com.gradleware.tooling.domain.FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
+     */
+    GradleBuild fetchGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
+
 //    /**
 //     * Fetches the {@link org.gradle.tooling.model.eclipse.EclipseProject} synchronously and broadcasts it through a {@link com.gradleware.tooling.domain.EclipseProjectUpdateEvent}.
 //     *

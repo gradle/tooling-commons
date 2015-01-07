@@ -7,6 +7,7 @@ import com.gradleware.tooling.domain.BuildEnvironmentUpdateEvent
 import com.gradleware.tooling.domain.Environment
 import com.gradleware.tooling.domain.FetchStrategy
 import com.gradleware.tooling.domain.FixedRequestAttributes
+import com.gradleware.tooling.domain.GradleBuildUpdateEvent
 import com.gradleware.tooling.domain.TransientRequestAttributes
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DataValueFormatter
@@ -18,7 +19,10 @@ import com.gradleware.tooling.toolingapi.GradleDistribution
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
 import org.gradle.tooling.model.build.BuildEnvironment
+import org.gradle.tooling.model.gradle.GradleBuild
+import org.gradle.util.GradleVersion
 import org.junit.Rule
+import org.spockframework.util.Assert
 
 import java.util.concurrent.atomic.AtomicReference
 
@@ -36,7 +40,7 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
 
   def setup() {
     // Gradle projects for testing
-    directoryProvider.createFile('settings.gradle')
+    directoryProvider.createFile('settings.gradle') << "rootProject.name = 'my root project'"
     directoryProvider.createFile('build.gradle') << 'task myTask {}'
 
     directoryProviderErroneousBuildStructure.createFile('settings.gradle') << 'include foo'
@@ -64,7 +68,7 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     })
 
     when:
-    def buildEnvironment = repository.fetchBuildEnvironmentAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    BuildEnvironment buildEnvironment = repository.fetchBuildEnvironmentAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
     buildEnvironment != null
@@ -85,27 +89,58 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
-//  def "fetchGradleBuildAndWait"() {
-//    given:
-//    AtomicReference<GradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
-//    repository.register(new Object() {
-//
-//      @Subscribe
-//      public void listen(GradleBuildUpdateEvent event) {
-//        publishedEvent.set(event)
-//      }
-//    })
-//
-//    when:
-//    repository.fetchGradleBuildAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-//
-//    then:
-//    def event = publishedEvent.get()
-//    event != null
-//    publishedEvent.get().gradleBuild != null
-//    publishedEvent.get().gradleBuild.rootProject != null
-//  }
-//
+  def "fetchGradleBuildAndWait - send event after cache update"(GradleDistribution distribution, Environment environment) {
+    given:
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def repository = new NewDefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
+
+    AtomicReference<GradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
+    AtomicReference<GradleBuild> modelInRepository = new AtomicReference<>();
+    repository.register(new Object() {
+
+      @SuppressWarnings("GroovyUnusedDeclaration")
+      @Subscribe
+      public void listen(GradleBuildUpdateEvent event) {
+        publishedEvent.set(event)
+        modelInRepository.set(repository.fetchGradleBuildAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
+      }
+    })
+
+    when:
+    GradleBuild gradleBuild = repository.fetchGradleBuildAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+
+    then:
+    gradleBuild != null
+    gradleBuild.rootProject != null
+    gradleBuild.rootProject.name == 'my root project'
+    gradleBuild.rootProject.path == ':'
+    gradleBuild.rootProject.parent == null
+    gradleBuild.rootProject.children.size() == 0
+    gradleBuild.projects.size() == 1
+
+    if (higherOrEqual("1.8", distribution)) {
+      gradleBuild.rootProject.projectDirectory.absolutePath == directoryProvider.testDirectory.absolutePath
+    } else {
+      try {
+        gradleBuild.rootProject.projectDirectory
+        Assert.fail("BasicGradleProject#projectDirectory should not be supported", distribution)
+      } catch (Exception e) {
+        // expected
+      }
+    }
+
+    def event = publishedEvent.get()
+    event != null
+    event.gradleBuild == gradleBuild
+
+    def model = modelInRepository.get()
+    model == gradleBuild
+
+    where:
+    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+  }
+
 //  def "fetchGradleBuildAndWaitWhenExceptionIsThrown"() {
 //    given:
 //    def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildStructure.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
@@ -161,6 +196,11 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
 
     then:
     publishedEvent.get() == null
+  }
+
+  private static boolean higherOrEqual(String referenceVersion, GradleDistribution distribution) {
+    def gradleVersion = GradleVersion.version(extractVersion(distribution))
+    gradleVersion.compareTo(GradleVersion.version(referenceVersion)) >= 0
   }
 
   @SuppressWarnings(["GroovyAssignabilityCheck", "GroovyAccessibility"])
