@@ -57,14 +57,36 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
 
     directoryProvider.createDir('sub1')
     directoryProvider.createFile('sub1', 'build.gradle') << '''
+       description = 'sub project 1'
+       task myFirstTaskOfSub1 {
+         description = '1st task of sub1'
+         group = 'build'
+       }
+       task mySecondTaskOfSub1 {
+         description = '2nd task of sub1'
+       }
     '''
 
     directoryProvider.createDir('sub2')
     directoryProvider.createFile('sub2', 'build.gradle') << '''
+       description = 'sub project 2'
+       task myFirstTaskOfSub2 {
+         description = '1st task of sub2'
+       }
+       task mySecondTaskOfSub2 {
+         description = '2nd task of sub2'
+       }
     '''
 
     directoryProvider.createDir('sub2', 'subSub1')
     directoryProvider.createFile('sub2', 'subSub1', 'build.gradle') << '''
+       description = 'subSub project 1 of sub project 2'
+       task myFirstTaskOfSub2subSub1{
+         description = '1st task of sub2:subSub1'
+       }
+       task mySecondTaskOfSub2subSub1{
+         description = '2nd task of sub2:subSub1'
+       }
     '''
 
     // prepare a Gradle build that has an erroneous structure
@@ -229,6 +251,7 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     gradleProject.parent == null
     gradleProject.children.size() == 2
     gradleProject.children*.name as Set == ['sub1', 'sub2'] as Set
+    gradleProject.children*.description as Set == ['sub project 1', 'sub project 2'] as Set
     gradleProject.children*.path as Set == [':sub1', ':sub2'] as Set
     gradleProject.children*.parent as Set == [gradleProject] as Set
 
@@ -249,6 +272,24 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
       try {
         gradleProject.buildDirectory
         Assert.fail("GradleProject#buildDirectory should not be supported", distribution)
+      } catch (Exception ignored) {
+        // expected
+      }
+    }
+
+    gradleProject.findByPath(':sub1').tasks.size() == 2
+    def myFirstTaskOfSub1 = gradleProject.findByPath(':sub1').tasks.find { it.name == 'myFirstTaskOfSub1' }
+    myFirstTaskOfSub1.description == '1st task of sub1'
+    myFirstTaskOfSub1.displayName == "task ':sub1:myFirstTaskOfSub1'"
+
+    if (GradleVersion.version(extractVersion(distribution)).version.startsWith("2.3")) {
+      assert myFirstTaskOfSub1.public
+    } else if (higherOrEqual("2.1", distribution)) {
+      assert !myFirstTaskOfSub1.public
+    } else {
+      try {
+        myFirstTaskOfSub1.public
+        Assert.fail("GradleTask#public should not be supported", distribution)
       } catch (Exception ignored) {
         // expected
       }
