@@ -2,7 +2,11 @@ package com.gradleware.tooling.domain.internal
 
 import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
-import com.gradleware.tooling.domain.*
+import com.gradleware.tooling.domain.BuildInvocationsContainer
+import com.gradleware.tooling.domain.Environment
+import com.gradleware.tooling.domain.FetchStrategy
+import com.gradleware.tooling.domain.FixedRequestAttributes
+import com.gradleware.tooling.domain.TransientRequestAttributes
 import com.gradleware.tooling.domain.util.Pair
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DataValueFormatter
@@ -249,14 +253,32 @@ rootProject.name = 'TestProject'
     GradleVersionParameterization.Default.INSTANCE.getPermutations(versionPattern, Environment.values() as List)
   }
 
+  /**
+   * Custom formatting for the {@link GradleDistribution} data value used in Spock test parameterization. The main purpose is to have shorter string representations than what is
+   * returned by {@link GradleDistribution#toString()}. The main reason being that TeamCity truncates long test names which leads to tests with identical names and a false test
+   * count is displayed as a consequence.
+   */
   public static class GradleDistributionFormatter implements DataValueFormatter {
 
+    @SuppressWarnings("GroovyAccessibility")
     @Override
     public String format(Object input) {
       if (input instanceof GradleDistribution) {
-        def gradleDistribution = (GradleDistribution) input
+        if (input.localInstallationDir != null) {
+          // extract last path segment from path
+          File dir = input.localInstallationDir
+          return dir.absolutePath.substring(dir.absolutePath.lastIndexOf('/' + 1))
+        } else if (input.remoteDistributionUri != null) {
+          // convert https://services.gradle.org/distributions-snapshots/gradle-2.3-20141212203103+0000-bin.zip to 2.3-20141212203103+0000
+          URI uri = input.remoteDistributionUri
+          def lastPathSegment = uri.path.substring(uri.path.lastIndexOf('/') + 1)
+          return lastPathSegment.substring("gradle-".length(), lastPathSegment.lastIndexOf('-'))
+        } else if (input.version != null) {
+          // no conversion necessary
+          return input.version
+        }
       }
-      return String.valueOf(input);
+      String.valueOf(input);
     }
 
   }
