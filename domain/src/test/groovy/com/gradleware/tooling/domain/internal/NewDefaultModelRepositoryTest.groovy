@@ -1,4 +1,5 @@
 package com.gradleware.tooling.domain.internal
+
 import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
 import com.google.common.eventbus.Subscribe
@@ -6,13 +7,15 @@ import com.gradleware.tooling.domain.BuildInvocationsUpdateEvent
 import com.gradleware.tooling.domain.Environment
 import com.gradleware.tooling.domain.FetchStrategy
 import com.gradleware.tooling.domain.FixedRequestAttributes
-import com.gradleware.tooling.domain.GradleBuildUpdateEvent
 import com.gradleware.tooling.domain.GradleProjectUpdateEvent
 import com.gradleware.tooling.domain.NewBuildEnvironmentUpdateEvent
+import com.gradleware.tooling.domain.NewGradleBuildStructureUpdateEvent
 import com.gradleware.tooling.domain.TransientRequestAttributes
+import com.gradleware.tooling.domain.model.BasicGradleProjectFields
 import com.gradleware.tooling.domain.model.GradleEnvironmentFields
 import com.gradleware.tooling.domain.model.JavaEnvironmentFields
 import com.gradleware.tooling.domain.model.OmniBuildEnvironment
+import com.gradleware.tooling.domain.model.OmniGradleBuildStructure
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DataValueFormatter
 import com.gradleware.tooling.spock.DomainToolingClientSpecification
@@ -24,7 +27,6 @@ import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
 import org.gradle.tooling.model.GradleProject
-import org.gradle.tooling.model.gradle.GradleBuild
 import org.gradle.util.GradleVersion
 import org.junit.Rule
 import org.spockframework.util.Assert
@@ -144,51 +146,42 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
     def repository = new NewDefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
 
-    AtomicReference<GradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
-    AtomicReference<GradleBuild> modelInRepository = new AtomicReference<>();
+    AtomicReference<NewGradleBuildStructureUpdateEvent> publishedEvent = new AtomicReference<>();
+    AtomicReference<OmniGradleBuildStructure> modelInRepository = new AtomicReference<>();
     repository.register(new Object() {
 
       @SuppressWarnings("GroovyUnusedDeclaration")
       @Subscribe
-      public void listen(GradleBuildUpdateEvent event) {
+      public void listen(NewGradleBuildStructureUpdateEvent event) {
         publishedEvent.set(event)
         modelInRepository.set(repository.fetchGradleBuildAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
       }
     })
 
     when:
-    GradleBuild gradleBuild = repository.fetchGradleBuildAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    OmniGradleBuildStructure gradleBuildStructure = repository.fetchGradleBuildAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
-    gradleBuild != null
-    gradleBuild.rootProject != null
-    gradleBuild.rootProject.name == 'my root project'
-    gradleBuild.rootProject.path == ':'
-    gradleBuild.rootProject.parent == null
-    gradleBuild.rootProject.children.size() == 2
-    gradleBuild.rootProject.children*.name as Set == ['sub1', 'sub2'] as Set
-    gradleBuild.rootProject.children*.path as Set == [':sub1', ':sub2'] as Set
-    gradleBuild.rootProject.children*.parent as Set == [gradleBuild.rootProject] as Set
-    gradleBuild.projects.size() == 4
-    gradleBuild.projects*.name as Set == ['my root project', 'sub1', 'sub2', 'subSub1'] as Set
-
-    if (higherOrEqual("1.8", distribution)) {
-      gradleBuild.rootProject.projectDirectory.absolutePath == directoryProvider.testDirectory.absolutePath
-    } else {
-      try {
-        gradleBuild.rootProject.projectDirectory
-        Assert.fail("BasicGradleProject#projectDirectory should not be supported", distribution)
-      } catch (Exception ignored) {
-        // expected
-      }
-    }
+    gradleBuildStructure != null
+    gradleBuildStructure.rootProject != null
+    gradleBuildStructure.rootProject.get(BasicGradleProjectFields.NAME) == 'my root project'
+    gradleBuildStructure.rootProject.get(BasicGradleProjectFields.PATH) == ':'
+    gradleBuildStructure.rootProject.get(BasicGradleProjectFields.PROJECT_DIRECTORY)?.absolutePath == (higherOrEqual("1.8", distribution) ? directoryProvider.testDirectory.absolutePath : null)
+    gradleBuildStructure.rootProject.parent == null
+    gradleBuildStructure.rootProject.children.size() == 2
+    gradleBuildStructure.rootProject.children*.get(BasicGradleProjectFields.NAME) as Set == ['sub1', 'sub2'] as Set
+    gradleBuildStructure.rootProject.children*.get(BasicGradleProjectFields.PATH) as Set == [':sub1', ':sub2'] as Set
+    gradleBuildStructure.rootProject.children*.get(BasicGradleProjectFields.PROJECT_DIRECTORY).collect { it?.absolutePath } as Set == (higherOrEqual("1.8", distribution) ? ['sub1', 'sub2'].collect { new File(directoryProvider.testDirectory, it).absolutePath } as Set : [null] as Set)
+    gradleBuildStructure.rootProject.children*.parent as Set == [gradleBuildStructure.rootProject] as Set
+    gradleBuildStructure.rootProject.descendants.size() == 4
+    gradleBuildStructure.rootProject.descendants*.get(BasicGradleProjectFields.NAME) as Set == ['my root project', 'sub1', 'sub2', 'subSub1'] as Set
 
     def event = publishedEvent.get()
     event != null
-    event.gradleBuild == gradleBuild
+    event.gradleBuildStructure == gradleBuildStructure
 
     def model = modelInRepository.get()
-    model == gradleBuild
+    model == gradleBuildStructure
 
     where:
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
@@ -200,12 +193,12 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
     def repository = new NewDefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
 
-    AtomicReference<GradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
+    AtomicReference<NewGradleBuildStructureUpdateEvent> publishedEvent = new AtomicReference<>();
     repository.register(new Object() {
 
       @SuppressWarnings("GroovyUnusedDeclaration")
       @Subscribe
-      public void listen(GradleBuildUpdateEvent event) {
+      public void listen(NewGradleBuildStructureUpdateEvent event) {
         publishedEvent.set(event)
       }
     })

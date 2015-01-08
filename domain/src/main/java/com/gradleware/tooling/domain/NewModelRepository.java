@@ -1,8 +1,8 @@
 package com.gradleware.tooling.domain;
 
 import com.gradleware.tooling.domain.model.OmniBuildEnvironment;
+import com.gradleware.tooling.domain.model.OmniGradleBuildStructure;
 import org.gradle.tooling.model.GradleProject;
-import org.gradle.tooling.model.gradle.GradleBuild;
 
 /**
  * Repository for Gradle build models. Listeners can be registered to get notified about model updates. It is left to the implementation through which channel the events are
@@ -25,7 +25,7 @@ public interface NewModelRepository {
     void unregister(Object listener);
 
     /**
-     * Fetches the {@link OmniBuildEnvironment} synchronously and broadcasts it through a {@link com.gradleware.tooling.domain.NewBuildEnvironmentUpdateEvent}.
+     * Fetches the {@link OmniBuildEnvironment} synchronously and broadcasts it through a {@link NewBuildEnvironmentUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
      * @param fetchStrategy the fetch strategy
@@ -34,13 +34,13 @@ public interface NewModelRepository {
     OmniBuildEnvironment fetchBuildEnvironmentAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
     /**
-     * Fetches the {@link org.gradle.tooling.model.gradle.GradleBuild} synchronously and broadcasts it through a {@link com.gradleware.tooling.domain.GradleBuildUpdateEvent}.
+     * Fetches the {@link OmniGradleBuildStructure} synchronously and broadcasts it through a {@link NewGradleBuildStructureUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
      * @param fetchStrategy the fetch strategy
      * @return the gradle build, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
      */
-    GradleBuild fetchGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
+    OmniGradleBuildStructure fetchGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
 //    /**
 //     * Fetches the {@link org.gradle.tooling.model.eclipse.EclipseProject} synchronously and broadcasts it through a {@link com.gradleware.tooling.domain.EclipseProjectUpdateEvent}.

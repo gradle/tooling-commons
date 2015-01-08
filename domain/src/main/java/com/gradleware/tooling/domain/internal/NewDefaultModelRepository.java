@@ -8,15 +8,17 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.gradleware.tooling.domain.FetchStrategy;
 import com.gradleware.tooling.domain.FixedRequestAttributes;
-import com.gradleware.tooling.domain.GradleBuildUpdateEvent;
 import com.gradleware.tooling.domain.GradleProjectUpdateEvent;
 import com.gradleware.tooling.domain.NewBuildEnvironmentUpdateEvent;
+import com.gradleware.tooling.domain.NewGradleBuildStructureUpdateEvent;
 import com.gradleware.tooling.domain.NewModelRepository;
 import com.gradleware.tooling.domain.TransientRequestAttributes;
 import com.gradleware.tooling.domain.buildaction.BuildActionFactory;
 import com.gradleware.tooling.domain.buildaction.ModelForAllProjectsBuildAction;
-import com.gradleware.tooling.domain.model.internal.DefaultOmniBuildEnvironment;
 import com.gradleware.tooling.domain.model.OmniBuildEnvironment;
+import com.gradleware.tooling.domain.model.OmniGradleBuildStructure;
+import com.gradleware.tooling.domain.model.internal.DefaultOmniBuildEnvironment;
+import com.gradleware.tooling.domain.model.internal.DefaultOmniGradleBuildStructure;
 import com.gradleware.tooling.domain.util.BaseConverter;
 import com.gradleware.tooling.toolingapi.BuildActionRequest;
 import com.gradleware.tooling.toolingapi.Consumer;
@@ -97,23 +99,32 @@ public final class NewDefaultModelRepository implements NewModelRepository {
             }
 
         };
+
         return executeRequest(request, successHandler, fetchStrategy, OmniBuildEnvironment.class, converter);
     }
 
     @Override
-    public GradleBuild fetchGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
+    public OmniGradleBuildStructure fetchGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         Preconditions.checkNotNull(transientRequestAttributes);
         Preconditions.checkNotNull(fetchStrategy);
 
         ModelRequest<GradleBuild> request = createModelRequestForBuildModel(GradleBuild.class, transientRequestAttributes);
-        Consumer<GradleBuild> successHandler = new Consumer<GradleBuild>() {
+        Consumer<OmniGradleBuildStructure> successHandler = new Consumer<OmniGradleBuildStructure>() {
             @Override
-            public void accept(GradleBuild result) {
-                eventBus.post(new GradleBuildUpdateEvent(result));
+            public void accept(OmniGradleBuildStructure result) {
+                eventBus.post(new NewGradleBuildStructureUpdateEvent(result));
             }
         };
+        Converter<GradleBuild, OmniGradleBuildStructure> converter = new BaseConverter<GradleBuild, OmniGradleBuildStructure>() {
 
-        return executeRequest(request, successHandler, fetchStrategy, GradleBuild.class);
+            @Override
+            protected OmniGradleBuildStructure doForward(GradleBuild gradleBuild) {
+                return DefaultOmniGradleBuildStructure.from(gradleBuild);
+            }
+
+        };
+
+        return executeRequest(request, successHandler, fetchStrategy, OmniGradleBuildStructure.class, converter);
     }
 
     //    @Override
