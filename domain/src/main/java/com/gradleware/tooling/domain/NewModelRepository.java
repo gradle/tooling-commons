@@ -1,7 +1,7 @@
 package com.gradleware.tooling.domain;
 
+import com.gradleware.tooling.domain.model.OmniBuildEnvironment;
 import org.gradle.tooling.model.GradleProject;
-import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.gradle.GradleBuild;
 
 /**
@@ -25,20 +25,20 @@ public interface NewModelRepository {
     void unregister(Object listener);
 
     /**
-     * Fetches the {@link org.gradle.tooling.model.build.BuildEnvironment} synchronously and broadcasts it through a {@link com.gradleware.tooling.domain.BuildEnvironmentUpdateEvent}.
+     * Fetches the {@link OmniBuildEnvironment} synchronously and broadcasts it through a {@link com.gradleware.tooling.domain.NewBuildEnvironmentUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
      * @param fetchStrategy the fetch strategy
-     * @return the build environment, never null unless strategy {@link com.gradleware.tooling.domain.FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
+     * @return the build environment, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
      */
-    BuildEnvironment fetchBuildEnvironmentAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
+    OmniBuildEnvironment fetchBuildEnvironmentAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
     /**
      * Fetches the {@link org.gradle.tooling.model.gradle.GradleBuild} synchronously and broadcasts it through a {@link com.gradleware.tooling.domain.GradleBuildUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
      * @param fetchStrategy the fetch strategy
-     * @return the gradle build, never null unless strategy {@link com.gradleware.tooling.domain.FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
+     * @return the gradle build, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
      */
     GradleBuild fetchGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
@@ -47,7 +47,7 @@ public interface NewModelRepository {
 //     *
 //     * @param transientRequestAttributes the transient request attributes
 //     * @param fetchStrategy the fetch strategy
-//     * @return the eclipse project, never null unless strategy {@link com.gradleware.tooling.domain.FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
+//     * @return the eclipse project, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
 //     */
 //    EclipseProject fetchEclipseProjectAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 //
@@ -56,7 +56,7 @@ public interface NewModelRepository {
      *
      * @param transientRequestAttributes the transient request attributes
      * @param fetchStrategy the fetch strategy
-     * @return the gradle project, never null unless strategy {@link com.gradleware.tooling.domain.FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
+     * @return the gradle project, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
      */
     GradleProject fetchGradleProjectAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
@@ -65,7 +65,7 @@ public interface NewModelRepository {
 //     *
 //     * @param transientRequestAttributes the transient request attributes
 //     * @param fetchStrategy the fetch strategy
-//     * @return the build invocations, never null unless strategy {@link com.gradleware.tooling.domain.FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
+//     * @return the build invocations, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
 //     */
 //    BuildInvocationsContainer fetchBuildInvocationsAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 //
@@ -75,7 +75,7 @@ public interface NewModelRepository {
 //     *
 //     * @param transientRequestAttributes the transient request attributes
 //     * @param fetchStrategy the fetch strategy
-//     * @return the gradle project and build invocations, pair values never null unless strategy {@link com.gradleware.tooling.domain.FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
+//     * @return the gradle project and build invocations, pair values never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
 //     */
 //    Pair<GradleProject, BuildInvocationsContainer> fetchGradleProjectWithBuildInvocationsAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 

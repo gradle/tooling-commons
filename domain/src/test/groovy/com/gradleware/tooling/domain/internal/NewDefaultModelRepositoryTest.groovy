@@ -1,16 +1,18 @@
 package com.gradleware.tooling.domain.internal
-
 import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
 import com.google.common.eventbus.Subscribe
-import com.gradleware.tooling.domain.BuildEnvironmentUpdateEvent
 import com.gradleware.tooling.domain.BuildInvocationsUpdateEvent
 import com.gradleware.tooling.domain.Environment
 import com.gradleware.tooling.domain.FetchStrategy
 import com.gradleware.tooling.domain.FixedRequestAttributes
 import com.gradleware.tooling.domain.GradleBuildUpdateEvent
 import com.gradleware.tooling.domain.GradleProjectUpdateEvent
+import com.gradleware.tooling.domain.NewBuildEnvironmentUpdateEvent
 import com.gradleware.tooling.domain.TransientRequestAttributes
+import com.gradleware.tooling.domain.model.GradleEnvironmentFields
+import com.gradleware.tooling.domain.model.JavaEnvironmentFields
+import com.gradleware.tooling.domain.model.OmniBuildEnvironment
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DataValueFormatter
 import com.gradleware.tooling.spock.DomainToolingClientSpecification
@@ -22,7 +24,6 @@ import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
 import org.gradle.tooling.model.GradleProject
-import org.gradle.tooling.model.build.BuildEnvironment
 import org.gradle.tooling.model.gradle.GradleBuild
 import org.gradle.util.GradleVersion
 import org.junit.Rule
@@ -103,28 +104,28 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
     def repository = new NewDefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
 
-    AtomicReference<BuildEnvironmentUpdateEvent> publishedEvent = new AtomicReference<>();
-    AtomicReference<BuildEnvironment> modelInRepository = new AtomicReference<>();
+    AtomicReference<NewBuildEnvironmentUpdateEvent> publishedEvent = new AtomicReference<>();
+    AtomicReference<OmniBuildEnvironment> modelInRepository = new AtomicReference<>();
     repository.register(new Object() {
 
       @SuppressWarnings("GroovyUnusedDeclaration")
       @Subscribe
-      public void listen(BuildEnvironmentUpdateEvent event) {
+      public void listen(NewBuildEnvironmentUpdateEvent event) {
         publishedEvent.set(event)
         modelInRepository.set(repository.fetchBuildEnvironmentAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
       }
     })
 
     when:
-    BuildEnvironment buildEnvironment = repository.fetchBuildEnvironmentAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    OmniBuildEnvironment buildEnvironment = repository.fetchBuildEnvironmentAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
     buildEnvironment != null
     buildEnvironment.gradle != null
-    buildEnvironment.gradle.gradleVersion == extractVersion(distribution)
+    buildEnvironment.gradle.get(GradleEnvironmentFields.GRADLE_VERSION) == extractVersion(distribution)
     buildEnvironment.java != null
-    buildEnvironment.java.javaHome != null
-    buildEnvironment.java.jvmArguments.size() > 0
+    buildEnvironment.java.get(JavaEnvironmentFields.JAVA_HOME) != null
+    buildEnvironment.java.get(JavaEnvironmentFields.JVM_ARGS).size() > 0
 
     def event = publishedEvent.get()
     event != null
@@ -340,12 +341,12 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
     def repository = new NewDefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
 
-    AtomicReference<BuildEnvironmentUpdateEvent> publishedEvent = new AtomicReference<>();
+    AtomicReference<NewBuildEnvironmentUpdateEvent> publishedEvent = new AtomicReference<>();
     def listener = new Object() {
 
       @SuppressWarnings("GroovyUnusedDeclaration")
       @Subscribe
-      public void listen(BuildEnvironmentUpdateEvent event) {
+      public void listen(NewBuildEnvironmentUpdateEvent event) {
         publishedEvent.set(event)
       }
     }

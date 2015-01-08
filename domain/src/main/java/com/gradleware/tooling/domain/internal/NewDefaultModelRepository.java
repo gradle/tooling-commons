@@ -6,15 +6,18 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.UncheckedExecutionException;
-import com.gradleware.tooling.domain.BuildEnvironmentUpdateEvent;
 import com.gradleware.tooling.domain.FetchStrategy;
 import com.gradleware.tooling.domain.FixedRequestAttributes;
 import com.gradleware.tooling.domain.GradleBuildUpdateEvent;
 import com.gradleware.tooling.domain.GradleProjectUpdateEvent;
+import com.gradleware.tooling.domain.NewBuildEnvironmentUpdateEvent;
 import com.gradleware.tooling.domain.NewModelRepository;
 import com.gradleware.tooling.domain.TransientRequestAttributes;
 import com.gradleware.tooling.domain.buildaction.BuildActionFactory;
 import com.gradleware.tooling.domain.buildaction.ModelForAllProjectsBuildAction;
+import com.gradleware.tooling.domain.model.internal.DefaultOmniBuildEnvironment;
+import com.gradleware.tooling.domain.model.OmniBuildEnvironment;
+import com.gradleware.tooling.domain.util.BaseConverter;
 import com.gradleware.tooling.toolingapi.BuildActionRequest;
 import com.gradleware.tooling.toolingapi.Consumer;
 import com.gradleware.tooling.toolingapi.ModelRequest;
@@ -74,19 +77,27 @@ public final class NewDefaultModelRepository implements NewModelRepository {
     }
 
     @Override
-    public BuildEnvironment fetchBuildEnvironmentAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
+    public OmniBuildEnvironment fetchBuildEnvironmentAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         Preconditions.checkNotNull(transientRequestAttributes);
         Preconditions.checkNotNull(fetchStrategy);
 
         ModelRequest<BuildEnvironment> request = createModelRequestForBuildModel(BuildEnvironment.class, transientRequestAttributes);
-        Consumer<BuildEnvironment> successHandler = new Consumer<BuildEnvironment>() {
+        Consumer<OmniBuildEnvironment> successHandler = new Consumer<OmniBuildEnvironment>() {
+
             @Override
-            public void accept(BuildEnvironment result) {
-                eventBus.post(new BuildEnvironmentUpdateEvent(result));
+            public void accept(OmniBuildEnvironment result) {
+                eventBus.post(new NewBuildEnvironmentUpdateEvent(result));
             }
         };
+        Converter<BuildEnvironment, OmniBuildEnvironment> converter = new BaseConverter<BuildEnvironment, OmniBuildEnvironment>() {
 
-        return executeRequest(request, successHandler, fetchStrategy, BuildEnvironment.class);
+            @Override
+            protected OmniBuildEnvironment doForward(BuildEnvironment buildEnvironment) {
+                return DefaultOmniBuildEnvironment.from(buildEnvironment);
+            }
+
+        };
+        return executeRequest(request, successHandler, fetchStrategy, OmniBuildEnvironment.class, converter);
     }
 
     @Override
@@ -105,7 +116,7 @@ public final class NewDefaultModelRepository implements NewModelRepository {
         return executeRequest(request, successHandler, fetchStrategy, GradleBuild.class);
     }
 
-//    @Override
+    //    @Override
 //    public EclipseProject fetchEclipseProjectAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
 //        Preconditions.checkNotNull(transientRequestAttributes);
 //        Preconditions.checkNotNull(fetchStrategy);
