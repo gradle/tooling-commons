@@ -23,6 +23,18 @@ subprojects {
     }
   }
 
+  // fail eagerly on version conflict (includes transitive dependencies) and enforce certain dependency versions
+  configurations.all {
+    resolutionStrategy {
+      failOnVersionConflict()
+
+      forcedModules = [
+              "junit:junit-dep:4.11",           // spock uses junit-dep 4.10
+              "org.hamcrest:hamcrest-core:1.3"  // junit uses hamcrest 1.1
+      ]
+    }
+  }
+
   // apply Java plugin (production code) and Groovy plugin (test code)
   apply plugin: 'groovy'
 
