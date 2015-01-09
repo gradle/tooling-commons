@@ -8,16 +8,18 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.gradleware.tooling.domain.FetchStrategy;
 import com.gradleware.tooling.domain.FixedRequestAttributes;
-import com.gradleware.tooling.domain.GradleProjectUpdateEvent;
 import com.gradleware.tooling.domain.NewBuildEnvironmentUpdateEvent;
 import com.gradleware.tooling.domain.NewGradleBuildStructureUpdateEvent;
+import com.gradleware.tooling.domain.NewGradleBuildUpdateEvent;
 import com.gradleware.tooling.domain.NewModelRepository;
 import com.gradleware.tooling.domain.TransientRequestAttributes;
 import com.gradleware.tooling.domain.buildaction.BuildActionFactory;
 import com.gradleware.tooling.domain.buildaction.ModelForAllProjectsBuildAction;
 import com.gradleware.tooling.domain.model.OmniBuildEnvironment;
+import com.gradleware.tooling.domain.model.OmniGradleBuild;
 import com.gradleware.tooling.domain.model.OmniGradleBuildStructure;
 import com.gradleware.tooling.domain.model.internal.DefaultOmniBuildEnvironment;
+import com.gradleware.tooling.domain.model.internal.DefaultOmniGradleBuild;
 import com.gradleware.tooling.domain.model.internal.DefaultOmniGradleBuildStructure;
 import com.gradleware.tooling.domain.util.BaseConverter;
 import com.gradleware.tooling.toolingapi.BuildActionRequest;
@@ -127,7 +129,7 @@ public final class NewDefaultModelRepository implements NewModelRepository {
         return executeRequest(request, successHandler, fetchStrategy, OmniGradleBuildStructure.class, converter);
     }
 
-    //    @Override
+//    @Override
 //    public EclipseProject fetchEclipseProjectAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
 //        Preconditions.checkNotNull(transientRequestAttributes);
 //        Preconditions.checkNotNull(fetchStrategy);
@@ -144,19 +146,27 @@ public final class NewDefaultModelRepository implements NewModelRepository {
 //    }
 //
     @Override
-    public GradleProject fetchGradleProjectAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
+    public OmniGradleBuild fetchGradleProjectAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         Preconditions.checkNotNull(transientRequestAttributes);
         Preconditions.checkNotNull(fetchStrategy);
 
         ModelRequest<GradleProject> request = createModelRequestForBuildModel(GradleProject.class, transientRequestAttributes);
-        Consumer<GradleProject> successHandler = new Consumer<GradleProject>() {
+        Consumer<OmniGradleBuild> successHandler = new Consumer<OmniGradleBuild>() {
             @Override
-            public void accept(GradleProject result) {
-                eventBus.post(new GradleProjectUpdateEvent(result));
+            public void accept(OmniGradleBuild result) {
+                eventBus.post(new NewGradleBuildUpdateEvent(result));
             }
         };
+        Converter<GradleProject, OmniGradleBuild> converter = new BaseConverter<GradleProject, OmniGradleBuild>() {
 
-        return executeRequest(request, successHandler, fetchStrategy, GradleProject.class);
+            @Override
+            protected OmniGradleBuild doForward(GradleProject gradleProject) {
+                return DefaultOmniGradleBuild.from(gradleProject);
+            }
+
+        };
+
+        return executeRequest(request, successHandler, fetchStrategy, OmniGradleBuild.class, converter);
     }
 
 //    @Override
@@ -242,10 +252,6 @@ public final class NewDefaultModelRepository implements NewModelRepository {
 ////        latch.countDown();
 //
 //    }
-
-    private <T> T executeRequest(final Request<T> request, final Consumer<T> successHandler, FetchStrategy fetchStrategy, Class<T> cacheKey) {
-        return executeRequest(request, successHandler, fetchStrategy, cacheKey, Converter.<T>identity());
-    }
 
     private <T, U> U executeRequest(final Request<T> request, final Consumer<U> newCacheEntryHandler, FetchStrategy fetchStrategy, Class<U> cacheKey, final Converter<T, U> resultConverter) {
         // if model is only accessed from the cache, we can return immediately

@@ -7,14 +7,17 @@ import com.gradleware.tooling.domain.BuildInvocationsUpdateEvent
 import com.gradleware.tooling.domain.Environment
 import com.gradleware.tooling.domain.FetchStrategy
 import com.gradleware.tooling.domain.FixedRequestAttributes
-import com.gradleware.tooling.domain.GradleProjectUpdateEvent
 import com.gradleware.tooling.domain.NewBuildEnvironmentUpdateEvent
 import com.gradleware.tooling.domain.NewGradleBuildStructureUpdateEvent
+import com.gradleware.tooling.domain.NewGradleBuildUpdateEvent
 import com.gradleware.tooling.domain.TransientRequestAttributes
 import com.gradleware.tooling.domain.model.BasicGradleProjectFields
 import com.gradleware.tooling.domain.model.GradleEnvironmentFields
+import com.gradleware.tooling.domain.model.GradleProjectFields
+import com.gradleware.tooling.domain.model.GradleScriptFields
 import com.gradleware.tooling.domain.model.JavaEnvironmentFields
 import com.gradleware.tooling.domain.model.OmniBuildEnvironment
+import com.gradleware.tooling.domain.model.OmniGradleBuild
 import com.gradleware.tooling.domain.model.OmniGradleBuildStructure
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DataValueFormatter
@@ -26,7 +29,6 @@ import com.gradleware.tooling.toolingapi.GradleDistribution
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
-import org.gradle.tooling.model.GradleProject
 import org.gradle.util.GradleVersion
 import org.junit.Rule
 import org.spockframework.util.Assert
@@ -171,7 +173,9 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     gradleBuildStructure.rootProject.children.size() == 2
     gradleBuildStructure.rootProject.children*.get(BasicGradleProjectFields.NAME) as Set == ['sub1', 'sub2'] as Set
     gradleBuildStructure.rootProject.children*.get(BasicGradleProjectFields.PATH) as Set == [':sub1', ':sub2'] as Set
-    gradleBuildStructure.rootProject.children*.get(BasicGradleProjectFields.PROJECT_DIRECTORY).collect { it?.absolutePath } as Set == (higherOrEqual("1.8", distribution) ? ['sub1', 'sub2'].collect { new File(directoryProvider.testDirectory, it).absolutePath } as Set : [null] as Set)
+    gradleBuildStructure.rootProject.children*.get(BasicGradleProjectFields.PROJECT_DIRECTORY).collect {
+      it?.absolutePath
+    } as Set == (higherOrEqual("1.8", distribution) ? ['sub1', 'sub2'].collect { new File(directoryProvider.testDirectory, it).absolutePath } as Set : [null] as Set)
     gradleBuildStructure.rootProject.children*.parent as Set == [gradleBuildStructure.rootProject] as Set
     gradleBuildStructure.rootProject.descendants.size() == 4
     gradleBuildStructure.rootProject.descendants*.get(BasicGradleProjectFields.NAME) as Set == ['my root project', 'sub1', 'sub2', 'subSub1'] as Set
@@ -221,58 +225,42 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
     def repository = new NewDefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
 
-    AtomicReference<GradleProjectUpdateEvent> publishedEvent = new AtomicReference<>();
-    AtomicReference<GradleProject> modelInRepository = new AtomicReference<>();
+    AtomicReference<NewGradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
+    AtomicReference<OmniGradleBuild> modelInRepository = new AtomicReference<>();
     repository.register(new Object() {
 
       @SuppressWarnings("GroovyUnusedDeclaration")
       @Subscribe
-      public void listen(GradleProjectUpdateEvent event) {
+      public void listen(NewGradleBuildUpdateEvent event) {
         publishedEvent.set(event)
         modelInRepository.set(repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
       }
     })
 
     when:
-    GradleProject gradleProject = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    OmniGradleBuild gradleBuild = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
-    gradleProject != null
-    gradleProject.name == 'my root project'
-    gradleProject.description == 'a sample root project'
-    gradleProject.path == ':'
-    gradleProject.tasks.size() == getImplicitlyAddedGradleProjectTasksCount(distribution) + 1
-    gradleProject.parent == null
-    gradleProject.children.size() == 2
-    gradleProject.children*.name as Set == ['sub1', 'sub2'] as Set
-    gradleProject.children*.description as Set == ['sub project 1', 'sub project 2'] as Set
-    gradleProject.children*.path as Set == [':sub1', ':sub2'] as Set
-    gradleProject.children*.parent as Set == [gradleProject] as Set
+    gradleBuild != null
+    gradleBuild.rootProject != null
+    gradleBuild.rootProject.get(GradleProjectFields.NAME) == 'my root project'
+    gradleBuild.rootProject.get(GradleProjectFields.DESCRIPTION) == 'a sample root project'
+    gradleBuild.rootProject.get(GradleProjectFields.PATH) == ':'
+    gradleBuild.rootProject.get(GradleProjectFields.BUILD_SCRIPT).get(GradleScriptFields.SOURCE_FILE)?.absolutePath == (higherOrEqual("1.8", distribution) ? directoryProvider.file('build.gradle').absolutePath : null)
+    gradleBuild.rootProject.get(GradleProjectFields.BUILD_DIRECTORY)?.absolutePath == (higherOrEqual("2.0", distribution) ? directoryProvider.file('build').absolutePath : null)
+    gradleBuild.rootProject.get(GradleProjectFields.PROJECT_TASKS).size() == getImplicitlyAddedGradleProjectTasksCount(distribution) + 1
+    gradleBuild.rootProject.parent == null
+    gradleBuild.rootProject.children.size() == 2
+    gradleBuild.rootProject.children*.get(GradleProjectFields.NAME) as Set == ['sub1', 'sub2'] as Set
+    gradleBuild.rootProject.children*.get(GradleProjectFields.DESCRIPTION) as Set == ['sub project 1', 'sub project 2'] as Set
+    gradleBuild.rootProject.children*.get(GradleProjectFields.PATH) as Set == [':sub1', ':sub2'] as Set
+    gradleBuild.rootProject.children*.parent as Set == [gradleBuild.rootProject] as Set
+    gradleBuild.rootProject.descendants.size() == 4
+    gradleBuild.rootProject.descendants*.get(GradleProjectFields.NAME) as Set == ['my root project', 'sub1', 'sub2', 'subSub1'] as Set
 
-    if (higherOrEqual("1.8", distribution)) {
-      gradleProject.buildScript.sourceFile.absolutePath == directoryProvider.file('build.gradle').absolutePath
-    } else {
-      try {
-        gradleProject.buildScript
-        Assert.fail("GradleProject#buildScript should not be supported", distribution)
-      } catch (Exception ignored) {
-        // expected
-      }
-    }
-
-    if (higherOrEqual("2.0", distribution)) {
-      gradleProject.buildDirectory.absolutePath == new File(directoryProvider.testDirectory, 'build').absolutePath
-    } else {
-      try {
-        gradleProject.buildDirectory
-        Assert.fail("GradleProject#buildDirectory should not be supported", distribution)
-      } catch (Exception ignored) {
-        // expected
-      }
-    }
-
-    gradleProject.findByPath(':sub1').tasks.size() == 2
-    def myFirstTaskOfSub1 = gradleProject.findByPath(':sub1').tasks.find { it.name == 'myFirstTaskOfSub1' }
+    def projectSub1 = gradleBuild.rootProject.descendants.find { it.get(GradleProjectFields.PATH) == ':sub1' }
+    projectSub1.get(GradleProjectFields.PROJECT_TASKS).size() == 2
+    def myFirstTaskOfSub1 = projectSub1.get(GradleProjectFields.PROJECT_TASKS).find { it.name == 'myFirstTaskOfSub1' }
     myFirstTaskOfSub1.description == '1st task of sub1'
     myFirstTaskOfSub1.displayName == "task ':sub1:myFirstTaskOfSub1'"
 
@@ -291,10 +279,10 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
 
     def event = publishedEvent.get()
     event != null
-    event.gradleProject == gradleProject
+    event.gradleBuild == gradleBuild
 
     def model = modelInRepository.get()
-    model == gradleProject
+    model == gradleBuild
 
     where:
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
