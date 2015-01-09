@@ -1,3 +1,5 @@
+import org.gradle.internal.os.OperatingSystem
+
 import java.text.SimpleDateFormat
 
 description = "Root project of the Commons project of the Gradle Tooling Platform."
@@ -6,8 +8,6 @@ group = 'com.gradleware.tooling'
 version = '1.0.0-' + new SimpleDateFormat("yyyyMMddkkmmssZ").format(new Date())
 
 wrapper.gradleVersion = '2.2'
-
-boolean isMacOs = System.properties.getProperty('os.name').toLowerCase().contains('mac')
 
 subprojects {
 
@@ -42,14 +42,20 @@ subprojects {
   sourceCompatibility = 1.6
   targetCompatibility = 1.6
 
-  // report all compiler warnings and on Mac OS, use the correct compiler version (rather than just working with the compatibility flags)
+  // 1) convert all compiler warnings to errors
+  // 2) fork the compilation
+  // 3) on Mac OS, use the correct compiler version (rather than just working with the compatibility flags)
   tasks.withType(AbstractCompile).all {
-    options.compilerArgs << '-Xlint:all' // << '-Werror'
+    options.compilerArgs << '-Xlint:all' << '-Werror'
     options.fork = true
-    if (isMacOs) {
+    if (OperatingSystem.current().isMacOsX()) {
       options.forkOptions.executable = "/usr/libexec/java_home -v $targetCompatibility".execute().text.trim() + "/bin/javac"
     }
   }
+
+  // make sure the main resources folder is always generated in the build directory, otherwise 'compileTestGroovy' issues a warning
+  task mainResourcesDir << { sourceSets.main.output.resourcesDir.mkdirs() }
+  processResources.dependsOn mainResourcesDir
 
   // bundle sources
   task sourcesJar(type: Jar) {
