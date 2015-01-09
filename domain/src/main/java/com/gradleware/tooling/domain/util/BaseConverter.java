@@ -9,8 +9,9 @@ import com.google.common.base.Converter;
 public abstract class BaseConverter<A, B> extends Converter<A, B> {
 
     /**
+     * {@inheritDoc}
+     *
      * @throws UnsupportedOperationException unless overridden in sub class
-     * @inheritDoc
      */
     @Override
     protected B doForward(A a) {
@@ -18,8 +19,9 @@ public abstract class BaseConverter<A, B> extends Converter<A, B> {
     }
 
     /**
+     * {@inheritDoc}
+     *
      * @throws UnsupportedOperationException unless overridden in sub class
-     * @inheritDoc
      */
     @Override
     protected A doBackward(B b) {
