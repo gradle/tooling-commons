@@ -105,7 +105,7 @@ subprojects {
       if (project.properties.containsKey(propertyKeyEmbedded)) {
         systemProperty propertyKeyEmbedded, project.properties.get(propertyKeyEmbedded)
       }
-      maxParallelForks = 1
+      maxParallelForks = 4
     }
   }
 
