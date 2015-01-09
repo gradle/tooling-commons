@@ -50,7 +50,7 @@ public final class DefaultOmniGradleBuildStructure implements OmniGradleBuildStr
      * BasicGradleProject#getProjectDirectory is only available in Gradle versions >= 1.8.
      *
      * @param project the project model
-     * @return the project directory or null if not available of the project model
+     * @return the project directory or null if not available on the project model
      */
     private static File getProjectDirectory(BasicGradleProject project) {
         try {
