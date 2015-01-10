@@ -6,11 +6,13 @@ import com.gradleware.tooling.domain.model.GradleScriptFields;
 import com.gradleware.tooling.domain.model.OmniGradleBuild;
 import com.gradleware.tooling.domain.model.generic.DefaultDomainObject;
 import com.gradleware.tooling.domain.model.generic.DefaultHierarchicalDomainObject;
+import com.gradleware.tooling.domain.model.generic.DomainObject;
 import com.gradleware.tooling.domain.model.generic.HierarchicalDomainObject;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.gradle.GradleScript;
 
 import java.io.File;
+import java.util.Comparator;
 
 /**
  * Default implementation of the {@link OmniGradleBuild} interface.
@@ -35,7 +37,7 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
     }
 
     private static DefaultHierarchicalDomainObject<GradleProjectFields> convert(GradleProject project) {
-        DefaultHierarchicalDomainObject<GradleProjectFields> gradleProject = new DefaultHierarchicalDomainObject<GradleProjectFields>();
+        DefaultHierarchicalDomainObject<GradleProjectFields> gradleProject = new DefaultHierarchicalDomainObject<GradleProjectFields>(new ProjectPathComparator());
         gradleProject.put(GradleProjectFields.NAME, project.getName());
         gradleProject.put(GradleProjectFields.DESCRIPTION, project.getDescription());
         gradleProject.put(GradleProjectFields.PATH, project.getPath());
@@ -82,6 +84,18 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /**
+     * Compares GradleProjects by their path.
+     */
+    private static final class ProjectPathComparator implements Comparator<DomainObject<GradleProjectFields>> {
+
+        @Override
+        public int compare(DomainObject<GradleProjectFields> o1, DomainObject<GradleProjectFields> o2) {
+            return PathComparator.INSTANCE.compare(o1.get(GradleProjectFields.PATH), o2.get(GradleProjectFields.PATH));
+        }
+
     }
 
 }

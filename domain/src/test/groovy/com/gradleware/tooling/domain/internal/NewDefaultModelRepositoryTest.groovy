@@ -251,12 +251,12 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     gradleBuild.rootProject.get(GradleProjectFields.PROJECT_TASKS).size() == getImplicitlyAddedGradleProjectTasksCount(distribution) + 1
     gradleBuild.rootProject.parent == null
     gradleBuild.rootProject.children.size() == 2
-    gradleBuild.rootProject.children*.get(GradleProjectFields.NAME) as Set == ['sub1', 'sub2'] as Set
-    gradleBuild.rootProject.children*.get(GradleProjectFields.DESCRIPTION) as Set == ['sub project 1', 'sub project 2'] as Set
-    gradleBuild.rootProject.children*.get(GradleProjectFields.PATH) as Set == [':sub1', ':sub2'] as Set
-    gradleBuild.rootProject.children*.parent as Set == [gradleBuild.rootProject] as Set
+    gradleBuild.rootProject.children*.get(GradleProjectFields.NAME) == ['sub1', 'sub2']
+    gradleBuild.rootProject.children*.get(GradleProjectFields.DESCRIPTION) == ['sub project 1', 'sub project 2']
+    gradleBuild.rootProject.children*.get(GradleProjectFields.PATH) == [':sub1', ':sub2']
+    gradleBuild.rootProject.children*.parent  == [gradleBuild.rootProject, gradleBuild.rootProject]
     gradleBuild.rootProject.descendants.size() == 4
-    gradleBuild.rootProject.descendants*.get(GradleProjectFields.NAME) as Set == ['my root project', 'sub1', 'sub2', 'subSub1'] as Set
+    gradleBuild.rootProject.descendants*.get(GradleProjectFields.NAME) == ['my root project', 'sub1', 'sub2', 'subSub1']
 
     def projectSub1 = gradleBuild.rootProject.descendants.find { it.get(GradleProjectFields.PATH) == ':sub1' }
     projectSub1.get(GradleProjectFields.PROJECT_TASKS).size() == 2
