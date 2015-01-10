@@ -3,11 +3,13 @@ package com.gradleware.tooling.domain.model.internal;
 import com.gradleware.tooling.domain.model.BasicGradleProjectFields;
 import com.gradleware.tooling.domain.model.OmniGradleBuildStructure;
 import com.gradleware.tooling.domain.model.generic.DefaultHierarchicalDomainObject;
+import com.gradleware.tooling.domain.model.generic.DomainObject;
 import com.gradleware.tooling.domain.model.generic.HierarchicalDomainObject;
 import org.gradle.tooling.model.gradle.BasicGradleProject;
 import org.gradle.tooling.model.gradle.GradleBuild;
 
 import java.io.File;
+import java.util.Comparator;
 
 /**
  * Default implementation of the {@link OmniGradleBuildStructure} interface.
@@ -33,7 +35,7 @@ public final class DefaultOmniGradleBuildStructure implements OmniGradleBuildStr
     }
 
     private static DefaultHierarchicalDomainObject<BasicGradleProjectFields> convert(BasicGradleProject project) {
-        DefaultHierarchicalDomainObject<BasicGradleProjectFields> basicGradleProject = new DefaultHierarchicalDomainObject<BasicGradleProjectFields>();
+        DefaultHierarchicalDomainObject<BasicGradleProjectFields> basicGradleProject = new DefaultHierarchicalDomainObject<BasicGradleProjectFields>(new ProjectPathComparator());
         basicGradleProject.put(BasicGradleProjectFields.NAME, project.getName());
         basicGradleProject.put(BasicGradleProjectFields.PATH, project.getPath());
         basicGradleProject.put(BasicGradleProjectFields.PROJECT_DIRECTORY, getProjectDirectory(project));
@@ -58,6 +60,18 @@ public final class DefaultOmniGradleBuildStructure implements OmniGradleBuildStr
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /**
+     * Compares BasicGradleProjects by their path.
+     */
+    private static final class ProjectPathComparator implements Comparator<DomainObject<BasicGradleProjectFields>> {
+
+        @Override
+        public int compare(DomainObject<BasicGradleProjectFields> o1, DomainObject<BasicGradleProjectFields> o2) {
+            return PathComparator.INSTANCE.compare(o1.get(BasicGradleProjectFields.PATH), o2.get(BasicGradleProjectFields.PATH));
+        }
+
     }
 
 }
