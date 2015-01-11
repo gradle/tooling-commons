@@ -15,6 +15,7 @@ import com.gradleware.tooling.domain.NewModelRepository;
 import com.gradleware.tooling.domain.TransientRequestAttributes;
 import com.gradleware.tooling.domain.buildaction.BuildActionFactory;
 import com.gradleware.tooling.domain.buildaction.ModelForAllProjectsBuildAction;
+import com.gradleware.tooling.domain.model.GradleEnvironmentFields;
 import com.gradleware.tooling.domain.model.OmniBuildEnvironment;
 import com.gradleware.tooling.domain.model.OmniGradleBuild;
 import com.gradleware.tooling.domain.model.OmniGradleBuildStructure;
@@ -31,6 +32,7 @@ import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.gradle.GradleBuild;
+import org.gradle.util.GradleVersion;
 
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -150,6 +152,8 @@ public final class NewDefaultModelRepository implements NewModelRepository {
         Preconditions.checkNotNull(transientRequestAttributes);
         Preconditions.checkNotNull(fetchStrategy);
 
+        final boolean requiresIsPublicFix = targetGradleVersionIsBetween("2.1", "2.2.1", transientRequestAttributes);
+
         ModelRequest<GradleProject> request = createModelRequestForBuildModel(GradleProject.class, transientRequestAttributes);
         Consumer<OmniGradleBuild> successHandler = new Consumer<OmniGradleBuild>() {
             @Override
@@ -161,7 +165,7 @@ public final class NewDefaultModelRepository implements NewModelRepository {
 
             @Override
             protected OmniGradleBuild doForward(GradleProject gradleProject) {
-                return DefaultOmniGradleBuild.from(gradleProject);
+                return DefaultOmniGradleBuild.from(gradleProject, requiresIsPublicFix);
             }
 
         };
@@ -252,6 +256,13 @@ public final class NewDefaultModelRepository implements NewModelRepository {
 ////        latch.countDown();
 //
 //    }
+
+    private boolean targetGradleVersionIsBetween(String minVersion, String maxVersion, TransientRequestAttributes transientRequestAttributes) {
+        OmniBuildEnvironment buildEnvironment = fetchBuildEnvironmentAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
+        GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().get(GradleEnvironmentFields.GRADLE_VERSION));
+        return gradleVersion.getBaseVersion().compareTo(GradleVersion.version(minVersion).getBaseVersion()) >= 0 &&
+                gradleVersion.getBaseVersion().compareTo(GradleVersion.version(maxVersion).getBaseVersion()) <= 0;
+    }
 
     private <T, U> U executeRequest(final Request<T> request, final Consumer<U> newCacheEntryHandler, FetchStrategy fetchStrategy, Class<U> cacheKey, final Converter<T, U> resultConverter) {
         // if model is only accessed from the cache, we can return immediately

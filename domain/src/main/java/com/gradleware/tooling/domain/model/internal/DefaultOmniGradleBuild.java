@@ -34,23 +34,23 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
         return this.rootProject;
     }
 
-    public static DefaultOmniGradleBuild from(GradleProject gradleProject) {
-        DefaultHierarchicalDomainObject<GradleProjectFields> convertedGradleProject = convert(gradleProject);
+    public static DefaultOmniGradleBuild from(GradleProject gradleProject, boolean requiresIsPublicFix) {
+        DefaultHierarchicalDomainObject<GradleProjectFields> convertedGradleProject = convert(gradleProject,requiresIsPublicFix);
 
         return new DefaultOmniGradleBuild(convertedGradleProject);
     }
 
-    private static DefaultHierarchicalDomainObject<GradleProjectFields> convert(GradleProject project) {
+    private static DefaultHierarchicalDomainObject<GradleProjectFields> convert(GradleProject project, boolean requiresIsPublicFix) {
         DefaultHierarchicalDomainObject<GradleProjectFields> gradleProject = new DefaultHierarchicalDomainObject<GradleProjectFields>(ProjectPathComparator.INSTANCE);
         gradleProject.put(GradleProjectFields.NAME, project.getName());
         gradleProject.put(GradleProjectFields.DESCRIPTION, project.getDescription());
         gradleProject.put(GradleProjectFields.PATH, project.getPath());
         gradleProject.put(GradleProjectFields.BUILD_SCRIPT, getBuildScript(project));
         gradleProject.put(GradleProjectFields.BUILD_DIRECTORY, getBuildDirectory(project));
-        gradleProject.put(GradleProjectFields.PROJECT_TASKS, getProjectTasks(project));
+        gradleProject.put(GradleProjectFields.PROJECT_TASKS, getProjectTasks(project,requiresIsPublicFix));
 
         for (GradleProject child : project.getChildren()) {
-            DefaultHierarchicalDomainObject<GradleProjectFields> gradleProjectChild = convert(child);
+            DefaultHierarchicalDomainObject<GradleProjectFields> gradleProjectChild = convert(child, requiresIsPublicFix);
             gradleProject.addChild(gradleProjectChild);
         }
 
@@ -90,7 +90,7 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
         }
     }
 
-    private static ImmutableList<DomainObject<ProjectTaskFields>> getProjectTasks(GradleProject project) {
+    private static ImmutableList<DomainObject<ProjectTaskFields>> getProjectTasks(GradleProject project, boolean requiresIsPublicFix) {
         ImmutableList.Builder<DomainObject<ProjectTaskFields>> projectTasks = ImmutableList.builder();
         DomainObjectSet<? extends GradleTask> projectTasksOrigin = project.getTasks();
         for (GradleTask projectTaskOrigin : projectTasksOrigin) {
@@ -98,7 +98,7 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
             projectTask.put(ProjectTaskFields.NAME, projectTaskOrigin.getName());
             projectTask.put(ProjectTaskFields.DESCRIPTION, projectTaskOrigin.getDescription());
             projectTask.put(ProjectTaskFields.PATH, projectTaskOrigin.getPath());
-            projectTask.put(ProjectTaskFields.IS_PUBLIC, getIsPublic(projectTaskOrigin));
+            projectTask.put(ProjectTaskFields.IS_PUBLIC, requiresIsPublicFix || getIsPublic(projectTaskOrigin));
             projectTasks.add(projectTask);
         }
         return Ordering.from(TaskPathComparator.INSTANCE).immutableSortedCopy(projectTasks.build());

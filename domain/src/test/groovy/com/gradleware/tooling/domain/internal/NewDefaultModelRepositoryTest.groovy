@@ -1,4 +1,5 @@
 package com.gradleware.tooling.domain.internal
+
 import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
 import com.google.common.eventbus.Subscribe
@@ -264,15 +265,13 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     myFirstTaskOfSub1.get(ProjectTaskFields.NAME) == 'myFirstTaskOfSub1'
     myFirstTaskOfSub1.get(ProjectTaskFields.DESCRIPTION) == '1st task of sub1'
     myFirstTaskOfSub1.get(ProjectTaskFields.PATH) == ':sub1:myFirstTaskOfSub1'
-    myFirstTaskOfSub1.get(ProjectTaskFields.IS_PUBLIC) == (GradleVersion.version(extractVersion(distribution)).version.startsWith("2.3") ? true :
-            (higherOrEqual("2.1", distribution) ? false : true))
+    myFirstTaskOfSub1.get(ProjectTaskFields.IS_PUBLIC)
 
     def mySecondTaskOfSub1 = projectSub1.get(GradleProjectFields.PROJECT_TASKS)[1]
     mySecondTaskOfSub1.get(ProjectTaskFields.NAME) == 'mySecondTaskOfSub1'
     mySecondTaskOfSub1.get(ProjectTaskFields.DESCRIPTION) == '2nd task of sub1'
     mySecondTaskOfSub1.get(ProjectTaskFields.PATH) == ':sub1:mySecondTaskOfSub1'
-    mySecondTaskOfSub1.get(ProjectTaskFields.IS_PUBLIC) == (GradleVersion.version(extractVersion(distribution)).version.startsWith("2.3") ? false :
-            (higherOrEqual("2.1", distribution) ? false : true))
+    mySecondTaskOfSub1.get(ProjectTaskFields.IS_PUBLIC) == !higherOrEqual("2.3", distribution) // all versions < 2.3 are corrected to or default to 'true'
 
     def event = publishedEvent.get()
     event != null
@@ -354,7 +353,7 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
 
   private static boolean higherOrEqual(String referenceVersion, GradleDistribution distribution) {
     def gradleVersion = GradleVersion.version(extractVersion(distribution))
-    gradleVersion.compareTo(GradleVersion.version(referenceVersion)) >= 0
+    gradleVersion.baseVersion.compareTo(GradleVersion.version(referenceVersion).baseVersion) >= 0
   }
 
   @SuppressWarnings(["GroovyAssignabilityCheck", "GroovyAccessibility"])
