@@ -19,6 +19,7 @@ import com.gradleware.tooling.domain.model.JavaEnvironmentFields
 import com.gradleware.tooling.domain.model.OmniBuildEnvironment
 import com.gradleware.tooling.domain.model.OmniGradleBuild
 import com.gradleware.tooling.domain.model.OmniGradleBuildStructure
+import com.gradleware.tooling.domain.model.generic.PredicateFactory
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DataValueFormatter
 import com.gradleware.tooling.spock.DomainToolingClientSpecification
@@ -258,7 +259,7 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     gradleBuild.rootProject.descendants.size() == 4
     gradleBuild.rootProject.descendants*.get(GradleProjectFields.NAME) == ['my root project', 'sub1', 'sub2', 'subSub1']
 
-    def projectSub1 = gradleBuild.rootProject.descendants.find { it.get(GradleProjectFields.PATH) == ':sub1' }
+    def projectSub1 = gradleBuild.rootProject.findFirst(PredicateFactory.isEqual(GradleProjectFields.PATH, ':sub1')).get()
     projectSub1.get(GradleProjectFields.PROJECT_TASKS).size() == 2
     def myFirstTaskOfSub1 = projectSub1.get(GradleProjectFields.PROJECT_TASKS).find { it.name == 'myFirstTaskOfSub1' }
     myFirstTaskOfSub1.description == '1st task of sub1'
