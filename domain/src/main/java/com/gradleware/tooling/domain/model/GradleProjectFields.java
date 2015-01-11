@@ -4,7 +4,6 @@ import com.google.common.reflect.TypeToken;
 import com.gradleware.tooling.domain.model.generic.DomainObject;
 import com.gradleware.tooling.domain.model.generic.DomainObjectField;
 import com.gradleware.tooling.domain.model.generic.TypeTokens;
-import org.gradle.tooling.model.GradleTask;
 
 import java.io.File;
 import java.util.List;
@@ -49,8 +48,8 @@ public final class GradleProjectFields {
     /**
      * The tasks of this project.
      */
-    public static final DomainObjectField<List<GradleTask>, GradleProjectFields> PROJECT_TASKS =
-            new DomainObjectField<List<GradleTask>, GradleProjectFields>(TypeTokens.listToken(GradleTask.class), TypeToken.of(GradleProjectFields.class));
+    public static final DomainObjectField<List<DomainObject<ProjectTaskFields>>, GradleProjectFields> PROJECT_TASKS =
+            new DomainObjectField<List<DomainObject<ProjectTaskFields>>, GradleProjectFields>(TypeTokens.domainObjectListToken(ProjectTaskFields.class), TypeToken.of(GradleProjectFields.class));
 
     private GradleProjectFields() {
     }

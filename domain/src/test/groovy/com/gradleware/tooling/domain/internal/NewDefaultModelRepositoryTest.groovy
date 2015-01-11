@@ -1,9 +1,7 @@
 package com.gradleware.tooling.domain.internal
-
 import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
 import com.google.common.eventbus.Subscribe
-import com.gradleware.tooling.domain.BuildInvocationsUpdateEvent
 import com.gradleware.tooling.domain.Environment
 import com.gradleware.tooling.domain.FetchStrategy
 import com.gradleware.tooling.domain.FixedRequestAttributes
@@ -19,6 +17,7 @@ import com.gradleware.tooling.domain.model.JavaEnvironmentFields
 import com.gradleware.tooling.domain.model.OmniBuildEnvironment
 import com.gradleware.tooling.domain.model.OmniGradleBuild
 import com.gradleware.tooling.domain.model.OmniGradleBuildStructure
+import com.gradleware.tooling.domain.model.ProjectTaskFields
 import com.gradleware.tooling.domain.model.generic.PredicateFactory
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DataValueFormatter
@@ -32,7 +31,6 @@ import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
 import org.gradle.util.GradleVersion
 import org.junit.Rule
-import org.spockframework.util.Assert
 
 import java.util.concurrent.atomic.AtomicReference
 
@@ -255,28 +253,26 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     gradleBuild.rootProject.children*.get(GradleProjectFields.NAME) == ['sub1', 'sub2']
     gradleBuild.rootProject.children*.get(GradleProjectFields.DESCRIPTION) == ['sub project 1', 'sub project 2']
     gradleBuild.rootProject.children*.get(GradleProjectFields.PATH) == [':sub1', ':sub2']
-    gradleBuild.rootProject.children*.parent  == [gradleBuild.rootProject, gradleBuild.rootProject]
+    gradleBuild.rootProject.children*.parent == [gradleBuild.rootProject, gradleBuild.rootProject]
     gradleBuild.rootProject.descendants.size() == 4
     gradleBuild.rootProject.descendants*.get(GradleProjectFields.NAME) == ['my root project', 'sub1', 'sub2', 'subSub1']
 
     def projectSub1 = gradleBuild.rootProject.findFirst(PredicateFactory.isEqual(GradleProjectFields.PATH, ':sub1')).get()
     projectSub1.get(GradleProjectFields.PROJECT_TASKS).size() == 2
-    def myFirstTaskOfSub1 = projectSub1.get(GradleProjectFields.PROJECT_TASKS).find { it.name == 'myFirstTaskOfSub1' }
-    myFirstTaskOfSub1.description == '1st task of sub1'
-    myFirstTaskOfSub1.displayName == "task ':sub1:myFirstTaskOfSub1'"
 
-    if (GradleVersion.version(extractVersion(distribution)).version.startsWith("2.3")) {
-      assert myFirstTaskOfSub1.public
-    } else if (higherOrEqual("2.1", distribution)) {
-      assert !myFirstTaskOfSub1.public
-    } else {
-      try {
-        myFirstTaskOfSub1.public
-        Assert.fail("GradleTask#public should not be supported", distribution)
-      } catch (Exception ignored) {
-        // expected
-      }
-    }
+    def myFirstTaskOfSub1 = projectSub1.get(GradleProjectFields.PROJECT_TASKS)[0]
+    myFirstTaskOfSub1.get(ProjectTaskFields.NAME) == 'myFirstTaskOfSub1'
+    myFirstTaskOfSub1.get(ProjectTaskFields.DESCRIPTION) == '1st task of sub1'
+    myFirstTaskOfSub1.get(ProjectTaskFields.PATH) == ':sub1:myFirstTaskOfSub1'
+    myFirstTaskOfSub1.get(ProjectTaskFields.IS_PUBLIC) == (GradleVersion.version(extractVersion(distribution)).version.startsWith("2.3") ? true :
+            (higherOrEqual("2.1", distribution) ? false : true))
+
+    def mySecondTaskOfSub1 = projectSub1.get(GradleProjectFields.PROJECT_TASKS)[1]
+    mySecondTaskOfSub1.get(ProjectTaskFields.NAME) == 'mySecondTaskOfSub1'
+    mySecondTaskOfSub1.get(ProjectTaskFields.DESCRIPTION) == '2nd task of sub1'
+    mySecondTaskOfSub1.get(ProjectTaskFields.PATH) == ':sub1:mySecondTaskOfSub1'
+    mySecondTaskOfSub1.get(ProjectTaskFields.IS_PUBLIC) == (GradleVersion.version(extractVersion(distribution)).version.startsWith("2.3") ? false :
+            (higherOrEqual("2.1", distribution) ? false : true))
 
     def event = publishedEvent.get()
     event != null
@@ -295,12 +291,12 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
     def repository = new NewDefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
 
-    AtomicReference<BuildInvocationsUpdateEvent> publishedEvent = new AtomicReference<>();
+    AtomicReference<NewGradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
     repository.register(new Object() {
 
       @SuppressWarnings("GroovyUnusedDeclaration")
       @Subscribe
-      public void listen(BuildInvocationsUpdateEvent event) {
+      public void listen(NewGradleBuildUpdateEvent event) {
         publishedEvent.set(event)
       }
     })

@@ -1,14 +1,18 @@
 package com.gradleware.tooling.domain.model.internal;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
 import com.gradleware.tooling.domain.model.GradleProjectFields;
 import com.gradleware.tooling.domain.model.GradleScriptFields;
 import com.gradleware.tooling.domain.model.OmniGradleBuild;
+import com.gradleware.tooling.domain.model.ProjectTaskFields;
 import com.gradleware.tooling.domain.model.generic.DefaultDomainObject;
 import com.gradleware.tooling.domain.model.generic.DefaultHierarchicalDomainObject;
 import com.gradleware.tooling.domain.model.generic.DomainObject;
 import com.gradleware.tooling.domain.model.generic.HierarchicalDomainObject;
+import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.GradleProject;
+import org.gradle.tooling.model.GradleTask;
 import org.gradle.tooling.model.gradle.GradleScript;
 
 import java.io.File;
@@ -37,13 +41,13 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
     }
 
     private static DefaultHierarchicalDomainObject<GradleProjectFields> convert(GradleProject project) {
-        DefaultHierarchicalDomainObject<GradleProjectFields> gradleProject = new DefaultHierarchicalDomainObject<GradleProjectFields>(new ProjectPathComparator());
+        DefaultHierarchicalDomainObject<GradleProjectFields> gradleProject = new DefaultHierarchicalDomainObject<GradleProjectFields>(ProjectPathComparator.INSTANCE);
         gradleProject.put(GradleProjectFields.NAME, project.getName());
         gradleProject.put(GradleProjectFields.DESCRIPTION, project.getDescription());
         gradleProject.put(GradleProjectFields.PATH, project.getPath());
         gradleProject.put(GradleProjectFields.BUILD_SCRIPT, getBuildScript(project));
         gradleProject.put(GradleProjectFields.BUILD_DIRECTORY, getBuildDirectory(project));
-        gradleProject.put(GradleProjectFields.PROJECT_TASKS, ImmutableList.copyOf(project.getTasks()));
+        gradleProject.put(GradleProjectFields.PROJECT_TASKS, getProjectTasks(project));
 
         for (GradleProject child : project.getChildren()) {
             DefaultHierarchicalDomainObject<GradleProjectFields> gradleProjectChild = convert(child);
@@ -86,14 +90,58 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
         }
     }
 
+    private static ImmutableList<DomainObject<ProjectTaskFields>> getProjectTasks(GradleProject project) {
+        ImmutableList.Builder<DomainObject<ProjectTaskFields>> projectTasks = ImmutableList.builder();
+        DomainObjectSet<? extends GradleTask> projectTasksOrigin = project.getTasks();
+        for (GradleTask projectTaskOrigin : projectTasksOrigin) {
+            DefaultDomainObject<ProjectTaskFields> projectTask = new DefaultDomainObject<ProjectTaskFields>();
+            projectTask.put(ProjectTaskFields.NAME, projectTaskOrigin.getName());
+            projectTask.put(ProjectTaskFields.DESCRIPTION, projectTaskOrigin.getDescription());
+            projectTask.put(ProjectTaskFields.PATH, projectTaskOrigin.getPath());
+            projectTask.put(ProjectTaskFields.IS_PUBLIC, getIsPublic(projectTaskOrigin));
+            projectTasks.add(projectTask);
+        }
+        return Ordering.from(TaskPathComparator.INSTANCE).immutableSortedCopy(projectTasks.build());
+    }
+
+    /**
+     * GradleTask#isPublic is only available in Gradle versions >= 2.1.
+     *
+     * @param projectTask the project task
+     * @return {@code true } if the task is public or if not available on the task model
+     */
+    private static boolean getIsPublic(GradleTask projectTask) {
+        try {
+            return projectTask.isPublic();
+        } catch (Exception e) {
+            return true;
+        }
+    }
+
     /**
      * Compares GradleProjects by their path.
      */
     private static final class ProjectPathComparator implements Comparator<DomainObject<GradleProjectFields>> {
 
+        public static final ProjectPathComparator INSTANCE = new ProjectPathComparator();
+
         @Override
         public int compare(DomainObject<GradleProjectFields> o1, DomainObject<GradleProjectFields> o2) {
             return PathComparator.INSTANCE.compare(o1.get(GradleProjectFields.PATH), o2.get(GradleProjectFields.PATH));
+        }
+
+    }
+
+    /**
+     * Compares ProjectTasks by their path.
+     */
+    private static final class TaskPathComparator implements Comparator<DomainObject<ProjectTaskFields>> {
+
+        public static final TaskPathComparator INSTANCE = new TaskPathComparator();
+
+        @Override
+        public int compare(DomainObject<ProjectTaskFields> o1, DomainObject<ProjectTaskFields> o2) {
+            return PathComparator.INSTANCE.compare(o1.get(ProjectTaskFields.PATH), o2.get(ProjectTaskFields.PATH));
         }
 
     }
