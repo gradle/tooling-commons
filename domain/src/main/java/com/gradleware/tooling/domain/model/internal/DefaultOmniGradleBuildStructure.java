@@ -4,6 +4,7 @@ import com.gradleware.tooling.domain.model.BasicGradleProjectFields;
 import com.gradleware.tooling.domain.model.OmniGradleBuildStructure;
 import com.gradleware.tooling.domain.model.generic.DefaultHierarchicalDomainObject;
 import com.gradleware.tooling.domain.model.generic.DomainObject;
+import com.gradleware.tooling.domain.model.generic.DomainObjectField;
 import com.gradleware.tooling.domain.model.generic.HierarchicalDomainObject;
 import org.gradle.tooling.model.gradle.BasicGradleProject;
 import org.gradle.tooling.model.gradle.GradleBuild;
@@ -38,7 +39,7 @@ public final class DefaultOmniGradleBuildStructure implements OmniGradleBuildStr
         DefaultHierarchicalDomainObject<BasicGradleProjectFields> basicGradleProject = new DefaultHierarchicalDomainObject<BasicGradleProjectFields>(ProjectPathComparator.INSTANCE);
         basicGradleProject.put(BasicGradleProjectFields.NAME, project.getName());
         basicGradleProject.put(BasicGradleProjectFields.PATH, project.getPath());
-        basicGradleProject.put(BasicGradleProjectFields.PROJECT_DIRECTORY, getProjectDirectory(project));
+        setProjectDirectory(basicGradleProject, BasicGradleProjectFields.PROJECT_DIRECTORY, project);
 
         for (BasicGradleProject child : project.getChildren()) {
             DefaultHierarchicalDomainObject<BasicGradleProjectFields> basicGradleProjectChild = convert(child);
@@ -51,14 +52,16 @@ public final class DefaultOmniGradleBuildStructure implements OmniGradleBuildStr
     /**
      * BasicGradleProject#getProjectDirectory is only available in Gradle versions >= 1.8.
      *
+     * @param basicGradleProject the project to populate
+     * @param projectDirectoryField the field from which to derive the default project directory in case it is not available on the project model
      * @param project the project model
-     * @return the project directory or null if not available on the project model
      */
-    private static File getProjectDirectory(BasicGradleProject project) {
+    private static void setProjectDirectory(DefaultHierarchicalDomainObject<BasicGradleProjectFields> basicGradleProject, DomainObjectField<File, BasicGradleProjectFields> projectDirectoryField, BasicGradleProject project) {
         try {
-            return project.getProjectDirectory();
-        } catch (Exception e) {
-            return null;
+            File projectDirectory = project.getProjectDirectory();
+            basicGradleProject.put(projectDirectoryField, projectDirectory);
+        } catch (Exception ignore) {
+            // do not store if field value is not present
         }
     }
 

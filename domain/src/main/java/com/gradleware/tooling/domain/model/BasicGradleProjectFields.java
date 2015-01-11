@@ -1,5 +1,6 @@
 package com.gradleware.tooling.domain.model;
 
+import com.google.common.base.Suppliers;
 import com.google.common.reflect.TypeToken;
 import com.gradleware.tooling.domain.model.generic.DomainObjectField;
 
@@ -28,7 +29,7 @@ public final class BasicGradleProjectFields {
      * The project directory of this project.
      */
     public static final DomainObjectField<File, BasicGradleProjectFields> PROJECT_DIRECTORY =
-            new DomainObjectField<File, BasicGradleProjectFields>(TypeToken.of(File.class), TypeToken.of(BasicGradleProjectFields.class));
+            new DomainObjectField<File, BasicGradleProjectFields>(TypeToken.of(File.class), TypeToken.of(BasicGradleProjectFields.class), Suppliers.<File>ofInstance(null));
 
     private BasicGradleProjectFields() {
     }
