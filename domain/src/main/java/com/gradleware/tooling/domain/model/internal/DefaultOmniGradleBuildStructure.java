@@ -35,7 +35,7 @@ public final class DefaultOmniGradleBuildStructure implements OmniGradleBuildStr
     }
 
     private static DefaultHierarchicalDomainObject<BasicGradleProjectFields> convert(BasicGradleProject project) {
-        DefaultHierarchicalDomainObject<BasicGradleProjectFields> basicGradleProject = new DefaultHierarchicalDomainObject<BasicGradleProjectFields>(new ProjectPathComparator());
+        DefaultHierarchicalDomainObject<BasicGradleProjectFields> basicGradleProject = new DefaultHierarchicalDomainObject<BasicGradleProjectFields>(ProjectPathComparator.INSTANCE);
         basicGradleProject.put(BasicGradleProjectFields.NAME, project.getName());
         basicGradleProject.put(BasicGradleProjectFields.PATH, project.getPath());
         basicGradleProject.put(BasicGradleProjectFields.PROJECT_DIRECTORY, getProjectDirectory(project));
@@ -66,6 +66,8 @@ public final class DefaultOmniGradleBuildStructure implements OmniGradleBuildStr
      * Compares BasicGradleProjects by their path.
      */
     private static final class ProjectPathComparator implements Comparator<DomainObject<BasicGradleProjectFields>> {
+
+        public static final ProjectPathComparator INSTANCE = new ProjectPathComparator();
 
         @Override
         public int compare(DomainObject<BasicGradleProjectFields> o1, DomainObject<BasicGradleProjectFields> o2) {
