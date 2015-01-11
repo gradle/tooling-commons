@@ -1,6 +1,8 @@
 package com.gradleware.tooling.domain.model;
 
+import com.google.common.base.Suppliers;
 import com.google.common.reflect.TypeToken;
+import com.gradleware.tooling.domain.model.generic.DefaultDomainObject;
 import com.gradleware.tooling.domain.model.generic.DomainObject;
 import com.gradleware.tooling.domain.model.generic.DomainObjectField;
 import com.gradleware.tooling.domain.model.generic.TypeTokens;
@@ -37,13 +39,13 @@ public final class GradleProjectFields {
      * The build script of this project.
      */
     public static final DomainObjectField<DomainObject<GradleScriptFields>, GradleProjectFields> BUILD_SCRIPT =
-            new DomainObjectField<DomainObject<GradleScriptFields>, GradleProjectFields>(TypeTokens.domainObjectToken(GradleScriptFields.class), TypeToken.of(GradleProjectFields.class));
+            new DomainObjectField<DomainObject<GradleScriptFields>, GradleProjectFields>(TypeTokens.domainObjectToken(GradleScriptFields.class), TypeToken.of(GradleProjectFields.class), Suppliers.<DomainObject<GradleScriptFields>>ofInstance(new DefaultDomainObject<GradleScriptFields>()));
 
     /**
      * The build directory of this project.
      */
     public static final DomainObjectField<File, GradleProjectFields> BUILD_DIRECTORY =
-            new DomainObjectField<File, GradleProjectFields>(TypeToken.of(File.class), TypeToken.of(GradleProjectFields.class));
+            new DomainObjectField<File, GradleProjectFields>(TypeToken.of(File.class), TypeToken.of(GradleProjectFields.class), Suppliers.<File>ofInstance(null));
 
     /**
      * The tasks of this project.

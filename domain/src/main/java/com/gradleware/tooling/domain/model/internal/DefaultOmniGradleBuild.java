@@ -9,6 +9,7 @@ import com.gradleware.tooling.domain.model.ProjectTaskFields;
 import com.gradleware.tooling.domain.model.generic.DefaultDomainObject;
 import com.gradleware.tooling.domain.model.generic.DefaultHierarchicalDomainObject;
 import com.gradleware.tooling.domain.model.generic.DomainObject;
+import com.gradleware.tooling.domain.model.generic.DomainObjectField;
 import com.gradleware.tooling.domain.model.generic.HierarchicalDomainObject;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.GradleProject;
@@ -45,8 +46,8 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
         gradleProject.put(GradleProjectFields.NAME, project.getName());
         gradleProject.put(GradleProjectFields.DESCRIPTION, project.getDescription());
         gradleProject.put(GradleProjectFields.PATH, project.getPath());
-        gradleProject.put(GradleProjectFields.BUILD_SCRIPT, getBuildScript(project));
-        gradleProject.put(GradleProjectFields.BUILD_DIRECTORY, getBuildDirectory(project));
+        setBuildScript(gradleProject, GradleProjectFields.BUILD_SCRIPT, project);
+        setBuildDirectory(gradleProject, GradleProjectFields.BUILD_DIRECTORY, project);
         gradleProject.put(GradleProjectFields.PROJECT_TASKS, getProjectTasks(project, enforceAllTasksPublic));
 
         for (GradleProject child : project.getChildren()) {
@@ -60,33 +61,34 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
     /**
      * GradleProject#getBuildScript is only available in Gradle versions >= 1.8.
      *
+     * @param gradleProject the project to populate
+     * @param buildScriptField the field from which to derive the default build script in case it is not available on the project model
      * @param project the project model
-     * @return the build script model or null if not available on the project model
      */
-    private static DefaultDomainObject<GradleScriptFields> getBuildScript(GradleProject project) {
-        GradleScript buildScriptOrigin;
+    private static void setBuildScript(DefaultHierarchicalDomainObject<GradleProjectFields> gradleProject, DomainObjectField<DomainObject<GradleScriptFields>, GradleProjectFields> buildScriptField, GradleProject project) {
         try {
-            buildScriptOrigin = project.getBuildScript();
-        } catch (Exception e) {
-            buildScriptOrigin = null;
+            GradleScript buildScriptOrigin = project.getBuildScript();
+            DefaultDomainObject<GradleScriptFields> buildScript = new DefaultDomainObject<GradleScriptFields>();
+            buildScript.put(GradleScriptFields.SOURCE_FILE, buildScriptOrigin.getSourceFile());
+            gradleProject.put(buildScriptField, buildScript);
+        } catch (Exception ignore) {
+            // do not store if field value is not present
         }
-
-        DefaultDomainObject<GradleScriptFields> buildScript = new DefaultDomainObject<GradleScriptFields>();
-        buildScript.put(GradleScriptFields.SOURCE_FILE, buildScriptOrigin != null ? buildScriptOrigin.getSourceFile() : null);
-        return buildScript;
     }
 
     /**
      * GradleProject#getBuildDirectory is only available in Gradle versions >= 2.0.
      *
+     * @param gradleProject the project to populate
+     * @param buildDirectoryField the field from which to derive the default build directory in case it is not available on the project model
      * @param project the project model
-     * @return the build directory or null if not available on the project model
      */
-    private static File getBuildDirectory(GradleProject project) {
+    private static void setBuildDirectory(DefaultHierarchicalDomainObject<GradleProjectFields> gradleProject, DomainObjectField<File, GradleProjectFields> buildDirectoryField, GradleProject project) {
         try {
-            return project.getBuildDirectory();
-        } catch (Exception e) {
-            return null;
+            File buildDirectory = project.getBuildDirectory();
+            gradleProject.put(buildDirectoryField, buildDirectory);
+        } catch (Exception ignore) {
+            // do not store if field value is not present
         }
     }
 
@@ -98,7 +100,7 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
             projectTask.put(ProjectTaskFields.NAME, projectTaskOrigin.getName());
             projectTask.put(ProjectTaskFields.DESCRIPTION, projectTaskOrigin.getDescription());
             projectTask.put(ProjectTaskFields.PATH, projectTaskOrigin.getPath());
-            projectTask.put(ProjectTaskFields.IS_PUBLIC, enforceAllTasksPublic || getIsPublic(projectTaskOrigin));
+            setIsPublic(projectTask, ProjectTaskFields.IS_PUBLIC, projectTaskOrigin, enforceAllTasksPublic);
             projectTasks.add(projectTask);
         }
         return Ordering.from(TaskPathComparator.INSTANCE).immutableSortedCopy(projectTasks.build());
@@ -107,14 +109,16 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
     /**
      * GradleTask#isPublic is only available in Gradle versions >= 2.1.
      *
-     * @param projectTask the project task
-     * @return {@code true } if the task is public or if not available on the task model
+     * @param projectTask the task to populate
+     * @param isPublicField the field from which to derive the default isPublic value in case it is not available on the task model
+     * @param task the task model
      */
-    private static boolean getIsPublic(GradleTask projectTask) {
+    private static void setIsPublic(DefaultDomainObject<ProjectTaskFields> projectTask, DomainObjectField<Boolean, ProjectTaskFields> isPublicField, GradleTask task, boolean enforceAllTasksPublic) {
         try {
-            return projectTask.isPublic();
-        } catch (Exception e) {
-            return true;
+            boolean isPublic = task.isPublic();
+            projectTask.put(isPublicField, enforceAllTasksPublic || isPublic);
+        } catch (Exception ignore) {
+            // do not store if field value is not present
         }
     }
 

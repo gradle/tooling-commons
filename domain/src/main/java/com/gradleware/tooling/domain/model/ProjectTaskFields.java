@@ -1,5 +1,6 @@
 package com.gradleware.tooling.domain.model;
 
+import com.google.common.base.Suppliers;
 import com.google.common.reflect.TypeToken;
 import com.gradleware.tooling.domain.model.generic.DomainObjectField;
 
@@ -32,7 +33,7 @@ public final class ProjectTaskFields {
      * Flag to signal whether this task is public or not. Public tasks are those that have a non-null {@code group} property.
      */
     public static final DomainObjectField<Boolean, ProjectTaskFields> IS_PUBLIC =
-            new DomainObjectField<Boolean, ProjectTaskFields>(TypeToken.of(Boolean.class), TypeToken.of(ProjectTaskFields.class));
+            new DomainObjectField<Boolean, ProjectTaskFields>(TypeToken.of(Boolean.class), TypeToken.of(ProjectTaskFields.class), Suppliers.ofInstance(true));
 
     private ProjectTaskFields() {
     }
