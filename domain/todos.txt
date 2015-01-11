@@ -1,4 +1,3 @@
-deal with isPublic in 2.1 and 2.2
 support caching when doing updates of multiple models at once
 add time-stamp to request results
 add logging
