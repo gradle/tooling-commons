@@ -59,7 +59,6 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
         return gradleProject;
     }
 
-
     /**
      * GradleProject#getProjectDirectory is only available in Gradle versions >= 2.4.
      *
@@ -126,10 +125,13 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
 
     /**
      * GradleTask#isPublic is only available in Gradle versions >= 2.1.
+     * <p/>
+     * For versions 2.1 and 2.2.x, GradleTask#isPublic always returns {@code false} and needs to be corrected to {@code true}.
      *
      * @param projectTask the task to populate
      * @param isPublicField the field from which to derive the default isPublic value in case it is not available on the task model
      * @param task the task model
+     * @param enforceAllTasksPublic flag to signal whether all tasks should be treated as public regardless of what the model says
      */
     private static void setIsPublic(DefaultDomainObject<ProjectTaskFields> projectTask, DomainObjectField<Boolean, ProjectTaskFields> isPublicField, GradleTask task, boolean enforceAllTasksPublic) {
         try {
