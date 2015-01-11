@@ -47,6 +47,7 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
         gradleProject.put(GradleProjectFields.DESCRIPTION, project.getDescription());
         gradleProject.put(GradleProjectFields.PATH, project.getPath());
         setBuildScript(gradleProject, GradleProjectFields.BUILD_SCRIPT, project);
+        setProjectDirectory(gradleProject, GradleProjectFields.PROJECT_DIRECTORY, project);
         setBuildDirectory(gradleProject, GradleProjectFields.BUILD_DIRECTORY, project);
         gradleProject.put(GradleProjectFields.PROJECT_TASKS, getProjectTasks(project, enforceAllTasksPublic));
 
@@ -71,6 +72,22 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
             DefaultDomainObject<GradleScriptFields> buildScript = new DefaultDomainObject<GradleScriptFields>();
             buildScript.put(GradleScriptFields.SOURCE_FILE, buildScriptOrigin.getSourceFile());
             gradleProject.put(buildScriptField, buildScript);
+        } catch (Exception ignore) {
+            // do not store if field value is not present
+        }
+    }
+
+    /**
+     * GradleProject#getProjectDirectory is only available in Gradle versions >= 2.4.
+     *
+     * @param gradleProject the project to populate
+     * @param projectDirectoryField the field from which to derive the default project directory in case it is not available on the project model
+     * @param project the project model
+     */
+    private static void setProjectDirectory(DefaultHierarchicalDomainObject<GradleProjectFields> gradleProject, DomainObjectField<File, GradleProjectFields> projectDirectoryField, GradleProject project) {
+        try {
+            File projectDirectory = project.getProjectDirectory();
+            gradleProject.put(projectDirectoryField, projectDirectory);
         } catch (Exception ignore) {
             // do not store if field value is not present
         }
