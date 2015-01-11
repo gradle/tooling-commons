@@ -246,9 +246,9 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     gradleBuild.rootProject.get(GradleProjectFields.NAME) == 'my root project'
     gradleBuild.rootProject.get(GradleProjectFields.DESCRIPTION) == 'a sample root project'
     gradleBuild.rootProject.get(GradleProjectFields.PATH) == ':'
-    gradleBuild.rootProject.get(GradleProjectFields.BUILD_SCRIPT).get(GradleScriptFields.SOURCE_FILE)?.absolutePath == (higherOrEqual("1.8", distribution) ? directoryProvider.file('build.gradle').absolutePath : null)
     gradleBuild.rootProject.get(GradleProjectFields.PROJECT_DIRECTORY)?.absolutePath == (higherOrEqual("2.4", distribution) ? directoryProvider.testDirectory.absolutePath : null)
     gradleBuild.rootProject.get(GradleProjectFields.BUILD_DIRECTORY)?.absolutePath == (higherOrEqual("2.0", distribution) ? directoryProvider.file('build').absolutePath : null)
+    gradleBuild.rootProject.get(GradleProjectFields.BUILD_SCRIPT).get(GradleScriptFields.SOURCE_FILE)?.absolutePath == (higherOrEqual("1.8", distribution) ? directoryProvider.file('build.gradle').absolutePath : null)
     gradleBuild.rootProject.get(GradleProjectFields.PROJECT_TASKS).size() == getImplicitlyAddedGradleProjectTasksCount(distribution) + 1
     gradleBuild.rootProject.parent == null
     gradleBuild.rootProject.children.size() == 2

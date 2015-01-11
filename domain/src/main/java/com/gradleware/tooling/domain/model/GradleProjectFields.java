@@ -36,12 +36,6 @@ public final class GradleProjectFields {
             new DomainObjectField<String, GradleProjectFields>(TypeToken.of(String.class), TypeToken.of(GradleProjectFields.class));
 
     /**
-     * The build script of this project.
-     */
-    public static final DomainObjectField<DomainObject<GradleScriptFields>, GradleProjectFields> BUILD_SCRIPT =
-            new DomainObjectField<DomainObject<GradleScriptFields>, GradleProjectFields>(TypeTokens.domainObjectToken(GradleScriptFields.class), TypeToken.of(GradleProjectFields.class), Suppliers.<DomainObject<GradleScriptFields>>ofInstance(new EmptyDomainObject<GradleScriptFields>()));
-
-    /**
      * The project directory of this project.
      */
     public static final DomainObjectField<File, GradleProjectFields> PROJECT_DIRECTORY =
@@ -52,6 +46,12 @@ public final class GradleProjectFields {
      */
     public static final DomainObjectField<File, GradleProjectFields> BUILD_DIRECTORY =
             new DomainObjectField<File, GradleProjectFields>(TypeToken.of(File.class), TypeToken.of(GradleProjectFields.class), Suppliers.<File>ofInstance(null));
+
+    /**
+     * The build script of this project.
+     */
+    public static final DomainObjectField<DomainObject<GradleScriptFields>, GradleProjectFields> BUILD_SCRIPT =
+            new DomainObjectField<DomainObject<GradleScriptFields>, GradleProjectFields>(TypeTokens.domainObjectToken(GradleScriptFields.class), TypeToken.of(GradleProjectFields.class), Suppliers.<DomainObject<GradleScriptFields>>ofInstance(new EmptyDomainObject<GradleScriptFields>()));
 
     /**
      * The tasks of this project.

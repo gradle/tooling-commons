@@ -46,9 +46,9 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
         gradleProject.put(GradleProjectFields.NAME, project.getName());
         gradleProject.put(GradleProjectFields.DESCRIPTION, project.getDescription());
         gradleProject.put(GradleProjectFields.PATH, project.getPath());
-        setBuildScript(gradleProject, GradleProjectFields.BUILD_SCRIPT, project);
         setProjectDirectory(gradleProject, GradleProjectFields.PROJECT_DIRECTORY, project);
         setBuildDirectory(gradleProject, GradleProjectFields.BUILD_DIRECTORY, project);
+        setBuildScript(gradleProject, GradleProjectFields.BUILD_SCRIPT, project);
         gradleProject.put(GradleProjectFields.PROJECT_TASKS, getProjectTasks(project, enforceAllTasksPublic));
 
         for (GradleProject child : project.getChildren()) {
@@ -59,23 +59,6 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
         return gradleProject;
     }
 
-    /**
-     * GradleProject#getBuildScript is only available in Gradle versions >= 1.8.
-     *
-     * @param gradleProject the project to populate
-     * @param buildScriptField the field from which to derive the default build script in case it is not available on the project model
-     * @param project the project model
-     */
-    private static void setBuildScript(DefaultHierarchicalDomainObject<GradleProjectFields> gradleProject, DomainObjectField<DomainObject<GradleScriptFields>, GradleProjectFields> buildScriptField, GradleProject project) {
-        try {
-            GradleScript buildScriptOrigin = project.getBuildScript();
-            DefaultDomainObject<GradleScriptFields> buildScript = new DefaultDomainObject<GradleScriptFields>();
-            buildScript.put(GradleScriptFields.SOURCE_FILE, buildScriptOrigin.getSourceFile());
-            gradleProject.put(buildScriptField, buildScript);
-        } catch (Exception ignore) {
-            // do not store if field value is not present
-        }
-    }
 
     /**
      * GradleProject#getProjectDirectory is only available in Gradle versions >= 2.4.
@@ -104,6 +87,24 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
         try {
             File buildDirectory = project.getBuildDirectory();
             gradleProject.put(buildDirectoryField, buildDirectory);
+        } catch (Exception ignore) {
+            // do not store if field value is not present
+        }
+    }
+
+    /**
+     * GradleProject#getBuildScript is only available in Gradle versions >= 1.8.
+     *
+     * @param gradleProject the project to populate
+     * @param buildScriptField the field from which to derive the default build script in case it is not available on the project model
+     * @param project the project model
+     */
+    private static void setBuildScript(DefaultHierarchicalDomainObject<GradleProjectFields> gradleProject, DomainObjectField<DomainObject<GradleScriptFields>, GradleProjectFields> buildScriptField, GradleProject project) {
+        try {
+            GradleScript buildScriptOrigin = project.getBuildScript();
+            DefaultDomainObject<GradleScriptFields> buildScript = new DefaultDomainObject<GradleScriptFields>();
+            buildScript.put(GradleScriptFields.SOURCE_FILE, buildScriptOrigin.getSourceFile());
+            gradleProject.put(buildScriptField, buildScript);
         } catch (Exception ignore) {
             // do not store if field value is not present
         }
