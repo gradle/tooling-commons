@@ -137,9 +137,6 @@ public final class BuildInvocationsContainerFactory {
 
         private static final TaskComparator INSTANCE = new TaskComparator();
 
-        private TaskComparator() {
-        }
-
         @Override
         public int compare(GradleTask one, GradleTask two) {
             return one.getPath().compareTo(two.getPath());
@@ -150,9 +147,6 @@ public final class BuildInvocationsContainerFactory {
     private static final class TaskSelectorComparator implements Comparator<TaskSelector> {
 
         private static final TaskSelectorComparator INSTANCE = new TaskSelectorComparator();
-
-        private TaskSelectorComparator() {
-        }
 
         @Override
         public int compare(TaskSelector one, TaskSelector two) {
