@@ -15,7 +15,6 @@ import com.gradleware.tooling.domain.NewModelRepository;
 import com.gradleware.tooling.domain.TransientRequestAttributes;
 import com.gradleware.tooling.domain.buildaction.BuildActionFactory;
 import com.gradleware.tooling.domain.buildaction.ModelForAllProjectsBuildAction;
-import com.gradleware.tooling.domain.model.GradleEnvironmentFields;
 import com.gradleware.tooling.domain.model.OmniBuildEnvironment;
 import com.gradleware.tooling.domain.model.OmniGradleBuild;
 import com.gradleware.tooling.domain.model.OmniGradleBuildStructure;
@@ -259,7 +258,7 @@ public final class NewDefaultModelRepository implements NewModelRepository {
 
     private boolean targetGradleVersionIsBetween(String minVersion, String maxVersion, TransientRequestAttributes transientRequestAttributes) {
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironmentAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
-        GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().get(GradleEnvironmentFields.GRADLE_VERSION));
+        GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
         return gradleVersion.getBaseVersion().compareTo(GradleVersion.version(minVersion).getBaseVersion()) >= 0 &&
                 gradleVersion.getBaseVersion().compareTo(GradleVersion.version(maxVersion).getBaseVersion()) <= 0;
     }

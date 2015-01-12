@@ -13,14 +13,30 @@ public interface OmniBuildEnvironment {
      * Returns information about the Gradle environment.
      *
      * @return the Gradle environment
+     * @since 1.0-milestone-8
      */
-    DomainObject<GradleEnvironmentFields> getGradle();
+    OmniGradleEnvironment getGradle();
+
+    /**
+     * Returns information about the Gradle environment.
+     *
+     * @return the Gradle environment
+     */
+    DomainObject<GradleEnvironmentFields> getGradleModel();
+
+    /**
+     * Returns information about the Java environment.
+     *
+     * @return the Java environment
+     * @since 1.0-milestone-8
+     */
+    OmniJavaEnvironment getJava();
 
     /**
      * Returns information about the Java environment.
      *
      * @return the Java environment
      */
-    DomainObject<JavaEnvironmentFields> getJava();
+    DomainObject<JavaEnvironmentFields> getJavaModel();
 
 }

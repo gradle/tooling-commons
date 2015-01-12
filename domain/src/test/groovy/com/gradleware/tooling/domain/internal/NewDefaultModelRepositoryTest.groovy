@@ -1,5 +1,4 @@
 package com.gradleware.tooling.domain.internal
-
 import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
 import com.google.common.eventbus.Subscribe
@@ -11,10 +10,8 @@ import com.gradleware.tooling.domain.NewGradleBuildStructureUpdateEvent
 import com.gradleware.tooling.domain.NewGradleBuildUpdateEvent
 import com.gradleware.tooling.domain.TransientRequestAttributes
 import com.gradleware.tooling.domain.model.BasicGradleProjectFields
-import com.gradleware.tooling.domain.model.GradleEnvironmentFields
 import com.gradleware.tooling.domain.model.GradleProjectFields
 import com.gradleware.tooling.domain.model.GradleScriptFields
-import com.gradleware.tooling.domain.model.JavaEnvironmentFields
 import com.gradleware.tooling.domain.model.OmniBuildEnvironment
 import com.gradleware.tooling.domain.model.OmniGradleBuild
 import com.gradleware.tooling.domain.model.OmniGradleBuildStructure
@@ -132,10 +129,10 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     then:
     buildEnvironment != null
     buildEnvironment.gradle != null
-    buildEnvironment.gradle.get(GradleEnvironmentFields.GRADLE_VERSION) == extractVersion(distribution)
+    buildEnvironment.gradle.gradleVersion == extractVersion(distribution)
     buildEnvironment.java != null
-    buildEnvironment.java.get(JavaEnvironmentFields.JAVA_HOME) != null
-    buildEnvironment.java.get(JavaEnvironmentFields.JVM_ARGS).size() > 0
+    buildEnvironment.java.javaHome != null
+    buildEnvironment.java.jvmArguments.size() > 0
 
     def event = publishedEvent.get()
     event != null
