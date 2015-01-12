@@ -168,20 +168,20 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
 
     then:
     gradleBuildStructure != null
-    gradleBuildStructure.rootProject != null
-    gradleBuildStructure.rootProject.get(BasicGradleProjectFields.NAME) == 'my root project'
-    gradleBuildStructure.rootProject.get(BasicGradleProjectFields.PATH) == ':'
-    gradleBuildStructure.rootProject.get(BasicGradleProjectFields.PROJECT_DIRECTORY)?.absolutePath == (higherOrEqual("1.8", distribution) ? directoryProvider.testDirectory.absolutePath : null)
-    gradleBuildStructure.rootProject.parent == null
-    gradleBuildStructure.rootProject.children.size() == 2
-    gradleBuildStructure.rootProject.children*.get(BasicGradleProjectFields.NAME) == ['sub1', 'sub2']
-    gradleBuildStructure.rootProject.children*.get(BasicGradleProjectFields.PATH) == [':sub1', ':sub2']
-    gradleBuildStructure.rootProject.children*.get(BasicGradleProjectFields.PROJECT_DIRECTORY).collect {
+    gradleBuildStructure.rootProjectModel != null
+    gradleBuildStructure.rootProjectModel.get(BasicGradleProjectFields.NAME) == 'my root project'
+    gradleBuildStructure.rootProjectModel.get(BasicGradleProjectFields.PATH) == ':'
+    gradleBuildStructure.rootProjectModel.get(BasicGradleProjectFields.PROJECT_DIRECTORY)?.absolutePath == (higherOrEqual("1.8", distribution) ? directoryProvider.testDirectory.absolutePath : null)
+    gradleBuildStructure.rootProjectModel.parent == null
+    gradleBuildStructure.rootProjectModel.children.size() == 2
+    gradleBuildStructure.rootProjectModel.children*.get(BasicGradleProjectFields.NAME) == ['sub1', 'sub2']
+    gradleBuildStructure.rootProjectModel.children*.get(BasicGradleProjectFields.PATH) == [':sub1', ':sub2']
+    gradleBuildStructure.rootProjectModel.children*.get(BasicGradleProjectFields.PROJECT_DIRECTORY).collect {
       it?.absolutePath
     } == (higherOrEqual("1.8", distribution) ? ['sub1', 'sub2'].collect { new File(directoryProvider.testDirectory, it).absolutePath } : [null, null])
-    gradleBuildStructure.rootProject.children*.parent == [gradleBuildStructure.rootProject, gradleBuildStructure.rootProject]
-    gradleBuildStructure.rootProject.descendants.size() == 4
-    gradleBuildStructure.rootProject.descendants*.get(BasicGradleProjectFields.NAME) == ['my root project', 'sub1', 'sub2', 'subSub1']
+    gradleBuildStructure.rootProjectModel.children*.parent == [gradleBuildStructure.rootProjectModel, gradleBuildStructure.rootProjectModel]
+    gradleBuildStructure.rootProjectModel.descendants.size() == 4
+    gradleBuildStructure.rootProjectModel.descendants*.get(BasicGradleProjectFields.NAME) == ['my root project', 'sub1', 'sub2', 'subSub1']
 
     def event = publishedEvent.get()
     event != null

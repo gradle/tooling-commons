@@ -24,7 +24,7 @@ public final class DefaultOmniGradleBuildStructure implements OmniGradleBuildStr
     }
 
     @Override
-    public HierarchicalDomainObject<BasicGradleProjectFields> getRootProject() {
+    public HierarchicalDomainObject<BasicGradleProjectFields> getRootProjectModel() {
         return this.rootProject;
     }
 
