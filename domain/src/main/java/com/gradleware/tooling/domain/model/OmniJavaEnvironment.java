@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.List;
 
 /**
- * Informs about the Java environment.
+ * Provides information about the Java environment.
  */
 public interface OmniJavaEnvironment {
 
