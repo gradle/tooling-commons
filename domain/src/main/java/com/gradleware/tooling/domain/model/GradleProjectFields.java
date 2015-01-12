@@ -59,6 +59,12 @@ public final class GradleProjectFields {
     public static final DomainObjectField<List<DomainObject<ProjectTaskFields>>, GradleProjectFields> PROJECT_TASKS =
             new DomainObjectField<List<DomainObject<ProjectTaskFields>>, GradleProjectFields>(TypeTokens.domainObjectListToken(ProjectTaskFields.class), TypeToken.of(GradleProjectFields.class));
 
+    /**
+     * The task selectors of this project.
+     */
+    public static final DomainObjectField<List<DomainObject<TaskSelectorsFields>>, GradleProjectFields> TASK_SELECTORS =
+            new DomainObjectField<List<DomainObject<TaskSelectorsFields>>, GradleProjectFields>(TypeTokens.domainObjectListToken(TaskSelectorsFields.class), TypeToken.of(GradleProjectFields.class));
+
     private GradleProjectFields() {
     }
 

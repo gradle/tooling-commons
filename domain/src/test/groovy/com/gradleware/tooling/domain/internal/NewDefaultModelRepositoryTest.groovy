@@ -19,6 +19,7 @@ import com.gradleware.tooling.domain.model.OmniBuildEnvironment
 import com.gradleware.tooling.domain.model.OmniGradleBuild
 import com.gradleware.tooling.domain.model.OmniGradleBuildStructure
 import com.gradleware.tooling.domain.model.ProjectTaskFields
+import com.gradleware.tooling.domain.model.TaskSelectorsFields
 import com.gradleware.tooling.domain.model.generic.PredicateFactory
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DataValueFormatter
@@ -81,6 +82,10 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
        task mySecondTaskOfSub2 {
          description = '2nd task of sub2'
        }
+       task myTask {
+         description = 'another task of sub2'
+         group = 'build'
+       }
     '''
 
     directoryProvider.createDir('sub2', 'subSub1')
@@ -92,6 +97,7 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
        task mySecondTaskOfSub2subSub1{
          description = '2nd task of sub2:subSub1'
        }
+       task myTask {}
     '''
 
     // prepare a Gradle build that has an erroneous structure
@@ -273,6 +279,15 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     mySecondTaskOfSub1.get(ProjectTaskFields.DESCRIPTION) == '2nd task of sub1'
     mySecondTaskOfSub1.get(ProjectTaskFields.PATH) == ':sub1:mySecondTaskOfSub1'
     mySecondTaskOfSub1.get(ProjectTaskFields.IS_PUBLIC) == !higherOrEqual("2.3", distribution) // all versions < 2.3 are corrected to or default to 'true'
+
+    def projectSub2 = gradleBuild.rootProject.findFirst(PredicateFactory.isEqual(GradleProjectFields.PATH, ':sub2')).get()
+    projectSub2.get(GradleProjectFields.TASK_SELECTORS).size() == 5
+
+    def myTaskSelector = projectSub2.get(GradleProjectFields.TASK_SELECTORS).find { it.get(TaskSelectorsFields.NAME).equals('myTask') }
+    myTaskSelector.get(TaskSelectorsFields.NAME) == 'myTask'
+    myTaskSelector.get(TaskSelectorsFields.DESCRIPTION) == 'another task of sub2'
+    myTaskSelector.get(TaskSelectorsFields.IS_PUBLIC)
+    myTaskSelector.get(TaskSelectorsFields.SELECTED_TASK_PATHS) as List == [':sub2:myTask',':sub2:subSub1:myTask']
 
     def event = publishedEvent.get()
     event != null

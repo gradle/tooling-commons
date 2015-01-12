@@ -2,18 +2,23 @@ package com.gradleware.tooling.domain.model.internal;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
+import com.gradleware.tooling.domain.BuildInvocationsContainer;
+import com.gradleware.tooling.domain.internal.BuildInvocationsContainerFactory;
+import com.gradleware.tooling.domain.internal.SyntheticTaskSelector;
 import com.gradleware.tooling.domain.model.GradleProjectFields;
 import com.gradleware.tooling.domain.model.GradleScriptFields;
 import com.gradleware.tooling.domain.model.OmniGradleBuild;
 import com.gradleware.tooling.domain.model.ProjectTaskFields;
+import com.gradleware.tooling.domain.model.TaskSelectorsFields;
 import com.gradleware.tooling.domain.model.generic.DefaultDomainObject;
 import com.gradleware.tooling.domain.model.generic.DefaultHierarchicalDomainObject;
 import com.gradleware.tooling.domain.model.generic.DomainObject;
 import com.gradleware.tooling.domain.model.generic.DomainObjectField;
 import com.gradleware.tooling.domain.model.generic.HierarchicalDomainObject;
-import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.GradleTask;
+import org.gradle.tooling.model.TaskSelector;
+import org.gradle.tooling.model.gradle.BuildInvocations;
 import org.gradle.tooling.model.gradle.GradleScript;
 
 import java.io.File;
@@ -36,12 +41,13 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
     }
 
     public static DefaultOmniGradleBuild from(GradleProject gradleProject, boolean enforceAllTasksPublic) {
-        DefaultHierarchicalDomainObject<GradleProjectFields> convertedGradleProject = convert(gradleProject, enforceAllTasksPublic);
+        BuildInvocationsContainer buildInvocationsContainer = BuildInvocationsContainerFactory.createFrom(gradleProject);
+        DefaultHierarchicalDomainObject<GradleProjectFields> convertedGradleProject = convert(gradleProject, buildInvocationsContainer, enforceAllTasksPublic);
 
         return new DefaultOmniGradleBuild(convertedGradleProject);
     }
 
-    private static DefaultHierarchicalDomainObject<GradleProjectFields> convert(GradleProject project, boolean enforceAllTasksPublic) {
+    private static DefaultHierarchicalDomainObject<GradleProjectFields> convert(GradleProject project, BuildInvocationsContainer buildInvocations, boolean enforceAllTasksPublic) {
         DefaultHierarchicalDomainObject<GradleProjectFields> gradleProject = new DefaultHierarchicalDomainObject<GradleProjectFields>(ProjectPathComparator.INSTANCE);
         gradleProject.put(GradleProjectFields.NAME, project.getName());
         gradleProject.put(GradleProjectFields.DESCRIPTION, project.getDescription());
@@ -50,9 +56,10 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
         setBuildDirectory(gradleProject, GradleProjectFields.BUILD_DIRECTORY, project);
         setBuildScript(gradleProject, GradleProjectFields.BUILD_SCRIPT, project);
         gradleProject.put(GradleProjectFields.PROJECT_TASKS, getProjectTasks(project, enforceAllTasksPublic));
+        gradleProject.put(GradleProjectFields.TASK_SELECTORS, getTaskSelectors(buildInvocations.asMap().get(project.getPath()), enforceAllTasksPublic));
 
         for (GradleProject child : project.getChildren()) {
-            DefaultHierarchicalDomainObject<GradleProjectFields> gradleProjectChild = convert(child, enforceAllTasksPublic);
+            DefaultHierarchicalDomainObject<GradleProjectFields> gradleProjectChild = convert(child, buildInvocations, enforceAllTasksPublic);
             gradleProject.addChild(gradleProjectChild);
         }
 
@@ -111,8 +118,7 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
 
     private static ImmutableList<DomainObject<ProjectTaskFields>> getProjectTasks(GradleProject project, boolean enforceAllTasksPublic) {
         ImmutableList.Builder<DomainObject<ProjectTaskFields>> projectTasks = ImmutableList.builder();
-        DomainObjectSet<? extends GradleTask> projectTasksOrigin = project.getTasks();
-        for (GradleTask projectTaskOrigin : projectTasksOrigin) {
+        for (GradleTask projectTaskOrigin : project.getTasks()) {
             DefaultDomainObject<ProjectTaskFields> projectTask = new DefaultDomainObject<ProjectTaskFields>();
             projectTask.put(ProjectTaskFields.NAME, projectTaskOrigin.getName());
             projectTask.put(ProjectTaskFields.DESCRIPTION, projectTaskOrigin.getDescription());
@@ -140,6 +146,20 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
         } catch (Exception ignore) {
             // do not store if field value is not present
         }
+    }
+
+    private static ImmutableList<DomainObject<TaskSelectorsFields>> getTaskSelectors(BuildInvocations buildInvocations, boolean enforceAllTasksPublic) {
+        ImmutableList.Builder<DomainObject<TaskSelectorsFields>> taskSelectors = ImmutableList.builder();
+        for (TaskSelector taskSelectorOrigin : buildInvocations.getTaskSelectors()) {
+            SyntheticTaskSelector syntheticTaskSelector = (SyntheticTaskSelector) taskSelectorOrigin;
+            DefaultDomainObject<TaskSelectorsFields> taskSelector = new DefaultDomainObject<TaskSelectorsFields>();
+            taskSelector.put(TaskSelectorsFields.NAME, syntheticTaskSelector.getName());
+            taskSelector.put(TaskSelectorsFields.DESCRIPTION, syntheticTaskSelector.getDescription());
+            taskSelector.put(TaskSelectorsFields.IS_PUBLIC, enforceAllTasksPublic || syntheticTaskSelector.isPublic());
+            taskSelector.put(TaskSelectorsFields.SELECTED_TASK_PATHS, syntheticTaskSelector.getTaskNames());
+            taskSelectors.add(taskSelector);
+        }
+        return taskSelectors.build();
     }
 
     /**
