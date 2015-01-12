@@ -6,5 +6,3 @@ keep track of cancellation tokens for shutdown of ToolingClient and cancel all t
 extend api on modelrequest regarding tasks (String, Launchable)
 forceful cleanup strategy not yet implemented -> shared vs. non-shared daemon
 use @NotNull annotation
-
-turn compiler warnings into errors once we can abandon implementing org.junit.rules.MethodRule
