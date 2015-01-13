@@ -1,4 +1,6 @@
 package com.gradleware.tooling.domain.internal
+
+import com.google.common.base.Predicate
 import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
 import com.google.common.eventbus.Subscribe
@@ -9,14 +11,13 @@ import com.gradleware.tooling.domain.NewBuildEnvironmentUpdateEvent
 import com.gradleware.tooling.domain.NewGradleBuildStructureUpdateEvent
 import com.gradleware.tooling.domain.NewGradleBuildUpdateEvent
 import com.gradleware.tooling.domain.TransientRequestAttributes
-import com.gradleware.tooling.domain.model.GradleProjectFields
 import com.gradleware.tooling.domain.model.GradleScriptFields
 import com.gradleware.tooling.domain.model.OmniBuildEnvironment
 import com.gradleware.tooling.domain.model.OmniGradleBuild
 import com.gradleware.tooling.domain.model.OmniGradleBuildStructure
+import com.gradleware.tooling.domain.model.OmniGradleProject
 import com.gradleware.tooling.domain.model.ProjectTaskFields
 import com.gradleware.tooling.domain.model.TaskSelectorsFields
-import com.gradleware.tooling.domain.model.generic.PredicateFactory
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DataValueFormatter
 import com.gradleware.tooling.spock.DomainToolingClientSpecification
@@ -244,42 +245,46 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
 
     then:
     gradleBuild != null
-    gradleBuild.rootProjectModel != null
-    gradleBuild.rootProjectModel.get(GradleProjectFields.NAME) == 'my root project'
-    gradleBuild.rootProjectModel.get(GradleProjectFields.DESCRIPTION) == 'a sample root project'
-    gradleBuild.rootProjectModel.get(GradleProjectFields.PATH) == ':'
-    gradleBuild.rootProjectModel.get(GradleProjectFields.PROJECT_DIRECTORY)?.absolutePath == (higherOrEqual("2.4", distribution) ? directoryProvider.testDirectory.absolutePath : null)
-    gradleBuild.rootProjectModel.get(GradleProjectFields.BUILD_DIRECTORY)?.absolutePath == (higherOrEqual("2.0", distribution) ? directoryProvider.file('build').absolutePath : null)
-    gradleBuild.rootProjectModel.get(GradleProjectFields.BUILD_SCRIPT).get(GradleScriptFields.SOURCE_FILE)?.absolutePath == (higherOrEqual("1.8", distribution) ? directoryProvider.file('build.gradle').absolutePath : null)
-    gradleBuild.rootProjectModel.get(GradleProjectFields.PROJECT_TASKS).size() == getImplicitlyAddedGradleProjectTasksCount(distribution) + 1
-    gradleBuild.rootProjectModel.parent == null
-    gradleBuild.rootProjectModel.children.size() == 2
-    gradleBuild.rootProjectModel.children*.get(GradleProjectFields.NAME) == ['sub1', 'sub2']
-    gradleBuild.rootProjectModel.children*.get(GradleProjectFields.DESCRIPTION) == ['sub project 1', 'sub project 2']
-    gradleBuild.rootProjectModel.children*.get(GradleProjectFields.PATH) == [':sub1', ':sub2']
-    gradleBuild.rootProjectModel.children*.parent == [gradleBuild.rootProjectModel, gradleBuild.rootProjectModel]
-    gradleBuild.rootProjectModel.descendants.size() == 4
-    gradleBuild.rootProjectModel.descendants*.get(GradleProjectFields.NAME) == ['my root project', 'sub1', 'sub2', 'subSub1']
+    gradleBuild.rootProject != null
+    gradleBuild.rootProject.name == 'my root project'
+    gradleBuild.rootProject.description == 'a sample root project'
+    gradleBuild.rootProject.path == ':'
+    gradleBuild.rootProject.projectDirectory?.absolutePath == (higherOrEqual("2.4", distribution) ? directoryProvider.testDirectory.absolutePath : null)
+    gradleBuild.rootProject.buildDirectory?.absolutePath == (higherOrEqual("2.0", distribution) ? directoryProvider.file('build').absolutePath : null)
+    gradleBuild.rootProject.buildScript.get(GradleScriptFields.SOURCE_FILE)?.absolutePath == (higherOrEqual("1.8", distribution) ? directoryProvider.file('build.gradle').absolutePath : null)
+    gradleBuild.rootProject.projectTasks.size() == getImplicitlyAddedGradleProjectTasksCount(distribution) + 1
+    gradleBuild.rootProject.parent == null
+    gradleBuild.rootProject.children.size() == 2
+    gradleBuild.rootProject.children*.name == ['sub1', 'sub2']
+    gradleBuild.rootProject.children*.description == ['sub project 1', 'sub project 2']
+    gradleBuild.rootProject.children*.path == [':sub1', ':sub2']
+    gradleBuild.rootProject.children*.parent == [gradleBuild.rootProject, gradleBuild.rootProject]
+    gradleBuild.rootProject.all.size() == 4
+    gradleBuild.rootProject.all*.name == ['my root project', 'sub1', 'sub2', 'subSub1']
 
-    def projectSub1 = gradleBuild.rootProjectModel.findFirst(PredicateFactory.isEqual(GradleProjectFields.PATH, ':sub1')).get()
-    projectSub1.get(GradleProjectFields.PROJECT_TASKS).size() == 2
+    def projectSub1 = gradleBuild.rootProject.tryFind({ OmniGradleProject input ->
+      return input.getPath().equals(':sub1')
+    } as Predicate).get()
+    projectSub1.projectTasks.size() == 2
 
-    def myFirstTaskOfSub1 = projectSub1.get(GradleProjectFields.PROJECT_TASKS)[0]
+    def myFirstTaskOfSub1 = projectSub1.projectTasks[0]
     myFirstTaskOfSub1.get(ProjectTaskFields.NAME) == 'myFirstTaskOfSub1'
     myFirstTaskOfSub1.get(ProjectTaskFields.DESCRIPTION) == '1st task of sub1'
     myFirstTaskOfSub1.get(ProjectTaskFields.PATH) == ':sub1:myFirstTaskOfSub1'
     myFirstTaskOfSub1.get(ProjectTaskFields.IS_PUBLIC)
 
-    def mySecondTaskOfSub1 = projectSub1.get(GradleProjectFields.PROJECT_TASKS)[1]
+    def mySecondTaskOfSub1 = projectSub1.projectTasks[1]
     mySecondTaskOfSub1.get(ProjectTaskFields.NAME) == 'mySecondTaskOfSub1'
     mySecondTaskOfSub1.get(ProjectTaskFields.DESCRIPTION) == '2nd task of sub1'
     mySecondTaskOfSub1.get(ProjectTaskFields.PATH) == ':sub1:mySecondTaskOfSub1'
     mySecondTaskOfSub1.get(ProjectTaskFields.IS_PUBLIC) == !higherOrEqual("2.3", distribution) // all versions < 2.3 are corrected to or default to 'true'
 
-    def projectSub2 = gradleBuild.rootProjectModel.findFirst(PredicateFactory.isEqual(GradleProjectFields.PATH, ':sub2')).get()
-    projectSub2.get(GradleProjectFields.TASK_SELECTORS).size() == 5
+    def projectSub2 = gradleBuild.rootProject.tryFind({ OmniGradleProject input ->
+      return input.getPath().equals(':sub2')
+    } as Predicate).get()
+    projectSub2.taskSelectors.size() == 5
 
-    def myTaskSelector = projectSub2.get(GradleProjectFields.TASK_SELECTORS).find { it.get(TaskSelectorsFields.NAME).equals('myTask') }
+    def myTaskSelector = projectSub2.taskSelectors.find { it.get(TaskSelectorsFields.NAME).equals('myTask') }
     myTaskSelector.get(TaskSelectorsFields.NAME) == 'myTask'
     myTaskSelector.get(TaskSelectorsFields.DESCRIPTION) == 'another task of sub2'
     myTaskSelector.get(TaskSelectorsFields.IS_PUBLIC)

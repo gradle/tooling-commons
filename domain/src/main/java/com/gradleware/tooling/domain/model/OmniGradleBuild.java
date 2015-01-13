@@ -14,6 +14,13 @@ public interface OmniGradleBuild {
      *
      * @return the root project
      */
+    OmniGradleProject getRootProject();
+
+    /**
+     * Returns the root project of the build.
+     *
+     * @return the root project
+     */
     HierarchicalDomainObject<GradleProjectFields> getRootProjectModel();
 
 }
