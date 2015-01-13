@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain.model.internal;
+package com.gradleware.tooling.domain.repository.internal;
 
 import com.gradleware.tooling.domain.BasicGradleProjectFields;
 import com.gradleware.tooling.domain.OmniGradleBuildStructure;

@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain.model.internal;
+package com.gradleware.tooling.domain.repository.internal;
 
 import java.util.Comparator;
 

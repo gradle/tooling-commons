@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain.model.internal;
+package com.gradleware.tooling.domain.repository.internal;
 
 import com.google.common.collect.ImmutableSortedSet;
 import com.gradleware.tooling.domain.OmniTaskSelector;

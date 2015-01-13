@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain.model.internal;
+package com.gradleware.tooling.domain.repository.internal;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -9,9 +9,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
-import com.gradleware.tooling.domain.repository.BuildInvocationsContainer;
 import com.gradleware.tooling.domain.internal.BuildInvocationsContainerFactory;
 import com.gradleware.tooling.domain.internal.SyntheticTaskSelector;
+import com.gradleware.tooling.domain.repository.BuildInvocationsContainer;
 import com.gradleware.tooling.domain.GradleProjectFields;
 import com.gradleware.tooling.domain.GradleScriptFields;
 import com.gradleware.tooling.domain.OmniGradleProject;
