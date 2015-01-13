@@ -1,7 +1,7 @@
 package com.gradleware.tooling.domain.repository;
 
 import com.google.common.base.Preconditions;
-import com.gradleware.tooling.domain.model.OmniBuildEnvironment;
+import com.gradleware.tooling.domain.OmniBuildEnvironment;
 
 /**
  * Event that is broadcast when {@code OmniBuildEnvironment} has been updated.

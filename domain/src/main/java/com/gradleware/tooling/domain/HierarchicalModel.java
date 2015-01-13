@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain.model;
+package com.gradleware.tooling.domain;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;

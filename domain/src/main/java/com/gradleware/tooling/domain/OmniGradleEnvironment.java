@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain.model;
+package com.gradleware.tooling.domain;
 
 /**
  * Informs about the Gradle environment.

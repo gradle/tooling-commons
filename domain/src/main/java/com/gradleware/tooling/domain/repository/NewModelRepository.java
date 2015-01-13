@@ -1,8 +1,8 @@
 package com.gradleware.tooling.domain.repository;
 
-import com.gradleware.tooling.domain.model.OmniBuildEnvironment;
-import com.gradleware.tooling.domain.model.OmniGradleBuild;
-import com.gradleware.tooling.domain.model.OmniGradleBuildStructure;
+import com.gradleware.tooling.domain.OmniBuildEnvironment;
+import com.gradleware.tooling.domain.OmniGradleBuild;
+import com.gradleware.tooling.domain.OmniGradleBuildStructure;
 
 /**
  * Repository for Gradle build models. Listeners can be registered to get notified about model updates. It is left to the implementation through which channel the events are

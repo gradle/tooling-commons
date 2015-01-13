@@ -1,10 +1,10 @@
 package com.gradleware.tooling.domain.model.internal;
 
-import com.gradleware.tooling.domain.model.GradleEnvironmentFields;
-import com.gradleware.tooling.domain.model.JavaEnvironmentFields;
-import com.gradleware.tooling.domain.model.OmniBuildEnvironment;
-import com.gradleware.tooling.domain.model.OmniGradleEnvironment;
-import com.gradleware.tooling.domain.model.OmniJavaEnvironment;
+import com.gradleware.tooling.domain.GradleEnvironmentFields;
+import com.gradleware.tooling.domain.JavaEnvironmentFields;
+import com.gradleware.tooling.domain.OmniBuildEnvironment;
+import com.gradleware.tooling.domain.OmniGradleEnvironment;
+import com.gradleware.tooling.domain.OmniJavaEnvironment;
 import com.gradleware.tooling.domain.generic.DefaultModel;
 import com.gradleware.tooling.domain.generic.Model;
 import org.gradle.tooling.model.build.BuildEnvironment;

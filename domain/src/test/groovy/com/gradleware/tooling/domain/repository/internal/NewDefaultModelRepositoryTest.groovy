@@ -11,10 +11,10 @@ import com.gradleware.tooling.domain.repository.NewBuildEnvironmentUpdateEvent
 import com.gradleware.tooling.domain.repository.NewGradleBuildStructureUpdateEvent
 import com.gradleware.tooling.domain.repository.NewGradleBuildUpdateEvent
 import com.gradleware.tooling.domain.repository.TransientRequestAttributes
-import com.gradleware.tooling.domain.model.OmniBuildEnvironment
-import com.gradleware.tooling.domain.model.OmniGradleBuild
-import com.gradleware.tooling.domain.model.OmniGradleBuildStructure
-import com.gradleware.tooling.domain.model.OmniGradleProject
+import com.gradleware.tooling.domain.OmniBuildEnvironment
+import com.gradleware.tooling.domain.OmniGradleBuild
+import com.gradleware.tooling.domain.OmniGradleBuildStructure
+import com.gradleware.tooling.domain.OmniGradleProject
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DataValueFormatter
 import com.gradleware.tooling.spock.DomainToolingClientSpecification

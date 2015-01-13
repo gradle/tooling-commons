@@ -1,11 +1,9 @@
-package com.gradleware.tooling.domain.model;
-
-import java.util.SortedSet;
+package com.gradleware.tooling.domain;
 
 /**
  * Represents a project task which is executable by Gradle.
  */
-public interface OmniTaskSelector {
+public interface OmniProjectTask {
 
     /**
      * Returns the name of this task. Note that the name is not a unique identifier for the project.
@@ -22,17 +20,17 @@ public interface OmniTaskSelector {
     String getDescription();
 
     /**
-     * Returns whether this task is public or not. Public tasks are those that have a non-null {@code group} property.
+     * Returns the path of this task. The path can be used as a unique identifier for the task within a given build.
+     *
+     * @return the path of this task
+     */
+    String getPath();
+
+    /**
+     * Returns whether this task is public or not. Public tasks are those that have a non-null {@code group} property.     *
      *
      * @return {@code true} if this task is public, {@code false} otherwise
      */
     boolean isPublic();
-
-    /**
-     * Returns the tasks selected by this task selector, identified by their unique path.
-     *
-     * @return the selected tasks
-     */
-    SortedSet<String> getSelectedTaskPaths();
 
 }

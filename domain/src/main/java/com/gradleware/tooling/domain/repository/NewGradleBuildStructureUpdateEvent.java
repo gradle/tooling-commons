@@ -1,7 +1,7 @@
 package com.gradleware.tooling.domain.repository;
 
 import com.google.common.base.Preconditions;
-import com.gradleware.tooling.domain.model.OmniGradleBuildStructure;
+import com.gradleware.tooling.domain.OmniGradleBuildStructure;
 
 /**
  * Event that is broadcast when {@code OmniGradleBuildStructure} has been updated.

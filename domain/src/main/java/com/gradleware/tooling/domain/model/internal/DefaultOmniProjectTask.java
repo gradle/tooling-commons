@@ -1,7 +1,7 @@
 package com.gradleware.tooling.domain.model.internal;
 
-import com.gradleware.tooling.domain.model.OmniProjectTask;
-import com.gradleware.tooling.domain.model.ProjectTaskFields;
+import com.gradleware.tooling.domain.OmniProjectTask;
+import com.gradleware.tooling.domain.ProjectTaskFields;
 import com.gradleware.tooling.domain.generic.Model;
 
 /**

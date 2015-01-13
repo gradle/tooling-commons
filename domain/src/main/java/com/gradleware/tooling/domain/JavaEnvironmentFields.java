@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain.model;
+package com.gradleware.tooling.domain;
 
 import com.google.common.reflect.TypeToken;
 import com.gradleware.tooling.domain.generic.DefaultModelField;

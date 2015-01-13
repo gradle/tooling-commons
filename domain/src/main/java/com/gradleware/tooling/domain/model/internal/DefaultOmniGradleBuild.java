@@ -1,8 +1,8 @@
 package com.gradleware.tooling.domain.model.internal;
 
-import com.gradleware.tooling.domain.model.GradleProjectFields;
-import com.gradleware.tooling.domain.model.OmniGradleBuild;
-import com.gradleware.tooling.domain.model.OmniGradleProject;
+import com.gradleware.tooling.domain.GradleProjectFields;
+import com.gradleware.tooling.domain.OmniGradleBuild;
+import com.gradleware.tooling.domain.OmniGradleProject;
 import com.gradleware.tooling.domain.generic.HierarchicalModel;
 import org.gradle.tooling.model.GradleProject;
 
