@@ -15,7 +15,7 @@ public final class NewGradleBuildStructureUpdateEvent {
     }
 
     public OmniGradleBuildStructure getGradleBuildStructure() {
-        return gradleBuildStructure;
+        return this.gradleBuildStructure;
     }
 
 }
