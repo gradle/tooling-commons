@@ -1,7 +1,7 @@
 package com.gradleware.tooling.domain.internal;
 
 import com.google.common.base.Converter;
-import com.gradleware.tooling.domain.BuildInvocationsContainer;
+import com.gradleware.tooling.domain.repository.BuildInvocationsContainer;
 import org.gradle.tooling.model.gradle.BuildInvocations;
 
 import java.util.Map;

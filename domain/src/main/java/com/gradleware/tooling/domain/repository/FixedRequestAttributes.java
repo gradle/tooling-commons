@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain;
+package com.gradleware.tooling.domain.repository;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
@@ -32,41 +32,41 @@ public final class FixedRequestAttributes {
 
     @SuppressWarnings("UnusedDeclaration")
     public File getProjectDir() {
-        return projectDir;
+        return this.projectDir;
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public File getGradleUserHomeDir() {
-        return gradleUserHomeDir;
+        return this.gradleUserHomeDir;
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public GradleDistribution getGradleDistribution() {
-        return gradleDistribution;
+        return this.gradleDistribution;
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public File getJavaHome() {
-        return javaHome;
+        return this.javaHome;
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public ImmutableList<String> getJvmArguments() {
-        return jvmArguments;
+        return this.jvmArguments;
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public ImmutableList<String> getArguments() {
-        return arguments;
+        return this.arguments;
     }
 
     public void apply(Request<?> request) {
-        request.projectDir(projectDir);
-        request.gradleUserHomeDir(gradleUserHomeDir);
-        request.gradleDistribution(gradleDistribution);
-        request.javaHomeDir(javaHome);
-        request.jvmArguments(jvmArguments.toArray(new String[jvmArguments.size()]));
-        request.arguments(arguments.toArray(new String[arguments.size()]));
+        request.projectDir(this.projectDir);
+        request.gradleUserHomeDir(this.gradleUserHomeDir);
+        request.gradleDistribution(this.gradleDistribution);
+        request.javaHomeDir(this.javaHome);
+        request.jvmArguments(this.jvmArguments.toArray(new String[this.jvmArguments.size()]));
+        request.arguments(this.arguments.toArray(new String[this.arguments.size()]));
     }
 
     @Override
@@ -79,23 +79,23 @@ public final class FixedRequestAttributes {
         }
 
         FixedRequestAttributes that = (FixedRequestAttributes) other;
-        return Objects.equal(projectDir, that.projectDir) &&
-                Objects.equal(gradleUserHomeDir, that.gradleUserHomeDir) &&
-                Objects.equal(gradleDistribution, that.gradleDistribution) &&
-                Objects.equal(javaHome, that.javaHome) &&
-                Objects.equal(jvmArguments, that.jvmArguments) &&
-                Objects.equal(arguments, that.arguments);
+        return Objects.equal(this.projectDir, that.projectDir) &&
+                Objects.equal(this.gradleUserHomeDir, that.gradleUserHomeDir) &&
+                Objects.equal(this.gradleDistribution, that.gradleDistribution) &&
+                Objects.equal(this.javaHome, that.javaHome) &&
+                Objects.equal(this.jvmArguments, that.jvmArguments) &&
+                Objects.equal(this.arguments, that.arguments);
     }
 
     @Override
     public int hashCode() {
         return Objects.hashCode(
-                projectDir,
-                gradleUserHomeDir,
-                gradleDistribution,
-                javaHome,
-                jvmArguments,
-                arguments);
+                this.projectDir,
+                this.gradleUserHomeDir,
+                this.gradleDistribution,
+                this.javaHome,
+                this.jvmArguments,
+                this.arguments);
     }
 
 }

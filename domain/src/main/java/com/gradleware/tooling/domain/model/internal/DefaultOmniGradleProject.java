@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
-import com.gradleware.tooling.domain.BuildInvocationsContainer;
+import com.gradleware.tooling.domain.repository.BuildInvocationsContainer;
 import com.gradleware.tooling.domain.internal.BuildInvocationsContainerFactory;
 import com.gradleware.tooling.domain.internal.SyntheticTaskSelector;
 import com.gradleware.tooling.domain.model.GradleProjectFields;

@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain;
+package com.gradleware.tooling.domain.repository;
 
 /**
  * Enumerates the different environments known to the system.

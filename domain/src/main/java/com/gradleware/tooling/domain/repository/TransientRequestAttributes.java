@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain;
+package com.gradleware.tooling.domain.repository;
 
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingapi.Request;
@@ -32,41 +32,41 @@ public final class TransientRequestAttributes {
 
     @SuppressWarnings("UnusedDeclaration")
     public boolean isColorOutput() {
-        return colorOutput;
+        return this.colorOutput;
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public OutputStream getStandardOutput() {
-        return standardOutput;
+        return this.standardOutput;
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public OutputStream getStandardError() {
-        return standardError;
+        return this.standardError;
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public InputStream getStandardInput() {
-        return standardInput;
+        return this.standardInput;
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public ImmutableList<ProgressListener> getProgressListeners() {
-        return progressListeners;
+        return this.progressListeners;
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public CancellationToken getCancellationToken() {
-        return cancellationToken;
+        return this.cancellationToken;
     }
 
     public void apply(Request<?> request) {
-        request.colorOutput(colorOutput);
-        request.standardOutput(standardOutput);
-        request.standardError(standardError);
-        request.standardInput(standardInput);
-        request.progressListeners(progressListeners.toArray(new ProgressListener[progressListeners.size()]));
-        request.cancellationToken(cancellationToken);
+        request.colorOutput(this.colorOutput);
+        request.standardOutput(this.standardOutput);
+        request.standardError(this.standardError);
+        request.standardInput(this.standardInput);
+        request.progressListeners(this.progressListeners.toArray(new ProgressListener[this.progressListeners.size()]));
+        request.cancellationToken(this.cancellationToken);
     }
 
 }

@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain
+package com.gradleware.tooling.domain.repository
 
 import com.google.common.collect.ImmutableList
 import com.gradleware.tooling.toolingapi.BuildActionRequest

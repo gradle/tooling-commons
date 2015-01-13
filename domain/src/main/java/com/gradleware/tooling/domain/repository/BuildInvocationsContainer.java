@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain;
+package com.gradleware.tooling.domain.repository;
 
 import com.google.common.collect.ImmutableMap;
 import org.gradle.tooling.model.gradle.BuildInvocations;
@@ -24,7 +24,7 @@ public final class BuildInvocationsContainer {
      * @return the mapping of projects to build invocations
      */
     public Map<String, BuildInvocations> asMap() {
-        return buildInvocationsPerProject;
+        return this.buildInvocationsPerProject;
     }
 
     /**

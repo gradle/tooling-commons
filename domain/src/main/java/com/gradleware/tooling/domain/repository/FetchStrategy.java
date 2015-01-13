@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain;
+package com.gradleware.tooling.domain.repository;
 
 /**
  * Enumerates different strategies of how to fetch a given value from a caching data provider.

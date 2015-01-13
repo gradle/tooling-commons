@@ -1,8 +1,5 @@
 package com.gradleware.tooling.domain.repository;
 
-import com.gradleware.tooling.domain.BuildInvocationsContainer;
-import com.gradleware.tooling.domain.FetchStrategy;
-import com.gradleware.tooling.domain.TransientRequestAttributes;
 import com.gradleware.tooling.domain.util.Pair;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.build.BuildEnvironment;
@@ -31,16 +28,16 @@ public interface ModelRepository {
     void unregister(Object listener);
 
     /**
-     * Fetches the {@link BuildEnvironment} synchronously and broadcasts it through a {@link com.gradleware.tooling.domain.BuildEnvironmentUpdateEvent}.
+     * Fetches the {@link BuildEnvironment} synchronously and broadcasts it through a {@link BuildEnvironmentUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
      * @param fetchStrategy the fetch strategy
-     * @return the build environment, never null unless strategy {@link com.gradleware.tooling.domain.FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
+     * @return the build environment, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
      */
     BuildEnvironment fetchBuildEnvironmentAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
     /**
-     * Fetches the {@link GradleBuild} synchronously and broadcasts it through a {@link com.gradleware.tooling.domain.GradleBuildUpdateEvent}.
+     * Fetches the {@link GradleBuild} synchronously and broadcasts it through a {@link GradleBuildUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
      * @param fetchStrategy the fetch strategy
@@ -49,7 +46,7 @@ public interface ModelRepository {
     GradleBuild fetchGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
     /**
-     * Fetches the {@link EclipseProject} synchronously and broadcasts it through a {@link com.gradleware.tooling.domain.EclipseProjectUpdateEvent}.
+     * Fetches the {@link EclipseProject} synchronously and broadcasts it through a {@link EclipseProjectUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
      * @param fetchStrategy the fetch strategy
@@ -58,7 +55,7 @@ public interface ModelRepository {
     EclipseProject fetchEclipseProjectAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
     /**
-     * Fetches the {@link GradleProject} synchronously and broadcasts it through a {@link com.gradleware.tooling.domain.GradleProjectUpdateEvent}.
+     * Fetches the {@link GradleProject} synchronously and broadcasts it through a {@link GradleProjectUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
      * @param fetchStrategy the fetch strategy
@@ -67,7 +64,7 @@ public interface ModelRepository {
     GradleProject fetchGradleProjectAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
     /**
-     * Fetches the {@link BuildInvocations} synchronously and broadcasts them through a {@link com.gradleware.tooling.domain.BuildInvocationsUpdateEvent}.
+     * Fetches the {@link BuildInvocations} synchronously and broadcasts them through a {@link BuildInvocationsUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
      * @param fetchStrategy the fetch strategy
@@ -76,8 +73,8 @@ public interface ModelRepository {
     BuildInvocationsContainer fetchBuildInvocationsAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
     /**
-     * Fetches the {@link GradleProject} and {@link BuildInvocations} synchronously and broadcasts them through a {@link com.gradleware.tooling.domain.GradleProjectUpdateEvent} and {@link
-     * com.gradleware.tooling.domain.BuildInvocationsUpdateEvent}.
+     * Fetches the {@link GradleProject} and {@link BuildInvocations} synchronously and broadcasts them through a {@link GradleProjectUpdateEvent} and {@link
+     * BuildInvocationsUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
      * @param fetchStrategy the fetch strategy

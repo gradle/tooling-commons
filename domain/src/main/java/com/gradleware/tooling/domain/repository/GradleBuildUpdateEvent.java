@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain;
+package com.gradleware.tooling.domain.repository;
 
 import com.google.common.base.Preconditions;
 import org.gradle.tooling.model.gradle.GradleBuild;
@@ -15,7 +15,7 @@ public final class GradleBuildUpdateEvent {
     }
 
     public GradleBuild getGradleBuild() {
-        return gradleBuild;
+        return this.gradleBuild;
     }
 
 }

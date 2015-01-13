@@ -1,7 +1,5 @@
 package com.gradleware.tooling.domain.repository;
 
-import com.gradleware.tooling.domain.FixedRequestAttributes;
-
 /**
  * Provider of {@code ModelRepository} instances for given sets of {@code FixedRequestAttributes}.
  */

@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain;
+package com.gradleware.tooling.domain.repository;
 
 import com.google.common.base.Preconditions;
 import com.gradleware.tooling.domain.model.OmniBuildEnvironment;
@@ -15,7 +15,7 @@ public final class NewBuildEnvironmentUpdateEvent {
     }
 
     public OmniBuildEnvironment getBuildEnvironment() {
-        return buildEnvironment;
+        return this.buildEnvironment;
     }
 
 }

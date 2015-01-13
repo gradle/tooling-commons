@@ -11,7 +11,7 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
-import com.gradleware.tooling.domain.BuildInvocationsContainer;
+import com.gradleware.tooling.domain.repository.BuildInvocationsContainer;
 import org.gradle.tooling.internal.consumer.converters.TaskNameComparator;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.GradleProject;
@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.SortedMap;
 
 /**
- * Converts a {@link org.gradle.tooling.model.GradleProject} to a {@link com.gradleware.tooling.domain.BuildInvocationsContainer}.
+ * Converts a {@link org.gradle.tooling.model.GradleProject} to a {@link com.gradleware.tooling.domain.repository.BuildInvocationsContainer}.
  */
 public final class BuildInvocationsContainerFactory {
 

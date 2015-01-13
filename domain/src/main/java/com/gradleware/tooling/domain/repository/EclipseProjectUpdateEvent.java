@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain;
+package com.gradleware.tooling.domain.repository;
 
 import com.google.common.base.Preconditions;
 import org.gradle.tooling.model.eclipse.EclipseProject;
@@ -15,7 +15,7 @@ public final class EclipseProjectUpdateEvent {
     }
 
     public EclipseProject getEclipseProject() {
-        return eclipseProject;
+        return this.eclipseProject;
     }
 
 }

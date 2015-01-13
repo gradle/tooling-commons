@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain;
+package com.gradleware.tooling.domain.repository;
 
 import com.google.common.base.Preconditions;
 import org.gradle.tooling.model.build.BuildEnvironment;
@@ -15,7 +15,7 @@ public final class BuildEnvironmentUpdateEvent {
     }
 
     public BuildEnvironment getBuildEnvironment() {
-        return buildEnvironment;
+        return this.buildEnvironment;
     }
 
 }

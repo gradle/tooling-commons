@@ -1,7 +1,7 @@
 package com.gradleware.tooling.domain.repository.internal
 
 import com.google.common.collect.ImmutableList
-import com.gradleware.tooling.domain.FixedRequestAttributes
+import com.gradleware.tooling.domain.repository.FixedRequestAttributes
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DomainToolingClientSpecification
 import com.gradleware.tooling.toolingapi.GradleDistribution

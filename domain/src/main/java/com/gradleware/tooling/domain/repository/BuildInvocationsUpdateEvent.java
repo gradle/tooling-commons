@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain;
+package com.gradleware.tooling.domain.repository;
 
 import com.google.common.base.Preconditions;
 
@@ -14,7 +14,7 @@ public final class BuildInvocationsUpdateEvent {
     }
 
     public BuildInvocationsContainer getBuildInvocations() {
-        return buildInvocations;
+        return this.buildInvocations;
     }
 
 }

@@ -1,12 +1,12 @@
 package com.gradleware.tooling.domain.repository.internal;
 
 import com.google.common.base.Preconditions;
-import com.gradleware.tooling.domain.BuildInvocationsContainer;
-import com.gradleware.tooling.domain.Environment;
-import com.gradleware.tooling.domain.FetchStrategy;
+import com.gradleware.tooling.domain.repository.BuildInvocationsContainer;
+import com.gradleware.tooling.domain.repository.Environment;
+import com.gradleware.tooling.domain.repository.FetchStrategy;
 import com.gradleware.tooling.domain.internal.BuildInvocationsContainerFactory;
 import com.gradleware.tooling.domain.repository.ModelRepository;
-import com.gradleware.tooling.domain.TransientRequestAttributes;
+import com.gradleware.tooling.domain.repository.TransientRequestAttributes;
 import com.gradleware.tooling.domain.util.Pair;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.build.BuildEnvironment;
