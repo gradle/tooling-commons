@@ -44,6 +44,6 @@ public interface HierarchicalModel<T extends HierarchicalModel<T>> {
      * @param predicate the criteria to match
      * @return the matching model, if any
      */
-    Optional<OmniGradleProjectStructure> tryFind(Predicate<? super T> predicate);
+    Optional<T> tryFind(Predicate<? super T> predicate);
 
 }
