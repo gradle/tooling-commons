@@ -1,6 +1,7 @@
 package com.gradleware.tooling.domain.model.internal;
 
 import com.gradleware.tooling.domain.model.BasicGradleProjectFields;
+import com.gradleware.tooling.domain.model.OmniGradleProjectStructure;
 import com.gradleware.tooling.domain.model.OmniGradleBuildStructure;
 import com.gradleware.tooling.domain.model.generic.DefaultHierarchicalDomainObject;
 import com.gradleware.tooling.domain.model.generic.DomainObject;
@@ -17,15 +18,22 @@ import java.util.Comparator;
  */
 public final class DefaultOmniGradleBuildStructure implements OmniGradleBuildStructure {
 
-    private final HierarchicalDomainObject<BasicGradleProjectFields> rootProject;
+    private final HierarchicalDomainObject<BasicGradleProjectFields> rootProjectModel;
+    private final OmniGradleProjectStructure rootProject;
 
-    private DefaultOmniGradleBuildStructure(HierarchicalDomainObject<BasicGradleProjectFields> rootProject) {
-        this.rootProject = rootProject;
+    private DefaultOmniGradleBuildStructure(HierarchicalDomainObject<BasicGradleProjectFields> rootProjectModel) {
+        this.rootProjectModel = rootProjectModel;
+        this.rootProject = DefaultOmniGradleProjectStructure.from(this.rootProjectModel);
+    }
+
+    @Override
+    public OmniGradleProjectStructure getRootProject() {
+        return this.rootProject;
     }
 
     @Override
     public HierarchicalDomainObject<BasicGradleProjectFields> getRootProjectModel() {
-        return this.rootProject;
+        return this.rootProjectModel;
     }
 
     public static DefaultOmniGradleBuildStructure from(GradleBuild gradleBuild) {

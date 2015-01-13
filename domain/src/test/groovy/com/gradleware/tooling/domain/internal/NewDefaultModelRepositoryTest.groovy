@@ -9,7 +9,6 @@ import com.gradleware.tooling.domain.NewBuildEnvironmentUpdateEvent
 import com.gradleware.tooling.domain.NewGradleBuildStructureUpdateEvent
 import com.gradleware.tooling.domain.NewGradleBuildUpdateEvent
 import com.gradleware.tooling.domain.TransientRequestAttributes
-import com.gradleware.tooling.domain.model.BasicGradleProjectFields
 import com.gradleware.tooling.domain.model.GradleProjectFields
 import com.gradleware.tooling.domain.model.GradleScriptFields
 import com.gradleware.tooling.domain.model.OmniBuildEnvironment
@@ -168,20 +167,20 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
 
     then:
     gradleBuildStructure != null
-    gradleBuildStructure.rootProjectModel != null
-    gradleBuildStructure.rootProjectModel.get(BasicGradleProjectFields.NAME) == 'my root project'
-    gradleBuildStructure.rootProjectModel.get(BasicGradleProjectFields.PATH) == ':'
-    gradleBuildStructure.rootProjectModel.get(BasicGradleProjectFields.PROJECT_DIRECTORY)?.absolutePath == (higherOrEqual("1.8", distribution) ? directoryProvider.testDirectory.absolutePath : null)
-    gradleBuildStructure.rootProjectModel.parent == null
-    gradleBuildStructure.rootProjectModel.children.size() == 2
-    gradleBuildStructure.rootProjectModel.children*.get(BasicGradleProjectFields.NAME) == ['sub1', 'sub2']
-    gradleBuildStructure.rootProjectModel.children*.get(BasicGradleProjectFields.PATH) == [':sub1', ':sub2']
-    gradleBuildStructure.rootProjectModel.children*.get(BasicGradleProjectFields.PROJECT_DIRECTORY).collect {
+    gradleBuildStructure.rootProject != null
+    gradleBuildStructure.rootProject.name == 'my root project'
+    gradleBuildStructure.rootProject.path == ':'
+    gradleBuildStructure.rootProject.projectDirectory?.absolutePath == (higherOrEqual("1.8", distribution) ? directoryProvider.testDirectory.absolutePath : null)
+    gradleBuildStructure.rootProject.parent == null
+    gradleBuildStructure.rootProject.children.size() == 2
+    gradleBuildStructure.rootProject.children*.name == ['sub1', 'sub2']
+    gradleBuildStructure.rootProject.children*.path == [':sub1', ':sub2']
+    gradleBuildStructure.rootProject.children*.projectDirectory.collect {
       it?.absolutePath
     } == (higherOrEqual("1.8", distribution) ? ['sub1', 'sub2'].collect { new File(directoryProvider.testDirectory, it).absolutePath } : [null, null])
-    gradleBuildStructure.rootProjectModel.children*.parent == [gradleBuildStructure.rootProjectModel, gradleBuildStructure.rootProjectModel]
-    gradleBuildStructure.rootProjectModel.descendants.size() == 4
-    gradleBuildStructure.rootProjectModel.descendants*.get(BasicGradleProjectFields.NAME) == ['my root project', 'sub1', 'sub2', 'subSub1']
+    gradleBuildStructure.rootProject.children*.parent == [gradleBuildStructure.rootProject, gradleBuildStructure.rootProject]
+    gradleBuildStructure.rootProject.all.size() == 4
+    gradleBuildStructure.rootProject.all*.name == ['my root project', 'sub1', 'sub2', 'subSub1']
 
     def event = publishedEvent.get()
     event != null
@@ -284,7 +283,7 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     myTaskSelector.get(TaskSelectorsFields.NAME) == 'myTask'
     myTaskSelector.get(TaskSelectorsFields.DESCRIPTION) == 'another task of sub2'
     myTaskSelector.get(TaskSelectorsFields.IS_PUBLIC)
-    myTaskSelector.get(TaskSelectorsFields.SELECTED_TASK_PATHS) as List == [':sub2:myTask',':sub2:subSub1:myTask']
+    myTaskSelector.get(TaskSelectorsFields.SELECTED_TASK_PATHS) as List == [':sub2:myTask', ':sub2:subSub1:myTask']
 
     def event = publishedEvent.get()
     event != null
