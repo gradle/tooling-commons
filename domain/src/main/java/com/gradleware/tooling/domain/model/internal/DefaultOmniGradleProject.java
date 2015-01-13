@@ -23,7 +23,7 @@ import com.gradleware.tooling.domain.model.TaskSelectorsFields;
 import com.gradleware.tooling.domain.model.generic.DefaultModel;
 import com.gradleware.tooling.domain.model.generic.DefaultHierarchicalModel;
 import com.gradleware.tooling.domain.model.generic.Model;
-import com.gradleware.tooling.domain.model.generic.DomainObjectField;
+import com.gradleware.tooling.domain.model.generic.ModelField;
 import com.gradleware.tooling.domain.model.generic.HierarchicalModel;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.GradleTask;
@@ -245,7 +245,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
      * @param projectDirectoryField the field from which to derive the default project directory in case it is not available on the project model
      * @param project the project model
      */
-    private static void setProjectDirectory(DefaultHierarchicalModel<GradleProjectFields> gradleProject, DomainObjectField<File, GradleProjectFields> projectDirectoryField, GradleProject project) {
+    private static void setProjectDirectory(DefaultHierarchicalModel<GradleProjectFields> gradleProject, ModelField<File, GradleProjectFields> projectDirectoryField, GradleProject project) {
         try {
             File projectDirectory = project.getProjectDirectory();
             gradleProject.put(projectDirectoryField, projectDirectory);
@@ -261,7 +261,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
      * @param buildDirectoryField the field from which to derive the default build directory in case it is not available on the project model
      * @param project the project model
      */
-    private static void setBuildDirectory(DefaultHierarchicalModel<GradleProjectFields> gradleProject, DomainObjectField<File, GradleProjectFields> buildDirectoryField, GradleProject project) {
+    private static void setBuildDirectory(DefaultHierarchicalModel<GradleProjectFields> gradleProject, ModelField<File, GradleProjectFields> buildDirectoryField, GradleProject project) {
         try {
             File buildDirectory = project.getBuildDirectory();
             gradleProject.put(buildDirectoryField, buildDirectory);
@@ -277,7 +277,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
      * @param buildScriptField the field from which to derive the default build script in case it is not available on the project model
      * @param project the project model
      */
-    private static void setBuildScript(DefaultHierarchicalModel<GradleProjectFields> gradleProject, DomainObjectField<Model<GradleScriptFields>, GradleProjectFields> buildScriptField, GradleProject project) {
+    private static void setBuildScript(DefaultHierarchicalModel<GradleProjectFields> gradleProject, ModelField<Model<GradleScriptFields>, GradleProjectFields> buildScriptField, GradleProject project) {
         try {
             GradleScript buildScriptOrigin = project.getBuildScript();
             DefaultModel<GradleScriptFields> buildScript = new DefaultModel<GradleScriptFields>();
@@ -311,7 +311,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
      * @param task the task model
      * @param enforceAllTasksPublic flag to signal whether all tasks should be treated as public regardless of what the model says
      */
-    private static void setIsPublic(DefaultModel<ProjectTaskFields> projectTask, DomainObjectField<Boolean, ProjectTaskFields> isPublicField, GradleTask task, boolean enforceAllTasksPublic) {
+    private static void setIsPublic(DefaultModel<ProjectTaskFields> projectTask, ModelField<Boolean, ProjectTaskFields> isPublicField, GradleTask task, boolean enforceAllTasksPublic) {
         try {
             boolean isPublic = task.isPublic();
             projectTask.put(isPublicField, enforceAllTasksPublic || isPublic);

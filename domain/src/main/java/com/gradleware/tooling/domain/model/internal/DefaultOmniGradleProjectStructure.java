@@ -12,7 +12,7 @@ import com.gradleware.tooling.domain.model.BasicGradleProjectFields;
 import com.gradleware.tooling.domain.model.OmniGradleProjectStructure;
 import com.gradleware.tooling.domain.model.generic.DefaultHierarchicalModel;
 import com.gradleware.tooling.domain.model.generic.Model;
-import com.gradleware.tooling.domain.model.generic.DomainObjectField;
+import com.gradleware.tooling.domain.model.generic.ModelField;
 import com.gradleware.tooling.domain.model.generic.HierarchicalModel;
 import org.gradle.tooling.model.gradle.BasicGradleProject;
 
@@ -147,7 +147,7 @@ public final class DefaultOmniGradleProjectStructure implements OmniGradleProjec
      * @param projectDirectoryField the field from which to derive the default project directory in case it is not available on the project model
      * @param project the project model
      */
-    private static void setProjectDirectory(DefaultHierarchicalModel<BasicGradleProjectFields> basicGradleProject, DomainObjectField<File, BasicGradleProjectFields> projectDirectoryField, BasicGradleProject project) {
+    private static void setProjectDirectory(DefaultHierarchicalModel<BasicGradleProjectFields> basicGradleProject, ModelField<File, BasicGradleProjectFields> projectDirectoryField, BasicGradleProject project) {
         try {
             File projectDirectory = project.getProjectDirectory();
             basicGradleProject.put(projectDirectoryField, projectDirectory);

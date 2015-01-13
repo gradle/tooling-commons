@@ -2,7 +2,7 @@ package com.gradleware.tooling.domain.model;
 
 import com.google.common.base.Suppliers;
 import com.google.common.reflect.TypeToken;
-import com.gradleware.tooling.domain.model.generic.DomainObjectField;
+import com.gradleware.tooling.domain.model.generic.ModelField;
 
 import java.io.File;
 
@@ -16,8 +16,8 @@ public final class GradleScriptFields {
     /**
      * The source file for this script, or {@code null} if this script has no associated source file. If the value is not null, the given source file will exist.
      */
-    public static final DomainObjectField<File, GradleScriptFields> SOURCE_FILE =
-            new DomainObjectField<File, GradleScriptFields>(TypeToken.of(File.class), TypeToken.of(GradleScriptFields.class), Suppliers.<File>ofInstance(null));
+    public static final ModelField<File, GradleScriptFields> SOURCE_FILE =
+            new ModelField<File, GradleScriptFields>(TypeToken.of(File.class), TypeToken.of(GradleScriptFields.class), Suppliers.<File>ofInstance(null));
 
     private GradleScriptFields() {
     }
