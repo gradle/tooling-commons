@@ -108,11 +108,7 @@ public final class DefaultOmniGradleProjectStructure implements OmniGradleProjec
         return Iterables.tryFind(getAll(), predicate);
     }
 
-    public static DefaultOmniGradleProjectStructure from(HierarchicalDomainObject<BasicGradleProjectFields> basicGradleProject) {
-        return convert(basicGradleProject);
-    }
-
-    private static DefaultOmniGradleProjectStructure convert(HierarchicalDomainObject<BasicGradleProjectFields> project) {
+    public static DefaultOmniGradleProjectStructure from(HierarchicalDomainObject<BasicGradleProjectFields> project) {
         DefaultOmniGradleProjectStructure gradleProjectStructure = new DefaultOmniGradleProjectStructure(ProjectPathComparator.INSTANCE);
         gradleProjectStructure.setName(project.get(BasicGradleProjectFields.NAME));
         gradleProjectStructure.setPath(project.get(BasicGradleProjectFields.PATH));
