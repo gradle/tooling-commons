@@ -24,26 +24,11 @@ public final class DefaultOmniBuildEnvironment implements OmniBuildEnvironment {
     private final OmniGradleEnvironment gradle;
     private final OmniJavaEnvironment java;
 
-    private DefaultOmniBuildEnvironment(DomainObject<GradleEnvironmentFields> gradleModel, DomainObject<JavaEnvironmentFields> javaModel) {
+    private DefaultOmniBuildEnvironment(DomainObject<GradleEnvironmentFields> gradleModel, DomainObject<JavaEnvironmentFields> javaModel, OmniGradleEnvironment gradle, OmniJavaEnvironment java) {
         this.gradleModel = gradleModel;
         this.javaModel = javaModel;
-        this.gradle = new OmniGradleEnvironment() {
-            @Override
-            public String getGradleVersion() {
-                return getGradleModel().get(GradleEnvironmentFields.GRADLE_VERSION);
-            }
-        };
-        this.java = new OmniJavaEnvironment() {
-            @Override
-            public File getJavaHome() {
-                return getJavaModel().get(JavaEnvironmentFields.JAVA_HOME);
-            }
-
-            @Override
-            public List<String> getJvmArguments() {
-                return getJavaModel().get(JavaEnvironmentFields.JVM_ARGS);
-            }
-        };
+        this.gradle = gradle;
+        this.java = java;
     }
 
     @Override
@@ -67,16 +52,35 @@ public final class DefaultOmniBuildEnvironment implements OmniBuildEnvironment {
     }
 
     public static DefaultOmniBuildEnvironment from(BuildEnvironment buildEnvironment) {
-        DefaultDomainObject<GradleEnvironmentFields> gradle = new DefaultDomainObject<GradleEnvironmentFields>();
+        final DefaultDomainObject<GradleEnvironmentFields> gradleModel = new DefaultDomainObject<GradleEnvironmentFields>();
         GradleEnvironment gradleOrigin = buildEnvironment.getGradle();
-        gradle.put(GradleEnvironmentFields.GRADLE_VERSION, gradleOrigin.getGradleVersion());
+        gradleModel.put(GradleEnvironmentFields.GRADLE_VERSION, gradleOrigin.getGradleVersion());
 
-        DefaultDomainObject<JavaEnvironmentFields> java = new DefaultDomainObject<JavaEnvironmentFields>();
+        final DefaultDomainObject<JavaEnvironmentFields> javaModel = new DefaultDomainObject<JavaEnvironmentFields>();
         JavaEnvironment javaOrigin = buildEnvironment.getJava();
-        java.put(JavaEnvironmentFields.JAVA_HOME, javaOrigin.getJavaHome());
-        java.put(JavaEnvironmentFields.JVM_ARGS, javaOrigin.getJvmArguments());
+        javaModel.put(JavaEnvironmentFields.JAVA_HOME, javaOrigin.getJavaHome());
+        javaModel.put(JavaEnvironmentFields.JVM_ARGS, javaOrigin.getJvmArguments());
 
-        return new DefaultOmniBuildEnvironment(gradle, java);
+        OmniGradleEnvironment gradle = new OmniGradleEnvironment() {
+            @Override
+            public String getGradleVersion() {
+                return gradleModel.get(GradleEnvironmentFields.GRADLE_VERSION);
+            }
+        };
+
+        OmniJavaEnvironment java = new OmniJavaEnvironment() {
+            @Override
+            public File getJavaHome() {
+                return javaModel.get(JavaEnvironmentFields.JAVA_HOME);
+            }
+
+            @Override
+            public List<String> getJvmArguments() {
+                return javaModel.get(JavaEnvironmentFields.JVM_ARGS);
+            }
+        };
+
+        return new DefaultOmniBuildEnvironment(gradleModel, javaModel, gradle, java);
     }
 
 }
