@@ -13,7 +13,6 @@ public interface OmniBuildEnvironment {
      * Returns information about the Gradle environment.
      *
      * @return the Gradle environment
-     * @since 1.0-milestone-8
      */
     OmniGradleEnvironment getGradle();
 
@@ -28,7 +27,6 @@ public interface OmniBuildEnvironment {
      * Returns information about the Java environment.
      *
      * @return the Java environment
-     * @since 1.0-milestone-8
      */
     OmniJavaEnvironment getJava();
 
