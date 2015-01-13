@@ -1,5 +1,7 @@
-package com.gradleware.tooling.domain;
+package com.gradleware.tooling.domain.repository;
 
+import com.gradleware.tooling.domain.FetchStrategy;
+import com.gradleware.tooling.domain.TransientRequestAttributes;
 import com.gradleware.tooling.domain.model.OmniBuildEnvironment;
 import com.gradleware.tooling.domain.model.OmniGradleBuild;
 import com.gradleware.tooling.domain.model.OmniGradleBuildStructure;
@@ -25,16 +27,16 @@ public interface NewModelRepository {
     void unregister(Object listener);
 
     /**
-     * Fetches the {@link OmniBuildEnvironment} synchronously and broadcasts it through a {@link NewBuildEnvironmentUpdateEvent}.
+     * Fetches the {@link OmniBuildEnvironment} synchronously and broadcasts it through a {@link com.gradleware.tooling.domain.NewBuildEnvironmentUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
      * @param fetchStrategy the fetch strategy
-     * @return the build environment, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
+     * @return the build environment, never null unless strategy {@link com.gradleware.tooling.domain.FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
      */
     OmniBuildEnvironment fetchBuildEnvironmentAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
     /**
-     * Fetches the {@link OmniGradleBuildStructure} synchronously and broadcasts it through a {@link NewGradleBuildStructureUpdateEvent}.
+     * Fetches the {@link OmniGradleBuildStructure} synchronously and broadcasts it through a {@link com.gradleware.tooling.domain.NewGradleBuildStructureUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
      * @param fetchStrategy the fetch strategy
@@ -43,7 +45,7 @@ public interface NewModelRepository {
     OmniGradleBuildStructure fetchGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
     /**
-     * Fetches the {@link OmniGradleBuild} synchronously and broadcasts it through a {@link NewGradleBuildUpdateEvent}.
+     * Fetches the {@link OmniGradleBuild} synchronously and broadcasts it through a {@link com.gradleware.tooling.domain.NewGradleBuildUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
      * @param fetchStrategy the fetch strategy

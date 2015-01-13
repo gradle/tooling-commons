@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain.internal
+package com.gradleware.tooling.domain.repository.internal
 
 import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus

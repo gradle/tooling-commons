@@ -1,10 +1,11 @@
-package com.gradleware.tooling.domain.internal;
+package com.gradleware.tooling.domain.repository.internal;
 
 import com.google.common.base.Preconditions;
 import com.gradleware.tooling.domain.BuildInvocationsContainer;
 import com.gradleware.tooling.domain.Environment;
 import com.gradleware.tooling.domain.FetchStrategy;
-import com.gradleware.tooling.domain.ModelRepository;
+import com.gradleware.tooling.domain.internal.BuildInvocationsContainerFactory;
+import com.gradleware.tooling.domain.repository.ModelRepository;
 import com.gradleware.tooling.domain.TransientRequestAttributes;
 import com.gradleware.tooling.domain.util.Pair;
 import org.gradle.tooling.model.GradleProject;
@@ -29,18 +30,18 @@ public final class ContextAwareModelRepository implements ModelRepository {
 
     @Override
     public void register(Object listener) {
-        target.register(listener);
+        this.target.register(listener);
     }
 
     @Override
     public void unregister(Object listener) {
-        target.unregister(listener);
+        this.target.unregister(listener);
     }
 
     @Override
     public BuildEnvironment fetchBuildEnvironmentAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         // natively supported by all Gradle versions >= 1.0
-        return target.fetchBuildEnvironmentAndWait(transientRequestAttributes, fetchStrategy);
+        return this.target.fetchBuildEnvironmentAndWait(transientRequestAttributes, fetchStrategy);
     }
 
     @Override
@@ -49,26 +50,26 @@ public final class ContextAwareModelRepository implements ModelRepository {
         // note that for versions <1.8, the conversion from GradleProject to GradleBuild happens outside of our control and
         // thus that GradleProject instance cannot be cached, this means that if the GradleProject model is later asked for
         // from this model repository, it needs to be fetched again (and then gets cached)
-        return target.fetchGradleBuildAndWait(transientRequestAttributes, fetchStrategy);
+        return this.target.fetchGradleBuildAndWait(transientRequestAttributes, fetchStrategy);
     }
 
     @Override
     public EclipseProject fetchEclipseProjectAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         // natively supported by all Gradle versions >= 1.0
-        return target.fetchEclipseProjectAndWait(transientRequestAttributes, fetchStrategy);
+        return this.target.fetchEclipseProjectAndWait(transientRequestAttributes, fetchStrategy);
     }
 
     @Override
     public GradleProject fetchGradleProjectAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         // natively supported by all Gradle versions >= 1.0
-        return target.fetchGradleProjectAndWait(transientRequestAttributes, fetchStrategy);
+        return this.target.fetchGradleProjectAndWait(transientRequestAttributes, fetchStrategy);
     }
 
     @Override
     public BuildInvocationsContainer fetchBuildInvocationsAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         // natively supported by all Gradle versions >= 1.12, if BuildActions supported in the running environment
         if (supportsBuildInvocations(transientRequestAttributes) && supportsBuildActions(transientRequestAttributes)) {
-            return target.fetchBuildInvocationsAndWait(transientRequestAttributes, fetchStrategy);
+            return this.target.fetchBuildInvocationsAndWait(transientRequestAttributes, fetchStrategy);
         } else {
             GradleProject rootGradleProject = fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
             return BuildInvocationsContainerFactory.createFrom(rootGradleProject);
@@ -79,7 +80,7 @@ public final class ContextAwareModelRepository implements ModelRepository {
     public Pair<GradleProject, BuildInvocationsContainer> fetchGradleProjectWithBuildInvocationsAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         // natively supported by all Gradle versions >= 1.12, if BuildActions supported in the running environment
         if (supportsBuildInvocations(transientRequestAttributes) && supportsBuildActions(transientRequestAttributes)) {
-            return target.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, fetchStrategy);
+            return this.target.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, fetchStrategy);
         } else {
             GradleProject rootGradleProject = fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
             BuildInvocationsContainer buildInvocationsContainer = BuildInvocationsContainerFactory.createFrom(rootGradleProject);
@@ -92,7 +93,7 @@ public final class ContextAwareModelRepository implements ModelRepository {
     }
 
     private boolean supportsBuildActions(TransientRequestAttributes transientRequestAttributes) {
-        if (environment == Environment.ECLIPSE) {
+        if (this.environment == Environment.ECLIPSE) {
             // in an Eclipse/OSGi environment, the Tooling API supports BuildActions only in Gradle versions >= 2.3
             return targetGradleVersionIsEqualOrHigherThan("2.3", transientRequestAttributes);
         } else {

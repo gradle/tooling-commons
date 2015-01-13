@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain.internal;
+package com.gradleware.tooling.domain.repository.internal;
 
 import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
@@ -11,7 +11,7 @@ import com.gradleware.tooling.domain.FixedRequestAttributes;
 import com.gradleware.tooling.domain.NewBuildEnvironmentUpdateEvent;
 import com.gradleware.tooling.domain.NewGradleBuildStructureUpdateEvent;
 import com.gradleware.tooling.domain.NewGradleBuildUpdateEvent;
-import com.gradleware.tooling.domain.NewModelRepository;
+import com.gradleware.tooling.domain.repository.NewModelRepository;
 import com.gradleware.tooling.domain.TransientRequestAttributes;
 import com.gradleware.tooling.domain.buildaction.BuildActionFactory;
 import com.gradleware.tooling.domain.buildaction.ModelForAllProjectsBuildAction;
@@ -65,7 +65,7 @@ public final class NewDefaultModelRepository implements NewModelRepository {
     public void register(Object listener) {
         Preconditions.checkNotNull(listener);
 
-        eventBus.register(listener);
+        this.eventBus.register(listener);
     }
 
     /**
@@ -78,7 +78,7 @@ public final class NewDefaultModelRepository implements NewModelRepository {
     public void unregister(Object listener) {
         Preconditions.checkNotNull(listener);
 
-        eventBus.unregister(listener);
+        this.eventBus.unregister(listener);
     }
 
     @Override
@@ -91,7 +91,7 @@ public final class NewDefaultModelRepository implements NewModelRepository {
 
             @Override
             public void accept(OmniBuildEnvironment result) {
-                eventBus.post(new NewBuildEnvironmentUpdateEvent(result));
+                NewDefaultModelRepository.this.eventBus.post(new NewBuildEnvironmentUpdateEvent(result));
             }
         };
         Converter<BuildEnvironment, OmniBuildEnvironment> converter = new BaseConverter<BuildEnvironment, OmniBuildEnvironment>() {
@@ -115,7 +115,7 @@ public final class NewDefaultModelRepository implements NewModelRepository {
         Consumer<OmniGradleBuildStructure> successHandler = new Consumer<OmniGradleBuildStructure>() {
             @Override
             public void accept(OmniGradleBuildStructure result) {
-                eventBus.post(new NewGradleBuildStructureUpdateEvent(result));
+                NewDefaultModelRepository.this.eventBus.post(new NewGradleBuildStructureUpdateEvent(result));
             }
         };
         Converter<GradleBuild, OmniGradleBuildStructure> converter = new BaseConverter<GradleBuild, OmniGradleBuildStructure>() {
@@ -157,7 +157,7 @@ public final class NewDefaultModelRepository implements NewModelRepository {
         Consumer<OmniGradleBuild> successHandler = new Consumer<OmniGradleBuild>() {
             @Override
             public void accept(OmniGradleBuild result) {
-                eventBus.post(new NewGradleBuildUpdateEvent(result));
+                NewDefaultModelRepository.this.eventBus.post(new NewGradleBuildUpdateEvent(result));
             }
         };
         Converter<GradleProject, OmniGradleBuild> converter = new BaseConverter<GradleProject, OmniGradleBuild>() {
@@ -266,13 +266,13 @@ public final class NewDefaultModelRepository implements NewModelRepository {
     private <T, U> U executeRequest(final Request<T> request, final Consumer<U> newCacheEntryHandler, FetchStrategy fetchStrategy, Class<U> cacheKey, final Converter<T, U> resultConverter) {
         // if model is only accessed from the cache, we can return immediately
         if (FetchStrategy.FROM_CACHE_ONLY == fetchStrategy) {
-            Object result = cache.getIfPresent(cacheKey);
+            Object result = this.cache.getIfPresent(cacheKey);
             return cacheKey.cast(result);
         }
 
         // if model must be reloaded, we can invalidate the cache entry and then proceed as for FetchStrategy.LOAD_IF_NOT_CACHED
         if (FetchStrategy.FORCE_RELOAD == fetchStrategy) {
-            cache.invalidate(cacheKey);
+            this.cache.invalidate(cacheKey);
         }
 
         // load the values from the cache iff not already cached
@@ -296,7 +296,7 @@ public final class NewDefaultModelRepository implements NewModelRepository {
 
     private <U> U getFromCache(Class<U> cacheKey, Callable<U> cacheValueLoader) {
         try {
-            Object result = cache.get(cacheKey, cacheValueLoader);
+            Object result = this.cache.get(cacheKey, cacheValueLoader);
             return cacheKey.cast(result);
         } catch (UncheckedExecutionException e) {
             Throwable cause = e.getCause();
@@ -321,8 +321,8 @@ public final class NewDefaultModelRepository implements NewModelRepository {
 
     private <T> ModelRequest<T> createModelRequestForBuildModel(Class<T> model, TransientRequestAttributes transientRequestAttributes) {
         // build the request
-        ModelRequest<T> request = toolingClient.newModelRequest(model);
-        fixedRequestAttributes.apply(request);
+        ModelRequest<T> request = this.toolingClient.newModelRequest(model);
+        this.fixedRequestAttributes.apply(request);
         transientRequestAttributes.apply(request);
         return request;
     }
@@ -330,16 +330,16 @@ public final class NewDefaultModelRepository implements NewModelRepository {
     private <T> BuildActionRequest<Map<String, T>> createBuildActionRequestForProjectModel(Class<T> model, TransientRequestAttributes transientRequestAttributes) {
         // build the request
         ModelForAllProjectsBuildAction<T> buildAction = BuildActionFactory.getModelForAllProjects(model);
-        BuildActionRequest<Map<String, T>> request = toolingClient.newBuildActionRequest(buildAction);
-        fixedRequestAttributes.apply(request);
+        BuildActionRequest<Map<String, T>> request = this.toolingClient.newBuildActionRequest(buildAction);
+        this.fixedRequestAttributes.apply(request);
         transientRequestAttributes.apply(request);
         return request;
     }
 
     private <T> BuildActionRequest<T> createBuildActionRequestForBuildAction(BuildAction<T> buildAction, TransientRequestAttributes transientRequestAttributes) {
         // build the request
-        BuildActionRequest<T> request = toolingClient.newBuildActionRequest(buildAction);
-        fixedRequestAttributes.apply(request);
+        BuildActionRequest<T> request = this.toolingClient.newBuildActionRequest(buildAction);
+        this.fixedRequestAttributes.apply(request);
         transientRequestAttributes.apply(request);
         return request;
     }

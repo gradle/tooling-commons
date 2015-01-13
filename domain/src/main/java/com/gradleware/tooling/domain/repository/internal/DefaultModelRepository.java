@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain.internal;
+package com.gradleware.tooling.domain.repository.internal;
 
 import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
@@ -14,7 +14,8 @@ import com.gradleware.tooling.domain.FetchStrategy;
 import com.gradleware.tooling.domain.FixedRequestAttributes;
 import com.gradleware.tooling.domain.GradleBuildUpdateEvent;
 import com.gradleware.tooling.domain.GradleProjectUpdateEvent;
-import com.gradleware.tooling.domain.ModelRepository;
+import com.gradleware.tooling.domain.internal.BuildInvocationsConverter;
+import com.gradleware.tooling.domain.repository.ModelRepository;
 import com.gradleware.tooling.domain.TransientRequestAttributes;
 import com.gradleware.tooling.domain.buildaction.BuildActionFactory;
 import com.gradleware.tooling.domain.buildaction.DoubleBuildAction;
@@ -63,7 +64,7 @@ public final class DefaultModelRepository implements ModelRepository {
     public void register(Object listener) {
         Preconditions.checkNotNull(listener);
 
-        eventBus.register(listener);
+        this.eventBus.register(listener);
     }
 
     /**
@@ -76,7 +77,7 @@ public final class DefaultModelRepository implements ModelRepository {
     public void unregister(Object listener) {
         Preconditions.checkNotNull(listener);
 
-        eventBus.unregister(listener);
+        this.eventBus.unregister(listener);
     }
 
     @Override
@@ -88,7 +89,7 @@ public final class DefaultModelRepository implements ModelRepository {
         Consumer<BuildEnvironment> successHandler = new Consumer<BuildEnvironment>() {
             @Override
             public void accept(BuildEnvironment result) {
-                eventBus.post(new BuildEnvironmentUpdateEvent(result));
+                DefaultModelRepository.this.eventBus.post(new BuildEnvironmentUpdateEvent(result));
             }
         };
 
@@ -104,7 +105,7 @@ public final class DefaultModelRepository implements ModelRepository {
         Consumer<GradleBuild> successHandler = new Consumer<GradleBuild>() {
             @Override
             public void accept(GradleBuild result) {
-                eventBus.post(new GradleBuildUpdateEvent(result));
+                DefaultModelRepository.this.eventBus.post(new GradleBuildUpdateEvent(result));
             }
         };
 
@@ -120,7 +121,7 @@ public final class DefaultModelRepository implements ModelRepository {
         Consumer<EclipseProject> successHandler = new Consumer<EclipseProject>() {
             @Override
             public void accept(EclipseProject result) {
-                eventBus.post(new EclipseProjectUpdateEvent(result));
+                DefaultModelRepository.this.eventBus.post(new EclipseProjectUpdateEvent(result));
             }
         };
 
@@ -136,7 +137,7 @@ public final class DefaultModelRepository implements ModelRepository {
         Consumer<GradleProject> successHandler = new Consumer<GradleProject>() {
             @Override
             public void accept(GradleProject result) {
-                eventBus.post(new GradleProjectUpdateEvent(result));
+                DefaultModelRepository.this.eventBus.post(new GradleProjectUpdateEvent(result));
             }
         };
 
@@ -152,7 +153,7 @@ public final class DefaultModelRepository implements ModelRepository {
         Consumer<BuildInvocationsContainer> successHandler = new Consumer<BuildInvocationsContainer>() {
             @Override
             public void accept(BuildInvocationsContainer result) {
-                eventBus.post(new BuildInvocationsUpdateEvent(result));
+                DefaultModelRepository.this.eventBus.post(new BuildInvocationsUpdateEvent(result));
             }
         };
 
@@ -173,20 +174,20 @@ public final class DefaultModelRepository implements ModelRepository {
 
         // if values are only accessed from the cache, we can return immediately
         if (FetchStrategy.FROM_CACHE_ONLY == fetchStrategy) {
-            @SuppressWarnings("unchecked") GradleProject gradleProject = (GradleProject) cache.getIfPresent(GradleProject.class);
-            @SuppressWarnings("unchecked") BuildInvocationsContainer buildInvocations = (BuildInvocationsContainer) cache.getIfPresent(BuildInvocationsContainer.class);
+            @SuppressWarnings("unchecked") GradleProject gradleProject = (GradleProject) this.cache.getIfPresent(GradleProject.class);
+            @SuppressWarnings("unchecked") BuildInvocationsContainer buildInvocations = (BuildInvocationsContainer) this.cache.getIfPresent(BuildInvocationsContainer.class);
             return new Pair<GradleProject, BuildInvocationsContainer>(gradleProject, buildInvocations);
         }
 
         // if values must be reloaded, we can invalidate the cache entry and then proceed as for FetchStrategy.LOAD_IF_NOT_CACHED
         if (FetchStrategy.FORCE_RELOAD == fetchStrategy) {
-            cache.invalidate(GradleProject.class);
-            cache.invalidate(BuildInvocationsContainer.class);
+            this.cache.invalidate(GradleProject.class);
+            this.cache.invalidate(BuildInvocationsContainer.class);
         }
 
         // handle the case where we only load the values if not already cached
-        GradleProject gradleProject = (GradleProject) cache.getIfPresent(GradleProject.class);
-        @SuppressWarnings("unchecked") BuildInvocationsContainer buildInvocations = (BuildInvocationsContainer) cache.getIfPresent(BuildInvocationsContainer.class);
+        GradleProject gradleProject = (GradleProject) this.cache.getIfPresent(GradleProject.class);
+        @SuppressWarnings("unchecked") BuildInvocationsContainer buildInvocations = (BuildInvocationsContainer) this.cache.getIfPresent(BuildInvocationsContainer.class);
 
         // case 1: all values cached
         if (gradleProject != null && buildInvocations != null) {
@@ -196,10 +197,10 @@ public final class DefaultModelRepository implements ModelRepository {
         else {
             Pair<GradleProject, Map<String, BuildInvocations>> result = request.executeAndWait();
             Pair<GradleProject, BuildInvocationsContainer> convertedResult = new Pair<GradleProject, BuildInvocationsContainer>(result.getFirst(), BuildInvocationsConverter.INSTANCE.convert(result.getSecond()));
-            cache.put(GradleProject.class, convertedResult.getFirst());
-            cache.put(BuildInvocationsContainer.class, convertedResult.getSecond());
-            eventBus.post(new GradleProjectUpdateEvent(result.getFirst()));
-            eventBus.post(new BuildInvocationsUpdateEvent(convertedResult.getSecond()));
+            this.cache.put(GradleProject.class, convertedResult.getFirst());
+            this.cache.put(BuildInvocationsContainer.class, convertedResult.getSecond());
+            this.eventBus.post(new GradleProjectUpdateEvent(result.getFirst()));
+            this.eventBus.post(new BuildInvocationsUpdateEvent(convertedResult.getSecond()));
             return convertedResult;
         }
 
@@ -234,13 +235,13 @@ public final class DefaultModelRepository implements ModelRepository {
     private <T, U> U executeRequest(final Request<T> request, final Consumer<U> successHandler, FetchStrategy fetchStrategy, Class<U> cacheKey, final Converter<T, U> resultConverter) {
         // if values are only accessed from the cache, we can return immediately
         if (FetchStrategy.FROM_CACHE_ONLY == fetchStrategy) {
-            Object result = cache.getIfPresent(cacheKey);
+            Object result = this.cache.getIfPresent(cacheKey);
             return cacheKey.cast(result);
         }
 
         // if values must be reloaded, we can invalidate the cache entry and then proceed as for FetchStrategy.LOAD_IF_NOT_CACHED
         if (FetchStrategy.FORCE_RELOAD == fetchStrategy) {
-            cache.invalidate(cacheKey);
+            this.cache.invalidate(cacheKey);
         }
 
         // handle the case where we only load the values if not already cached
@@ -254,7 +255,7 @@ public final class DefaultModelRepository implements ModelRepository {
 
     private <U> U getFromCache(Class<U> cacheKey, Callable<U> cacheValueLoader) {
         try {
-            Object result = cache.get(cacheKey, cacheValueLoader);
+            Object result = this.cache.get(cacheKey, cacheValueLoader);
             return cacheKey.cast(result);
         } catch (UncheckedExecutionException e) {
             Throwable cause = e.getCause();
@@ -279,8 +280,8 @@ public final class DefaultModelRepository implements ModelRepository {
 
     private <T> ModelRequest<T> createModelRequestForBuildModel(Class<T> model, TransientRequestAttributes transientRequestAttributes) {
         // build the request
-        ModelRequest<T> request = toolingClient.newModelRequest(model);
-        fixedRequestAttributes.apply(request);
+        ModelRequest<T> request = this.toolingClient.newModelRequest(model);
+        this.fixedRequestAttributes.apply(request);
         transientRequestAttributes.apply(request);
         return request;
     }
@@ -288,16 +289,16 @@ public final class DefaultModelRepository implements ModelRepository {
     private <T> BuildActionRequest<Map<String, T>> createBuildActionRequestForProjectModel(Class<T> model, TransientRequestAttributes transientRequestAttributes) {
         // build the request
         ModelForAllProjectsBuildAction<T> buildAction = BuildActionFactory.getModelForAllProjects(model);
-        BuildActionRequest<Map<String, T>> request = toolingClient.newBuildActionRequest(buildAction);
-        fixedRequestAttributes.apply(request);
+        BuildActionRequest<Map<String, T>> request = this.toolingClient.newBuildActionRequest(buildAction);
+        this.fixedRequestAttributes.apply(request);
         transientRequestAttributes.apply(request);
         return request;
     }
 
     private <T> BuildActionRequest<T> createBuildActionRequestForBuildAction(BuildAction<T> buildAction, TransientRequestAttributes transientRequestAttributes) {
         // build the request
-        BuildActionRequest<T> request = toolingClient.newBuildActionRequest(buildAction);
-        fixedRequestAttributes.apply(request);
+        BuildActionRequest<T> request = this.toolingClient.newBuildActionRequest(buildAction);
+        this.fixedRequestAttributes.apply(request);
         transientRequestAttributes.apply(request);
         return request;
     }

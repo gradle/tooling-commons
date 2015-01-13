@@ -1,12 +1,12 @@
-package com.gradleware.tooling.domain.internal;
+package com.gradleware.tooling.domain.repository.internal;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 import com.gradleware.tooling.domain.Environment;
 import com.gradleware.tooling.domain.FixedRequestAttributes;
-import com.gradleware.tooling.domain.ModelRepository;
-import com.gradleware.tooling.domain.ModelRepositoryProvider;
+import com.gradleware.tooling.domain.repository.ModelRepository;
+import com.gradleware.tooling.domain.repository.ModelRepositoryProvider;
 import com.gradleware.tooling.toolingapi.ToolingClient;
 import org.gradle.internal.Factory;
 
@@ -46,13 +46,13 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
 
     private ModelRepository getOrCreateModelRepository(FixedRequestAttributes fixedRequestAttributes) {
         ModelRepository modelRepository;
-        synchronized (modelRepositories) {
-            if (!modelRepositories.containsKey(fixedRequestAttributes)) {
-                DefaultModelRepository targetModelRepository = new DefaultModelRepository(fixedRequestAttributes, eventBusFactory.create(), toolingClient);
-                modelRepository = new ContextAwareModelRepository(targetModelRepository, environment);
-                modelRepositories.put(fixedRequestAttributes, modelRepository);
+        synchronized (this.modelRepositories) {
+            if (!this.modelRepositories.containsKey(fixedRequestAttributes)) {
+                DefaultModelRepository targetModelRepository = new DefaultModelRepository(fixedRequestAttributes, this.eventBusFactory.create(), this.toolingClient);
+                modelRepository = new ContextAwareModelRepository(targetModelRepository, this.environment);
+                this.modelRepositories.put(fixedRequestAttributes, modelRepository);
             } else {
-                modelRepository = modelRepositories.get(fixedRequestAttributes);
+                modelRepository = this.modelRepositories.get(fixedRequestAttributes);
             }
         }
         return modelRepository;
