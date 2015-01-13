@@ -217,13 +217,12 @@ rootProject.name = 'TestProject'
   private static int getImplicitlyAddedBuildInvocationsTasksCount(GradleDistribution distribution, Environment environment) {
     // tasks implicitly provided by BuildInvocations#getTasks(): init, wrapper, help, properties, projects, tasks, dependencies, dependencyInsight, components
     def version = GradleVersion.version(extractVersion(distribution))
-    version.compareTo(GradleVersion.version("2.1")) >= 0 && environment != Environment.ECLIPSE ? 9 : version.compareTo(GradleVersion.version("2.0")) >= 0 && environment != Environment.ECLIPSE ? 8 : 0
-  }
+    version.baseVersion.compareTo(GradleVersion.version("2.3")) >= 0 || version.baseVersion.compareTo(GradleVersion.version("2.1")) >= 0 && environment != Environment.ECLIPSE ? 9 : version.baseVersion.compareTo(GradleVersion.version("2.0")) >= 0 && environment != Environment.ECLIPSE ? 8 : 0 }
 
   private static int getImplicitlyAddedBuildInvocationsTaskSelectorsCount(GradleDistribution distribution, Environment environment) {
     // tasks implicitly provided by BuildInvocations#getTaskSelectors():
-    def version = GradleVersion.version(extractVersion(distribution))
-    version.compareTo(GradleVersion.version("2.1")) >= 0 && environment != Environment.ECLIPSE ? 9 : 0
+    def version = GradleVersion.version(extractVersion(distribution));
+    version.baseVersion.compareTo(GradleVersion.version("2.3")) >= 0 || version.baseVersion.compareTo(GradleVersion.version("2.1")) >= 0 && environment != Environment.ECLIPSE ? 9 : 0
   }
 
   private static int getImplicitlyAddedGradleProjectTasksCount(GradleDistribution distribution) {
