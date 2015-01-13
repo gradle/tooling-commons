@@ -20,11 +20,11 @@ import com.gradleware.tooling.domain.model.OmniProjectTask;
 import com.gradleware.tooling.domain.model.OmniTaskSelector;
 import com.gradleware.tooling.domain.model.ProjectTaskFields;
 import com.gradleware.tooling.domain.model.TaskSelectorsFields;
-import com.gradleware.tooling.domain.model.generic.DefaultModel;
 import com.gradleware.tooling.domain.model.generic.DefaultHierarchicalModel;
+import com.gradleware.tooling.domain.model.generic.DefaultModel;
+import com.gradleware.tooling.domain.model.generic.HierarchicalModel;
 import com.gradleware.tooling.domain.model.generic.Model;
 import com.gradleware.tooling.domain.model.generic.ModelField;
-import com.gradleware.tooling.domain.model.generic.HierarchicalModel;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.GradleTask;
 import org.gradle.tooling.model.TaskSelector;
@@ -141,7 +141,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
 
     @Override
     public ImmutableList<OmniGradleProject> getChildren() {
-        return ImmutableList.<OmniGradleProject>copyOf(this.children);
+        return ImmutableList.<OmniGradleProject>copyOf(sort(this.children));
     }
 
     private void addChild(DefaultOmniGradleProject child) {
