@@ -42,7 +42,7 @@ public interface OmniGradleProject extends HierarchicalModel<OmniGradleProject> 
     String getName();
 
     /**
-     * Return the description of this project, or {@code null} if it has no description.
+     * Returns the description of this project, or {@code null} if it has no description.
      *
      * @return the description of this project
      */
@@ -76,7 +76,12 @@ public interface OmniGradleProject extends HierarchicalModel<OmniGradleProject> 
      */
     OmniGradleScript getBuildScript();
 
-    List<DomainObject<ProjectTaskFields>> getProjectTasks();
+    /**
+     * Returns the tasks of this project.
+     *
+     * @return the tasks of this project
+     */
+    ImmutableList<OmniProjectTask> getProjectTasks();
 
     List<DomainObject<TaskSelectorsFields>> getTaskSelectors();
 

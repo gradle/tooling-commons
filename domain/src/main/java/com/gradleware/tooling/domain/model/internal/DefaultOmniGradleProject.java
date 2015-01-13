@@ -1,5 +1,6 @@
 package com.gradleware.tooling.domain.model.internal;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -15,6 +16,7 @@ import com.gradleware.tooling.domain.model.GradleProjectFields;
 import com.gradleware.tooling.domain.model.GradleScriptFields;
 import com.gradleware.tooling.domain.model.OmniGradleProject;
 import com.gradleware.tooling.domain.model.OmniGradleScript;
+import com.gradleware.tooling.domain.model.OmniProjectTask;
 import com.gradleware.tooling.domain.model.ProjectTaskFields;
 import com.gradleware.tooling.domain.model.TaskSelectorsFields;
 import com.gradleware.tooling.domain.model.generic.DefaultDomainObject;
@@ -46,8 +48,8 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
     private File projectDirectory;
     private File buildDirectory;
     private OmniGradleScript buildScript;
-    private List<DomainObject<ProjectTaskFields>> projectTasks;
-    private List<DomainObject<TaskSelectorsFields>> taskSelectors;
+    private ImmutableList<OmniProjectTask> projectTasks;
+    private ImmutableList<DomainObject<TaskSelectorsFields>> taskSelectors;
 
     private DefaultOmniGradleProject(Comparator<? super OmniGradleProject> comparator) {
         this.comparator = Preconditions.checkNotNull(comparator);
@@ -110,12 +112,12 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
     }
 
     @Override
-    public List<DomainObject<ProjectTaskFields>> getProjectTasks() {
+    public ImmutableList<OmniProjectTask> getProjectTasks() {
         return this.projectTasks;
     }
 
-    public void setProjectTasks(List<DomainObject<ProjectTaskFields>> projectTasks) {
-        this.projectTasks = projectTasks;
+    public void setProjectTasks(List<OmniProjectTask> projectTasks) {
+        this.projectTasks = ImmutableList.copyOf(projectTasks);
     }
 
     @Override
@@ -124,7 +126,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
     }
 
     public void setTaskSelectors(List<DomainObject<TaskSelectorsFields>> taskSelectors) {
-        this.taskSelectors = taskSelectors;
+        this.taskSelectors = ImmutableList.copyOf(taskSelectors);
     }
 
     @Override
@@ -182,7 +184,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
         gradleProject.setProjectDirectory(project.get(GradleProjectFields.PROJECT_DIRECTORY));
         gradleProject.setBuildDirectory(project.get(GradleProjectFields.BUILD_DIRECTORY));
         gradleProject.setBuildScript(DefaultOmniGradleScript.from(project.get(GradleProjectFields.BUILD_SCRIPT)));
-        gradleProject.setProjectTasks(project.get(GradleProjectFields.PROJECT_TASKS));
+        gradleProject.setProjectTasks(toProjectTasks(project.get(GradleProjectFields.PROJECT_TASKS)));
         gradleProject.setTaskSelectors(project.get(GradleProjectFields.TASK_SELECTORS));
 
         for (HierarchicalDomainObject<GradleProjectFields> child : project.getChildren()) {
@@ -191,6 +193,15 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
         }
 
         return gradleProject;
+    }
+
+    private static ImmutableList<OmniProjectTask> toProjectTasks(List<DomainObject<ProjectTaskFields>> projectTasks) {
+        return ImmutableList.<OmniProjectTask>copyOf(FluentIterable.from(projectTasks).transform(new Function<DomainObject<ProjectTaskFields>, DefaultOmniProjectTask>() {
+            @Override
+            public DefaultOmniProjectTask apply(DomainObject<ProjectTaskFields> input) {
+                return DefaultOmniProjectTask.from(input);
+            }
+        }).toList());
     }
 
     public static DefaultHierarchicalDomainObject<GradleProjectFields> from(GradleProject gradleProject, boolean enforceAllTasksPublic) {

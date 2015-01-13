@@ -14,7 +14,6 @@ import com.gradleware.tooling.domain.model.OmniBuildEnvironment
 import com.gradleware.tooling.domain.model.OmniGradleBuild
 import com.gradleware.tooling.domain.model.OmniGradleBuildStructure
 import com.gradleware.tooling.domain.model.OmniGradleProject
-import com.gradleware.tooling.domain.model.ProjectTaskFields
 import com.gradleware.tooling.domain.model.TaskSelectorsFields
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DataValueFormatter
@@ -266,16 +265,16 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     projectSub1.projectTasks.size() == 2
 
     def myFirstTaskOfSub1 = projectSub1.projectTasks[0]
-    myFirstTaskOfSub1.get(ProjectTaskFields.NAME) == 'myFirstTaskOfSub1'
-    myFirstTaskOfSub1.get(ProjectTaskFields.DESCRIPTION) == '1st task of sub1'
-    myFirstTaskOfSub1.get(ProjectTaskFields.PATH) == ':sub1:myFirstTaskOfSub1'
-    myFirstTaskOfSub1.get(ProjectTaskFields.IS_PUBLIC)
+    myFirstTaskOfSub1.name == 'myFirstTaskOfSub1'
+    myFirstTaskOfSub1.description == '1st task of sub1'
+    myFirstTaskOfSub1.path == ':sub1:myFirstTaskOfSub1'
+    myFirstTaskOfSub1.isPublic()
 
     def mySecondTaskOfSub1 = projectSub1.projectTasks[1]
-    mySecondTaskOfSub1.get(ProjectTaskFields.NAME) == 'mySecondTaskOfSub1'
-    mySecondTaskOfSub1.get(ProjectTaskFields.DESCRIPTION) == '2nd task of sub1'
-    mySecondTaskOfSub1.get(ProjectTaskFields.PATH) == ':sub1:mySecondTaskOfSub1'
-    mySecondTaskOfSub1.get(ProjectTaskFields.IS_PUBLIC) == !higherOrEqual("2.3", distribution) // all versions < 2.3 are corrected to or default to 'true'
+    mySecondTaskOfSub1.name == 'mySecondTaskOfSub1'
+    mySecondTaskOfSub1.description == '2nd task of sub1'
+    mySecondTaskOfSub1.path == ':sub1:mySecondTaskOfSub1'
+    mySecondTaskOfSub1.isPublic() == !higherOrEqual("2.3", distribution) // all versions < 2.3 are corrected to or default to 'true'
 
     def projectSub2 = gradleBuild.rootProject.tryFind({ OmniGradleProject input ->
       return input.getPath().equals(':sub2')
