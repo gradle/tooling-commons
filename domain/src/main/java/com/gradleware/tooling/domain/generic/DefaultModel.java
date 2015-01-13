@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain.model.generic;
+package com.gradleware.tooling.domain.generic;
 
 /**
  * Default implementation of the {@link Model } interface.

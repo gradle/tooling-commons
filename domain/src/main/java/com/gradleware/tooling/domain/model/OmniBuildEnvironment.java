@@ -1,6 +1,6 @@
 package com.gradleware.tooling.domain.model;
 
-import com.gradleware.tooling.domain.model.generic.Model;
+import com.gradleware.tooling.domain.generic.Model;
 
 /**
  * Provides information about the build environment.

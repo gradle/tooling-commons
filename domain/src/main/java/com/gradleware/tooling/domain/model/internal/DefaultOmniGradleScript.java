@@ -2,7 +2,7 @@ package com.gradleware.tooling.domain.model.internal;
 
 import com.gradleware.tooling.domain.model.GradleScriptFields;
 import com.gradleware.tooling.domain.model.OmniGradleScript;
-import com.gradleware.tooling.domain.model.generic.Model;
+import com.gradleware.tooling.domain.generic.Model;
 
 import java.io.File;
 

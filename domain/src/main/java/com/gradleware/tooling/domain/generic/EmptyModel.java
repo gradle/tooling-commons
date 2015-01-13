@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain.model.generic;
+package com.gradleware.tooling.domain.generic;
 
 /**
  * Model that never contains any fields.

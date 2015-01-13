@@ -1,6 +1,6 @@
 package com.gradleware.tooling.domain.model;
 
-import com.gradleware.tooling.domain.model.generic.HierarchicalModel;
+import com.gradleware.tooling.domain.generic.HierarchicalModel;
 
 /**
  * Provides detailed information about the Gradle build.

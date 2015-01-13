@@ -2,11 +2,11 @@ package com.gradleware.tooling.domain.model;
 
 import com.google.common.base.Suppliers;
 import com.google.common.reflect.TypeToken;
-import com.gradleware.tooling.domain.model.generic.DefaultModelField;
-import com.gradleware.tooling.domain.model.generic.Model;
-import com.gradleware.tooling.domain.model.generic.ModelField;
-import com.gradleware.tooling.domain.model.generic.EmptyModel;
-import com.gradleware.tooling.domain.model.generic.TypeTokens;
+import com.gradleware.tooling.domain.generic.DefaultModelField;
+import com.gradleware.tooling.domain.generic.Model;
+import com.gradleware.tooling.domain.generic.ModelField;
+import com.gradleware.tooling.domain.generic.EmptyModel;
+import com.gradleware.tooling.domain.generic.TypeTokens;
 
 import java.io.File;
 import java.util.List;

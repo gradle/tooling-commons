@@ -2,7 +2,7 @@ package com.gradleware.tooling.domain.model.internal;
 
 import com.gradleware.tooling.domain.model.OmniProjectTask;
 import com.gradleware.tooling.domain.model.ProjectTaskFields;
-import com.gradleware.tooling.domain.model.generic.Model;
+import com.gradleware.tooling.domain.generic.Model;
 
 /**
  * Default implementation of the {@link OmniProjectTask} interface.

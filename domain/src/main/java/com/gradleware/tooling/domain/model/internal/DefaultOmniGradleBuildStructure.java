@@ -3,7 +3,7 @@ package com.gradleware.tooling.domain.model.internal;
 import com.gradleware.tooling.domain.model.BasicGradleProjectFields;
 import com.gradleware.tooling.domain.model.OmniGradleBuildStructure;
 import com.gradleware.tooling.domain.model.OmniGradleProjectStructure;
-import com.gradleware.tooling.domain.model.generic.HierarchicalModel;
+import com.gradleware.tooling.domain.generic.HierarchicalModel;
 import org.gradle.tooling.model.gradle.GradleBuild;
 
 /**

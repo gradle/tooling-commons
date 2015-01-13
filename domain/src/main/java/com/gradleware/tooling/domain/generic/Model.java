@@ -1,4 +1,4 @@
-package com.gradleware.tooling.domain.model.generic;
+package com.gradleware.tooling.domain.generic;
 
 /**
  * A model consists of a set of field/value pairs.

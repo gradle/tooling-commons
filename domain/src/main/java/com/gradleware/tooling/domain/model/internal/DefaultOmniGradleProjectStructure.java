@@ -10,10 +10,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.gradleware.tooling.domain.model.BasicGradleProjectFields;
 import com.gradleware.tooling.domain.model.OmniGradleProjectStructure;
-import com.gradleware.tooling.domain.model.generic.DefaultHierarchicalModel;
-import com.gradleware.tooling.domain.model.generic.Model;
-import com.gradleware.tooling.domain.model.generic.ModelField;
-import com.gradleware.tooling.domain.model.generic.HierarchicalModel;
+import com.gradleware.tooling.domain.generic.DefaultHierarchicalModel;
+import com.gradleware.tooling.domain.generic.Model;
+import com.gradleware.tooling.domain.generic.ModelField;
+import com.gradleware.tooling.domain.generic.HierarchicalModel;
 import org.gradle.tooling.model.gradle.BasicGradleProject;
 
 import java.io.File;

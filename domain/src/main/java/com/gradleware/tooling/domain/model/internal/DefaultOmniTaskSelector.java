@@ -3,7 +3,7 @@ package com.gradleware.tooling.domain.model.internal;
 import com.google.common.collect.ImmutableSortedSet;
 import com.gradleware.tooling.domain.model.OmniTaskSelector;
 import com.gradleware.tooling.domain.model.TaskSelectorsFields;
-import com.gradleware.tooling.domain.model.generic.Model;
+import com.gradleware.tooling.domain.generic.Model;
 
 import java.util.SortedSet;
 

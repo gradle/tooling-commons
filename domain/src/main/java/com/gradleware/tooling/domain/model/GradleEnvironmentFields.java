@@ -1,8 +1,8 @@
 package com.gradleware.tooling.domain.model;
 
 import com.google.common.reflect.TypeToken;
-import com.gradleware.tooling.domain.model.generic.DefaultModelField;
-import com.gradleware.tooling.domain.model.generic.ModelField;
+import com.gradleware.tooling.domain.generic.DefaultModelField;
+import com.gradleware.tooling.domain.generic.ModelField;
 
 /**
  * Enumerates the information available on the build's Gradle environment.
