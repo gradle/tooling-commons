@@ -1,10 +1,8 @@
 package com.gradleware.tooling.domain.model;
 
 import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.domain.model.generic.DomainObject;
 
 import java.io.File;
-import java.util.List;
 
 /**
  * Provides detailed information about the Gradle project and its hierarchy.
@@ -83,6 +81,11 @@ public interface OmniGradleProject extends HierarchicalModel<OmniGradleProject> 
      */
     ImmutableList<OmniProjectTask> getProjectTasks();
 
-    List<DomainObject<TaskSelectorsFields>> getTaskSelectors();
+    /**
+     * Returns the task selectors of this project.
+     *
+     * @return the task selectors of this project
+     */
+    ImmutableList<OmniTaskSelector> getTaskSelectors();
 
 }

@@ -1,4 +1,5 @@
 package com.gradleware.tooling.domain.internal
+
 import com.google.common.base.Predicate
 import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
@@ -14,7 +15,6 @@ import com.gradleware.tooling.domain.model.OmniBuildEnvironment
 import com.gradleware.tooling.domain.model.OmniGradleBuild
 import com.gradleware.tooling.domain.model.OmniGradleBuildStructure
 import com.gradleware.tooling.domain.model.OmniGradleProject
-import com.gradleware.tooling.domain.model.TaskSelectorsFields
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DataValueFormatter
 import com.gradleware.tooling.spock.DomainToolingClientSpecification
@@ -281,11 +281,11 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     } as Predicate).get()
     projectSub2.taskSelectors.size() == 5
 
-    def myTaskSelector = projectSub2.taskSelectors.find { it.get(TaskSelectorsFields.NAME).equals('myTask') }
-    myTaskSelector.get(TaskSelectorsFields.NAME) == 'myTask'
-    myTaskSelector.get(TaskSelectorsFields.DESCRIPTION) == 'another task of sub2'
-    myTaskSelector.get(TaskSelectorsFields.IS_PUBLIC)
-    myTaskSelector.get(TaskSelectorsFields.SELECTED_TASK_PATHS) as List == [':sub2:myTask', ':sub2:subSub1:myTask']
+    def myTaskSelector = projectSub2.taskSelectors.find { it.name == 'myTask' }
+    myTaskSelector.name == 'myTask'
+    myTaskSelector.description == 'another task of sub2'
+    myTaskSelector.isPublic()
+    myTaskSelector.selectedTaskPaths as List == [':sub2:myTask', ':sub2:subSub1:myTask']
 
     def event = publishedEvent.get()
     event != null
