@@ -10,7 +10,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.gradleware.tooling.domain.model.BasicGradleProjectFields;
 import com.gradleware.tooling.domain.model.OmniGradleProjectStructure;
+import com.gradleware.tooling.domain.model.generic.DefaultHierarchicalDomainObject;
+import com.gradleware.tooling.domain.model.generic.DomainObject;
+import com.gradleware.tooling.domain.model.generic.DomainObjectField;
 import com.gradleware.tooling.domain.model.generic.HierarchicalDomainObject;
+import org.gradle.tooling.model.gradle.BasicGradleProject;
 
 import java.io.File;
 import java.util.Comparator;
@@ -109,7 +113,7 @@ public final class DefaultOmniGradleProjectStructure implements OmniGradleProjec
     }
 
     public static DefaultOmniGradleProjectStructure from(HierarchicalDomainObject<BasicGradleProjectFields> project) {
-        DefaultOmniGradleProjectStructure gradleProjectStructure = new DefaultOmniGradleProjectStructure(ProjectPathComparator.INSTANCE);
+        DefaultOmniGradleProjectStructure gradleProjectStructure = new DefaultOmniGradleProjectStructure(OmniGradleProjectStructureComparator.INSTANCE);
         gradleProjectStructure.setName(project.get(BasicGradleProjectFields.NAME));
         gradleProjectStructure.setPath(project.get(BasicGradleProjectFields.PATH));
         gradleProjectStructure.setProjectDirectory(project.get(BasicGradleProjectFields.PROJECT_DIRECTORY));
@@ -122,16 +126,60 @@ public final class DefaultOmniGradleProjectStructure implements OmniGradleProjec
         return gradleProjectStructure;
     }
 
+    public static DefaultHierarchicalDomainObject<BasicGradleProjectFields> from(BasicGradleProject project) {
+        DefaultHierarchicalDomainObject<BasicGradleProjectFields> basicGradleProject = new DefaultHierarchicalDomainObject<BasicGradleProjectFields>(BasicGradleProjectComparator.INSTANCE);
+        basicGradleProject.put(BasicGradleProjectFields.NAME, project.getName());
+        basicGradleProject.put(BasicGradleProjectFields.PATH, project.getPath());
+        setProjectDirectory(basicGradleProject, BasicGradleProjectFields.PROJECT_DIRECTORY, project);
+
+        for (BasicGradleProject child : project.getChildren()) {
+            DefaultHierarchicalDomainObject<BasicGradleProjectFields> basicGradleProjectChild = from(child);
+            basicGradleProject.addChild(basicGradleProjectChild);
+        }
+
+        return basicGradleProject;
+    }
+
+    /**
+     * BasicGradleProject#getProjectDirectory is only available in Gradle versions >= 1.8.
+     *
+     * @param basicGradleProject the project to populate
+     * @param projectDirectoryField the field from which to derive the default project directory in case it is not available on the project model
+     * @param project the project model
+     */
+    private static void setProjectDirectory(DefaultHierarchicalDomainObject<BasicGradleProjectFields> basicGradleProject, DomainObjectField<File, BasicGradleProjectFields> projectDirectoryField, BasicGradleProject project) {
+        try {
+            File projectDirectory = project.getProjectDirectory();
+            basicGradleProject.put(projectDirectoryField, projectDirectory);
+        } catch (Exception ignore) {
+            // do not store if field value is not present
+        }
+    }
+
     /**
      * Compares OmniGradleProjectStructures by their project path.
      */
-    private static final class ProjectPathComparator implements Comparator<OmniGradleProjectStructure> {
+    private static final class OmniGradleProjectStructureComparator implements Comparator<OmniGradleProjectStructure> {
 
-        public static final ProjectPathComparator INSTANCE = new ProjectPathComparator();
+        public static final OmniGradleProjectStructureComparator INSTANCE = new OmniGradleProjectStructureComparator();
 
         @Override
         public int compare(OmniGradleProjectStructure o1, OmniGradleProjectStructure o2) {
             return PathComparator.INSTANCE.compare(o1.getPath(), o2.getPath());
+        }
+
+    }
+
+    /**
+     * Compares BasicGradleProjects by their project path.
+     */
+    private static final class BasicGradleProjectComparator implements Comparator<DomainObject<BasicGradleProjectFields>> {
+
+        public static final BasicGradleProjectComparator INSTANCE = new BasicGradleProjectComparator();
+
+        @Override
+        public int compare(DomainObject<BasicGradleProjectFields> o1, DomainObject<BasicGradleProjectFields> o2) {
+            return PathComparator.INSTANCE.compare(o1.get(BasicGradleProjectFields.PATH), o2.get(BasicGradleProjectFields.PATH));
         }
 
     }
