@@ -29,15 +29,15 @@ import java.util.Comparator;
  */
 public final class DefaultOmniGradleBuild implements OmniGradleBuild {
 
-    private final HierarchicalDomainObject<GradleProjectFields> rootProject;
+    private final HierarchicalDomainObject<GradleProjectFields> rootProjectModel;
 
-    private DefaultOmniGradleBuild(HierarchicalDomainObject<GradleProjectFields> rootProject) {
-        this.rootProject = rootProject;
+    private DefaultOmniGradleBuild(HierarchicalDomainObject<GradleProjectFields> rootProjectModel) {
+        this.rootProjectModel = rootProjectModel;
     }
 
     @Override
-    public HierarchicalDomainObject<GradleProjectFields> getRootProject() {
-        return this.rootProject;
+    public HierarchicalDomainObject<GradleProjectFields> getRootProjectModel() {
+        return this.rootProjectModel;
     }
 
     public static DefaultOmniGradleBuild from(GradleProject gradleProject, boolean enforceAllTasksPublic) {

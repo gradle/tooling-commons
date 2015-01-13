@@ -244,24 +244,24 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
 
     then:
     gradleBuild != null
-    gradleBuild.rootProject != null
-    gradleBuild.rootProject.get(GradleProjectFields.NAME) == 'my root project'
-    gradleBuild.rootProject.get(GradleProjectFields.DESCRIPTION) == 'a sample root project'
-    gradleBuild.rootProject.get(GradleProjectFields.PATH) == ':'
-    gradleBuild.rootProject.get(GradleProjectFields.PROJECT_DIRECTORY)?.absolutePath == (higherOrEqual("2.4", distribution) ? directoryProvider.testDirectory.absolutePath : null)
-    gradleBuild.rootProject.get(GradleProjectFields.BUILD_DIRECTORY)?.absolutePath == (higherOrEqual("2.0", distribution) ? directoryProvider.file('build').absolutePath : null)
-    gradleBuild.rootProject.get(GradleProjectFields.BUILD_SCRIPT).get(GradleScriptFields.SOURCE_FILE)?.absolutePath == (higherOrEqual("1.8", distribution) ? directoryProvider.file('build.gradle').absolutePath : null)
-    gradleBuild.rootProject.get(GradleProjectFields.PROJECT_TASKS).size() == getImplicitlyAddedGradleProjectTasksCount(distribution) + 1
-    gradleBuild.rootProject.parent == null
-    gradleBuild.rootProject.children.size() == 2
-    gradleBuild.rootProject.children*.get(GradleProjectFields.NAME) == ['sub1', 'sub2']
-    gradleBuild.rootProject.children*.get(GradleProjectFields.DESCRIPTION) == ['sub project 1', 'sub project 2']
-    gradleBuild.rootProject.children*.get(GradleProjectFields.PATH) == [':sub1', ':sub2']
-    gradleBuild.rootProject.children*.parent == [gradleBuild.rootProject, gradleBuild.rootProject]
-    gradleBuild.rootProject.descendants.size() == 4
-    gradleBuild.rootProject.descendants*.get(GradleProjectFields.NAME) == ['my root project', 'sub1', 'sub2', 'subSub1']
+    gradleBuild.rootProjectModel != null
+    gradleBuild.rootProjectModel.get(GradleProjectFields.NAME) == 'my root project'
+    gradleBuild.rootProjectModel.get(GradleProjectFields.DESCRIPTION) == 'a sample root project'
+    gradleBuild.rootProjectModel.get(GradleProjectFields.PATH) == ':'
+    gradleBuild.rootProjectModel.get(GradleProjectFields.PROJECT_DIRECTORY)?.absolutePath == (higherOrEqual("2.4", distribution) ? directoryProvider.testDirectory.absolutePath : null)
+    gradleBuild.rootProjectModel.get(GradleProjectFields.BUILD_DIRECTORY)?.absolutePath == (higherOrEqual("2.0", distribution) ? directoryProvider.file('build').absolutePath : null)
+    gradleBuild.rootProjectModel.get(GradleProjectFields.BUILD_SCRIPT).get(GradleScriptFields.SOURCE_FILE)?.absolutePath == (higherOrEqual("1.8", distribution) ? directoryProvider.file('build.gradle').absolutePath : null)
+    gradleBuild.rootProjectModel.get(GradleProjectFields.PROJECT_TASKS).size() == getImplicitlyAddedGradleProjectTasksCount(distribution) + 1
+    gradleBuild.rootProjectModel.parent == null
+    gradleBuild.rootProjectModel.children.size() == 2
+    gradleBuild.rootProjectModel.children*.get(GradleProjectFields.NAME) == ['sub1', 'sub2']
+    gradleBuild.rootProjectModel.children*.get(GradleProjectFields.DESCRIPTION) == ['sub project 1', 'sub project 2']
+    gradleBuild.rootProjectModel.children*.get(GradleProjectFields.PATH) == [':sub1', ':sub2']
+    gradleBuild.rootProjectModel.children*.parent == [gradleBuild.rootProjectModel, gradleBuild.rootProjectModel]
+    gradleBuild.rootProjectModel.descendants.size() == 4
+    gradleBuild.rootProjectModel.descendants*.get(GradleProjectFields.NAME) == ['my root project', 'sub1', 'sub2', 'subSub1']
 
-    def projectSub1 = gradleBuild.rootProject.findFirst(PredicateFactory.isEqual(GradleProjectFields.PATH, ':sub1')).get()
+    def projectSub1 = gradleBuild.rootProjectModel.findFirst(PredicateFactory.isEqual(GradleProjectFields.PATH, ':sub1')).get()
     projectSub1.get(GradleProjectFields.PROJECT_TASKS).size() == 2
 
     def myFirstTaskOfSub1 = projectSub1.get(GradleProjectFields.PROJECT_TASKS)[0]
@@ -276,7 +276,7 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     mySecondTaskOfSub1.get(ProjectTaskFields.PATH) == ':sub1:mySecondTaskOfSub1'
     mySecondTaskOfSub1.get(ProjectTaskFields.IS_PUBLIC) == !higherOrEqual("2.3", distribution) // all versions < 2.3 are corrected to or default to 'true'
 
-    def projectSub2 = gradleBuild.rootProject.findFirst(PredicateFactory.isEqual(GradleProjectFields.PATH, ':sub2')).get()
+    def projectSub2 = gradleBuild.rootProjectModel.findFirst(PredicateFactory.isEqual(GradleProjectFields.PATH, ':sub2')).get()
     projectSub2.get(GradleProjectFields.TASK_SELECTORS).size() == 5
 
     def myTaskSelector = projectSub2.get(GradleProjectFields.TASK_SELECTORS).find { it.get(TaskSelectorsFields.NAME).equals('myTask') }
