@@ -1,6 +1,7 @@
 package com.gradleware.tooling.domain.model;
 
 import com.google.common.reflect.TypeToken;
+import com.gradleware.tooling.domain.model.generic.DefaultModelField;
 import com.gradleware.tooling.domain.model.generic.ModelField;
 import com.gradleware.tooling.domain.model.generic.TypeTokens;
 
@@ -18,14 +19,14 @@ public final class JavaEnvironmentFields {
      * The Java home used for Gradle operations (for example running tasks or acquiring model information).
      */
     public static final ModelField<File, JavaEnvironmentFields> JAVA_HOME =
-            new ModelField<File, JavaEnvironmentFields>(TypeToken.of(File.class), TypeToken.of(JavaEnvironmentFields.class));
+            new DefaultModelField<File, JavaEnvironmentFields>(TypeToken.of(File.class), TypeToken.of(JavaEnvironmentFields.class));
 
     /**
      * The JVM arguments used to start the Java process that handles Gradle operations (for example running tasks or acquiring model information). The returned arguments do not
      * include system properties passed as -Dfoo=bar. They may include implicitly immutable system properties like "file.encoding".
      */
     public static final ModelField<List<String>, JavaEnvironmentFields> JVM_ARGS =
-            new ModelField<List<String>, JavaEnvironmentFields>(TypeTokens.listToken(String.class), TypeToken.of(JavaEnvironmentFields.class));
+            new DefaultModelField<List<String>, JavaEnvironmentFields>(TypeTokens.listToken(String.class), TypeToken.of(JavaEnvironmentFields.class));
 
     private JavaEnvironmentFields() {
     }

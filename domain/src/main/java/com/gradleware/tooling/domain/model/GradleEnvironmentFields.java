@@ -1,6 +1,7 @@
 package com.gradleware.tooling.domain.model;
 
 import com.google.common.reflect.TypeToken;
+import com.gradleware.tooling.domain.model.generic.DefaultModelField;
 import com.gradleware.tooling.domain.model.generic.ModelField;
 
 /**
@@ -14,7 +15,7 @@ public final class GradleEnvironmentFields {
      * The Gradle version used for Gradle operations (for example running tasks or acquiring model information).
      */
     public static final ModelField<String, GradleEnvironmentFields> GRADLE_VERSION =
-            new ModelField<String, GradleEnvironmentFields>(TypeToken.of(String.class), TypeToken.of(GradleEnvironmentFields.class));
+            new DefaultModelField<String, GradleEnvironmentFields>(TypeToken.of(String.class), TypeToken.of(GradleEnvironmentFields.class));
 
     private GradleEnvironmentFields() {
     }
