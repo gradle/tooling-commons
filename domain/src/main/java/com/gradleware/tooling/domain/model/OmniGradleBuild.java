@@ -1,6 +1,6 @@
 package com.gradleware.tooling.domain.model;
 
-import com.gradleware.tooling.domain.model.generic.HierarchicalDomainObject;
+import com.gradleware.tooling.domain.model.generic.HierarchicalModel;
 
 /**
  * Provides detailed information about the Gradle build.
@@ -21,6 +21,6 @@ public interface OmniGradleBuild {
      *
      * @return the root project
      */
-    HierarchicalDomainObject<GradleProjectFields> getRootProjectModel();
+    HierarchicalModel<GradleProjectFields> getRootProjectModel();
 
 }

@@ -1,6 +1,6 @@
 package com.gradleware.tooling.domain.model;
 
-import com.gradleware.tooling.domain.model.generic.DomainObject;
+import com.gradleware.tooling.domain.model.generic.Model;
 
 /**
  * Provides information about the build environment.
@@ -21,7 +21,7 @@ public interface OmniBuildEnvironment {
      *
      * @return the Gradle environment
      */
-    DomainObject<GradleEnvironmentFields> getGradleModel();
+    Model<GradleEnvironmentFields> getGradleModel();
 
     /**
      * Returns information about the Java environment.
@@ -35,6 +35,6 @@ public interface OmniBuildEnvironment {
      *
      * @return the Java environment
      */
-    DomainObject<JavaEnvironmentFields> getJavaModel();
+    Model<JavaEnvironmentFields> getJavaModel();
 
 }

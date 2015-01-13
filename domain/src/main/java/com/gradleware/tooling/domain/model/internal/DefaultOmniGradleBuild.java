@@ -3,7 +3,7 @@ package com.gradleware.tooling.domain.model.internal;
 import com.gradleware.tooling.domain.model.GradleProjectFields;
 import com.gradleware.tooling.domain.model.OmniGradleBuild;
 import com.gradleware.tooling.domain.model.OmniGradleProject;
-import com.gradleware.tooling.domain.model.generic.HierarchicalDomainObject;
+import com.gradleware.tooling.domain.model.generic.HierarchicalModel;
 import org.gradle.tooling.model.GradleProject;
 
 /**
@@ -11,10 +11,10 @@ import org.gradle.tooling.model.GradleProject;
  */
 public final class DefaultOmniGradleBuild implements OmniGradleBuild {
 
-    private final HierarchicalDomainObject<GradleProjectFields> rootProjectModel;
+    private final HierarchicalModel<GradleProjectFields> rootProjectModel;
     private final OmniGradleProject rootProject;
 
-    private DefaultOmniGradleBuild(HierarchicalDomainObject<GradleProjectFields> rootProjectModel, OmniGradleProject rootProject) {
+    private DefaultOmniGradleBuild(HierarchicalModel<GradleProjectFields> rootProjectModel, OmniGradleProject rootProject) {
         this.rootProjectModel = rootProjectModel;
         this.rootProject = rootProject;
     }
@@ -25,12 +25,12 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
     }
 
     @Override
-    public HierarchicalDomainObject<GradleProjectFields> getRootProjectModel() {
+    public HierarchicalModel<GradleProjectFields> getRootProjectModel() {
         return this.rootProjectModel;
     }
 
     public static DefaultOmniGradleBuild from(GradleProject gradleRootProject, boolean enforceAllTasksPublic) {
-        HierarchicalDomainObject<GradleProjectFields> rootProjectModel = DefaultOmniGradleProject.from(gradleRootProject, enforceAllTasksPublic);
+        HierarchicalModel<GradleProjectFields> rootProjectModel = DefaultOmniGradleProject.from(gradleRootProject, enforceAllTasksPublic);
         OmniGradleProject rootProject = DefaultOmniGradleProject.from(rootProjectModel);
         return new DefaultOmniGradleBuild(rootProjectModel, rootProject);
     }

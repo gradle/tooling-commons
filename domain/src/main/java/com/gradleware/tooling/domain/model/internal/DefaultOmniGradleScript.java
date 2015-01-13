@@ -2,7 +2,7 @@ package com.gradleware.tooling.domain.model.internal;
 
 import com.gradleware.tooling.domain.model.GradleScriptFields;
 import com.gradleware.tooling.domain.model.OmniGradleScript;
-import com.gradleware.tooling.domain.model.generic.DomainObject;
+import com.gradleware.tooling.domain.model.generic.Model;
 
 import java.io.File;
 
@@ -22,7 +22,7 @@ public final class DefaultOmniGradleScript implements OmniGradleScript {
         return this.sourceFile;
     }
 
-    public static DefaultOmniGradleScript from(DomainObject<GradleScriptFields> gradleScript) {
+    public static DefaultOmniGradleScript from(Model<GradleScriptFields> gradleScript) {
         return new DefaultOmniGradleScript(gradleScript.get(GradleScriptFields.SOURCE_FILE));
     }
 

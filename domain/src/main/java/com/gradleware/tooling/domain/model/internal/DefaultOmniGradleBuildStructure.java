@@ -3,7 +3,7 @@ package com.gradleware.tooling.domain.model.internal;
 import com.gradleware.tooling.domain.model.BasicGradleProjectFields;
 import com.gradleware.tooling.domain.model.OmniGradleBuildStructure;
 import com.gradleware.tooling.domain.model.OmniGradleProjectStructure;
-import com.gradleware.tooling.domain.model.generic.HierarchicalDomainObject;
+import com.gradleware.tooling.domain.model.generic.HierarchicalModel;
 import org.gradle.tooling.model.gradle.GradleBuild;
 
 /**
@@ -11,10 +11,10 @@ import org.gradle.tooling.model.gradle.GradleBuild;
  */
 public final class DefaultOmniGradleBuildStructure implements OmniGradleBuildStructure {
 
-    private final HierarchicalDomainObject<BasicGradleProjectFields> rootProjectModel;
+    private final HierarchicalModel<BasicGradleProjectFields> rootProjectModel;
     private final OmniGradleProjectStructure rootProject;
 
-    private DefaultOmniGradleBuildStructure(HierarchicalDomainObject<BasicGradleProjectFields> rootProjectModel, OmniGradleProjectStructure rootProject) {
+    private DefaultOmniGradleBuildStructure(HierarchicalModel<BasicGradleProjectFields> rootProjectModel, OmniGradleProjectStructure rootProject) {
         this.rootProjectModel = rootProjectModel;
         this.rootProject = rootProject;
     }
@@ -25,12 +25,12 @@ public final class DefaultOmniGradleBuildStructure implements OmniGradleBuildStr
     }
 
     @Override
-    public HierarchicalDomainObject<BasicGradleProjectFields> getRootProjectModel() {
+    public HierarchicalModel<BasicGradleProjectFields> getRootProjectModel() {
         return this.rootProjectModel;
     }
 
     public static DefaultOmniGradleBuildStructure from(GradleBuild gradleBuild) {
-        HierarchicalDomainObject<BasicGradleProjectFields> rootProjectModel = DefaultOmniGradleProjectStructure.from(gradleBuild.getRootProject());
+        HierarchicalModel<BasicGradleProjectFields> rootProjectModel = DefaultOmniGradleProjectStructure.from(gradleBuild.getRootProject());
         OmniGradleProjectStructure rootProject = DefaultOmniGradleProjectStructure.from(rootProjectModel);
         return new DefaultOmniGradleBuildStructure(rootProjectModel, rootProject);
     }

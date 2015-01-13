@@ -3,7 +3,7 @@ package com.gradleware.tooling.domain.model.internal;
 import com.google.common.collect.ImmutableSortedSet;
 import com.gradleware.tooling.domain.model.OmniTaskSelector;
 import com.gradleware.tooling.domain.model.TaskSelectorsFields;
-import com.gradleware.tooling.domain.model.generic.DomainObject;
+import com.gradleware.tooling.domain.model.generic.Model;
 
 import java.util.SortedSet;
 
@@ -53,7 +53,7 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
         this.selectedTaskPaths = ImmutableSortedSet.copyOf(selectedTaskPaths);
     }
 
-    public static DefaultOmniTaskSelector from(DomainObject<TaskSelectorsFields> task) {
+    public static DefaultOmniTaskSelector from(Model<TaskSelectorsFields> task) {
         DefaultOmniTaskSelector taskSelector = new DefaultOmniTaskSelector();
         taskSelector.setName(task.get(TaskSelectorsFields.NAME));
         taskSelector.setDescription(task.get(TaskSelectorsFields.DESCRIPTION));

@@ -5,8 +5,8 @@ import com.gradleware.tooling.domain.model.JavaEnvironmentFields;
 import com.gradleware.tooling.domain.model.OmniBuildEnvironment;
 import com.gradleware.tooling.domain.model.OmniGradleEnvironment;
 import com.gradleware.tooling.domain.model.OmniJavaEnvironment;
-import com.gradleware.tooling.domain.model.generic.DefaultDomainObject;
-import com.gradleware.tooling.domain.model.generic.DomainObject;
+import com.gradleware.tooling.domain.model.generic.DefaultModel;
+import com.gradleware.tooling.domain.model.generic.Model;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.build.GradleEnvironment;
 import org.gradle.tooling.model.build.JavaEnvironment;
@@ -19,12 +19,12 @@ import java.util.List;
  */
 public final class DefaultOmniBuildEnvironment implements OmniBuildEnvironment {
 
-    private final DomainObject<GradleEnvironmentFields> gradleModel;
-    private final DomainObject<JavaEnvironmentFields> javaModel;
+    private final Model<GradleEnvironmentFields> gradleModel;
+    private final Model<JavaEnvironmentFields> javaModel;
     private final OmniGradleEnvironment gradle;
     private final OmniJavaEnvironment java;
 
-    private DefaultOmniBuildEnvironment(DomainObject<GradleEnvironmentFields> gradleModel, DomainObject<JavaEnvironmentFields> javaModel, OmniGradleEnvironment gradle, OmniJavaEnvironment java) {
+    private DefaultOmniBuildEnvironment(Model<GradleEnvironmentFields> gradleModel, Model<JavaEnvironmentFields> javaModel, OmniGradleEnvironment gradle, OmniJavaEnvironment java) {
         this.gradleModel = gradleModel;
         this.javaModel = javaModel;
         this.gradle = gradle;
@@ -37,7 +37,7 @@ public final class DefaultOmniBuildEnvironment implements OmniBuildEnvironment {
     }
 
     @Override
-    public DomainObject<GradleEnvironmentFields> getGradleModel() {
+    public Model<GradleEnvironmentFields> getGradleModel() {
         return this.gradleModel;
     }
 
@@ -47,16 +47,16 @@ public final class DefaultOmniBuildEnvironment implements OmniBuildEnvironment {
     }
 
     @Override
-    public DomainObject<JavaEnvironmentFields> getJavaModel() {
+    public Model<JavaEnvironmentFields> getJavaModel() {
         return this.javaModel;
     }
 
     public static DefaultOmniBuildEnvironment from(BuildEnvironment buildEnvironment) {
-        final DefaultDomainObject<GradleEnvironmentFields> gradleModel = new DefaultDomainObject<GradleEnvironmentFields>();
+        final DefaultModel<GradleEnvironmentFields> gradleModel = new DefaultModel<GradleEnvironmentFields>();
         GradleEnvironment gradleOrigin = buildEnvironment.getGradle();
         gradleModel.put(GradleEnvironmentFields.GRADLE_VERSION, gradleOrigin.getGradleVersion());
 
-        final DefaultDomainObject<JavaEnvironmentFields> javaModel = new DefaultDomainObject<JavaEnvironmentFields>();
+        final DefaultModel<JavaEnvironmentFields> javaModel = new DefaultModel<JavaEnvironmentFields>();
         JavaEnvironment javaOrigin = buildEnvironment.getJava();
         javaModel.put(JavaEnvironmentFields.JAVA_HOME, javaOrigin.getJavaHome());
         javaModel.put(JavaEnvironmentFields.JVM_ARGS, javaOrigin.getJvmArguments());

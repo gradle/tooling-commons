@@ -2,7 +2,7 @@ package com.gradleware.tooling.domain.model.internal;
 
 import com.gradleware.tooling.domain.model.OmniProjectTask;
 import com.gradleware.tooling.domain.model.ProjectTaskFields;
-import com.gradleware.tooling.domain.model.generic.DomainObject;
+import com.gradleware.tooling.domain.model.generic.Model;
 
 /**
  * Default implementation of the {@link OmniProjectTask} interface.
@@ -50,7 +50,7 @@ public final class DefaultOmniProjectTask implements OmniProjectTask {
         this.isPublic = isPublic;
     }
 
-    public static DefaultOmniProjectTask from(DomainObject<ProjectTaskFields> task) {
+    public static DefaultOmniProjectTask from(Model<ProjectTaskFields> task) {
         DefaultOmniProjectTask projectTask = new DefaultOmniProjectTask();
         projectTask.setName(task.get(ProjectTaskFields.NAME));
         projectTask.setDescription(task.get(ProjectTaskFields.DESCRIPTION));

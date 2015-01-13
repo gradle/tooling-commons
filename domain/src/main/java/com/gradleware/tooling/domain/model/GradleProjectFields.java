@@ -2,9 +2,9 @@ package com.gradleware.tooling.domain.model;
 
 import com.google.common.base.Suppliers;
 import com.google.common.reflect.TypeToken;
-import com.gradleware.tooling.domain.model.generic.DomainObject;
+import com.gradleware.tooling.domain.model.generic.Model;
 import com.gradleware.tooling.domain.model.generic.DomainObjectField;
-import com.gradleware.tooling.domain.model.generic.EmptyDomainObject;
+import com.gradleware.tooling.domain.model.generic.EmptyModel;
 import com.gradleware.tooling.domain.model.generic.TypeTokens;
 
 import java.io.File;
@@ -50,20 +50,20 @@ public final class GradleProjectFields {
     /**
      * The build script of this project.
      */
-    public static final DomainObjectField<DomainObject<GradleScriptFields>, GradleProjectFields> BUILD_SCRIPT =
-            new DomainObjectField<DomainObject<GradleScriptFields>, GradleProjectFields>(TypeTokens.domainObjectToken(GradleScriptFields.class), TypeToken.of(GradleProjectFields.class), Suppliers.<DomainObject<GradleScriptFields>>ofInstance(new EmptyDomainObject<GradleScriptFields>()));
+    public static final DomainObjectField<Model<GradleScriptFields>, GradleProjectFields> BUILD_SCRIPT =
+            new DomainObjectField<Model<GradleScriptFields>, GradleProjectFields>(TypeTokens.domainObjectToken(GradleScriptFields.class), TypeToken.of(GradleProjectFields.class), Suppliers.<Model<GradleScriptFields>>ofInstance(new EmptyModel<GradleScriptFields>()));
 
     /**
      * The tasks of this project.
      */
-    public static final DomainObjectField<List<DomainObject<ProjectTaskFields>>, GradleProjectFields> PROJECT_TASKS =
-            new DomainObjectField<List<DomainObject<ProjectTaskFields>>, GradleProjectFields>(TypeTokens.domainObjectListToken(ProjectTaskFields.class), TypeToken.of(GradleProjectFields.class));
+    public static final DomainObjectField<List<Model<ProjectTaskFields>>, GradleProjectFields> PROJECT_TASKS =
+            new DomainObjectField<List<Model<ProjectTaskFields>>, GradleProjectFields>(TypeTokens.domainObjectListToken(ProjectTaskFields.class), TypeToken.of(GradleProjectFields.class));
 
     /**
      * The task selectors of this project.
      */
-    public static final DomainObjectField<List<DomainObject<TaskSelectorsFields>>, GradleProjectFields> TASK_SELECTORS =
-            new DomainObjectField<List<DomainObject<TaskSelectorsFields>>, GradleProjectFields>(TypeTokens.domainObjectListToken(TaskSelectorsFields.class), TypeToken.of(GradleProjectFields.class));
+    public static final DomainObjectField<List<Model<TaskSelectorsFields>>, GradleProjectFields> TASK_SELECTORS =
+            new DomainObjectField<List<Model<TaskSelectorsFields>>, GradleProjectFields>(TypeTokens.domainObjectListToken(TaskSelectorsFields.class), TypeToken.of(GradleProjectFields.class));
 
     private GradleProjectFields() {
     }
