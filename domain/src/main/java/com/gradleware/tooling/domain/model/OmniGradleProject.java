@@ -69,7 +69,12 @@ public interface OmniGradleProject extends HierarchicalModel<OmniGradleProject> 
      */
     File getBuildDirectory();
 
-    DomainObject<GradleScriptFields> getBuildScript();
+    /**
+     * Returns the build script of this project.
+     *
+     * @return the build script
+     */
+    OmniGradleScript getBuildScript();
 
     List<DomainObject<ProjectTaskFields>> getProjectTasks();
 

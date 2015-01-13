@@ -14,6 +14,7 @@ import com.gradleware.tooling.domain.internal.SyntheticTaskSelector;
 import com.gradleware.tooling.domain.model.GradleProjectFields;
 import com.gradleware.tooling.domain.model.GradleScriptFields;
 import com.gradleware.tooling.domain.model.OmniGradleProject;
+import com.gradleware.tooling.domain.model.OmniGradleScript;
 import com.gradleware.tooling.domain.model.ProjectTaskFields;
 import com.gradleware.tooling.domain.model.TaskSelectorsFields;
 import com.gradleware.tooling.domain.model.generic.DefaultDomainObject;
@@ -44,7 +45,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
     private String path;
     private File projectDirectory;
     private File buildDirectory;
-    private DomainObject<GradleScriptFields> buildScript;
+    private OmniGradleScript buildScript;
     private List<DomainObject<ProjectTaskFields>> projectTasks;
     private List<DomainObject<TaskSelectorsFields>> taskSelectors;
 
@@ -100,11 +101,11 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
     }
 
     @Override
-    public DomainObject<GradleScriptFields> getBuildScript() {
+    public OmniGradleScript getBuildScript() {
         return this.buildScript;
     }
 
-    public void setBuildScript(DomainObject<GradleScriptFields> buildScript) {
+    public void setBuildScript(OmniGradleScript buildScript) {
         this.buildScript = buildScript;
     }
 
@@ -180,7 +181,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
         gradleProject.setPath(project.get(GradleProjectFields.PATH));
         gradleProject.setProjectDirectory(project.get(GradleProjectFields.PROJECT_DIRECTORY));
         gradleProject.setBuildDirectory(project.get(GradleProjectFields.BUILD_DIRECTORY));
-        gradleProject.setBuildScript(project.get(GradleProjectFields.BUILD_SCRIPT));
+        gradleProject.setBuildScript(DefaultOmniGradleScript.from(project.get(GradleProjectFields.BUILD_SCRIPT)));
         gradleProject.setProjectTasks(project.get(GradleProjectFields.PROJECT_TASKS));
         gradleProject.setTaskSelectors(project.get(GradleProjectFields.TASK_SELECTORS));
 

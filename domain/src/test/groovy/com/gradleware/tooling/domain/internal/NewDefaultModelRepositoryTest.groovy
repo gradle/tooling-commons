@@ -1,5 +1,4 @@
 package com.gradleware.tooling.domain.internal
-
 import com.google.common.base.Predicate
 import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
@@ -11,7 +10,6 @@ import com.gradleware.tooling.domain.NewBuildEnvironmentUpdateEvent
 import com.gradleware.tooling.domain.NewGradleBuildStructureUpdateEvent
 import com.gradleware.tooling.domain.NewGradleBuildUpdateEvent
 import com.gradleware.tooling.domain.TransientRequestAttributes
-import com.gradleware.tooling.domain.model.GradleScriptFields
 import com.gradleware.tooling.domain.model.OmniBuildEnvironment
 import com.gradleware.tooling.domain.model.OmniGradleBuild
 import com.gradleware.tooling.domain.model.OmniGradleBuildStructure
@@ -251,7 +249,7 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     gradleBuild.rootProject.path == ':'
     gradleBuild.rootProject.projectDirectory?.absolutePath == (higherOrEqual("2.4", distribution) ? directoryProvider.testDirectory.absolutePath : null)
     gradleBuild.rootProject.buildDirectory?.absolutePath == (higherOrEqual("2.0", distribution) ? directoryProvider.file('build').absolutePath : null)
-    gradleBuild.rootProject.buildScript.get(GradleScriptFields.SOURCE_FILE)?.absolutePath == (higherOrEqual("1.8", distribution) ? directoryProvider.file('build.gradle').absolutePath : null)
+    gradleBuild.rootProject.buildScript.sourceFile?.absolutePath == (higherOrEqual("1.8", distribution) ? directoryProvider.file('build.gradle').absolutePath : null)
     gradleBuild.rootProject.projectTasks.size() == getImplicitlyAddedGradleProjectTasksCount(distribution) + 1
     gradleBuild.rootProject.parent == null
     gradleBuild.rootProject.children.size() == 2
