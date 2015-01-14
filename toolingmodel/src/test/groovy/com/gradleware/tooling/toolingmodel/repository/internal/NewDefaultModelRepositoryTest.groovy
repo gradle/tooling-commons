@@ -4,17 +4,6 @@ import com.google.common.base.Predicate
 import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
 import com.google.common.eventbus.Subscribe
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
-import com.gradleware.tooling.toolingmodel.OmniGradleBuild
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure
-import com.gradleware.tooling.toolingmodel.OmniGradleProject
-import com.gradleware.tooling.toolingmodel.repository.Environment
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
-import com.gradleware.tooling.toolingmodel.repository.NewBuildEnvironmentUpdateEvent
-import com.gradleware.tooling.toolingmodel.repository.NewGradleBuildStructureUpdateEvent
-import com.gradleware.tooling.toolingmodel.repository.NewGradleBuildUpdateEvent
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DataValueFormatter
 import com.gradleware.tooling.spock.DomainToolingClientSpecification
@@ -22,6 +11,19 @@ import com.gradleware.tooling.spock.VerboseUnroll
 import com.gradleware.tooling.testing.GradleVersionExtractor
 import com.gradleware.tooling.testing.GradleVersionParameterization
 import com.gradleware.tooling.toolingclient.GradleDistribution
+import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
+import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild
+import com.gradleware.tooling.toolingmodel.OmniGradleBuild
+import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure
+import com.gradleware.tooling.toolingmodel.OmniGradleProject
+import com.gradleware.tooling.toolingmodel.repository.Environment
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
+import com.gradleware.tooling.toolingmodel.repository.NewBuildEnvironmentUpdateEvent
+import com.gradleware.tooling.toolingmodel.repository.NewEclipseGradleBuildUpdateEvent
+import com.gradleware.tooling.toolingmodel.repository.NewGradleBuildStructureUpdateEvent
+import com.gradleware.tooling.toolingmodel.repository.NewGradleBuildUpdateEvent
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
@@ -316,6 +318,110 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
 
     when:
     repository.fetchGradleBuildAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+
+    then:
+    thrown(GradleConnectionException)
+
+    publishedEvent.get() == null
+
+    where:
+    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+  }
+
+  def "fetchEclipseGradleBuildAndWait - send event after cache update"(GradleDistribution distribution, Environment environment) {
+    given:
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def repository = new NewDefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
+
+    AtomicReference<NewEclipseGradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
+    AtomicReference<OmniEclipseGradleBuild> modelInRepository = new AtomicReference<>();
+    repository.register(new Object() {
+
+      @SuppressWarnings("GroovyUnusedDeclaration")
+      @Subscribe
+      public void listen(NewEclipseGradleBuildUpdateEvent event) {
+        publishedEvent.set(event)
+        modelInRepository.set(repository.fetchEclipseGradleBuildAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
+      }
+    })
+
+    when:
+    OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuildAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+
+    then:
+    eclipseGradleBuild != null
+    eclipseGradleBuild.rootEclipseProject != null
+    eclipseGradleBuild.rootEclipseProject.name == 'my root project'
+    eclipseGradleBuild.rootEclipseProject.description == 'a sample root project'
+    eclipseGradleBuild.rootEclipseProject.path == ':'
+    eclipseGradleBuild.rootEclipseProject.projectDirectory.absolutePath == directoryProvider.testDirectory.absolutePath
+    eclipseGradleBuild.rootEclipseProject.parent == null
+    eclipseGradleBuild.rootEclipseProject.children.size() == 2
+    eclipseGradleBuild.rootEclipseProject.children*.name == ['sub1', 'sub2']
+    eclipseGradleBuild.rootEclipseProject.children*.description == ['sub project 1', 'sub project 2']
+    eclipseGradleBuild.rootEclipseProject.children*.path == [':sub1', ':sub2']
+    eclipseGradleBuild.rootEclipseProject.children*.parent == [eclipseGradleBuild.rootEclipseProject, eclipseGradleBuild.rootEclipseProject]
+    eclipseGradleBuild.rootEclipseProject.all.size() == 4
+    eclipseGradleBuild.rootEclipseProject.all*.name == ['my root project', 'sub1', 'sub2', 'subSub1']
+
+    def projectSub1 = eclipseGradleBuild.rootProject.tryFind({ OmniGradleProject input ->
+      return input.getPath().equals(':sub1')
+    } as Predicate).get()
+    projectSub1.projectTasks.size() == 2
+
+    def myFirstTaskOfSub1 = projectSub1.projectTasks[0]
+    myFirstTaskOfSub1.name == 'myFirstTaskOfSub1'
+    myFirstTaskOfSub1.description == '1st task of sub1'
+    myFirstTaskOfSub1.path == ':sub1:myFirstTaskOfSub1'
+    myFirstTaskOfSub1.isPublic()
+
+    def mySecondTaskOfSub1 = projectSub1.projectTasks[1]
+    mySecondTaskOfSub1.name == 'mySecondTaskOfSub1'
+    mySecondTaskOfSub1.description == '2nd task of sub1'
+    mySecondTaskOfSub1.path == ':sub1:mySecondTaskOfSub1'
+    mySecondTaskOfSub1.isPublic() == !higherOrEqual("2.3", distribution) // all versions < 2.3 are corrected to or default to 'true'
+
+    def projectSub2 = eclipseGradleBuild.rootProject.tryFind({ OmniGradleProject input ->
+      return input.getPath().equals(':sub2')
+    } as Predicate).get()
+    projectSub2.taskSelectors.size() == 5
+
+    def myTaskSelector = projectSub2.taskSelectors.find { it.name == 'myTask' }
+    myTaskSelector.name == 'myTask'
+    myTaskSelector.description == 'another task of sub2'
+    myTaskSelector.isPublic()
+    myTaskSelector.selectedTaskPaths as List == [':sub2:myTask', ':sub2:subSub1:myTask']
+
+    def event = publishedEvent.get()
+    event != null
+    event.eclipseGradleBuild == eclipseGradleBuild
+
+    def model = modelInRepository.get()
+    model == eclipseGradleBuild
+
+    where:
+    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+  }
+
+  def "fetchEclipseGradleBuildAndWait - when exception is thrown"(GradleDistribution distribution, Environment environment) {
+    given:
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def repository = new NewDefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
+
+    AtomicReference<NewEclipseGradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
+    repository.register(new Object() {
+
+      @SuppressWarnings("GroovyUnusedDeclaration")
+      @Subscribe
+      public void listen(NewEclipseGradleBuildUpdateEvent event) {
+        publishedEvent.set(event)
+      }
+    })
+
+    when:
+    repository.fetchEclipseGradleBuildAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
     thrown(GradleConnectionException)
