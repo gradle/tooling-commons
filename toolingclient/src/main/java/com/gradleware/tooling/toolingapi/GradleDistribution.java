@@ -47,12 +47,12 @@ public final class GradleDistribution {
      */
     public void apply(GradleConnector connector) {
         Preconditions.checkNotNull(connector);
-        if (localInstallationDir != null) {
-            connector.useInstallation(localInstallationDir);
-        } else if (remoteDistributionUri != null) {
-            connector.useDistribution(remoteDistributionUri);
-        } else if (version != null) {
-            connector.useGradleVersion(version);
+        if (this.localInstallationDir != null) {
+            connector.useInstallation(this.localInstallationDir);
+        } else if (this.remoteDistributionUri != null) {
+            connector.useDistribution(this.remoteDistributionUri);
+        } else if (this.version != null) {
+            connector.useGradleVersion(this.version);
         } else {
             connector.useBuildDistribution();
         }
@@ -69,24 +69,24 @@ public final class GradleDistribution {
         }
 
         GradleDistribution that = (GradleDistribution) other;
-        return Objects.equal(localInstallationDir, that.localInstallationDir) &&
-                Objects.equal(remoteDistributionUri, that.remoteDistributionUri) &&
-                Objects.equal(version, that.version);
+        return Objects.equal(this.localInstallationDir, that.localInstallationDir) &&
+                Objects.equal(this.remoteDistributionUri, that.remoteDistributionUri) &&
+                Objects.equal(this.version, that.version);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(localInstallationDir, remoteDistributionUri, version);
+        return Objects.hashCode(this.localInstallationDir, this.remoteDistributionUri, this.version);
     }
 
     @Override
     public String toString() {
-        if (localInstallationDir != null) {
-            return String.format("Gradle installation %s", localInstallationDir.getAbsolutePath());
-        } else if (remoteDistributionUri != null) {
-            return String.format("Gradle distribution %s", remoteDistributionUri);
-        } else if (version != null) {
-            return String.format("Gradle version %s", version);
+        if (this.localInstallationDir != null) {
+            return String.format("Gradle installation %s", this.localInstallationDir.getAbsolutePath());
+        } else if (this.remoteDistributionUri != null) {
+            return String.format("Gradle distribution %s", this.remoteDistributionUri);
+        } else if (this.version != null) {
+            return String.format("Gradle version %s", this.version);
         } else {
             return "Gradle version of target build";
         }

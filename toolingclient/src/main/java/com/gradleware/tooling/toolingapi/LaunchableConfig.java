@@ -37,10 +37,10 @@ public final class LaunchableConfig {
      */
     public void apply(BuildLauncher buildLauncher) {
         Preconditions.checkNotNull(buildLauncher);
-        if (!tasks.isEmpty()) {
-            buildLauncher.forTasks(tasks.toArray(new String[tasks.size()]));
-        } else if (!launchables.isEmpty()) {
-            buildLauncher.forLaunchables(launchables);
+        if (!this.tasks.isEmpty()) {
+            buildLauncher.forTasks(this.tasks.toArray(new String[this.tasks.size()]));
+        } else if (!this.launchables.isEmpty()) {
+            buildLauncher.forLaunchables(this.launchables);
         }
     }
 

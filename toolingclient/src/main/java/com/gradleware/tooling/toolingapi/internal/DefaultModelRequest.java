@@ -10,7 +10,7 @@ import org.gradle.tooling.model.gradle.ProjectPublications;
 /**
  * Internal implementation of the {@link ModelRequest} API.
  */
-final class DefaultModelRequest<T> extends BaseRequest<T, DefaultModelRequest<T>> implements ModelRequest<T>, InspectableModelRequest<T> {
+final class DefaultModelRequest<T> extends BaseRequest<T, DefaultModelRequest<T>> implements InspectableModelRequest<T> {
 
     // all models provided by an instance of ProjectSensitiveToolingModelBuilder are listed here
     private static final Class<?>[] UNSUPPORTED_MODEL_TYPES = new Class<?>[]{BuildInvocations.class, ProjectPublications.class};
@@ -36,7 +36,7 @@ final class DefaultModelRequest<T> extends BaseRequest<T, DefaultModelRequest<T>
 
     @Override
     public Class<T> getModelType() {
-        return modelType;
+        return this.modelType;
     }
 
     @Override
@@ -47,7 +47,7 @@ final class DefaultModelRequest<T> extends BaseRequest<T, DefaultModelRequest<T>
 
     @Override
     public String[] getTasks() {
-        return tasks.toArray(new String[tasks.size()]);
+        return this.tasks.toArray(new String[this.tasks.size()]);
     }
 
     @Override

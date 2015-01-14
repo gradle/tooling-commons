@@ -73,13 +73,13 @@ public final class TestDirectoryProvider implements TestRule, org.junit.rules.Me
     }
 
     private void init(String methodName, String className) {
-        if (prefix == null) {
+        if (this.prefix == null) {
             String safeMethodName = methodName.replaceAll("\\s", "_").replace(":", "_").replace('"', '_').replace('\'', '_').replace(File.pathSeparator, "_");
             if (safeMethodName.length() > 64) {
                 safeMethodName = safeMethodName.substring(0, 32) + "..." + safeMethodName.substring(safeMethodName.length() - 32);
             }
-            prefix = String.format("%s/%s", className, safeMethodName);
-            LOG.debug("Using prefix '{}'", prefix);
+            this.prefix = String.format("%s/%s", className, safeMethodName);
+            LOG.debug("Using prefix '{}'", this.prefix);
         }
     }
 
@@ -90,7 +90,7 @@ public final class TestDirectoryProvider implements TestRule, org.junit.rules.Me
                 base.evaluate();
                 boolean success = TestDirectoryProvider.FileUtils.deleteRecursive(getTestDirectory());
                 if (!success) {
-                    throw new RuntimeException(String.format("Cannot delete directory '%s'.", dir));
+                    throw new RuntimeException(String.format("Cannot delete directory '%s'.", TestDirectoryProvider.this.dir));
                 }
                 // don't delete the directory on failure in order to allow to investigate what went wrong
             }
@@ -98,21 +98,21 @@ public final class TestDirectoryProvider implements TestRule, org.junit.rules.Me
     }
 
     public File getTestDirectory() {
-        if (dir == null) {
-            if (prefix == null) {
+        if (this.dir == null) {
+            if (this.prefix == null) {
                 // happens if this method is invoked in a constructor or a @Before method
                 // it also happens when using @RunWith(SomeRunner) when the runner does not support rules
-                prefix = determinePrefix();
+                this.prefix = determinePrefix();
             }
             for (int counter = 1; true; counter++) {
-                dir = new File(root, counter == 1 ? prefix : String.format("%s-%d", prefix, counter));
-                if (dir.mkdirs()) {
+                this.dir = new File(root, counter == 1 ? this.prefix : String.format("%s-%d", this.prefix, counter));
+                if (this.dir.mkdirs()) {
                     break;
                 }
             }
-            LOG.debug("Using test directory '{}'", dir);
+            LOG.debug("Using test directory '{}'", this.dir);
         }
-        return dir;
+        return this.dir;
     }
 
     private String determinePrefix() {
@@ -142,7 +142,7 @@ public final class TestDirectoryProvider implements TestRule, org.junit.rules.Me
         try {
             boolean success = file.createNewFile();
             if (!success) {
-                throw new RuntimeException(String.format("File '%s' already exists.", dir));
+                throw new RuntimeException(String.format("File '%s' already exists.", this.dir));
             }
         } catch (IOException e) {
             throw new RuntimeException(String.format("Cannot create new file '%s'.", file), e);

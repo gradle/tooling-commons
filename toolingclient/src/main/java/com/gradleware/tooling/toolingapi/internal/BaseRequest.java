@@ -3,7 +3,6 @@ package com.gradleware.tooling.toolingapi.internal;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingapi.GradleDistribution;
-import com.gradleware.tooling.toolingapi.Request;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
@@ -15,7 +14,7 @@ import java.io.OutputStream;
 /**
  * Internal base class for all tooling client request objects.
  */
-abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Request<T>, InspectableRequest<T> {
+abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements InspectableRequest<T> {
 
     private final ExecutableToolingClient toolingClient;
 
@@ -42,7 +41,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Requ
     }
 
     ExecutableToolingClient getToolingClient() {
-        return toolingClient;
+        return this.toolingClient;
     }
 
     @Override
@@ -53,7 +52,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Requ
 
     @Override
     public File getProjectDir() {
-        return projectDir;
+        return this.projectDir;
     }
 
     @Override
@@ -64,7 +63,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Requ
 
     @Override
     public File getGradleUserHomeDir() {
-        return gradleUserHomeDir;
+        return this.gradleUserHomeDir;
     }
 
     @Override
@@ -75,7 +74,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Requ
 
     @Override
     public GradleDistribution getGradleDistribution() {
-        return gradleDistribution;
+        return this.gradleDistribution;
     }
 
     @Override
@@ -86,7 +85,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Requ
 
     @Override
     public boolean isColorOutput() {
-        return colorOutput;
+        return this.colorOutput;
     }
 
     @Override
@@ -97,7 +96,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Requ
 
     @Override
     public OutputStream getStandardOutput() {
-        return standardOutput;
+        return this.standardOutput;
     }
 
     @Override
@@ -108,7 +107,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Requ
 
     @Override
     public OutputStream getStandardError() {
-        return standardError;
+        return this.standardError;
     }
 
     @Override
@@ -119,7 +118,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Requ
 
     @Override
     public InputStream getStandardInput() {
-        return standardInput;
+        return this.standardInput;
     }
 
     @Override
@@ -130,7 +129,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Requ
 
     @Override
     public File getJavaHomeDir() {
-        return javaHomeDir;
+        return this.javaHomeDir;
     }
 
     @Override
@@ -141,7 +140,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Requ
 
     @Override
     public String[] getJvmArguments() {
-        return jvmArguments.toArray(new String[jvmArguments.size()]);
+        return this.jvmArguments.toArray(new String[this.jvmArguments.size()]);
     }
 
     @Override
@@ -152,7 +151,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Requ
 
     @Override
     public String[] getArguments() {
-        return arguments.toArray(new String[arguments.size()]);
+        return this.arguments.toArray(new String[this.arguments.size()]);
     }
 
     @Override
@@ -163,7 +162,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Requ
 
     @Override
     public ProgressListener[] getProgressListeners() {
-        return progressListeners.toArray(new ProgressListener[progressListeners.size()]);
+        return this.progressListeners.toArray(new ProgressListener[this.progressListeners.size()]);
     }
 
     @Override
@@ -174,7 +173,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Requ
 
     @Override
     public CancellationToken getCancellationToken() {
-        return cancellationToken;
+        return this.cancellationToken;
     }
 
     <S, S_SELF extends BaseRequest<S, S_SELF>> S_SELF copy(BaseRequest<S, S_SELF> request) {

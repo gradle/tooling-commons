@@ -8,7 +8,7 @@ import org.gradle.tooling.BuildAction;
 /**
  * Internal implementation of the {@link BuildActionRequest} API.
  */
-final class DefaultBuildActionRequest<T> extends BaseRequest<T, DefaultBuildActionRequest<T>> implements BuildActionRequest<T>, InspectableBuildActionRequest<T> {
+final class DefaultBuildActionRequest<T> extends BaseRequest<T, DefaultBuildActionRequest<T>> implements InspectableBuildActionRequest<T> {
 
     private final BuildAction<T> buildAction;
 
@@ -19,7 +19,7 @@ final class DefaultBuildActionRequest<T> extends BaseRequest<T, DefaultBuildActi
 
     @Override
     public BuildAction<T> getBuildAction() {
-        return buildAction;
+        return this.buildAction;
     }
 
     @Override

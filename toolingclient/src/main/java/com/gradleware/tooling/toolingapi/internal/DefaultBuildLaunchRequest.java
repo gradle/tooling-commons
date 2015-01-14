@@ -8,7 +8,7 @@ import com.gradleware.tooling.toolingapi.LongRunningOperationPromise;
 /**
  * Internal implementation of the {@link BuildLaunchRequest} API.
  */
-final class DefaultBuildLaunchRequest extends BaseRequest<Void, DefaultBuildLaunchRequest> implements BuildLaunchRequest, InspectableBuildLaunchRequest {
+final class DefaultBuildLaunchRequest extends BaseRequest<Void, DefaultBuildLaunchRequest> implements InspectableBuildLaunchRequest {
 
     private final LaunchableConfig launchables;
 
@@ -19,7 +19,7 @@ final class DefaultBuildLaunchRequest extends BaseRequest<Void, DefaultBuildLaun
 
     @Override
     public LaunchableConfig getLaunchables() {
-        return launchables;
+        return this.launchables;
     }
 
     @Override

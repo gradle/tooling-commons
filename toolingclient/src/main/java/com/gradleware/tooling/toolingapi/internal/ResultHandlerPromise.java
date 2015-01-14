@@ -19,20 +19,20 @@ public final class ResultHandlerPromise<T> extends LongRunningOperationPromise<T
     }
 
     public ResultHandler<T> getResultHandler() {
-        return resultHandler;
+        return this.resultHandler;
     }
 
     @Override
     public LongRunningOperationPromise<T> onComplete(Consumer<? super T> completeHandler) {
         Preconditions.checkNotNull(completeHandler);
-        resultHandler.invokeOnComplete(completeHandler);
+        this.resultHandler.invokeOnComplete(completeHandler);
         return this;
     }
 
     @Override
     public LongRunningOperationPromise<T> onFailure(Consumer<? super GradleConnectionException> failureHandler) {
         Preconditions.checkNotNull(failureHandler);
-        resultHandler.invokeOnFailure(failureHandler);
+        this.resultHandler.invokeOnFailure(failureHandler);
         return this;
     }
 
@@ -46,18 +46,18 @@ public final class ResultHandlerPromise<T> extends LongRunningOperationPromise<T
         private Optional<GradleConnectionException> failureException;
 
         public PromiseCompatibleResultHandler() {
-            completeHandler = Optional.absent();
-            completeResult = Optional.absent();
-            failureHandler = Optional.absent();
-            failureException = Optional.absent();
+            this.completeHandler = Optional.absent();
+            this.completeResult = Optional.absent();
+            this.failureHandler = Optional.absent();
+            this.failureException = Optional.absent();
         }
 
         @Override
         public void onComplete(T result) {
             Consumer<? super T> handler;
-            synchronized (LOCK) {
+            synchronized (this.LOCK) {
                 this.completeResult = Optional.of(Optional.fromNullable(result));
-                handler = completeHandler.orNull();
+                handler = this.completeHandler.orNull();
             }
 
             if (handler != null) {
@@ -68,9 +68,9 @@ public final class ResultHandlerPromise<T> extends LongRunningOperationPromise<T
         @Override
         public void onFailure(GradleConnectionException exception) {
             Consumer<? super GradleConnectionException> handler;
-            synchronized (LOCK) {
+            synchronized (this.LOCK) {
                 this.failureException = Optional.of(exception);
-                handler = failureHandler.orNull();
+                handler = this.failureHandler.orNull();
             }
 
             if (handler != null) {
@@ -80,9 +80,9 @@ public final class ResultHandlerPromise<T> extends LongRunningOperationPromise<T
 
         private void invokeOnComplete(Consumer<? super T> completeHandler) {
             Optional<T> result;
-            synchronized (LOCK) {
+            synchronized (this.LOCK) {
                 this.completeHandler = Optional.of(completeHandler);
-                result = completeResult.orNull();
+                result = this.completeResult.orNull();
             }
 
             if (result != null) {
@@ -92,9 +92,9 @@ public final class ResultHandlerPromise<T> extends LongRunningOperationPromise<T
 
         private void invokeOnFailure(Consumer<? super GradleConnectionException> failureHandler) {
             GradleConnectionException exception;
-            synchronized (LOCK) {
+            synchronized (this.LOCK) {
                 this.failureHandler = Optional.of(failureHandler);
-                exception = failureException.orNull();
+                exception = this.failureException.orNull();
             }
 
             if (exception != null) {

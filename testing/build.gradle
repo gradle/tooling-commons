@@ -1,5 +1,5 @@
 dependencies {
-  compile project(':toolingapi')
+  compile project(':toolingclient')
   compile "org.gradle:gradle-tooling-api:$toolingApiVersion"
   compile "com.google.guava:guava:$guavaVersion"
   testCompile "org.spockframework:spock-core:$spockVersion"

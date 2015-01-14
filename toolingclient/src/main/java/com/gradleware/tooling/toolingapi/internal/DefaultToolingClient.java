@@ -112,12 +112,12 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     private ProjectConnection getOrCreateProjectConnection(InspectableRequest<?> modelRequest) {
         ProjectConnection connection;
         int connectionKey = calculateConnectionKey(modelRequest);
-        synchronized (connections) {
-            if (!connections.containsKey(connectionKey)) {
+        synchronized (this.connections) {
+            if (!this.connections.containsKey(connectionKey)) {
                 connection = openConnection(modelRequest);
-                connections.put(connectionKey, connection);
+                this.connections.put(connectionKey, connection);
             } else {
-                connection = connections.get(connectionKey);
+                connection = this.connections.get(connectionKey);
             }
         }
         return connection;
@@ -131,7 +131,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     }
 
     private ProjectConnection openConnection(InspectableRequest<?> modelRequest) {
-        GradleConnector connector = connectorFactory.create();
+        GradleConnector connector = this.connectorFactory.create();
         connector.forProjectDirectory(modelRequest.getProjectDir());
         connector.useGradleUserHomeDir(modelRequest.getGradleUserHomeDir());
         modelRequest.getGradleDistribution().apply(connector);
@@ -185,8 +185,8 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
 
     private void closeConnections() {
         // todo (etst) do not allow new connections once shutdown is in process
-        synchronized (connections) {
-            for (ProjectConnection connection : connections.values()) {
+        synchronized (this.connections) {
+            for (ProjectConnection connection : this.connections.values()) {
                 try {
                     connection.close();
                 } catch (Exception e) {
