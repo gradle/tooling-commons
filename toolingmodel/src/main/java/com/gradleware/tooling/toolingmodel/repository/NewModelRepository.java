@@ -40,7 +40,7 @@ public interface NewModelRepository {
      * @param fetchStrategy the fetch strategy
      * @return the gradle build, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
      */
-    OmniGradleBuildStructure fetchGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
+    OmniGradleBuildStructure fetchGradleBuildStructureAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
     /**
      * Fetches the {@link OmniGradleBuild} synchronously and broadcasts it through a {@link NewGradleBuildUpdateEvent}.
@@ -49,7 +49,7 @@ public interface NewModelRepository {
      * @param fetchStrategy the fetch strategy
      * @return the gradle project, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
      */
-    OmniGradleBuild fetchGradleProjectAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
+    OmniGradleBuild fetchGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
 //    /**
 //     * Fetches the {@link org.gradle.tooling.model.eclipse.EclipseProject} synchronously and broadcasts it through a {@link com.gradleware.tooling.toolingmodel.repository.EclipseProjectUpdateEvent}.

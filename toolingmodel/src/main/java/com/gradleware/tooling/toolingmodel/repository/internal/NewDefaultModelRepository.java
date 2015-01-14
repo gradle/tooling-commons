@@ -104,7 +104,7 @@ public final class NewDefaultModelRepository implements NewModelRepository {
     }
 
     @Override
-    public OmniGradleBuildStructure fetchGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
+    public OmniGradleBuildStructure fetchGradleBuildStructureAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         Preconditions.checkNotNull(transientRequestAttributes);
         Preconditions.checkNotNull(fetchStrategy);
 
@@ -144,7 +144,7 @@ public final class NewDefaultModelRepository implements NewModelRepository {
 //    }
 //
     @Override
-    public OmniGradleBuild fetchGradleProjectAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
+    public OmniGradleBuild fetchGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         Preconditions.checkNotNull(transientRequestAttributes);
         Preconditions.checkNotNull(fetchStrategy);
 
