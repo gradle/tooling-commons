@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Enumerates the detailed information available on a Gradle project.
  *
- * @see org.gradle.tooling.model.gradle.BasicGradleProject
+ * @see org.gradle.tooling.model.GradleProject
  */
 public final class GradleProjectFields {
 
