@@ -43,13 +43,16 @@ subprojects {
   sourceCompatibility = 1.6
   targetCompatibility = 1.6
 
-  // 1) convert all compiler warnings to errors
-  // 2) fork the compilation
-  // 3) on Mac OS, use the correct compiler version (rather than just working with the compatibility flags)
+  // 1) fork the compilation
+  // 2) report all compiler warnings
+  // 3) on Mac OS, in addition
+  //    a) use the correct compiler version (rather than just working with the compatibility flags)
+  //    b) convert all compiler warnings to errors
   tasks.withType(AbstractCompile).all {
-    options.compilerArgs << '-Xlint:all' << '-Werror'
+    options.compilerArgs << '-Xlint:all'
     options.fork = true
     if (OperatingSystem.current().isMacOsX()) {
+      options.compilerArgs << '-Werror'
       options.forkOptions.executable = "/usr/libexec/java_home -v $targetCompatibility".execute().text.trim() + "/bin/javac"
     }
   }
