@@ -1,5 +1,7 @@
 package com.gradleware.tooling.toolingmodel;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 
 import java.io.File;
@@ -31,6 +33,24 @@ public interface OmniGradleProjectStructure extends HierarchicalModel<OmniGradle
      */
     @Override
     ImmutableList<OmniGradleProjectStructure> getAll();
+
+    /**
+     * Returns all projects that match the given criteria.
+     *
+     * @param predicate the criteria to match
+     * @return the matching projects
+     */
+    @Override
+    ImmutableList<OmniGradleProjectStructure> filter(Predicate<? super OmniGradleProjectStructure> predicate);
+
+    /**
+     * Returns the first project that matches the given criteria, if any.
+     *
+     * @param predicate the criteria to match
+     * @return the matching project, if any
+     */
+    @Override
+    Optional<OmniGradleProjectStructure> tryFind(Predicate<? super OmniGradleProjectStructure> predicate);
 
     /**
      * Returns the name of this project. Note that the name is not a unique identifier for the project.
