@@ -80,32 +80,4 @@ public interface OmniEclipseGradleProject extends HierarchicalModel<OmniEclipseG
      */
     File getProjectDirectory();
 
-    /**
-     * Returns the build directory of this project.
-     *
-     * @return the build directory
-     */
-    File getBuildDirectory();
-
-    /**
-     * Returns the build script of this project.
-     *
-     * @return the build script
-     */
-    OmniGradleScript getBuildScript();
-
-    /**
-     * Returns the tasks of this project.
-     *
-     * @return the tasks of this project
-     */
-    ImmutableList<OmniProjectTask> getProjectTasks();
-
-    /**
-     * Returns the task selectors of this project.
-     *
-     * @return the task selectors of this project
-     */
-    ImmutableList<OmniTaskSelector> getTaskSelectors();
-
 }

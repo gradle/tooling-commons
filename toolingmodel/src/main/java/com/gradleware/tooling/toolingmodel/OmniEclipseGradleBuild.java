@@ -10,17 +10,31 @@ import com.gradleware.tooling.toolingmodel.generic.HierarchicalModel;
 public interface OmniEclipseGradleBuild extends BuildScopedModel {
 
     /**
-     * Returns the root project of the build.
+     * Returns the root Eclipse project of the build.
      *
-     * @return the root project
+     * @return the root Eclipse project
      */
-    OmniEclipseGradleProject getRootProject();
+    OmniEclipseGradleProject getRootEclipseProject();
 
     /**
-     * Returns the root project of the build.
+     * Returns the root Gradle project of the build.
      *
-     * @return the root project
+     * @return the root Gradle project
      */
-    HierarchicalModel<EclipseGradleProjectFields> getRootProjectModel();
+    OmniGradleProject getRootProject();
+
+    /**
+     * Returns the root Eclipse project of the build.
+     *
+     * @return the root Eclipse project
+     */
+    HierarchicalModel<EclipseGradleProjectFields> getRootEclipseProjectModel();
+
+    /**
+     * Returns the root Gradle project of the build.
+     *
+     * @return the root Gradle project
+     */
+    HierarchicalModel<GradleProjectFields> getRootProjectModel();
 
 }

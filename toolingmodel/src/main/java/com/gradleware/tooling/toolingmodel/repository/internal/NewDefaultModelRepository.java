@@ -174,7 +174,7 @@ public final class NewDefaultModelRepository implements NewModelRepository {
 
             @Override
             protected OmniEclipseGradleBuild doForward(EclipseProject eclipseGradleProject) {
-                return null; // DefaultOmniGradleBuild.from(eclipseGradleProject, requiresIsPublicFix);
+                return DefaultOmniEclipseGradleBuild.from(eclipseGradleProject, requiresIsPublicFix);
             }
 
         };
