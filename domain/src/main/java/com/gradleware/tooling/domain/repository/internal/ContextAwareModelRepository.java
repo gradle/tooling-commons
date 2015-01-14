@@ -102,10 +102,10 @@ public final class ContextAwareModelRepository implements ModelRepository {
         }
     }
 
-    private boolean targetGradleVersionIsEqualOrHigherThan(String version, TransientRequestAttributes transientRequestAttributes) {
+    private boolean targetGradleVersionIsEqualOrHigherThan(String minVersion, TransientRequestAttributes transientRequestAttributes) {
         BuildEnvironment buildEnvironment = fetchBuildEnvironmentAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
         GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
-        return gradleVersion.compareTo(GradleVersion.version(version)) >= 0;
+        return gradleVersion.getBaseVersion().compareTo(GradleVersion.version(minVersion)) >= 0;
     }
 
 }

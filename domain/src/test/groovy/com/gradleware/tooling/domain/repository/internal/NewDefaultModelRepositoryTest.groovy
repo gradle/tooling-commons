@@ -4,6 +4,10 @@ import com.google.common.base.Predicate
 import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
 import com.google.common.eventbus.Subscribe
+import com.gradleware.tooling.domain.OmniBuildEnvironment
+import com.gradleware.tooling.domain.OmniGradleBuild
+import com.gradleware.tooling.domain.OmniGradleBuildStructure
+import com.gradleware.tooling.domain.OmniGradleProject
 import com.gradleware.tooling.domain.repository.Environment
 import com.gradleware.tooling.domain.repository.FetchStrategy
 import com.gradleware.tooling.domain.repository.FixedRequestAttributes
@@ -11,10 +15,6 @@ import com.gradleware.tooling.domain.repository.NewBuildEnvironmentUpdateEvent
 import com.gradleware.tooling.domain.repository.NewGradleBuildStructureUpdateEvent
 import com.gradleware.tooling.domain.repository.NewGradleBuildUpdateEvent
 import com.gradleware.tooling.domain.repository.TransientRequestAttributes
-import com.gradleware.tooling.domain.OmniBuildEnvironment
-import com.gradleware.tooling.domain.OmniGradleBuild
-import com.gradleware.tooling.domain.OmniGradleBuildStructure
-import com.gradleware.tooling.domain.OmniGradleProject
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DataValueFormatter
 import com.gradleware.tooling.spock.DomainToolingClientSpecification
@@ -365,9 +365,9 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     version.compareTo(GradleVersion.version("1.6")) == 0 ? 1 : 0
   }
 
-  private static boolean higherOrEqual(String referenceVersion, GradleDistribution distribution) {
+  private static boolean higherOrEqual(String minVersion, GradleDistribution distribution) {
     def gradleVersion = GradleVersion.version(extractVersion(distribution))
-    gradleVersion.baseVersion.compareTo(GradleVersion.version(referenceVersion).baseVersion) >= 0
+    gradleVersion.baseVersion.compareTo(GradleVersion.version(minVersion)) >= 0
   }
 
   @SuppressWarnings(["GroovyAssignabilityCheck", "GroovyAccessibility"])

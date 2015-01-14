@@ -6,6 +6,11 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.UncheckedExecutionException;
+import com.gradleware.tooling.domain.OmniBuildEnvironment;
+import com.gradleware.tooling.domain.OmniGradleBuild;
+import com.gradleware.tooling.domain.OmniGradleBuildStructure;
+import com.gradleware.tooling.domain.buildaction.BuildActionFactory;
+import com.gradleware.tooling.domain.buildaction.ModelForAllProjectsBuildAction;
 import com.gradleware.tooling.domain.repository.FetchStrategy;
 import com.gradleware.tooling.domain.repository.FixedRequestAttributes;
 import com.gradleware.tooling.domain.repository.NewBuildEnvironmentUpdateEvent;
@@ -13,11 +18,6 @@ import com.gradleware.tooling.domain.repository.NewGradleBuildStructureUpdateEve
 import com.gradleware.tooling.domain.repository.NewGradleBuildUpdateEvent;
 import com.gradleware.tooling.domain.repository.NewModelRepository;
 import com.gradleware.tooling.domain.repository.TransientRequestAttributes;
-import com.gradleware.tooling.domain.buildaction.BuildActionFactory;
-import com.gradleware.tooling.domain.buildaction.ModelForAllProjectsBuildAction;
-import com.gradleware.tooling.domain.OmniBuildEnvironment;
-import com.gradleware.tooling.domain.OmniGradleBuild;
-import com.gradleware.tooling.domain.OmniGradleBuildStructure;
 import com.gradleware.tooling.domain.util.BaseConverter;
 import com.gradleware.tooling.toolingapi.BuildActionRequest;
 import com.gradleware.tooling.toolingapi.Consumer;
@@ -256,8 +256,8 @@ public final class NewDefaultModelRepository implements NewModelRepository {
     private boolean targetGradleVersionIsBetween(String minVersion, String maxVersion, TransientRequestAttributes transientRequestAttributes) {
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironmentAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
         GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
-        return gradleVersion.getBaseVersion().compareTo(GradleVersion.version(minVersion).getBaseVersion()) >= 0 &&
-                gradleVersion.getBaseVersion().compareTo(GradleVersion.version(maxVersion).getBaseVersion()) <= 0;
+        return gradleVersion.getBaseVersion().compareTo(GradleVersion.version(minVersion)) >= 0 &&
+                gradleVersion.getBaseVersion().compareTo(GradleVersion.version(maxVersion)) <= 0;
     }
 
     private <T, U> U executeRequest(final Request<T> request, final Consumer<U> newCacheEntryHandler, FetchStrategy fetchStrategy, Class<U> cacheKey, final Converter<T, U> resultConverter) {
