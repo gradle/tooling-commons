@@ -14,7 +14,7 @@ public interface OmniEclipseGradleBuild extends BuildScopedModel {
      *
      * @return the root Eclipse project
      */
-    OmniEclipseGradleProject getRootEclipseProject();
+    OmniEclipseProject getRootEclipseProject();
 
     /**
      * Returns the root Gradle project of the build.
@@ -28,7 +28,7 @@ public interface OmniEclipseGradleBuild extends BuildScopedModel {
      *
      * @return the root Eclipse project
      */
-    HierarchicalModel<EclipseGradleProjectFields> getRootEclipseProjectModel();
+    HierarchicalModel<EclipseProjectFields> getRootEclipseProjectModel();
 
     /**
      * Returns the root Gradle project of the build.

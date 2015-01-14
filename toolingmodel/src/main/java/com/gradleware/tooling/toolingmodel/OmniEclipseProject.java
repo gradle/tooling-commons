@@ -7,9 +7,9 @@ import com.google.common.collect.ImmutableList;
 import java.io.File;
 
 /**
- * Provides detailed information about the Gradle project and its hierarchy, suited for consumption in Eclipse.
+ * Provides detailed information about the Eclipse project and its hierarchy.
  */
-public interface OmniEclipseGradleProject extends HierarchicalModel<OmniEclipseGradleProject> {
+public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject> {
 
     /**
      * Returns the parent project of this project.
@@ -17,14 +17,14 @@ public interface OmniEclipseGradleProject extends HierarchicalModel<OmniEclipseG
      * @return the parent project, can be null
      */
     @Override
-    OmniEclipseGradleProject getParent();
+    OmniEclipseProject getParent();
 
     /**
      * Returns the immediate child projects of this project.
      *
      * @return the immediate child projects of this project
      */
-    ImmutableList<OmniEclipseGradleProject> getChildren();
+    ImmutableList<OmniEclipseProject> getChildren();
 
     /**
      * Returns this project and all the nested child projects in its hierarchy.
@@ -32,7 +32,7 @@ public interface OmniEclipseGradleProject extends HierarchicalModel<OmniEclipseG
      * @return this project and all the nested child projects in its hierarchy
      */
     @Override
-    ImmutableList<OmniEclipseGradleProject> getAll();
+    ImmutableList<OmniEclipseProject> getAll();
 
     /**
      * Returns all projects that match the given criteria.
@@ -41,7 +41,7 @@ public interface OmniEclipseGradleProject extends HierarchicalModel<OmniEclipseG
      * @return the matching projects
      */
     @Override
-    ImmutableList<OmniEclipseGradleProject> filter(Predicate<? super OmniEclipseGradleProject> predicate);
+    ImmutableList<OmniEclipseProject> filter(Predicate<? super OmniEclipseProject> predicate);
 
     /**
      * Returns the first project that matches the given criteria, if any.
@@ -50,7 +50,7 @@ public interface OmniEclipseGradleProject extends HierarchicalModel<OmniEclipseG
      * @return the matching project, if any
      */
     @Override
-    Optional<OmniEclipseGradleProject> tryFind(Predicate<? super OmniEclipseGradleProject> predicate);
+    Optional<OmniEclipseProject> tryFind(Predicate<? super OmniEclipseProject> predicate);
 
     /**
      * Returns the name of this project. Note that the name is not a unique identifier for the project.

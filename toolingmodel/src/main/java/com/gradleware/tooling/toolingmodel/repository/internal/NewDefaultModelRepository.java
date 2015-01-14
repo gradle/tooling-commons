@@ -173,8 +173,8 @@ public final class NewDefaultModelRepository implements NewModelRepository {
         Converter<EclipseProject, OmniEclipseGradleBuild> converter = new BaseConverter<EclipseProject, OmniEclipseGradleBuild>() {
 
             @Override
-            protected OmniEclipseGradleBuild doForward(EclipseProject eclipseGradleProject) {
-                return DefaultOmniEclipseGradleBuild.from(eclipseGradleProject, requiresIsPublicFix);
+            protected OmniEclipseGradleBuild doForward(EclipseProject eclipseProject) {
+                return DefaultOmniEclipseGradleBuild.from(eclipseProject, requiresIsPublicFix);
             }
 
         };
