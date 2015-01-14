@@ -17,18 +17,18 @@ public interface OmniBuildEnvironment extends BuildScopedModel {
     OmniGradleEnvironment getGradle();
 
     /**
-     * Returns information about the Gradle environment.
-     *
-     * @return the Gradle environment
-     */
-    Model<GradleEnvironmentFields> getGradleModel();
-
-    /**
      * Returns information about the Java environment.
      *
      * @return the Java environment
      */
     OmniJavaEnvironment getJava();
+
+    /**
+     * Returns information about the Gradle environment.
+     *
+     * @return the Gradle environment
+     */
+    Model<GradleEnvironmentFields> getGradleModel();
 
     /**
      * Returns information about the Java environment.
