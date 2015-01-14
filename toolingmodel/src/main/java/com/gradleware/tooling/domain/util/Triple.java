@@ -1,5 +1,7 @@
 package com.gradleware.tooling.domain.util;
 
+import java.io.Serializable;
+
 /**
  * Holds three values.
  *
@@ -7,7 +9,10 @@ package com.gradleware.tooling.domain.util;
  * @param <T> the type of the second value
  * @param <U> the type of the third value
  */
-public final class Triple<S, T, U> {
+@SuppressWarnings("NonSerializableFieldInSerializableClass")
+public final class Triple<S , T , U > implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final S first;
     private final T second;

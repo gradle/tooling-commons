@@ -1,12 +1,17 @@
 package com.gradleware.tooling.domain.util;
 
+import java.io.Serializable;
+
 /**
  * Holds two values.
  *
  * @param <S> the type of the first value
  * @param <T> the type of the second value
  */
-public final class Pair<S, T>  {
+@SuppressWarnings("NonSerializableFieldInSerializableClass")
+public final class Pair<S, T> implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final S first;
     private final T second;
