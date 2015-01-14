@@ -7,7 +7,7 @@ import com.gradleware.tooling.toolingmodel.generic.Model;
  *
  * @see org.gradle.tooling.model.build.BuildEnvironment
  */
-public interface OmniBuildEnvironment {
+public interface OmniBuildEnvironment extends BuildScopedModel {
 
     /**
      * Returns information about the Gradle environment.

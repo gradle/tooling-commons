@@ -7,7 +7,7 @@ import com.gradleware.tooling.toolingmodel.generic.HierarchicalModel;
  *
  * @see org.gradle.tooling.model.gradle.GradleBuild
  */
-public interface OmniGradleBuildStructure {
+public interface OmniGradleBuildStructure extends BuildScopedModel {
 
     /**
      * Returns the root project of the build.
