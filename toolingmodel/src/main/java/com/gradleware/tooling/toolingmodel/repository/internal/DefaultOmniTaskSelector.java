@@ -3,6 +3,7 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 import com.google.common.collect.ImmutableSortedSet;
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
 import com.gradleware.tooling.toolingmodel.TaskSelectorsFields;
+import com.gradleware.tooling.toolingmodel.generic.DefaultModel;
 import com.gradleware.tooling.toolingmodel.generic.Model;
 
 import java.util.SortedSet;
@@ -50,7 +51,7 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
     }
 
     public void setSelectedTaskPaths(SortedSet<String> selectedTaskPaths) {
-        this.selectedTaskPaths = ImmutableSortedSet.copyOf(selectedTaskPaths);
+        this.selectedTaskPaths = ImmutableSortedSet.copyOfSorted(selectedTaskPaths);
     }
 
     public static DefaultOmniTaskSelector from(Model<TaskSelectorsFields> task) {
@@ -59,6 +60,15 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
         taskSelector.setDescription(task.get(TaskSelectorsFields.DESCRIPTION));
         taskSelector.setPublic(task.get(TaskSelectorsFields.IS_PUBLIC));
         taskSelector.setSelectedTaskPaths(task.get(TaskSelectorsFields.SELECTED_TASK_PATHS));
+        return taskSelector;
+    }
+
+    public static DefaultModel<TaskSelectorsFields> from(String name, String description, boolean isPublic, SortedSet<String> selectedTaskPaths) {
+        DefaultModel<TaskSelectorsFields> taskSelector = new DefaultModel<TaskSelectorsFields>();
+        taskSelector.put(TaskSelectorsFields.NAME, name);
+        taskSelector.put(TaskSelectorsFields.DESCRIPTION, description);
+        taskSelector.put(TaskSelectorsFields.IS_PUBLIC, isPublic);
+        taskSelector.put(TaskSelectorsFields.SELECTED_TASK_PATHS, selectedTaskPaths);
         return taskSelector;
     }
 

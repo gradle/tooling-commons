@@ -9,9 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
-import com.gradleware.tooling.toolingmodel.internal.BuildInvocationsContainerFactory;
-import com.gradleware.tooling.toolingmodel.internal.SyntheticTaskSelector;
-import com.gradleware.tooling.toolingmodel.repository.BuildInvocationsContainer;
+import com.gradleware.tooling.toolingmodel.BuildInvocationFields;
 import com.gradleware.tooling.toolingmodel.GradleProjectFields;
 import com.gradleware.tooling.toolingmodel.GradleScriptFields;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
@@ -26,9 +24,6 @@ import com.gradleware.tooling.toolingmodel.generic.HierarchicalModel;
 import com.gradleware.tooling.toolingmodel.generic.Model;
 import com.gradleware.tooling.toolingmodel.generic.ModelField;
 import org.gradle.tooling.model.GradleProject;
-import org.gradle.tooling.model.GradleTask;
-import org.gradle.tooling.model.TaskSelector;
-import org.gradle.tooling.model.gradle.BuildInvocations;
 import org.gradle.tooling.model.gradle.GradleScript;
 
 import java.io.File;
@@ -215,11 +210,11 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
     }
 
     public static DefaultHierarchicalModel<GradleProjectFields> from(GradleProject gradleProject, boolean enforceAllTasksPublic) {
-        BuildInvocationsContainer buildInvocationsContainer = BuildInvocationsContainerFactory.createFrom(gradleProject);
-        return convert(gradleProject, buildInvocationsContainer, enforceAllTasksPublic);
+        NewBuildInvocationsContainer buildInvocationsContainer = NewBuildInvocationsContainerFactory.createFrom(gradleProject, enforceAllTasksPublic);
+        return convert(gradleProject, buildInvocationsContainer);
     }
 
-    public static DefaultHierarchicalModel<GradleProjectFields> convert(GradleProject project, BuildInvocationsContainer buildInvocations, boolean enforceAllTasksPublic) {
+    public static DefaultHierarchicalModel<GradleProjectFields> convert(GradleProject project, NewBuildInvocationsContainer buildInvocationsContainer) {
         DefaultHierarchicalModel<GradleProjectFields> gradleProject = new DefaultHierarchicalModel<GradleProjectFields>(GradleProjectComparator.INSTANCE);
         gradleProject.put(GradleProjectFields.NAME, project.getName());
         gradleProject.put(GradleProjectFields.DESCRIPTION, project.getDescription());
@@ -227,11 +222,12 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
         setProjectDirectory(gradleProject, GradleProjectFields.PROJECT_DIRECTORY, project);
         setBuildDirectory(gradleProject, GradleProjectFields.BUILD_DIRECTORY, project);
         setBuildScript(gradleProject, GradleProjectFields.BUILD_SCRIPT, project);
-        gradleProject.put(GradleProjectFields.PROJECT_TASKS, getProjectTasks(project, enforceAllTasksPublic));
-        gradleProject.put(GradleProjectFields.TASK_SELECTORS, getTaskSelectors(buildInvocations.asMap().get(project.getPath()), enforceAllTasksPublic));
+        Model<BuildInvocationFields> buildInvocations = buildInvocationsContainer.asMap().get(project.getPath());
+        gradleProject.put(GradleProjectFields.PROJECT_TASKS, buildInvocations.get(BuildInvocationFields.PROJECT_TASKS));
+        gradleProject.put(GradleProjectFields.TASK_SELECTORS, buildInvocations.get(BuildInvocationFields.TASK_SELECTORS));
 
         for (GradleProject child : project.getChildren()) {
-            DefaultHierarchicalModel<GradleProjectFields> gradleProjectChild = convert(child, buildInvocations, enforceAllTasksPublic);
+            DefaultHierarchicalModel<GradleProjectFields> gradleProjectChild = convert(child, buildInvocationsContainer);
             gradleProject.addChild(gradleProjectChild);
         }
 
@@ -288,52 +284,6 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
         }
     }
 
-    private static ImmutableList<Model<ProjectTaskFields>> getProjectTasks(GradleProject project, boolean enforceAllTasksPublic) {
-        ImmutableList.Builder<Model<ProjectTaskFields>> projectTasks = ImmutableList.builder();
-        for (GradleTask projectTaskOrigin : project.getTasks()) {
-            DefaultModel<ProjectTaskFields> projectTask = new DefaultModel<ProjectTaskFields>();
-            projectTask.put(ProjectTaskFields.NAME, projectTaskOrigin.getName());
-            projectTask.put(ProjectTaskFields.DESCRIPTION, projectTaskOrigin.getDescription());
-            projectTask.put(ProjectTaskFields.PATH, projectTaskOrigin.getPath());
-            setIsPublic(projectTask, ProjectTaskFields.IS_PUBLIC, projectTaskOrigin, enforceAllTasksPublic);
-            projectTasks.add(projectTask);
-        }
-        return Ordering.from(TaskComparator.INSTANCE).immutableSortedCopy(projectTasks.build());
-    }
-
-    /**
-     * GradleTask#isPublic is only available in Gradle versions >= 2.1.
-     * <p/>
-     * For versions 2.1 and 2.2.x, GradleTask#isPublic always returns {@code false} and needs to be corrected to {@code true}.
-     *
-     * @param projectTask the task to populate
-     * @param isPublicField the field from which to derive the default isPublic value in case it is not available on the task model
-     * @param task the task model
-     * @param enforceAllTasksPublic flag to signal whether all tasks should be treated as public regardless of what the model says
-     */
-    private static void setIsPublic(DefaultModel<ProjectTaskFields> projectTask, ModelField<Boolean, ProjectTaskFields> isPublicField, GradleTask task, boolean enforceAllTasksPublic) {
-        try {
-            boolean isPublic = task.isPublic();
-            projectTask.put(isPublicField, enforceAllTasksPublic || isPublic);
-        } catch (Exception ignore) {
-            // do not store if field value is not present
-        }
-    }
-
-    private static ImmutableList<Model<TaskSelectorsFields>> getTaskSelectors(BuildInvocations buildInvocations, boolean enforceAllTasksPublic) {
-        ImmutableList.Builder<Model<TaskSelectorsFields>> taskSelectors = ImmutableList.builder();
-        for (TaskSelector taskSelectorOrigin : buildInvocations.getTaskSelectors()) {
-            SyntheticTaskSelector syntheticTaskSelector = (SyntheticTaskSelector) taskSelectorOrigin;
-            DefaultModel<TaskSelectorsFields> taskSelector = new DefaultModel<TaskSelectorsFields>();
-            taskSelector.put(TaskSelectorsFields.NAME, syntheticTaskSelector.getName());
-            taskSelector.put(TaskSelectorsFields.DESCRIPTION, syntheticTaskSelector.getDescription());
-            taskSelector.put(TaskSelectorsFields.IS_PUBLIC, enforceAllTasksPublic || syntheticTaskSelector.isPublic());
-            taskSelector.put(TaskSelectorsFields.SELECTED_TASK_PATHS, syntheticTaskSelector.getTaskNames());
-            taskSelectors.add(taskSelector);
-        }
-        return taskSelectors.build();
-    }
-
     /**
      * Compares OmniGradleProjects by their project path.
      */
@@ -358,20 +308,6 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
         @Override
         public int compare(Model<GradleProjectFields> o1, Model<GradleProjectFields> o2) {
             return PathComparator.INSTANCE.compare(o1.get(GradleProjectFields.PATH), o2.get(GradleProjectFields.PATH));
-        }
-
-    }
-
-    /**
-     * Compares ProjectTasks by their path.
-     */
-    private static final class TaskComparator implements Comparator<Model<ProjectTaskFields>> {
-
-        public static final TaskComparator INSTANCE = new TaskComparator();
-
-        @Override
-        public int compare(Model<ProjectTaskFields> o1, Model<ProjectTaskFields> o2) {
-            return PathComparator.INSTANCE.compare(o1.get(ProjectTaskFields.PATH), o2.get(ProjectTaskFields.PATH));
         }
 
     }
