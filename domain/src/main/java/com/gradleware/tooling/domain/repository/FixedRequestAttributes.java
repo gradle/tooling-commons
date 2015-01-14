@@ -2,14 +2,14 @@ package com.gradleware.tooling.domain.repository;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingapi.GradleDistribution;
-import com.gradleware.tooling.toolingapi.Request;
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+import com.gradleware.tooling.toolingclient.Request;
 
 import java.io.File;
 import java.util.List;
 
 /**
- * Container to hold those attributes of a {@link com.gradleware.tooling.toolingapi.Request} that must not change between request invocations if the semantics of how the build is
+ * Container to hold those attributes of a {@link com.gradleware.tooling.toolingclient.Request} that must not change between request invocations if the semantics of how the build is
  * executed must not changed.
  */
 public final class FixedRequestAttributes {

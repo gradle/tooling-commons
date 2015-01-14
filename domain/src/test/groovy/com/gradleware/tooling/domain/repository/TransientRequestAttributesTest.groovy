@@ -1,7 +1,7 @@
 package com.gradleware.tooling.domain.repository
 
 import com.google.common.collect.ImmutableList
-import com.gradleware.tooling.toolingapi.BuildActionRequest
+import com.gradleware.tooling.toolingclient.BuildActionRequest
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
 import spock.lang.Specification

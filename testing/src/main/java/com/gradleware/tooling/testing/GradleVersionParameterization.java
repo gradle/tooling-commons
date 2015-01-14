@@ -6,7 +6,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingapi.GradleDistribution;
+import com.gradleware.tooling.toolingclient.GradleDistribution;
 import org.gradle.api.specs.Spec;
 import org.gradle.util.DistributionLocator;
 import org.gradle.util.GradleVersion;

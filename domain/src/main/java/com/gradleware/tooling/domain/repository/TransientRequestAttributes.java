@@ -1,7 +1,7 @@
 package com.gradleware.tooling.domain.repository;
 
 import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingapi.Request;
+import com.gradleware.tooling.toolingclient.Request;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
 
@@ -10,7 +10,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 /**
- * Container to hold those attributes of a {@link com.gradleware.tooling.toolingapi.Request} that do change between request invocations.
+ * Container to hold those attributes of a {@link com.gradleware.tooling.toolingclient.Request} that do change between request invocations.
  */
 public final class TransientRequestAttributes {
 

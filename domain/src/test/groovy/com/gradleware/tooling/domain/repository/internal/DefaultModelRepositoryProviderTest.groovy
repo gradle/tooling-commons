@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList
 import com.gradleware.tooling.domain.repository.FixedRequestAttributes
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DomainToolingClientSpecification
-import com.gradleware.tooling.toolingapi.GradleDistribution
+import com.gradleware.tooling.toolingclient.GradleDistribution
 import org.junit.Rule
 
 class DefaultModelRepositoryProviderTest extends DomainToolingClientSpecification {

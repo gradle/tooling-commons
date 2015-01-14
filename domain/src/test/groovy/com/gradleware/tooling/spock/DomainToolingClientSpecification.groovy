@@ -1,6 +1,6 @@
 package com.gradleware.tooling.spock
 
-import com.gradleware.tooling.toolingapi.ToolingClient
+import com.gradleware.tooling.toolingclient.ToolingClient
 import org.gradle.internal.Factory
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.internal.consumer.DefaultGradleConnector

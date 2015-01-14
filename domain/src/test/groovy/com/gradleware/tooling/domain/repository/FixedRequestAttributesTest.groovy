@@ -1,8 +1,8 @@
 package com.gradleware.tooling.domain.repository
 
 import com.google.common.collect.ImmutableList
-import com.gradleware.tooling.toolingapi.BuildActionRequest
-import com.gradleware.tooling.toolingapi.GradleDistribution
+import com.gradleware.tooling.toolingclient.BuildActionRequest
+import com.gradleware.tooling.toolingclient.GradleDistribution
 import nl.jqno.equalsverifier.EqualsVerifier
 import spock.lang.Specification
 

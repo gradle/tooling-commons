@@ -4,7 +4,7 @@ import com.gradleware.tooling.domain.util.Pair
 import com.gradleware.tooling.domain.util.Triple
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DomainToolingClientSpecification
-import com.gradleware.tooling.toolingapi.BuildActionRequest
+import com.gradleware.tooling.toolingclient.BuildActionRequest
 import org.gradle.tooling.model.GradleProject
 import org.gradle.tooling.model.gradle.BuildInvocations
 import org.gradle.tooling.model.gradle.ProjectPublications

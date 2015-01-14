@@ -13,7 +13,7 @@ import com.gradleware.tooling.domain.repository.GradleProjectUpdateEvent
 import com.gradleware.tooling.domain.repository.TransientRequestAttributes
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DomainToolingClientSpecification
-import com.gradleware.tooling.toolingapi.GradleDistribution
+import com.gradleware.tooling.toolingclient.GradleDistribution
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener

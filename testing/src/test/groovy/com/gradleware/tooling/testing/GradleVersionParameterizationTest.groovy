@@ -2,7 +2,7 @@ package com.gradleware.tooling.testing
 
 import com.google.common.base.Supplier
 import com.google.common.collect.ImmutableList
-import com.gradleware.tooling.toolingapi.GradleDistribution
+import com.gradleware.tooling.toolingclient.GradleDistribution
 import org.gradle.util.GradleVersion
 import spock.lang.Shared
 import spock.lang.Specification

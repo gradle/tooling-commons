@@ -7,7 +7,7 @@ import com.gradleware.tooling.domain.repository.Environment;
 import com.gradleware.tooling.domain.repository.FixedRequestAttributes;
 import com.gradleware.tooling.domain.repository.ModelRepository;
 import com.gradleware.tooling.domain.repository.ModelRepositoryProvider;
-import com.gradleware.tooling.toolingapi.ToolingClient;
+import com.gradleware.tooling.toolingclient.ToolingClient;
 import org.gradle.internal.Factory;
 
 import java.util.Map;

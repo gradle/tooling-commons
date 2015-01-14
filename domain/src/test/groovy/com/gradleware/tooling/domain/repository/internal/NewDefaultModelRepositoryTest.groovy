@@ -21,7 +21,7 @@ import com.gradleware.tooling.spock.DomainToolingClientSpecification
 import com.gradleware.tooling.spock.VerboseUnroll
 import com.gradleware.tooling.testing.GradleVersionExtractor
 import com.gradleware.tooling.testing.GradleVersionParameterization
-import com.gradleware.tooling.toolingapi.GradleDistribution
+import com.gradleware.tooling.toolingclient.GradleDistribution
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener

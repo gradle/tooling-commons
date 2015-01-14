@@ -7,7 +7,7 @@ import com.gradleware.tooling.domain.repository.FixedRequestAttributes
 import com.gradleware.tooling.domain.repository.TransientRequestAttributes
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DomainToolingClientSpecification
-import com.gradleware.tooling.toolingapi.GradleDistribution
+import com.gradleware.tooling.toolingclient.GradleDistribution
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
 import org.junit.Rule
