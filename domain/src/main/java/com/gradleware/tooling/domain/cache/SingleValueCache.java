@@ -22,7 +22,7 @@ public final class SingleValueCache<V> {
     private final Object waitUntilLoaded = new Object();
 
     public SingleValueCache() {
-        stateBoundValue = new StateBoundValue<V>();
+        this.stateBoundValue = new StateBoundValue<V>();
     }
 
     /**
@@ -31,16 +31,16 @@ public final class SingleValueCache<V> {
      * @return the value if present, {@link Optional#absent()} otherwise
      */
     public Optional<V> getIfPresent() {
-        synchronized (stateBoundValue) {
-            switch (stateBoundValue.state) {
+        synchronized (this.stateBoundValue) {
+            switch (this.stateBoundValue.state) {
                 case RESET:
                     return Optional.absent();
                 case LOADING:
                     return Optional.absent();
                 case LOADED:
-                    return Optional.of(stateBoundValue.getValue());
+                    return Optional.of(this.stateBoundValue.getValue());
                 default:
-                    throw new IllegalStateException("Unexpected CacheState: " + stateBoundValue.state);
+                    throw new IllegalStateException("Unexpected CacheState: " + this.stateBoundValue.state);
             }
         }
     }
@@ -61,40 +61,40 @@ public final class SingleValueCache<V> {
                     // set the loaded value under certain conditions
                     boolean valueUpdateValid = false;
                     StateBoundValue<V> current;
-                    synchronized (stateBoundValue) {
+                    synchronized (this.stateBoundValue) {
                         // set the loaded value iff while loading the value
                         // a) no value was put explicitly into the cache by some other thread (put API)
                         // b) the cache was not invalidated by some other thread (invalidate API)
-                        if (stateBoundValue.modifier == Thread.currentThread()) {
-                            stateBoundValue.set(CacheState.LOADED, value, Thread.currentThread());
+                        if (this.stateBoundValue.modifier == Thread.currentThread()) {
+                            this.stateBoundValue.set(CacheState.LOADED, value, Thread.currentThread());
                             valueUpdateValid = true;
                         }
 
-                        current = stateBoundValue.copy();
+                        current = this.stateBoundValue.copy();
                     }
 
                     // notify all waiting threads about the loaded and newly set value
                     if (valueUpdateValid) {
-                        synchronized (waitUntilLoaded) {
-                            waitUntilLoaded.notifyAll();
+                        synchronized (this.waitUntilLoaded) {
+                            this.waitUntilLoaded.notifyAll();
                         }
                     }
 
                     return current.getValue();
                 } catch (Throwable t) {
                     t.printStackTrace();
-                    synchronized (stateBoundValue) {
-                        stateBoundValue.state = CacheState.RESET;
-                        stateBoundValue.value = null;
-                        stateBoundValue.modifier = Thread.currentThread();
+                    synchronized (this.stateBoundValue) {
+                        this.stateBoundValue.state = CacheState.RESET;
+                        this.stateBoundValue.value = null;
+                        this.stateBoundValue.modifier = Thread.currentThread();
                     }
 
                     throw new CacheException(t);
                 }
             case LOADING:
-                synchronized (waitUntilLoaded) {
+                synchronized (this.waitUntilLoaded) {
                     try {
-                        waitUntilLoaded.wait();
+                        this.waitUntilLoaded.wait();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -103,23 +103,23 @@ public final class SingleValueCache<V> {
             case LOADED:
                 return previous.getValue();
             default:
-                throw new IllegalStateException("Unexpected CacheState: " + stateBoundValue.state);
+                throw new IllegalStateException("Unexpected CacheState: " + this.stateBoundValue.state);
         }
     }
 
     private StateBoundValue<V> triggerLoadingIfNeeded() {
-        synchronized (stateBoundValue) {
-            StateBoundValue<V> previous = stateBoundValue.copy();
-            switch (stateBoundValue.state) {
+        synchronized (this.stateBoundValue) {
+            StateBoundValue<V> previous = this.stateBoundValue.copy();
+            switch (this.stateBoundValue.state) {
                 case RESET:
-                    stateBoundValue.set(CacheState.LOADING, null, Thread.currentThread());
+                    this.stateBoundValue.set(CacheState.LOADING, null, Thread.currentThread());
                     return previous;
                 case LOADING:
                     return previous;
                 case LOADED:
                     return previous;
                 default:
-                    throw new IllegalStateException("Unexpected CacheState: " + stateBoundValue.state);
+                    throw new IllegalStateException("Unexpected CacheState: " + this.stateBoundValue.state);
             }
         }
     }
@@ -127,14 +127,14 @@ public final class SingleValueCache<V> {
     public void put(V value) {
         Preconditions.checkArgument(value != null, "Value must not be null");
 
-        synchronized (stateBoundValue) {
-            stateBoundValue.set(CacheState.LOADED, value, Thread.currentThread());
+        synchronized (this.stateBoundValue) {
+            this.stateBoundValue.set(CacheState.LOADED, value, Thread.currentThread());
         }
     }
 
     public void invalidate() {
-        synchronized (stateBoundValue) {
-            stateBoundValue.set(CacheState.RESET, null, Thread.currentThread());
+        synchronized (this.stateBoundValue) {
+            this.stateBoundValue.set(CacheState.RESET, null, Thread.currentThread());
         }
     }
 
@@ -181,16 +181,16 @@ public final class SingleValueCache<V> {
 
         private T getValue() {
             // validate current state permits getting the value
-            if (state != CacheState.LOADED) {
-                throw new IllegalStateException("Value is not available in state: " + state);
+            if (this.state != CacheState.LOADED) {
+                throw new IllegalStateException("Value is not available in state: " + this.state);
             }
 
-            return value;
+            return this.value;
         }
 
         private StateBoundValue<T> copy() {
             StateBoundValue<T> copy = new StateBoundValue<T>();
-            copy.set(state, value, modifier);
+            copy.set(this.state, this.value, this.modifier);
             return copy;
         }
 
@@ -204,22 +204,22 @@ public final class SingleValueCache<V> {
             }
 
             StateBoundValue that = (StateBoundValue) other;
-            return Objects.equal(state, that.state) &&
-                    Objects.equal(value, that.value) &&
-                    Objects.equal(modifier, that.modifier);
+            return Objects.equal(this.state, that.state) &&
+                    Objects.equal(this.value, that.value) &&
+                    Objects.equal(this.modifier, that.modifier);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hashCode(state, value, modifier);
+            return Objects.hashCode(this.state, this.value, this.modifier);
         }
 
         @Override
         public String toString() {
             return "StateBoundValue{" +
-                    "state=" + state +
-                    ", value=" + value +
-                    ", modifier=" + modifier +
+                    "state=" + this.state +
+                    ", value=" + this.value +
+                    ", modifier=" + this.modifier +
                     '}';
         }
     }

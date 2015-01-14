@@ -99,7 +99,7 @@ public final class GradleVersionParameterization {
 
         final Spec<GradleVersion> versionSpec = GradleVersionSpec.toSpec(gradleVersionPattern);
 
-        ImmutableList<GradleVersion> configuredGradleVersions = gradleVersionProvider.getConfiguredGradleVersions();
+        ImmutableList<GradleVersion> configuredGradleVersions = this.gradleVersionProvider.getConfiguredGradleVersions();
         return FluentIterable.from(configuredGradleVersions).filter(new Predicate<GradleVersion>() {
             @Override
             public boolean apply(GradleVersion input) {

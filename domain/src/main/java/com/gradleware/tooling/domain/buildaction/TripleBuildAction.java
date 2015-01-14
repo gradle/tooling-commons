@@ -28,7 +28,7 @@ public final class TripleBuildAction<S, T, U> implements BuildAction<Triple<S, T
      */
     @Override
     public Triple<S, T, U> execute(BuildController controller) {
-        return new Triple<S, T, U>(first.execute(controller), second.execute(controller), third.execute(controller));
+        return new Triple<S, T, U>(this.first.execute(controller), this.second.execute(controller), this.third.execute(controller));
     }
 
 }

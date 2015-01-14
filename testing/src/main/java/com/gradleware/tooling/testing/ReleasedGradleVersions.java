@@ -46,7 +46,7 @@ public final class ReleasedGradleVersions {
     }
 
     public ImmutableList<GradleVersion> getAll() {
-        return versions;
+        return this.versions;
     }
 
     public GradleVersion getLatest() {

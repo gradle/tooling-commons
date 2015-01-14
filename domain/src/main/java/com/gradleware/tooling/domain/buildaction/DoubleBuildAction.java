@@ -26,7 +26,7 @@ public final class DoubleBuildAction<S, T> implements BuildAction<Pair<S, T>> {
      */
     @Override
     public Pair<S, T> execute(BuildController controller) {
-        return new Pair<S, T>(first.execute(controller), second.execute(controller));
+        return new Pair<S, T>(this.first.execute(controller), this.second.execute(controller));
     }
 
 }

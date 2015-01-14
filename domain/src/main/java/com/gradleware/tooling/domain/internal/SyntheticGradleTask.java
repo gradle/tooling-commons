@@ -23,37 +23,37 @@ public final class SyntheticGradleTask implements GradleTask, TaskListingLauncha
 
     @Override
     public String getName() {
-        return gradleTask.getName();
+        return this.gradleTask.getName();
     }
 
     @Override
     public String getDisplayName() {
-        return gradleTask.getDisplayName();
+        return this.gradleTask.getDisplayName();
     }
 
     @Override
     public String getDescription() {
-        return gradleTask.getDescription();
+        return this.gradleTask.getDescription();
     }
 
     @Override
     public boolean isPublic() {
-        return gradleTask.isPublic();
+        return this.gradleTask.isPublic();
     }
 
     @Override
     public String getPath() {
-        return gradleTask.getPath();
+        return this.gradleTask.getPath();
     }
 
     @Override
     public GradleProject getProject() {
-        return gradleTask.getProject();
+        return this.gradleTask.getProject();
     }
 
     @Override
     public ImmutableSortedSet<String> getTaskNames() {
-        return taskNames;
+        return this.taskNames;
     }
 
     public static SyntheticGradleTask from(GradleTask gradleTask) {

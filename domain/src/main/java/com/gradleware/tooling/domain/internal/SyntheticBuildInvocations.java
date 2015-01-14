@@ -25,12 +25,12 @@ public final class SyntheticBuildInvocations implements BuildInvocations {
 
     @Override
     public DomainObjectSet<? extends Task> getTasks() {
-        return tasks;
+        return this.tasks;
     }
 
     @Override
     public DomainObjectSet<? extends TaskSelector> getTaskSelectors() {
-        return taskSelectors;
+        return this.taskSelectors;
     }
 
     public static BuildInvocations from(SortedSet<GradleTask> tasks, SortedSet<TaskSelector> taskSelectors) {

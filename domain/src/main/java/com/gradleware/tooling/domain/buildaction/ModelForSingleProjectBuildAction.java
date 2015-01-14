@@ -28,17 +28,17 @@ public final class ModelForSingleProjectBuildAction<T> implements BuildAction<T>
     @Override
     public T execute(BuildController controller) {
         BasicGradleProject project = findProject(controller.getBuildModel());
-        return controller.getModel(project, modelType);
+        return controller.getModel(project, this.modelType);
     }
 
     private BasicGradleProject findProject(GradleBuild build) {
         for (BasicGradleProject project : build.getProjects()) {
-            if (project.getPath().equals(projectPath)) {
+            if (project.getPath().equals(this.projectPath)) {
                 return project;
             }
         }
 
-        throw new IllegalStateException("Invalid project path: " + projectPath);
+        throw new IllegalStateException("Invalid project path: " + this.projectPath);
     }
 
 }

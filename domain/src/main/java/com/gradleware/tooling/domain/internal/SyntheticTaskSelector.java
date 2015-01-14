@@ -29,27 +29,27 @@ public final class SyntheticTaskSelector implements TaskSelector, TaskListingLau
 
     @Override
     public String getName() {
-        return name;
+        return this.name;
     }
 
     @Override
     public String getDisplayName() {
-        return displayName;
+        return this.displayName;
     }
 
     @Override
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     @Override
     public boolean isPublic() {
-        return isPublic;
+        return this.isPublic;
     }
 
     @Override
     public ImmutableSortedSet<String> getTaskNames() {
-        return taskNames;
+        return this.taskNames;
     }
 
     public static SyntheticTaskSelector from(String name, String displayName, String description, boolean isPublic, Set<String> taskNames) {

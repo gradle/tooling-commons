@@ -23,7 +23,7 @@ public final class GlobalModelBuildAction<T> implements BuildAction<T> {
      */
     @Override
     public T execute(BuildController controller) {
-        return controller.getModel(modelType);
+        return controller.getModel(this.modelType);
     }
 
 }

@@ -31,7 +31,7 @@ public final class ModelForAllProjectsBuildAction<T> implements BuildAction<Map<
         Map<String, T> models = new HashMap<String, T>();
         DomainObjectSet<? extends BasicGradleProject> projects = controller.getBuildModel().getProjects();
         for (BasicGradleProject project : projects) {
-            T model = controller.getModel(project, modelType);
+            T model = controller.getModel(project, this.modelType);
             models.put(project.getPath(), model);
         }
         return models;

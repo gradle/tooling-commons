@@ -39,15 +39,15 @@ public final class GradleVersionProvider {
      * @return the matching Gradle versions falling into the covered range, never null
      */
     public ImmutableList<GradleVersion> getConfiguredGradleVersions() {
-        String pattern = versionRangePattern.get();
+        String pattern = this.versionRangePattern.get();
         LOG.debug("Applying version range pattern '{}'", pattern);
 
         // add matching versions to set to avoid potential duplicates (e.g. when current == latest)
         ImmutableSet<GradleVersion> configuredGradleVersions;
         if (pattern.equals(ALL)) {
-            configuredGradleVersions = ImmutableSet.<GradleVersion>builder().add(GradleVersion.current()).addAll(releasedVersions.getAll()).build();
+            configuredGradleVersions = ImmutableSet.<GradleVersion>builder().add(GradleVersion.current()).addAll(this.releasedVersions.getAll()).build();
         } else if (pattern.equals(LATEST)) {
-            configuredGradleVersions = ImmutableSet.<GradleVersion>builder().add(GradleVersion.current()).add(releasedVersions.getLatest()).build();
+            configuredGradleVersions = ImmutableSet.<GradleVersion>builder().add(GradleVersion.current()).add(this.releasedVersions.getLatest()).build();
         } else if (pattern.matches("^\\d.*$")) {
             configuredGradleVersions = FluentIterable.from(Splitter.on(',').split(pattern)).transform(new Function<String, GradleVersion>() {
                 @Override
