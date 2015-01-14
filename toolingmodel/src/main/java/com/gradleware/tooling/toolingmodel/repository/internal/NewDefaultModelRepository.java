@@ -7,6 +7,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
+import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 import com.gradleware.tooling.toolingmodel.buildaction.BuildActionFactory;
@@ -167,6 +168,11 @@ public final class NewDefaultModelRepository implements NewModelRepository {
         };
 
         return executeRequest(request, successHandler, fetchStrategy, OmniGradleBuild.class, converter);
+    }
+
+    @Override
+    public OmniEclipseGradleBuild fetchEclipseGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
+        return null;
     }
 
 //    @Override

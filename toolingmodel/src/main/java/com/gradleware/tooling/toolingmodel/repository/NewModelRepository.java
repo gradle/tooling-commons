@@ -1,6 +1,7 @@
 package com.gradleware.tooling.toolingmodel.repository;
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
+import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 
@@ -51,15 +52,14 @@ public interface NewModelRepository {
      */
     OmniGradleBuild fetchGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
-//    /**
-//     * Fetches the {@link org.gradle.tooling.model.eclipse.EclipseProject} synchronously and broadcasts it through a {@link com.gradleware.tooling.toolingmodel.repository.EclipseProjectUpdateEvent}.
-//     *
-//     * @param transientRequestAttributes the transient request attributes
-//     * @param fetchStrategy the fetch strategy
-//     * @return the eclipse project, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
-//     */
-//    EclipseProject fetchEclipseProjectAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
-//
+    /**
+     * Fetches the {@link OmniEclipseGradleBuild} synchronously and broadcasts it through a {@link NewEclipseGradleBuildUpdateEvent}.
+     *
+     * @param transientRequestAttributes the transient request attributes
+     * @param fetchStrategy the fetch strategy
+     * @return the eclipse project, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
+     */
+    OmniEclipseGradleBuild fetchEclipseGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
 //    /**
 //     * Fetches the {@link org.gradle.tooling.model.gradle.BuildInvocations} synchronously and broadcasts them through a {@link com.gradleware.tooling.toolingmodel.repository.BuildInvocationsUpdateEvent}.
