@@ -12,7 +12,7 @@ import java.io.File;
 import java.util.List;
 
 /**
- * Enumerates the information available on a Gradle project without having to parse its build script.
+ * Enumerates the detailed information available on a Gradle project.
  *
  * @see org.gradle.tooling.model.gradle.BasicGradleProject
  */
