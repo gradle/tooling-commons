@@ -6,6 +6,11 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.UncheckedExecutionException;
+import com.gradleware.tooling.toolingclient.BuildActionRequest;
+import com.gradleware.tooling.toolingclient.Consumer;
+import com.gradleware.tooling.toolingclient.ModelRequest;
+import com.gradleware.tooling.toolingclient.Request;
+import com.gradleware.tooling.toolingclient.ToolingClient;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
@@ -15,19 +20,16 @@ import com.gradleware.tooling.toolingmodel.buildaction.ModelForAllProjectsBuildA
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.NewBuildEnvironmentUpdateEvent;
+import com.gradleware.tooling.toolingmodel.repository.NewEclipseGradleBuildUpdateEvent;
 import com.gradleware.tooling.toolingmodel.repository.NewGradleBuildStructureUpdateEvent;
 import com.gradleware.tooling.toolingmodel.repository.NewGradleBuildUpdateEvent;
 import com.gradleware.tooling.toolingmodel.repository.NewModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.BaseConverter;
-import com.gradleware.tooling.toolingclient.BuildActionRequest;
-import com.gradleware.tooling.toolingclient.Consumer;
-import com.gradleware.tooling.toolingclient.ModelRequest;
-import com.gradleware.tooling.toolingclient.Request;
-import com.gradleware.tooling.toolingclient.ToolingClient;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.build.BuildEnvironment;
+import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.gradle.GradleBuild;
 import org.gradle.util.GradleVersion;
 
@@ -128,22 +130,6 @@ public final class NewDefaultModelRepository implements NewModelRepository {
         return executeRequest(request, successHandler, fetchStrategy, OmniGradleBuildStructure.class, converter);
     }
 
-//    @Override
-//    public EclipseProject fetchEclipseProjectAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
-//        Preconditions.checkNotNull(transientRequestAttributes);
-//        Preconditions.checkNotNull(fetchStrategy);
-//
-//        ModelRequest<EclipseProject> request = createModelRequestForBuildModel(EclipseProject.class, transientRequestAttributes);
-//        Consumer<EclipseProject> successHandler = new Consumer<EclipseProject>() {
-//            @Override
-//            public void accept(EclipseProject result) {
-//                eventBus.post(new EclipseProjectUpdateEvent(result));
-//            }
-//        };
-//
-//        return executeRequest(request, successHandler, fetchStrategy, EclipseProject.class);
-//    }
-//
     @Override
     public OmniGradleBuild fetchGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         Preconditions.checkNotNull(transientRequestAttributes);
@@ -172,7 +158,27 @@ public final class NewDefaultModelRepository implements NewModelRepository {
 
     @Override
     public OmniEclipseGradleBuild fetchEclipseGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
-        return null;
+        Preconditions.checkNotNull(transientRequestAttributes);
+        Preconditions.checkNotNull(fetchStrategy);
+
+        final boolean requiresIsPublicFix = targetGradleVersionIsBetween("2.1", "2.2.1", transientRequestAttributes);
+
+        ModelRequest<EclipseProject> request = createModelRequestForBuildModel(EclipseProject.class, transientRequestAttributes);
+        Consumer<OmniEclipseGradleBuild> successHandler = new Consumer<OmniEclipseGradleBuild>() {
+            @Override
+            public void accept(OmniEclipseGradleBuild result) {
+                NewDefaultModelRepository.this.eventBus.post(new NewEclipseGradleBuildUpdateEvent(result));
+            }
+        };
+        Converter<EclipseProject, OmniEclipseGradleBuild> converter = new BaseConverter<EclipseProject, OmniEclipseGradleBuild>() {
+
+            @Override
+            protected OmniEclipseGradleBuild doForward(EclipseProject eclipseGradleProject) {
+                return null; // DefaultOmniGradleBuild.from(eclipseGradleProject, requiresIsPublicFix);
+            }
+
+        };
+        return executeRequest(request, successHandler, fetchStrategy, OmniEclipseGradleBuild.class, converter);
     }
 
 //    @Override
