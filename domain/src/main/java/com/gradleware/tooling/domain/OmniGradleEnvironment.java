@@ -7,6 +7,8 @@ public interface OmniGradleEnvironment {
 
     /**
      * Returns the Gradle version.
+     *
+     * @return the Gradle version
      */
     String getGradleVersion();
 
