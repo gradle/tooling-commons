@@ -33,7 +33,7 @@ import org.junit.Rule
 import java.util.concurrent.atomic.AtomicReference
 
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
-class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
+class DefaultModelRepositoryTest extends DomainToolingClientSpecification {
 
   @Rule
   TestDirectoryProvider directoryProvider = new TestDirectoryProvider();
