@@ -3,7 +3,7 @@ package com.gradleware.tooling.toolingmodel.repository.internal
 import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
 import com.gradleware.tooling.junit.TestDirectoryProvider
-import com.gradleware.tooling.spock.DomainToolingClientSpecification
+import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
@@ -12,7 +12,7 @@ import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
 import org.junit.Rule
 
-class DefaultModelRepositoryCacheTest extends DomainToolingClientSpecification {
+class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecification {
 
   @Rule
   TestDirectoryProvider directoryProvider = new TestDirectoryProvider();

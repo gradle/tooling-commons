@@ -6,7 +6,7 @@ import com.google.common.eventbus.EventBus
 import com.google.common.eventbus.Subscribe
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DataValueFormatter
-import com.gradleware.tooling.spock.DomainToolingClientSpecification
+import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
 import com.gradleware.tooling.spock.VerboseUnroll
 import com.gradleware.tooling.testing.GradleVersionExtractor
 import com.gradleware.tooling.testing.GradleVersionParameterization
@@ -33,7 +33,7 @@ import org.junit.Rule
 import java.util.concurrent.atomic.AtomicReference
 
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
-class DefaultModelRepositoryTest extends DomainToolingClientSpecification {
+class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification {
 
   @Rule
   TestDirectoryProvider directoryProvider = new TestDirectoryProvider();
