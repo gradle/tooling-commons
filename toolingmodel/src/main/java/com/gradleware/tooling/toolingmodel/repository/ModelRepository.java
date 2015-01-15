@@ -9,7 +9,7 @@ import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
  * Repository for Gradle build models. Listeners can be registered to get notified about model updates. It is left to the implementation through which channel the events are
  * broadcast.
  */
-public interface NewModelRepository {
+public interface ModelRepository {
 
     /**
      * Registers the given {@code listener} to receive model change events.

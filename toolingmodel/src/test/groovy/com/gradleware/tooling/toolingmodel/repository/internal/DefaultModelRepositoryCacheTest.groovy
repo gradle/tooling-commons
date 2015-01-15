@@ -19,7 +19,7 @@ class DefaultModelRepositoryCacheTest extends DomainToolingClientSpecification {
 
   FixedRequestAttributes fixedRequestAttributes
   TransientRequestAttributes transientRequestAttributes
-  NewDefaultModelRepository repository
+  DefaultModelRepository repository
 
   def setup() {
     // Gradle projects for testing
@@ -29,7 +29,7 @@ class DefaultModelRepositoryCacheTest extends DomainToolingClientSpecification {
     // request attributes and model repository for testing
     fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
     transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-    repository = new NewDefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
+    repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
   }
 
   def "fetchBuildEnvironmentAndWait"() {

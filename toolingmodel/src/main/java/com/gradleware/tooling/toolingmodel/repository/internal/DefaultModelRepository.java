@@ -23,7 +23,7 @@ import com.gradleware.tooling.toolingmodel.repository.BuildEnvironmentUpdateEven
 import com.gradleware.tooling.toolingmodel.repository.EclipseGradleBuildUpdateEvent;
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildStructureUpdateEvent;
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildUpdateEvent;
-import com.gradleware.tooling.toolingmodel.repository.NewModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.BaseConverter;
 import org.gradle.tooling.BuildAction;
@@ -43,14 +43,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * This repository is aware of the different constraints given by the Environment in which the repository is used and given by the target Gradle version.
  */
-public final class NewDefaultModelRepository implements NewModelRepository {
+public final class DefaultModelRepository implements ModelRepository {
 
     private final FixedRequestAttributes fixedRequestAttributes;
     private final ToolingClient toolingClient;
     private final EventBus eventBus;
     private final Cache<Class<?>, Object> cache;
 
-    public NewDefaultModelRepository(FixedRequestAttributes fixedRequestAttributes, ToolingClient toolingClient, EventBus eventBus) {
+    public DefaultModelRepository(FixedRequestAttributes fixedRequestAttributes, ToolingClient toolingClient, EventBus eventBus) {
         this.fixedRequestAttributes = Preconditions.checkNotNull(fixedRequestAttributes);
         this.toolingClient = Preconditions.checkNotNull(toolingClient);
         this.eventBus = Preconditions.checkNotNull(eventBus);
@@ -96,7 +96,7 @@ public final class NewDefaultModelRepository implements NewModelRepository {
 
             @Override
             public void accept(OmniBuildEnvironment result) {
-                NewDefaultModelRepository.this.eventBus.post(new BuildEnvironmentUpdateEvent(result));
+                DefaultModelRepository.this.eventBus.post(new BuildEnvironmentUpdateEvent(result));
             }
         };
         Converter<BuildEnvironment, OmniBuildEnvironment> converter = new BaseConverter<BuildEnvironment, OmniBuildEnvironment>() {
@@ -126,7 +126,7 @@ public final class NewDefaultModelRepository implements NewModelRepository {
         Consumer<OmniGradleBuildStructure> successHandler = new Consumer<OmniGradleBuildStructure>() {
             @Override
             public void accept(OmniGradleBuildStructure result) {
-                NewDefaultModelRepository.this.eventBus.post(new GradleBuildStructureUpdateEvent(result));
+                DefaultModelRepository.this.eventBus.post(new GradleBuildStructureUpdateEvent(result));
             }
         };
         Converter<GradleBuild, OmniGradleBuildStructure> converter = new BaseConverter<GradleBuild, OmniGradleBuildStructure>() {
@@ -156,7 +156,7 @@ public final class NewDefaultModelRepository implements NewModelRepository {
         Consumer<OmniGradleBuild> successHandler = new Consumer<OmniGradleBuild>() {
             @Override
             public void accept(OmniGradleBuild result) {
-                NewDefaultModelRepository.this.eventBus.post(new GradleBuildUpdateEvent(result));
+                DefaultModelRepository.this.eventBus.post(new GradleBuildUpdateEvent(result));
             }
         };
         Converter<GradleProject, OmniGradleBuild> converter = new BaseConverter<GradleProject, OmniGradleBuild>() {
@@ -185,7 +185,7 @@ public final class NewDefaultModelRepository implements NewModelRepository {
         Consumer<OmniEclipseGradleBuild> successHandler = new Consumer<OmniEclipseGradleBuild>() {
             @Override
             public void accept(OmniEclipseGradleBuild result) {
-                NewDefaultModelRepository.this.eventBus.post(new EclipseGradleBuildUpdateEvent(result));
+                DefaultModelRepository.this.eventBus.post(new EclipseGradleBuildUpdateEvent(result));
             }
         };
         Converter<EclipseProject, OmniEclipseGradleBuild> converter = new BaseConverter<EclipseProject, OmniEclipseGradleBuild>() {

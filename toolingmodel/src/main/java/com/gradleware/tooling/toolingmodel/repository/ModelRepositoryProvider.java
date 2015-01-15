@@ -12,6 +12,6 @@ public interface ModelRepositoryProvider {
      * @param fixedRequestAttributes the request attributes for which to get the model repository
      * @return the model repository
      */
-    NewModelRepository getModelRepository(FixedRequestAttributes fixedRequestAttributes);
+    ModelRepository getModelRepository(FixedRequestAttributes fixedRequestAttributes);
 
 }
