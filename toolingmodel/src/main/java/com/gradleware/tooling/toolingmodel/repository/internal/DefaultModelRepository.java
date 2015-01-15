@@ -17,10 +17,11 @@ import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 import com.gradleware.tooling.toolingmodel.buildaction.BuildActionFactory;
 import com.gradleware.tooling.toolingmodel.buildaction.ModelForAllProjectsBuildAction;
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.BuildEnvironmentUpdateEvent;
 import com.gradleware.tooling.toolingmodel.repository.EclipseGradleBuildUpdateEvent;
+import com.gradleware.tooling.toolingmodel.repository.Environment;
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildStructureUpdateEvent;
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildUpdateEvent;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
@@ -49,12 +50,18 @@ public final class DefaultModelRepository implements ModelRepository {
     private final ToolingClient toolingClient;
     private final EventBus eventBus;
     private final Cache<Class<?>, Object> cache;
+    private final Environment environment;
 
     public DefaultModelRepository(FixedRequestAttributes fixedRequestAttributes, ToolingClient toolingClient, EventBus eventBus) {
+        this(fixedRequestAttributes, toolingClient, eventBus, Environment.STANDALONE);
+    }
+
+    public DefaultModelRepository(FixedRequestAttributes fixedRequestAttributes, ToolingClient toolingClient, EventBus eventBus, Environment environment) {
         this.fixedRequestAttributes = Preconditions.checkNotNull(fixedRequestAttributes);
         this.toolingClient = Preconditions.checkNotNull(toolingClient);
         this.eventBus = Preconditions.checkNotNull(eventBus);
-        this.cache = CacheBuilder.newBuilder().build();
+        this.cache =  CacheBuilder.newBuilder().build();
+        this.environment = environment;
     }
 
     /**

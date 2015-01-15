@@ -48,7 +48,7 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
         ModelRepository modelRepository;
         synchronized (this.modelRepositories) {
             if (!this.modelRepositories.containsKey(fixedRequestAttributes)) {
-                modelRepository = new DefaultModelRepository(fixedRequestAttributes, this.toolingClient, this.eventBusFactory.create());
+                modelRepository = new DefaultModelRepository(fixedRequestAttributes, this.toolingClient, this.eventBusFactory.create(), this.environment);
                 this.modelRepositories.put(fixedRequestAttributes, modelRepository);
             } else {
                 modelRepository = this.modelRepositories.get(fixedRequestAttributes);
