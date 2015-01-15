@@ -13,6 +13,7 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 import com.gradleware.tooling.toolingmodel.BuildInvocationFields;
+import com.gradleware.tooling.toolingmodel.OmniProjectTask;
 import com.gradleware.tooling.toolingmodel.ProjectTaskFields;
 import com.gradleware.tooling.toolingmodel.TaskSelectorsFields;
 import com.gradleware.tooling.toolingmodel.generic.DefaultModel;
@@ -111,7 +112,8 @@ public final class NewBuildInvocationsContainerFactory {
 
     private static void collectAllTasksRecursively(GradleProject project, Table<String, String, String> tasksWithDescription, Collection<String> publicTasks, boolean enforceAllTasksPublic) {
         for (GradleTask task : project.getTasks()) {
-            DefaultOmniProjectTask projectTask = DefaultOmniProjectTask.from(DefaultOmniProjectTask.from(task, enforceAllTasksPublic));
+            // convert to OmniProjectTask to have the version-specific logic and default-values applied
+            OmniProjectTask projectTask = DefaultOmniProjectTask.from(DefaultOmniProjectTask.from(task, enforceAllTasksPublic));
 
             // 1) store the path since the task selectors keep all the paths of the tasks they select
             // 2) store the description first by task name and then by path
