@@ -3,11 +3,11 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
+import com.gradleware.tooling.toolingclient.ToolingClient;
 import com.gradleware.tooling.toolingmodel.repository.Environment;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
-import com.gradleware.tooling.toolingclient.ToolingClient;
+import com.gradleware.tooling.toolingmodel.repository.NewModelRepository;
 import org.gradle.internal.Factory;
 
 import java.util.Map;
@@ -20,7 +20,7 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
     private final ToolingClient toolingClient;
     private final Environment environment;
     private final Factory<EventBus> eventBusFactory;
-    private final Map<FixedRequestAttributes, ModelRepository> modelRepositories;
+    private final Map<FixedRequestAttributes, NewModelRepository> modelRepositories;
 
     public DefaultModelRepositoryProvider(ToolingClient toolingClient) {
         this(toolingClient, Environment.STANDALONE);
@@ -38,18 +38,17 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
     }
 
     @Override
-    public ModelRepository getModelRepository(FixedRequestAttributes fixedRequestAttributes) {
+    public NewModelRepository getModelRepository(FixedRequestAttributes fixedRequestAttributes) {
         Preconditions.checkNotNull(fixedRequestAttributes);
 
         return getOrCreateModelRepository(fixedRequestAttributes);
     }
 
-    private ModelRepository getOrCreateModelRepository(FixedRequestAttributes fixedRequestAttributes) {
-        ModelRepository modelRepository;
+    private NewModelRepository getOrCreateModelRepository(FixedRequestAttributes fixedRequestAttributes) {
+        NewModelRepository modelRepository;
         synchronized (this.modelRepositories) {
             if (!this.modelRepositories.containsKey(fixedRequestAttributes)) {
-                DefaultModelRepository targetModelRepository = new DefaultModelRepository(fixedRequestAttributes, this.eventBusFactory.create(), this.toolingClient);
-                modelRepository = new ContextAwareModelRepository(targetModelRepository, this.environment);
+                modelRepository = new NewDefaultModelRepository(fixedRequestAttributes, this.toolingClient, this.eventBusFactory.create());
                 this.modelRepositories.put(fixedRequestAttributes, modelRepository);
             } else {
                 modelRepository = this.modelRepositories.get(fixedRequestAttributes);
