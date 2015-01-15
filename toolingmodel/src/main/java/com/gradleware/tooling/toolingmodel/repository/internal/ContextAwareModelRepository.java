@@ -1,13 +1,10 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.google.common.base.Preconditions;
-import com.gradleware.tooling.toolingmodel.repository.BuildInvocationsContainer;
 import com.gradleware.tooling.toolingmodel.repository.Environment;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.internal.BuildInvocationsContainerFactory;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
-import com.gradleware.tooling.toolingmodel.util.Pair;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
@@ -65,28 +62,28 @@ public final class ContextAwareModelRepository implements ModelRepository {
         return this.target.fetchGradleProjectAndWait(transientRequestAttributes, fetchStrategy);
     }
 
-    @Override
-    public BuildInvocationsContainer fetchBuildInvocationsAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
-        // natively supported by all Gradle versions >= 1.12, if BuildActions supported in the running environment
-        if (supportsBuildInvocations(transientRequestAttributes) && supportsBuildActions(transientRequestAttributes)) {
-            return this.target.fetchBuildInvocationsAndWait(transientRequestAttributes, fetchStrategy);
-        } else {
-            GradleProject rootGradleProject = fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
-            return BuildInvocationsContainerFactory.createFrom(rootGradleProject);
-        }
-    }
-
-    @Override
-    public Pair<GradleProject, BuildInvocationsContainer> fetchGradleProjectWithBuildInvocationsAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
-        // natively supported by all Gradle versions >= 1.12, if BuildActions supported in the running environment
-        if (supportsBuildInvocations(transientRequestAttributes) && supportsBuildActions(transientRequestAttributes)) {
-            return this.target.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, fetchStrategy);
-        } else {
-            GradleProject rootGradleProject = fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
-            BuildInvocationsContainer buildInvocationsContainer = BuildInvocationsContainerFactory.createFrom(rootGradleProject);
-            return new Pair<GradleProject, BuildInvocationsContainer>(rootGradleProject, buildInvocationsContainer);
-        }
-    }
+//    @Override
+//    public BuildInvocationsContainer fetchBuildInvocationsAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
+//        // natively supported by all Gradle versions >= 1.12, if BuildActions supported in the running environment
+//        if (supportsBuildInvocations(transientRequestAttributes) && supportsBuildActions(transientRequestAttributes)) {
+//            return this.target.fetchBuildInvocationsAndWait(transientRequestAttributes, fetchStrategy);
+//        } else {
+//            GradleProject rootGradleProject = fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
+//            return BuildInvocationsContainerFactory.createFrom(rootGradleProject);
+//        }
+//    }
+//
+//    @Override
+//    public Pair<GradleProject, BuildInvocationsContainer> fetchGradleProjectWithBuildInvocationsAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
+//        // natively supported by all Gradle versions >= 1.12, if BuildActions supported in the running environment
+//        if (supportsBuildInvocations(transientRequestAttributes) && supportsBuildActions(transientRequestAttributes)) {
+//            return this.target.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, fetchStrategy);
+//        } else {
+//            GradleProject rootGradleProject = fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
+//            BuildInvocationsContainer buildInvocationsContainer = BuildInvocationsContainerFactory.createFrom(rootGradleProject);
+//            return new Pair<GradleProject, BuildInvocationsContainer>(rootGradleProject, buildInvocationsContainer);
+//        }
+//    }
 
     private boolean supportsBuildInvocations(TransientRequestAttributes transientRequestAttributes) {
         return targetGradleVersionIsEqualOrHigherThan("1.12", transientRequestAttributes);

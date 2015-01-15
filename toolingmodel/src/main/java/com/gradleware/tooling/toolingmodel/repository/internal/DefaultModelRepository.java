@@ -6,31 +6,25 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.UncheckedExecutionException;
-import com.gradleware.tooling.toolingmodel.repository.BuildEnvironmentUpdateEvent;
-import com.gradleware.tooling.toolingmodel.repository.BuildInvocationsContainer;
-import com.gradleware.tooling.toolingmodel.repository.BuildInvocationsUpdateEvent;
-import com.gradleware.tooling.toolingmodel.repository.EclipseProjectUpdateEvent;
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.GradleBuildUpdateEvent;
-import com.gradleware.tooling.toolingmodel.repository.GradleProjectUpdateEvent;
-import com.gradleware.tooling.toolingmodel.internal.BuildInvocationsConverter;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
-import com.gradleware.tooling.toolingmodel.buildaction.BuildActionFactory;
-import com.gradleware.tooling.toolingmodel.buildaction.DoubleBuildAction;
-import com.gradleware.tooling.toolingmodel.buildaction.ModelForAllProjectsBuildAction;
-import com.gradleware.tooling.toolingmodel.util.Pair;
 import com.gradleware.tooling.toolingclient.BuildActionRequest;
 import com.gradleware.tooling.toolingclient.Consumer;
 import com.gradleware.tooling.toolingclient.ModelRequest;
 import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingclient.ToolingClient;
+import com.gradleware.tooling.toolingmodel.buildaction.BuildActionFactory;
+import com.gradleware.tooling.toolingmodel.buildaction.ModelForAllProjectsBuildAction;
+import com.gradleware.tooling.toolingmodel.repository.BuildEnvironmentUpdateEvent;
+import com.gradleware.tooling.toolingmodel.repository.EclipseProjectUpdateEvent;
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.repository.GradleBuildUpdateEvent;
+import com.gradleware.tooling.toolingmodel.repository.GradleProjectUpdateEvent;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
-import org.gradle.tooling.model.gradle.BuildInvocations;
 import org.gradle.tooling.model.gradle.GradleBuild;
 
 import java.util.Map;
@@ -144,89 +138,89 @@ public final class DefaultModelRepository implements ModelRepository {
         return executeRequest(request, successHandler, fetchStrategy, GradleProject.class);
     }
 
-    @Override
-    public BuildInvocationsContainer fetchBuildInvocationsAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
-        Preconditions.checkNotNull(transientRequestAttributes);
-        Preconditions.checkNotNull(fetchStrategy);
-
-        BuildActionRequest<Map<String, BuildInvocations>> request = createBuildActionRequestForProjectModel(BuildInvocations.class, transientRequestAttributes);
-        Consumer<BuildInvocationsContainer> successHandler = new Consumer<BuildInvocationsContainer>() {
-            @Override
-            public void accept(BuildInvocationsContainer result) {
-                DefaultModelRepository.this.eventBus.post(new BuildInvocationsUpdateEvent(result));
-            }
-        };
-
-        return executeRequest(request, successHandler, fetchStrategy, BuildInvocationsContainer.class, BuildInvocationsConverter.INSTANCE);
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Override
-    public Pair<GradleProject, BuildInvocationsContainer> fetchGradleProjectWithBuildInvocationsAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
-        Preconditions.checkNotNull(transientRequestAttributes);
-        Preconditions.checkNotNull(fetchStrategy);
-
-        BuildAction<GradleProject> gradleProjectAction = BuildActionFactory.getBuildModel(GradleProject.class);
-        BuildAction<Map<String, BuildInvocations>> buildInvocationsAction = BuildActionFactory.getModelForAllProjects(BuildInvocations.class);
-        DoubleBuildAction<GradleProject, Map<String, BuildInvocations>> doubleAction = BuildActionFactory.getPairResult(gradleProjectAction, buildInvocationsAction);
-
-        final BuildActionRequest<Pair<GradleProject, Map<String, BuildInvocations>>> request = createBuildActionRequestForBuildAction(doubleAction, transientRequestAttributes);
-
-        // if values are only accessed from the cache, we can return immediately
-        if (FetchStrategy.FROM_CACHE_ONLY == fetchStrategy) {
-            @SuppressWarnings("unchecked") GradleProject gradleProject = (GradleProject) this.cache.getIfPresent(GradleProject.class);
-            @SuppressWarnings("unchecked") BuildInvocationsContainer buildInvocations = (BuildInvocationsContainer) this.cache.getIfPresent(BuildInvocationsContainer.class);
-            return new Pair<GradleProject, BuildInvocationsContainer>(gradleProject, buildInvocations);
-        }
-
-        // if values must be reloaded, we can invalidate the cache entry and then proceed as for FetchStrategy.LOAD_IF_NOT_CACHED
-        if (FetchStrategy.FORCE_RELOAD == fetchStrategy) {
-            this.cache.invalidate(GradleProject.class);
-            this.cache.invalidate(BuildInvocationsContainer.class);
-        }
-
-        // handle the case where we only load the values if not already cached
-        GradleProject gradleProject = (GradleProject) this.cache.getIfPresent(GradleProject.class);
-        @SuppressWarnings("unchecked") BuildInvocationsContainer buildInvocations = (BuildInvocationsContainer) this.cache.getIfPresent(BuildInvocationsContainer.class);
-
-        // case 1: all values cached
-        if (gradleProject != null && buildInvocations != null) {
-            return new Pair<GradleProject, BuildInvocationsContainer>(gradleProject, buildInvocations);
-        }
-        // case 2: at least one of the required values not cached
-        else {
-            Pair<GradleProject, Map<String, BuildInvocations>> result = request.executeAndWait();
-            Pair<GradleProject, BuildInvocationsContainer> convertedResult = new Pair<GradleProject, BuildInvocationsContainer>(result.getFirst(), BuildInvocationsConverter.INSTANCE.convert(result.getSecond()));
-            this.cache.put(GradleProject.class, convertedResult.getFirst());
-            this.cache.put(BuildInvocationsContainer.class, convertedResult.getSecond());
-            this.eventBus.post(new GradleProjectUpdateEvent(result.getFirst()));
-            this.eventBus.post(new BuildInvocationsUpdateEvent(convertedResult.getSecond()));
-            return convertedResult;
-        }
-
-//        final AtomicReference<Pair<GradleProject, Map<String, BuildInvocations>>> result = new AtomicReference<Pair<GradleProject, Map<String, BuildInvocations>>>();
-//        final CountDownLatch latch = new CountDownLatch(1);
+//    @Override
+//    public BuildInvocationsContainer fetchBuildInvocationsAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
+//        Preconditions.checkNotNull(transientRequestAttributes);
+//        Preconditions.checkNotNull(fetchStrategy);
 //
-//        getFromCache(GradleProject.class, new Callable<GradleProject>() {
+//        BuildActionRequest<Map<String, BuildInvocations>> request = createBuildActionRequestForProjectModel(BuildInvocations.class, transientRequestAttributes);
+//        Consumer<BuildInvocationsContainer> successHandler = new Consumer<BuildInvocationsContainer>() {
 //            @Override
-//            public GradleProject call() throws InterruptedException {
-//                latch.await();
-//                return result.get().getFirst();
+//            public void accept(BuildInvocationsContainer result) {
+//                DefaultModelRepository.this.eventBus.post(new BuildInvocationsUpdateEvent(result));
 //            }
-//        });
+//        };
 //
-//        getFromCache(BuildInvocationsContainer.class, new Callable<Map<String, BuildInvocations>>() {
-//            @Override
-//            public Map<String, BuildInvocations> call() throws InterruptedException {
-//                latch.await();
-//                return result.get().getSecond();
-//            }
-//        });
+//        return executeRequest(request, successHandler, fetchStrategy, BuildInvocationsContainer.class, BuildInvocationsConverter.INSTANCE);
+//    }
 //
-//        Pair<GradleProject, Map<String, BuildInvocations>> result = executeAndWait(request, successHandler);
-//        latch.countDown();
-
-    }
+//    @SuppressWarnings("ConstantConditions")
+//    @Override
+//    public Pair<GradleProject, BuildInvocationsContainer> fetchGradleProjectWithBuildInvocationsAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
+//        Preconditions.checkNotNull(transientRequestAttributes);
+//        Preconditions.checkNotNull(fetchStrategy);
+//
+//        BuildAction<GradleProject> gradleProjectAction = BuildActionFactory.getBuildModel(GradleProject.class);
+//        BuildAction<Map<String, BuildInvocations>> buildInvocationsAction = BuildActionFactory.getModelForAllProjects(BuildInvocations.class);
+//        DoubleBuildAction<GradleProject, Map<String, BuildInvocations>> doubleAction = BuildActionFactory.getPairResult(gradleProjectAction, buildInvocationsAction);
+//
+//        final BuildActionRequest<Pair<GradleProject, Map<String, BuildInvocations>>> request = createBuildActionRequestForBuildAction(doubleAction, transientRequestAttributes);
+//
+//        // if values are only accessed from the cache, we can return immediately
+//        if (FetchStrategy.FROM_CACHE_ONLY == fetchStrategy) {
+//            @SuppressWarnings("unchecked") GradleProject gradleProject = (GradleProject) this.cache.getIfPresent(GradleProject.class);
+//            @SuppressWarnings("unchecked") BuildInvocationsContainer buildInvocations = (BuildInvocationsContainer) this.cache.getIfPresent(BuildInvocationsContainer.class);
+//            return new Pair<GradleProject, BuildInvocationsContainer>(gradleProject, buildInvocations);
+//        }
+//
+//        // if values must be reloaded, we can invalidate the cache entry and then proceed as for FetchStrategy.LOAD_IF_NOT_CACHED
+//        if (FetchStrategy.FORCE_RELOAD == fetchStrategy) {
+//            this.cache.invalidate(GradleProject.class);
+//            this.cache.invalidate(BuildInvocationsContainer.class);
+//        }
+//
+//        // handle the case where we only load the values if not already cached
+//        GradleProject gradleProject = (GradleProject) this.cache.getIfPresent(GradleProject.class);
+//        @SuppressWarnings("unchecked") BuildInvocationsContainer buildInvocations = (BuildInvocationsContainer) this.cache.getIfPresent(BuildInvocationsContainer.class);
+//
+//        // case 1: all values cached
+//        if (gradleProject != null && buildInvocations != null) {
+//            return new Pair<GradleProject, BuildInvocationsContainer>(gradleProject, buildInvocations);
+//        }
+//        // case 2: at least one of the required values not cached
+//        else {
+//            Pair<GradleProject, Map<String, BuildInvocations>> result = request.executeAndWait();
+//            Pair<GradleProject, BuildInvocationsContainer> convertedResult = new Pair<GradleProject, BuildInvocationsContainer>(result.getFirst(), BuildInvocationsConverter.INSTANCE.convert(result.getSecond()));
+//            this.cache.put(GradleProject.class, convertedResult.getFirst());
+//            this.cache.put(BuildInvocationsContainer.class, convertedResult.getSecond());
+//            this.eventBus.post(new GradleProjectUpdateEvent(result.getFirst()));
+//            this.eventBus.post(new BuildInvocationsUpdateEvent(convertedResult.getSecond()));
+//            return convertedResult;
+//        }
+//
+////        final AtomicReference<Pair<GradleProject, Map<String, BuildInvocations>>> result = new AtomicReference<Pair<GradleProject, Map<String, BuildInvocations>>>();
+////        final CountDownLatch latch = new CountDownLatch(1);
+////
+////        getFromCache(GradleProject.class, new Callable<GradleProject>() {
+////            @Override
+////            public GradleProject call() throws InterruptedException {
+////                latch.await();
+////                return result.get().getFirst();
+////            }
+////        });
+////
+////        getFromCache(BuildInvocationsContainer.class, new Callable<Map<String, BuildInvocations>>() {
+////            @Override
+////            public Map<String, BuildInvocations> call() throws InterruptedException {
+////                latch.await();
+////                return result.get().getSecond();
+////            }
+////        });
+////
+////        Pair<GradleProject, Map<String, BuildInvocations>> result = executeAndWait(request, successHandler);
+////        latch.countDown();
+//
+//    }
 
     private <T> T executeRequest(final Request<T> request, final Consumer<T> successHandler, FetchStrategy fetchStrategy, Class<T> cacheKey) {
         return executeRequest(request, successHandler, fetchStrategy, cacheKey, Converter.<T>identity());

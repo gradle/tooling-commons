@@ -1,10 +1,8 @@
 package com.gradleware.tooling.toolingmodel.repository;
 
-import com.gradleware.tooling.toolingmodel.util.Pair;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
-import org.gradle.tooling.model.gradle.BuildInvocations;
 import org.gradle.tooling.model.gradle.GradleBuild;
 
 /**
@@ -63,23 +61,23 @@ public interface ModelRepository {
      */
     GradleProject fetchGradleProjectAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
-    /**
-     * Fetches the {@link BuildInvocations} synchronously and broadcasts them through a {@link BuildInvocationsUpdateEvent}.
-     *
-     * @param transientRequestAttributes the transient request attributes
-     * @param fetchStrategy the fetch strategy
-     * @return the build invocations, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
-     */
-    BuildInvocationsContainer fetchBuildInvocationsAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
-
-    /**
-     * Fetches the {@link GradleProject} and {@link BuildInvocations} synchronously and broadcasts them through a {@link GradleProjectUpdateEvent} and {@link
-     * BuildInvocationsUpdateEvent}.
-     *
-     * @param transientRequestAttributes the transient request attributes
-     * @param fetchStrategy the fetch strategy
-     * @return the gradle project and build invocations, pair values never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
-     */
-    Pair<GradleProject, BuildInvocationsContainer> fetchGradleProjectWithBuildInvocationsAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
+//    /**
+//     * Fetches the {@link BuildInvocations} synchronously and broadcasts them through a {@link BuildInvocationsUpdateEvent}.
+//     *
+//     * @param transientRequestAttributes the transient request attributes
+//     * @param fetchStrategy the fetch strategy
+//     * @return the build invocations, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
+//     */
+//    BuildInvocationsContainer fetchBuildInvocationsAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
+//
+//    /**
+//     * Fetches the {@link GradleProject} and {@link BuildInvocations} synchronously and broadcasts them through a {@link GradleProjectUpdateEvent} and {@link
+//     * BuildInvocationsUpdateEvent}.
+//     *
+//     * @param transientRequestAttributes the transient request attributes
+//     * @param fetchStrategy the fetch strategy
+//     * @return the gradle project and build invocations, pair values never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
+//     */
+//    Pair<GradleProject, BuildInvocationsContainer> fetchGradleProjectWithBuildInvocationsAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
 }

@@ -208,133 +208,133 @@ class DefaultModelRepositoryTest extends DomainToolingClientSpecification {
     publishedEvent.get() == null
   }
 
-  def "fetchBuildInvocationsAndWait"() {
-    given:
-    AtomicReference<BuildInvocationsUpdateEvent> publishedEvent = new AtomicReference<>();
-    repository.register(new Object() {
+//  def "fetchBuildInvocationsAndWait"() {
+//    given:
+//    AtomicReference<BuildInvocationsUpdateEvent> publishedEvent = new AtomicReference<>();
+//    repository.register(new Object() {
+//
+//      @Subscribe
+//      public void listen(BuildInvocationsUpdateEvent event) {
+//        publishedEvent.set(event)
+//      }
+//    })
+//
+//    when:
+//    repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//
+//    then:
+//    def event = publishedEvent.get()
+//    event != null
+//    publishedEvent.get().buildInvocations.asMap()[':'].tasks.size() > 0
+//    publishedEvent.get().buildInvocations.asMap()[':'].taskSelectors.size() > 0
+//  }
 
-      @Subscribe
-      public void listen(BuildInvocationsUpdateEvent event) {
-        publishedEvent.set(event)
-      }
-    })
+//  def "fetchBuildInvocationsAndWaitWhenExceptionIsThrown"() {
+//    given:
+//    def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
+//    transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+//    def repository = new DefaultModelRepository(fixedRequestAttributes, new EventBus(), toolingClient)
+//
+//    AtomicReference<BuildInvocationsUpdateEvent> publishedEvent = new AtomicReference<>();
+//    repository.register(new Object() {
+//
+//      @Subscribe
+//      public void listen(BuildInvocationsUpdateEvent event) {
+//        publishedEvent.set(event)
+//      }
+//    })
+//
+//    when:
+//    repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//
+//    then:
+//    thrown(GradleConnectionException)
+//
+//    publishedEvent.get() == null
+//  }
 
-    when:
-    repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//  def "fetchGradleProjectWithBuildInvocationsAndWait"() {
+//    given:
+//    AtomicReference<GradleProjectUpdateEvent> publishedGradleProjectEvent = new AtomicReference<>();
+//    AtomicReference<BuildInvocationsUpdateEvent> publishedBuildInvocationsEvent = new AtomicReference<>();
+//    repository.register(new Object() {
+//
+//      @Subscribe
+//      public void listen1(GradleProjectUpdateEvent event) {
+//        publishedGradleProjectEvent.set(event)
+//      }
+//
+//      @Subscribe
+//      public void listen2(BuildInvocationsUpdateEvent event) {
+//        publishedBuildInvocationsEvent.set(event)
+//      }
+//    })
+//
+//    when:
+//    repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//
+//    then:
+//    def gradleProjectEvent = publishedGradleProjectEvent.get()
+//    gradleProjectEvent != null
+//    publishedGradleProjectEvent.get().gradleProject != null
+//    publishedGradleProjectEvent.get().gradleProject.path == ":"
+//
+//    def buildInvocationsEvent = publishedBuildInvocationsEvent.get()
+//    buildInvocationsEvent != null
+//    publishedBuildInvocationsEvent.get().buildInvocations.asMap()[':'].tasks.size() > 0
+//    publishedBuildInvocationsEvent.get().buildInvocations.asMap()[':'].taskSelectors.size() > 0
+//  }
 
-    then:
-    def event = publishedEvent.get()
-    event != null
-    publishedEvent.get().buildInvocations.asMap()[':'].tasks.size() > 0
-    publishedEvent.get().buildInvocations.asMap()[':'].taskSelectors.size() > 0
-  }
+//  def "fetchGradleProjectWithBuildInvocationsAndWaitWhenExceptionIsThrown"() {
+//    given:
+//    def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
+//    transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+//    def repository = new DefaultModelRepository(fixedRequestAttributes, new EventBus(), toolingClient)
+//
+//    AtomicReference<GradleProjectUpdateEvent> publishedGradleProjectEvent = new AtomicReference<>();
+//    AtomicReference<BuildInvocationsUpdateEvent> publishedBuildInvocationsEvent = new AtomicReference<>();
+//    repository.register(new Object() {
+//
+//      @Subscribe
+//      public void listen1(GradleProjectUpdateEvent event) {
+//        publishedGradleProjectEvent.set(event)
+//      }
+//
+//      @Subscribe
+//      public void listen2(BuildInvocationsUpdateEvent event) {
+//        publishedBuildInvocationsEvent.set(event)
+//      }
+//    })
+//
+//    when:
+//    repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//
+//    then:
+//    thrown(GradleConnectionException)
+//
+//    publishedGradleProjectEvent.get() == null
+//    publishedBuildInvocationsEvent.get() == null
+//  }
 
-  def "fetchBuildInvocationsAndWaitWhenExceptionIsThrown"() {
-    given:
-    def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
-    transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-    def repository = new DefaultModelRepository(fixedRequestAttributes, new EventBus(), toolingClient)
-
-    AtomicReference<BuildInvocationsUpdateEvent> publishedEvent = new AtomicReference<>();
-    repository.register(new Object() {
-
-      @Subscribe
-      public void listen(BuildInvocationsUpdateEvent event) {
-        publishedEvent.set(event)
-      }
-    })
-
-    when:
-    repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-
-    then:
-    thrown(GradleConnectionException)
-
-    publishedEvent.get() == null
-  }
-
-  def "fetchGradleProjectWithBuildInvocationsAndWait"() {
-    given:
-    AtomicReference<GradleProjectUpdateEvent> publishedGradleProjectEvent = new AtomicReference<>();
-    AtomicReference<BuildInvocationsUpdateEvent> publishedBuildInvocationsEvent = new AtomicReference<>();
-    repository.register(new Object() {
-
-      @Subscribe
-      public void listen1(GradleProjectUpdateEvent event) {
-        publishedGradleProjectEvent.set(event)
-      }
-
-      @Subscribe
-      public void listen2(BuildInvocationsUpdateEvent event) {
-        publishedBuildInvocationsEvent.set(event)
-      }
-    })
-
-    when:
-    repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-
-    then:
-    def gradleProjectEvent = publishedGradleProjectEvent.get()
-    gradleProjectEvent != null
-    publishedGradleProjectEvent.get().gradleProject != null
-    publishedGradleProjectEvent.get().gradleProject.path == ":"
-
-    def buildInvocationsEvent = publishedBuildInvocationsEvent.get()
-    buildInvocationsEvent != null
-    publishedBuildInvocationsEvent.get().buildInvocations.asMap()[':'].tasks.size() > 0
-    publishedBuildInvocationsEvent.get().buildInvocations.asMap()[':'].taskSelectors.size() > 0
-  }
-
-  def "fetchGradleProjectWithBuildInvocationsAndWaitWhenExceptionIsThrown"() {
-    given:
-    def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
-    transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-    def repository = new DefaultModelRepository(fixedRequestAttributes, new EventBus(), toolingClient)
-
-    AtomicReference<GradleProjectUpdateEvent> publishedGradleProjectEvent = new AtomicReference<>();
-    AtomicReference<BuildInvocationsUpdateEvent> publishedBuildInvocationsEvent = new AtomicReference<>();
-    repository.register(new Object() {
-
-      @Subscribe
-      public void listen1(GradleProjectUpdateEvent event) {
-        publishedGradleProjectEvent.set(event)
-      }
-
-      @Subscribe
-      public void listen2(BuildInvocationsUpdateEvent event) {
-        publishedBuildInvocationsEvent.set(event)
-      }
-    })
-
-    when:
-    repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-
-    then:
-    thrown(GradleConnectionException)
-
-    publishedGradleProjectEvent.get() == null
-    publishedBuildInvocationsEvent.get() == null
-  }
-
-  def "registerUnregister"() {
-    given:
-    AtomicReference<BuildInvocationsUpdateEvent> publishedEvent = new AtomicReference<>();
-    def listener = new Object() {
-
-      @Subscribe
-      public void listen(BuildInvocationsUpdateEvent event) {
-        publishedEvent.set(event)
-      }
-    }
-
-    repository.register(listener)
-    repository.unregister(listener)
-
-    when:
-    repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-
-    then:
-    publishedEvent.get() == null
-  }
+//  def "registerUnregister"() {
+//    given:
+//    AtomicReference<BuildInvocationsUpdateEvent> publishedEvent = new AtomicReference<>();
+//    def listener = new Object() {
+//
+//      @Subscribe
+//      public void listen(BuildInvocationsUpdateEvent event) {
+//        publishedEvent.set(event)
+//      }
+//    }
+//
+//    repository.register(listener)
+//    repository.unregister(listener)
+//
+//    when:
+//    repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//
+//    then:
+//    publishedEvent.get() == null
+//  }
 
 }

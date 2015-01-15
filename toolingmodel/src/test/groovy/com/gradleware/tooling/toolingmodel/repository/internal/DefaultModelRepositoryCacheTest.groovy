@@ -135,129 +135,129 @@ class DefaultModelRepositoryCacheTest extends DomainToolingClientSpecification {
     thirdLookUp.path == fourthLookUp.path
   }
 
-  def "fetchBuildInvocationsAndWait"() {
-    when:
-    def lookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
+//  def "fetchBuildInvocationsAndWait"() {
+//    when:
+//    def lookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
+//
+//    then:
+//    lookUp == null
+//
+//    when:
+//    def firstLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//    def secondLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//
+//    then:
+//    assert firstLookUp != null
+//    assert firstLookUp.is(secondLookUp)
+//
+//    when:
+//    def thirdLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+//    def fourthLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+//
+//    then:
+//    thirdLookUp != null
+//    !thirdLookUp.is(fourthLookUp)
+//    thirdLookUp.asMap()[':'].tasks.size() == fourthLookUp.asMap()[':'].tasks.size()
+//    thirdLookUp.asMap()[':'].taskSelectors.size() == fourthLookUp.asMap()[':'].taskSelectors.size()
+//  }
 
-    then:
-    lookUp == null
+//  def "fetchGradleProjectWithBuildInvocationsAndWait_FromCacheOnly_CacheNotPopulated"() {
+//    when:
+//    def lookUp = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
+//
+//    then:
+//    lookUp != null
+//    lookUp.first == null
+//    lookUp.second == null
+//  }
 
-    when:
-    def firstLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-    def secondLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//  def "fetchGradleProjectWithBuildInvocationsAndWait_FromCacheOnly_CachePopulated"() {
+//    when:
+//    def gradleProjectLookUp = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//    def buildInvocationsLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//
+//    def compositeLookup = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
+//
+//    then:
+//    compositeLookup != null
+//    compositeLookup.first.is(gradleProjectLookUp)
+//    compositeLookup.second.is(buildInvocationsLookUp)
+//  }
 
-    then:
-    assert firstLookUp != null
-    assert firstLookUp.is(secondLookUp)
+//  def "fetchGradleProjectWithBuildInvocationsAndWait_LoadIfNotCached_CacheNotPopulated"() {
+//    when:
+//    def compositeLookup = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//
+//    def gradleProjectLookUp = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//    def buildInvocationsLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//
+//    then:
+//    compositeLookup != null
+//    compositeLookup.first.is(gradleProjectLookUp)
+//    compositeLookup.second.is(buildInvocationsLookUp)
+//  }
 
-    when:
-    def thirdLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
-    def fourthLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+//  def "fetchGradleProjectWithBuildInvocationsAndWait_LoadIfNotCached_CachePopulated"() {
+//    when:
+//    def gradleProjectLookUp = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//    def buildInvocationsLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//
+//    def compositeLookup = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//
+//    then:
+//    compositeLookup != null
+//    compositeLookup.first.is(gradleProjectLookUp)
+//    compositeLookup.second.is(buildInvocationsLookUp)
+//  }
 
-    then:
-    thirdLookUp != null
-    !thirdLookUp.is(fourthLookUp)
-    thirdLookUp.asMap()[':'].tasks.size() == fourthLookUp.asMap()[':'].tasks.size()
-    thirdLookUp.asMap()[':'].taskSelectors.size() == fourthLookUp.asMap()[':'].taskSelectors.size()
-  }
+//  def "fetchGradleProjectWithBuildInvocationsAndWait_LoadIfNotCached_RepeatedRead"() {
+//    when:
+//    def firstLookUp = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//    def secondLookUp = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//
+//    then:
+//    firstLookUp != null
+//    !firstLookUp.is(secondLookUp)
+//    firstLookUp.first.is(secondLookUp.first)
+//    firstLookUp.second.is(secondLookUp.second)
+//  }
 
-  def "fetchGradleProjectWithBuildInvocationsAndWait_FromCacheOnly_CacheNotPopulated"() {
-    when:
-    def lookUp = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
+//  def "fetchGradleProjectWithBuildInvocationsAndWait_ForceReload_CacheNotPopulated"() {
+//    when:
+//    def compositeLookup = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+//
+//    def gradleProjectLookUp = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//    def buildInvocationsLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//
+//    then:
+//    compositeLookup != null
+//    compositeLookup.first.is(gradleProjectLookUp)
+//    compositeLookup.second.is(buildInvocationsLookUp)
+//  }
 
-    then:
-    lookUp != null
-    lookUp.first == null
-    lookUp.second == null
-  }
+//  def "fetchGradleProjectWithBuildInvocationsAndWait_ForceReload_CachePopulated"() {
+//    when:
+//    def gradleProjectLookUp = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//    def buildInvocationsLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//
+//    def compositeLookup = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+//
+//    then:
+//    compositeLookup != null
+//    !compositeLookup.first.is(gradleProjectLookUp)
+//    !compositeLookup.second.is(buildInvocationsLookUp)
+//  }
 
-  def "fetchGradleProjectWithBuildInvocationsAndWait_FromCacheOnly_CachePopulated"() {
-    when:
-    def gradleProjectLookUp = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-    def buildInvocationsLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-
-    def compositeLookup = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
-
-    then:
-    compositeLookup != null
-    compositeLookup.first.is(gradleProjectLookUp)
-    compositeLookup.second.is(buildInvocationsLookUp)
-  }
-
-  def "fetchGradleProjectWithBuildInvocationsAndWait_LoadIfNotCached_CacheNotPopulated"() {
-    when:
-    def compositeLookup = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-
-    def gradleProjectLookUp = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-    def buildInvocationsLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-
-    then:
-    compositeLookup != null
-    compositeLookup.first.is(gradleProjectLookUp)
-    compositeLookup.second.is(buildInvocationsLookUp)
-  }
-
-  def "fetchGradleProjectWithBuildInvocationsAndWait_LoadIfNotCached_CachePopulated"() {
-    when:
-    def gradleProjectLookUp = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-    def buildInvocationsLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-
-    def compositeLookup = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-
-    then:
-    compositeLookup != null
-    compositeLookup.first.is(gradleProjectLookUp)
-    compositeLookup.second.is(buildInvocationsLookUp)
-  }
-
-  def "fetchGradleProjectWithBuildInvocationsAndWait_LoadIfNotCached_RepeatedRead"() {
-    when:
-    def firstLookUp = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-    def secondLookUp = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-
-    then:
-    firstLookUp != null
-    !firstLookUp.is(secondLookUp)
-    firstLookUp.first.is(secondLookUp.first)
-    firstLookUp.second.is(secondLookUp.second)
-  }
-
-  def "fetchGradleProjectWithBuildInvocationsAndWait_ForceReload_CacheNotPopulated"() {
-    when:
-    def compositeLookup = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
-
-    def gradleProjectLookUp = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-    def buildInvocationsLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-
-    then:
-    compositeLookup != null
-    compositeLookup.first.is(gradleProjectLookUp)
-    compositeLookup.second.is(buildInvocationsLookUp)
-  }
-
-  def "fetchGradleProjectWithBuildInvocationsAndWait_ForceReload_CachePopulated"() {
-    when:
-    def gradleProjectLookUp = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-    def buildInvocationsLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-
-    def compositeLookup = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
-
-    then:
-    compositeLookup != null
-    !compositeLookup.first.is(gradleProjectLookUp)
-    !compositeLookup.second.is(buildInvocationsLookUp)
-  }
-
-  def "fetchGradleProjectWithBuildInvocationsAndWait_ForceReload_RepeatedRead"() {
-    when:
-    def firstLookUp = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
-    def secondLookUp = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
-
-    then:
-    firstLookUp != null
-    !firstLookUp.is(secondLookUp)
-    !firstLookUp.first.is(secondLookUp.first)
-    !firstLookUp.second.is(secondLookUp.second)
-  }
+//  def "fetchGradleProjectWithBuildInvocationsAndWait_ForceReload_RepeatedRead"() {
+//    when:
+//    def firstLookUp = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+//    def secondLookUp = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+//
+//    then:
+//    firstLookUp != null
+//    !firstLookUp.is(secondLookUp)
+//    !firstLookUp.first.is(secondLookUp.first)
+//    !firstLookUp.second.is(secondLookUp.second)
+//  }
 
 }

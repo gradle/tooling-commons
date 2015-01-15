@@ -1,13 +1,6 @@
 package com.gradleware.tooling.toolingmodel.repository.internal
-
 import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
-import com.gradleware.tooling.toolingmodel.repository.BuildInvocationsContainer
-import com.gradleware.tooling.toolingmodel.repository.Environment
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
-import com.gradleware.tooling.toolingmodel.util.Pair
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DataValueFormatter
 import com.gradleware.tooling.spock.DomainToolingClientSpecification
@@ -15,9 +8,12 @@ import com.gradleware.tooling.spock.VerboseUnroll
 import com.gradleware.tooling.testing.GradleVersionExtractor
 import com.gradleware.tooling.testing.GradleVersionParameterization
 import com.gradleware.tooling.toolingclient.GradleDistribution
+import com.gradleware.tooling.toolingmodel.repository.Environment
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
-import org.gradle.tooling.model.GradleProject
 import org.gradle.util.GradleVersion
 import org.junit.Rule
 
@@ -165,54 +161,54 @@ rootProject.name = 'TestProject'
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=2.0")
   }
 
-  def "fetchBuildInvocations"(GradleDistribution distribution, Environment environment) {
-    given:
-    def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-    def targetRepository = new DefaultModelRepository(fixedRequestAttributes, new EventBus(), toolingClient)
-    def repository = new ContextAwareModelRepository(targetRepository, environment)
+//  def "fetchBuildInvocations"(GradleDistribution distribution, Environment environment) {
+//    given:
+//    def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+//    def targetRepository = new DefaultModelRepository(fixedRequestAttributes, new EventBus(), toolingClient)
+//    def repository = new ContextAwareModelRepository(targetRepository, environment)
+//
+//    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+//
+//    when:
+//    def buildInvocations = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+//
+//    then:
+//    buildInvocations != null
+//    buildInvocations.asMap() != null
+//    buildInvocations.asMap().get(':').tasks.size() == getImplicitlyAddedBuildInvocationsTasksCount(distribution, environment) + getImplicitlyAddedGradleProjectTasksCount(distribution) + 1
+//    buildInvocations.asMap().get(':').taskSelectors.size() == getImplicitlyAddedBuildInvocationsTaskSelectorsCount(distribution, environment) + getImplicitlyAddedGradleProjectTaskSelectorsCount(distribution) + 1
+//
+//    where:
+//    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+//  }
 
-    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-
-    when:
-    def buildInvocations = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
-
-    then:
-    buildInvocations != null
-    buildInvocations.asMap() != null
-    buildInvocations.asMap().get(':').tasks.size() == getImplicitlyAddedBuildInvocationsTasksCount(distribution, environment) + getImplicitlyAddedGradleProjectTasksCount(distribution) + 1
-    buildInvocations.asMap().get(':').taskSelectors.size() == getImplicitlyAddedBuildInvocationsTaskSelectorsCount(distribution, environment) + getImplicitlyAddedGradleProjectTaskSelectorsCount(distribution) + 1
-
-    where:
-    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
-  }
-
-  def "fetchGradleProjectWithBuildInvocations"(GradleDistribution distribution, Environment environment) {
-    given:
-    def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-    def targetRepository = new DefaultModelRepository(fixedRequestAttributes, new EventBus(), toolingClient)
-    def repository = new ContextAwareModelRepository(targetRepository, environment)
-
-    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-
-    when:
-    Pair<GradleProject, BuildInvocationsContainer> gradleProjectAndBuildInvocations = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
-
-    then:
-    gradleProjectAndBuildInvocations != null
-    gradleProjectAndBuildInvocations.first != null
-    gradleProjectAndBuildInvocations.first.name == 'TestProject'
-    gradleProjectAndBuildInvocations.first.description == 'my project'
-    gradleProjectAndBuildInvocations.first.path == ':'
-    gradleProjectAndBuildInvocations.first.tasks.size() == getImplicitlyAddedGradleProjectTasksCount(distribution) + 1
-    gradleProjectAndBuildInvocations.first.parent == null
-    gradleProjectAndBuildInvocations.first.children.size() == 0
-    gradleProjectAndBuildInvocations.second.asMap() != null
-    gradleProjectAndBuildInvocations.second.asMap().get(':').tasks.size() == getImplicitlyAddedBuildInvocationsTasksCount(distribution, environment) + getImplicitlyAddedGradleProjectTasksCount(distribution) + 1
-    gradleProjectAndBuildInvocations.second.asMap().get(':').taskSelectors.size() == getImplicitlyAddedBuildInvocationsTaskSelectorsCount(distribution, environment) + getImplicitlyAddedGradleProjectTaskSelectorsCount(distribution) + 1
-
-    where:
-    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
-  }
+//  def "fetchGradleProjectWithBuildInvocations"(GradleDistribution distribution, Environment environment) {
+//    given:
+//    def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+//    def targetRepository = new DefaultModelRepository(fixedRequestAttributes, new EventBus(), toolingClient)
+//    def repository = new ContextAwareModelRepository(targetRepository, environment)
+//
+//    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+//
+//    when:
+//    Pair<GradleProject, BuildInvocationsContainer> gradleProjectAndBuildInvocations = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+//
+//    then:
+//    gradleProjectAndBuildInvocations != null
+//    gradleProjectAndBuildInvocations.first != null
+//    gradleProjectAndBuildInvocations.first.name == 'TestProject'
+//    gradleProjectAndBuildInvocations.first.description == 'my project'
+//    gradleProjectAndBuildInvocations.first.path == ':'
+//    gradleProjectAndBuildInvocations.first.tasks.size() == getImplicitlyAddedGradleProjectTasksCount(distribution) + 1
+//    gradleProjectAndBuildInvocations.first.parent == null
+//    gradleProjectAndBuildInvocations.first.children.size() == 0
+//    gradleProjectAndBuildInvocations.second.asMap() != null
+//    gradleProjectAndBuildInvocations.second.asMap().get(':').tasks.size() == getImplicitlyAddedBuildInvocationsTasksCount(distribution, environment) + getImplicitlyAddedGradleProjectTasksCount(distribution) + 1
+//    gradleProjectAndBuildInvocations.second.asMap().get(':').taskSelectors.size() == getImplicitlyAddedBuildInvocationsTaskSelectorsCount(distribution, environment) + getImplicitlyAddedGradleProjectTaskSelectorsCount(distribution) + 1
+//
+//    where:
+//    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+//  }
 
   private static int getImplicitlyAddedBuildInvocationsTasksCount(GradleDistribution distribution, Environment environment) {
     // tasks implicitly provided by BuildInvocations#getTasks(): init, wrapper, help, properties, projects, tasks, dependencies, dependencyInsight, components
