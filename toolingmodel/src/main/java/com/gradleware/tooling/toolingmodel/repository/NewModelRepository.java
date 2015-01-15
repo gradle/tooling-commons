@@ -26,7 +26,7 @@ public interface NewModelRepository {
     void unregister(Object listener);
 
     /**
-     * Fetches the {@link OmniBuildEnvironment} synchronously and broadcasts it through a {@link NewBuildEnvironmentUpdateEvent}.
+     * Fetches the {@link OmniBuildEnvironment} synchronously and broadcasts it through a {@link BuildEnvironmentUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
      * @param fetchStrategy the fetch strategy
@@ -35,7 +35,7 @@ public interface NewModelRepository {
     OmniBuildEnvironment fetchBuildEnvironmentAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
     /**
-     * Fetches the {@link OmniGradleBuildStructure} synchronously and broadcasts it through a {@link NewGradleBuildStructureUpdateEvent}.
+     * Fetches the {@link OmniGradleBuildStructure} synchronously and broadcasts it through a {@link GradleBuildStructureUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
      * @param fetchStrategy the fetch strategy
@@ -44,7 +44,7 @@ public interface NewModelRepository {
     OmniGradleBuildStructure fetchGradleBuildStructureAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
     /**
-     * Fetches the {@link OmniGradleBuild} synchronously and broadcasts it through a {@link NewGradleBuildUpdateEvent}.
+     * Fetches the {@link OmniGradleBuild} synchronously and broadcasts it through a {@link GradleBuildUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
      * @param fetchStrategy the fetch strategy
@@ -53,7 +53,7 @@ public interface NewModelRepository {
     OmniGradleBuild fetchGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
     /**
-     * Fetches the {@link OmniEclipseGradleBuild} synchronously and broadcasts it through a {@link NewEclipseGradleBuildUpdateEvent}.
+     * Fetches the {@link OmniEclipseGradleBuild} synchronously and broadcasts it through a {@link EclipseGradleBuildUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
      * @param fetchStrategy the fetch strategy

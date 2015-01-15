@@ -6,11 +6,11 @@ import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
 /**
  * Event that is broadcast when {@code OmniGradleBuild} has been updated.
  */
-public final class NewGradleBuildUpdateEvent {
+public final class GradleBuildUpdateEvent {
 
     private final OmniGradleBuild gradleBuild;
 
-    public NewGradleBuildUpdateEvent(OmniGradleBuild gradleBuild) {
+    public GradleBuildUpdateEvent(OmniGradleBuild gradleBuild) {
         this.gradleBuild = Preconditions.checkNotNull(gradleBuild);
     }
 

@@ -6,11 +6,11 @@ import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 /**
  * Event that is broadcast when {@code OmniBuildEnvironment} has been updated.
  */
-public final class NewBuildEnvironmentUpdateEvent {
+public final class BuildEnvironmentUpdateEvent {
 
     private final OmniBuildEnvironment buildEnvironment;
 
-    public NewBuildEnvironmentUpdateEvent(OmniBuildEnvironment buildEnvironment) {
+    public BuildEnvironmentUpdateEvent(OmniBuildEnvironment buildEnvironment) {
         this.buildEnvironment = Preconditions.checkNotNull(buildEnvironment);
     }
 
