@@ -432,6 +432,163 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
+//  def "fetchBuildInvocationsAndWait"() {
+//    given:
+//    AtomicReference<BuildInvocationsUpdateEvent> publishedEvent = new AtomicReference<>();
+//    repository.register(new Object() {
+//
+//      @Subscribe
+//      public void listen(BuildInvocationsUpdateEvent event) {
+//        publishedEvent.set(event)
+//      }
+//    })
+//
+//    when:
+//    repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//
+//    then:
+//    def event = publishedEvent.get()
+//    event != null
+//    publishedEvent.get().buildInvocations.asMap()[':'].tasks.size() > 0
+//    publishedEvent.get().buildInvocations.asMap()[':'].taskSelectors.size() > 0
+//  }
+
+//  def "fetchBuildInvocationsAndWaitWhenExceptionIsThrown"() {
+//    given:
+//    def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
+//    transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+//    def repository = new DefaultModelRepository(fixedRequestAttributes, new EventBus(), toolingClient)
+//
+//    AtomicReference<BuildInvocationsUpdateEvent> publishedEvent = new AtomicReference<>();
+//    repository.register(new Object() {
+//
+//      @Subscribe
+//      public void listen(BuildInvocationsUpdateEvent event) {
+//        publishedEvent.set(event)
+//      }
+//    })
+//
+//    when:
+//    repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//
+//    then:
+//    thrown(GradleConnectionException)
+//
+//    publishedEvent.get() == null
+//  }
+
+//  def "fetchGradleProjectWithBuildInvocationsAndWait"() {
+//    given:
+//    AtomicReference<GradleProjectUpdateEvent> publishedGradleProjectEvent = new AtomicReference<>();
+//    AtomicReference<BuildInvocationsUpdateEvent> publishedBuildInvocationsEvent = new AtomicReference<>();
+//    repository.register(new Object() {
+//
+//      @Subscribe
+//      public void listen1(GradleProjectUpdateEvent event) {
+//        publishedGradleProjectEvent.set(event)
+//      }
+//
+//      @Subscribe
+//      public void listen2(BuildInvocationsUpdateEvent event) {
+//        publishedBuildInvocationsEvent.set(event)
+//      }
+//    })
+//
+//    when:
+//    repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//
+//    then:
+//    def gradleProjectEvent = publishedGradleProjectEvent.get()
+//    gradleProjectEvent != null
+//    publishedGradleProjectEvent.get().gradleProject != null
+//    publishedGradleProjectEvent.get().gradleProject.path == ":"
+//
+//    def buildInvocationsEvent = publishedBuildInvocationsEvent.get()
+//    buildInvocationsEvent != null
+//    publishedBuildInvocationsEvent.get().buildInvocations.asMap()[':'].tasks.size() > 0
+//    publishedBuildInvocationsEvent.get().buildInvocations.asMap()[':'].taskSelectors.size() > 0
+//  }
+
+//  def "fetchGradleProjectWithBuildInvocationsAndWaitWhenExceptionIsThrown"() {
+//    given:
+//    def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
+//    transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+//    def repository = new DefaultModelRepository(fixedRequestAttributes, new EventBus(), toolingClient)
+//
+//    AtomicReference<GradleProjectUpdateEvent> publishedGradleProjectEvent = new AtomicReference<>();
+//    AtomicReference<BuildInvocationsUpdateEvent> publishedBuildInvocationsEvent = new AtomicReference<>();
+//    repository.register(new Object() {
+//
+//      @Subscribe
+//      public void listen1(GradleProjectUpdateEvent event) {
+//        publishedGradleProjectEvent.set(event)
+//      }
+//
+//      @Subscribe
+//      public void listen2(BuildInvocationsUpdateEvent event) {
+//        publishedBuildInvocationsEvent.set(event)
+//      }
+//    })
+//
+//    when:
+//    repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//
+//    then:
+//    thrown(GradleConnectionException)
+//
+//    publishedGradleProjectEvent.get() == null
+//    publishedBuildInvocationsEvent.get() == null
+//  }
+
+//  def "fetchBuildInvocations"(GradleDistribution distribution, Environment environment) {
+//    given:
+//    def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+//    def targetRepository = new DefaultModelRepository(fixedRequestAttributes, new EventBus(), toolingClient)
+//    def repository = new ContextAwareModelRepository(targetRepository, environment)
+//
+//    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+//
+//    when:
+//    def buildInvocations = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+//
+//    then:
+//    buildInvocations != null
+//    buildInvocations.asMap() != null
+//    buildInvocations.asMap().get(':').tasks.size() == getImplicitlyAddedBuildInvocationsTasksCount(distribution, environment) + getImplicitlyAddedGradleProjectTasksCount(distribution) + 1
+//    buildInvocations.asMap().get(':').taskSelectors.size() == getImplicitlyAddedBuildInvocationsTaskSelectorsCount(distribution, environment) + getImplicitlyAddedGradleProjectTaskSelectorsCount(distribution) + 1
+//
+//    where:
+//    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+//  }
+
+//  def "fetchGradleProjectWithBuildInvocations"(GradleDistribution distribution, Environment environment) {
+//    given:
+//    def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+//    def targetRepository = new DefaultModelRepository(fixedRequestAttributes, new EventBus(), toolingClient)
+//    def repository = new ContextAwareModelRepository(targetRepository, environment)
+//
+//    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+//
+//    when:
+//    Pair<GradleProject, BuildInvocationsContainer> gradleProjectAndBuildInvocations = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+//
+//    then:
+//    gradleProjectAndBuildInvocations != null
+//    gradleProjectAndBuildInvocations.first != null
+//    gradleProjectAndBuildInvocations.first.name == 'TestProject'
+//    gradleProjectAndBuildInvocations.first.description == 'my project'
+//    gradleProjectAndBuildInvocations.first.path == ':'
+//    gradleProjectAndBuildInvocations.first.tasks.size() == getImplicitlyAddedGradleProjectTasksCount(distribution) + 1
+//    gradleProjectAndBuildInvocations.first.parent == null
+//    gradleProjectAndBuildInvocations.first.children.size() == 0
+//    gradleProjectAndBuildInvocations.second.asMap() != null
+//    gradleProjectAndBuildInvocations.second.asMap().get(':').tasks.size() == getImplicitlyAddedBuildInvocationsTasksCount(distribution, environment) + getImplicitlyAddedGradleProjectTasksCount(distribution) + 1
+//    gradleProjectAndBuildInvocations.second.asMap().get(':').taskSelectors.size() == getImplicitlyAddedBuildInvocationsTaskSelectorsCount(distribution, environment) + getImplicitlyAddedGradleProjectTaskSelectorsCount(distribution) + 1
+//
+//    where:
+//    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+//  }
+
   def "registerUnregister - no more events are sent to receiver once he is unregistered"() {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
@@ -470,6 +627,23 @@ class NewDefaultModelRepositoryTest extends DomainToolingClientSpecification {
     def version = GradleVersion.version(extractVersion(distribution))
     version.compareTo(GradleVersion.version("1.6")) == 0 ? 1 : 0
   }
+
+//  private static int getImplicitlyAddedBuildInvocationsTasksCount(GradleDistribution distribution, Environment environment) {
+//    // tasks implicitly provided by BuildInvocations#getTasks(): init, wrapper, help, properties, projects, tasks, dependencies, dependencyInsight, components
+//    def version = GradleVersion.version(extractVersion(distribution))
+//    version.baseVersion.compareTo(GradleVersion.version("2.3")) >= 0 || version.baseVersion.compareTo(GradleVersion.version("2.1")) >= 0 && environment != Environment.ECLIPSE ? 9 : version.baseVersion.compareTo(GradleVersion.version("2.0")) >= 0 && environment != Environment.ECLIPSE ? 8 : 0
+//  }
+//
+//  private static int getImplicitlyAddedBuildInvocationsTaskSelectorsCount(GradleDistribution distribution, Environment environment) {
+//    // tasks implicitly provided by BuildInvocations#getTaskSelectors():
+//    def version = GradleVersion.version(extractVersion(distribution));
+//    version.baseVersion.compareTo(GradleVersion.version("2.3")) >= 0 || version.baseVersion.compareTo(GradleVersion.version("2.1")) >= 0 && environment != Environment.ECLIPSE ? 9 : 0
+//  }
+//  private static int getImplicitlyAddedGradleProjectTaskSelectorsCount(GradleDistribution distribution) {
+//    // tasks implicitly provided by GradleProject#getTasks(): setupBuild
+//    def version = GradleVersion.version(extractVersion(distribution))
+//    version.compareTo(GradleVersion.version("1.6")) == 0 ? 1 : 0
+//  }
 
   private static boolean higherOrEqual(String minVersion, GradleDistribution distribution) {
     def gradleVersion = GradleVersion.version(extractVersion(distribution))
