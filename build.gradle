@@ -80,7 +80,7 @@ subprojects {
   publishing {
     repositories {
       maven {
-        name = 'gradle-private'
+        name = 'privateGradle'
         url gradlePrivateRepositoryUrl
         credentials {
           username GRADLE_REPO_USER
