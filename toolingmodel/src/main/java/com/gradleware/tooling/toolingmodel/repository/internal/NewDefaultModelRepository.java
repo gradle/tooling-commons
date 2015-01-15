@@ -39,7 +39,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Repository for Gradle build models. Model updates are broadcast via Google Guava's {@link com.google.common.eventbus.EventBus}.
+ * Repository for Gradle build models. Model updates are broadcast via Google Guava's {@link EventBus}.
+ *
+ * This repository is aware of the different constraints given by the Environment in which the repository is used and given by the target Gradle version.
  */
 public final class NewDefaultModelRepository implements NewModelRepository {
 
@@ -81,6 +83,9 @@ public final class NewDefaultModelRepository implements NewModelRepository {
         this.eventBus.unregister(listener);
     }
 
+    /*
+     * natively supported by all Gradle versions >= 1.0
+     */
     @Override
     public OmniBuildEnvironment fetchBuildEnvironmentAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         Preconditions.checkNotNull(transientRequestAttributes);
@@ -106,6 +111,12 @@ public final class NewDefaultModelRepository implements NewModelRepository {
         return executeRequest(request, successHandler, fetchStrategy, OmniBuildEnvironment.class, converter);
     }
 
+    /*
+     * supported by all Gradle versions either natively (>=1.8) or through conversion from a GradleProject (<1.8)
+     * note that for versions <1.8, the conversion from GradleProject to GradleBuild happens outside of our control and
+     * thus that GradleProject instance cannot be cached, this means that if the GradleProject model is later asked for
+     * from this model repository, it needs to be fetched again (and then gets cached)
+     */
     @Override
     public OmniGradleBuildStructure fetchGradleBuildStructureAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         Preconditions.checkNotNull(transientRequestAttributes);
@@ -130,11 +141,15 @@ public final class NewDefaultModelRepository implements NewModelRepository {
         return executeRequest(request, successHandler, fetchStrategy, OmniGradleBuildStructure.class, converter);
     }
 
+    /*
+     * natively supported by all Gradle versions >= 1.0
+     */
     @Override
     public OmniGradleBuild fetchGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         Preconditions.checkNotNull(transientRequestAttributes);
         Preconditions.checkNotNull(fetchStrategy);
 
+        // in versions 2.1 and 2.2.1, all projects tasks are falsely set to public = false in the Tooling API
         final boolean requiresIsPublicFix = targetGradleVersionIsBetween("2.1", "2.2.1", transientRequestAttributes);
 
         ModelRequest<GradleProject> request = createModelRequestForBuildModel(GradleProject.class, transientRequestAttributes);
@@ -156,6 +171,9 @@ public final class NewDefaultModelRepository implements NewModelRepository {
         return executeRequest(request, successHandler, fetchStrategy, OmniGradleBuild.class, converter);
     }
 
+    /*
+     * natively supported by all Gradle versions >= 1.0
+     */
     @Override
     public OmniEclipseGradleBuild fetchEclipseGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         Preconditions.checkNotNull(transientRequestAttributes);
