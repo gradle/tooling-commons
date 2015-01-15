@@ -3,11 +3,7 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 import com.gradleware.tooling.toolingmodel.EclipseProjectFields;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.generic.DefaultHierarchicalModel;
@@ -17,25 +13,20 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import java.io.File;
 import java.util.Comparator;
-import java.util.List;
 
 /**
  * Default implementation of the {@link OmniEclipseProject} interface.
  */
 public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 
-    private final Comparator<? super OmniEclipseProject> comparator;
-    private final List<DefaultOmniEclipseProject> children;
-    private DefaultOmniEclipseProject parent;
+    private final HierarchyHelper<OmniEclipseProject> hierarchyHelper;
     private String name;
     private String description;
     private String path;
     private File projectDirectory;
 
     private DefaultOmniEclipseProject(Comparator<? super OmniEclipseProject> comparator) {
-        this.comparator = Preconditions.checkNotNull(comparator);
-        this.children = Lists.newArrayList();
-        this.parent = null;
+        this.hierarchyHelper = new HierarchyHelper<OmniEclipseProject>(this, Preconditions.checkNotNull(comparator));
     }
 
     @Override
@@ -76,49 +67,36 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 
     @Override
     public OmniEclipseProject getParent() {
-        return this.parent;
+        return this.hierarchyHelper.getParent();
     }
 
     private void setParent(DefaultOmniEclipseProject parent) {
-        this.parent = parent;
+        this.hierarchyHelper.setParent(parent);
     }
 
     @Override
     public ImmutableList<OmniEclipseProject> getChildren() {
-        return ImmutableList.<OmniEclipseProject>copyOf(sort(this.children));
+        return this.hierarchyHelper.getChildren();
     }
 
     private void addChild(DefaultOmniEclipseProject child) {
         child.setParent(this);
-        this.children.add(child);
+        this.hierarchyHelper.addChild(child);
     }
 
     @Override
     public ImmutableList<OmniEclipseProject> getAll() {
-        ImmutableList.Builder<OmniEclipseProject> all = ImmutableList.builder();
-        addRecursively(this, all);
-        return sort(all.build());
-    }
-
-    private void addRecursively(OmniEclipseProject node, ImmutableList.Builder<OmniEclipseProject> nodes) {
-        nodes.add(node);
-        for (OmniEclipseProject child : node.getChildren()) {
-            addRecursively(child, nodes);
-        }
-    }
-
-    private <E extends OmniEclipseProject> ImmutableList<E> sort(List<E> elements) {
-        return Ordering.from(this.comparator).immutableSortedCopy(elements);
+        return this.hierarchyHelper.getAll();
     }
 
     @Override
     public ImmutableList<OmniEclipseProject> filter(Predicate<? super OmniEclipseProject> predicate) {
-        return FluentIterable.from(getAll()).filter(predicate).toList();
+        return this.hierarchyHelper.filter(predicate);
     }
 
     @Override
     public Optional<OmniEclipseProject> tryFind(Predicate<? super OmniEclipseProject> predicate) {
-        return Iterables.tryFind(getAll(), predicate);
+        return this.hierarchyHelper.tryFind(predicate);
     }
 
     public static DefaultOmniEclipseProject from(HierarchicalModel<EclipseProjectFields> project) {

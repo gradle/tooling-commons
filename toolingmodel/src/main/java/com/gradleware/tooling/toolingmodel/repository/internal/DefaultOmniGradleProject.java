@@ -6,9 +6,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 import com.gradleware.tooling.toolingmodel.BuildInvocationFields;
 import com.gradleware.tooling.toolingmodel.GradleProjectFields;
 import com.gradleware.tooling.toolingmodel.GradleScriptFields;
@@ -35,9 +32,7 @@ import java.util.List;
  */
 public final class DefaultOmniGradleProject implements OmniGradleProject {
 
-    private final Comparator<? super OmniGradleProject> comparator;
-    private final List<DefaultOmniGradleProject> children;
-    private DefaultOmniGradleProject parent;
+    private final HierarchyHelper<OmniGradleProject> hierarchyHelper;
     private String name;
     private String description;
     private String path;
@@ -48,9 +43,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
     private ImmutableList<OmniTaskSelector> taskSelectors;
 
     private DefaultOmniGradleProject(Comparator<? super OmniGradleProject> comparator) {
-        this.comparator = Preconditions.checkNotNull(comparator);
-        this.children = Lists.newArrayList();
-        this.parent = null;
+        this.hierarchyHelper = new HierarchyHelper<OmniGradleProject>(this, Preconditions.checkNotNull(comparator));
     }
 
     @Override
@@ -127,49 +120,36 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
 
     @Override
     public OmniGradleProject getParent() {
-        return this.parent;
+        return this.hierarchyHelper.getParent();
     }
 
     private void setParent(DefaultOmniGradleProject parent) {
-        this.parent = parent;
+        this.hierarchyHelper.setParent(parent);
     }
 
     @Override
     public ImmutableList<OmniGradleProject> getChildren() {
-        return ImmutableList.<OmniGradleProject>copyOf(sort(this.children));
+        return this.hierarchyHelper.getChildren();
     }
 
     private void addChild(DefaultOmniGradleProject child) {
         child.setParent(this);
-        this.children.add(child);
+        this.hierarchyHelper.addChild(child);
     }
 
     @Override
     public ImmutableList<OmniGradleProject> getAll() {
-        ImmutableList.Builder<OmniGradleProject> all = ImmutableList.builder();
-        addRecursively(this, all);
-        return sort(all.build());
-    }
-
-    private void addRecursively(OmniGradleProject node, ImmutableList.Builder<OmniGradleProject> nodes) {
-        nodes.add(node);
-        for (OmniGradleProject child : node.getChildren()) {
-            addRecursively(child, nodes);
-        }
-    }
-
-    private <E extends OmniGradleProject> ImmutableList<E> sort(List<E> elements) {
-        return Ordering.from(this.comparator).immutableSortedCopy(elements);
+        return this.hierarchyHelper.getAll();
     }
 
     @Override
     public ImmutableList<OmniGradleProject> filter(Predicate<? super OmniGradleProject> predicate) {
-        return FluentIterable.from(getAll()).filter(predicate).toList();
+        return this.hierarchyHelper.filter(predicate);
     }
 
     @Override
     public Optional<OmniGradleProject> tryFind(Predicate<? super OmniGradleProject> predicate) {
-        return Iterables.tryFind(getAll(), predicate);
+        return this.hierarchyHelper.tryFind(predicate);
     }
 
     public static DefaultOmniGradleProject from(HierarchicalModel<GradleProjectFields> project) {

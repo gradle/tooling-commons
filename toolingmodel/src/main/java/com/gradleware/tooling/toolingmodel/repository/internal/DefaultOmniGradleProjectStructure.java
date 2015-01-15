@@ -3,39 +3,30 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 import com.gradleware.tooling.toolingmodel.BasicGradleProjectFields;
 import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
 import com.gradleware.tooling.toolingmodel.generic.DefaultHierarchicalModel;
+import com.gradleware.tooling.toolingmodel.generic.HierarchicalModel;
 import com.gradleware.tooling.toolingmodel.generic.Model;
 import com.gradleware.tooling.toolingmodel.generic.ModelField;
-import com.gradleware.tooling.toolingmodel.generic.HierarchicalModel;
 import org.gradle.tooling.model.gradle.BasicGradleProject;
 
 import java.io.File;
 import java.util.Comparator;
-import java.util.List;
 
 /**
  * Default implementation of the {@link OmniGradleProjectStructure} interface.
  */
 public final class DefaultOmniGradleProjectStructure implements OmniGradleProjectStructure {
 
-    private final Comparator<? super OmniGradleProjectStructure> comparator;
-    private final List<DefaultOmniGradleProjectStructure> children;
-    private DefaultOmniGradleProjectStructure parent;
+    private final HierarchyHelper<OmniGradleProjectStructure> hierarchyHelper;
     private String name;
     private String path;
     private File projectDirectory;
 
     private DefaultOmniGradleProjectStructure(Comparator<? super OmniGradleProjectStructure> comparator) {
-        this.comparator = Preconditions.checkNotNull(comparator);
-        this.children = Lists.newArrayList();
-        this.parent = null;
+        this.hierarchyHelper = new HierarchyHelper<OmniGradleProjectStructure>(this, Preconditions.checkNotNull(comparator));
     }
 
     @Override
@@ -67,49 +58,36 @@ public final class DefaultOmniGradleProjectStructure implements OmniGradleProjec
 
     @Override
     public OmniGradleProjectStructure getParent() {
-        return this.parent;
+        return this.hierarchyHelper.getParent();
     }
 
     private void setParent(DefaultOmniGradleProjectStructure parent) {
-        this.parent = parent;
+        this.hierarchyHelper.setParent(parent);
     }
 
     @Override
     public ImmutableList<OmniGradleProjectStructure> getChildren() {
-        return ImmutableList.<OmniGradleProjectStructure>copyOf(this.children);
+        return this.hierarchyHelper.getChildren();
     }
 
     private void addChild(DefaultOmniGradleProjectStructure child) {
         child.setParent(this);
-        this.children.add(child);
+        this.hierarchyHelper.addChild(child);
     }
 
     @Override
     public ImmutableList<OmniGradleProjectStructure> getAll() {
-        ImmutableList.Builder<OmniGradleProjectStructure> all = ImmutableList.builder();
-        addRecursively(this, all);
-        return sort(all.build());
-    }
-
-    private void addRecursively(OmniGradleProjectStructure node, ImmutableList.Builder<OmniGradleProjectStructure> nodes) {
-        nodes.add(node);
-        for (OmniGradleProjectStructure child : node.getChildren()) {
-            addRecursively(child, nodes);
-        }
-    }
-
-    private <E extends OmniGradleProjectStructure> ImmutableList<E> sort(List<E> elements) {
-        return Ordering.from(this.comparator).immutableSortedCopy(elements);
+        return this.hierarchyHelper.getAll();
     }
 
     @Override
     public ImmutableList<OmniGradleProjectStructure> filter(Predicate<? super OmniGradleProjectStructure> predicate) {
-        return FluentIterable.from(getAll()).filter(predicate).toList();
+        return this.hierarchyHelper.filter(predicate);
     }
 
     @Override
     public Optional<OmniGradleProjectStructure> tryFind(Predicate<? super OmniGradleProjectStructure> predicate) {
-        return Iterables.tryFind(getAll(), predicate);
+        return this.hierarchyHelper.tryFind(predicate);
     }
 
     public static DefaultOmniGradleProjectStructure from(HierarchicalModel<BasicGradleProjectFields> project) {
