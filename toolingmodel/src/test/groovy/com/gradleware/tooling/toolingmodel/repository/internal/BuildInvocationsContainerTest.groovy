@@ -9,7 +9,7 @@ import com.gradleware.tooling.toolingmodel.generic.Model
 import org.gradle.tooling.model.GradleProject
 import org.junit.Rule
 
-class BuildInvocationsContainerFactoryTest extends DomainToolingClientSpecification {
+class BuildInvocationsContainerTest extends DomainToolingClientSpecification {
 
   @Rule
   public TestDirectoryProvider directoryProvider = new TestDirectoryProvider();
@@ -61,7 +61,7 @@ include 'sub2:subSub'
     def gradleProject = modelRequest.executeAndWait()
 
     when:
-    def buildInvocationsContainer = BuildInvocationsContainerFactory.createFrom(gradleProject, false)
+    def buildInvocationsContainer = BuildInvocationsContainer.from(gradleProject, false)
 
     then:
     buildInvocationsContainer != null
