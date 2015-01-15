@@ -2,12 +2,12 @@ package com.gradleware.tooling.toolingmodel.repository.internal
 
 import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.DomainToolingClientSpecification
 import com.gradleware.tooling.toolingclient.GradleDistribution
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
 import org.junit.Rule
@@ -19,7 +19,7 @@ class DefaultModelRepositoryCacheTest extends DomainToolingClientSpecification {
 
   FixedRequestAttributes fixedRequestAttributes
   TransientRequestAttributes transientRequestAttributes
-  DefaultModelRepository repository
+  NewDefaultModelRepository repository
 
   def setup() {
     // Gradle projects for testing
@@ -29,7 +29,7 @@ class DefaultModelRepositoryCacheTest extends DomainToolingClientSpecification {
     // request attributes and model repository for testing
     fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
     transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-    repository = new DefaultModelRepository(fixedRequestAttributes, new EventBus(), toolingClient)
+    repository = new NewDefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
   }
 
   def "fetchBuildEnvironmentAndWait"() {
@@ -59,6 +59,32 @@ class DefaultModelRepositoryCacheTest extends DomainToolingClientSpecification {
     thirdLookUp.java.jvmArguments == fourthLookUp.java.jvmArguments
   }
 
+  def "fetchGradleBuildStructureAndWait"() {
+    when:
+    def lookUp = repository.fetchGradleBuildStructureAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
+
+    then:
+    lookUp == null
+
+    when:
+    def firstLookUp = repository.fetchGradleBuildStructureAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    def secondLookUp = repository.fetchGradleBuildStructureAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+
+    then:
+    firstLookUp != null
+    firstLookUp.is(secondLookUp)
+
+    when:
+    def thirdLookUp = repository.fetchGradleBuildStructureAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+    def fourthLookUp = repository.fetchGradleBuildStructureAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+
+    then:
+    thirdLookUp != null
+    !thirdLookUp.is(fourthLookUp)
+    thirdLookUp.rootProject.path == fourthLookUp.rootProject.path
+    thirdLookUp.rootProject.all.size() == fourthLookUp.rootProject.all.size()
+  }
+
   def "fetchGradleBuildAndWait"() {
     when:
     def lookUp = repository.fetchGradleBuildAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
@@ -82,57 +108,33 @@ class DefaultModelRepositoryCacheTest extends DomainToolingClientSpecification {
     thirdLookUp != null
     !thirdLookUp.is(fourthLookUp)
     thirdLookUp.rootProject.path == fourthLookUp.rootProject.path
-    thirdLookUp.projects.size() == fourthLookUp.projects.size()
+    thirdLookUp.rootProject.all.size() == fourthLookUp.rootProject.all.size()
   }
 
-  def "fetchEclipseProjectAndWait"() {
+  def "fetchEclipseGradleBuildAndWait"() {
     when:
-    def lookUp = repository.fetchEclipseProjectAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
+    def lookUp = repository.fetchEclipseGradleBuildAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
 
     then:
     lookUp == null
 
     when:
-    def firstLookUp = repository.fetchEclipseProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-    def secondLookUp = repository.fetchEclipseProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    def firstLookUp = repository.fetchEclipseGradleBuildAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    def secondLookUp = repository.fetchEclipseGradleBuildAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
     firstLookUp != null
     firstLookUp.is(secondLookUp)
 
     when:
-    def thirdLookUp = repository.fetchEclipseProjectAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
-    def fourthLookUp = repository.fetchEclipseProjectAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+    def thirdLookUp = repository.fetchEclipseGradleBuildAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+    def fourthLookUp = repository.fetchEclipseGradleBuildAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
 
     then:
     thirdLookUp != null
     !thirdLookUp.is(fourthLookUp)
-    thirdLookUp.gradleProject.path == fourthLookUp.gradleProject.path
-  }
-
-  def "fetchGradleProjectAndWait"() {
-    when:
-    def lookUp = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
-
-    then:
-    lookUp == null
-
-    when:
-    def firstLookUp = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-    def secondLookUp = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-
-    then:
-    firstLookUp != null
-    firstLookUp.is(secondLookUp)
-
-    when:
-    def thirdLookUp = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
-    def fourthLookUp = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
-
-    then:
-    thirdLookUp != null
-    !thirdLookUp.is(fourthLookUp)
-    thirdLookUp.path == fourthLookUp.path
+    thirdLookUp.rootProject.path == fourthLookUp.rootProject.path
+    thirdLookUp.rootProject.all.size() == fourthLookUp.rootProject.all.size()
   }
 
 //  def "fetchBuildInvocationsAndWait"() {
