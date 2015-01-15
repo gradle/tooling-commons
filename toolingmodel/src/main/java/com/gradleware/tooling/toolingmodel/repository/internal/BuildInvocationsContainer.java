@@ -11,11 +11,11 @@ import java.util.Map;
  *
  * The primary advantage of this container is that it allows to work with a generics-free type compared to <code>Map&lt;String, Model&lt;BuildInvocationFields&gt;&gt;</code>.
  */
-public final class NewBuildInvocationsContainer {
+public final class BuildInvocationsContainer {
 
     private final Map<String, Model<BuildInvocationFields>> buildInvocationsPerProject;
 
-    private NewBuildInvocationsContainer(Map<String, Model<BuildInvocationFields>> buildInvocationsPerProject) {
+    private BuildInvocationsContainer(Map<String, Model<BuildInvocationFields>> buildInvocationsPerProject) {
         this.buildInvocationsPerProject = ImmutableMap.copyOf(buildInvocationsPerProject);
     }
 
@@ -34,8 +34,8 @@ public final class NewBuildInvocationsContainer {
      * @param buildInvocationsPerProject the mapping of projects to build invocations
      * @return the new instance
      */
-    public static NewBuildInvocationsContainer from(Map<String, Model<BuildInvocationFields>> buildInvocationsPerProject) {
-        return new NewBuildInvocationsContainer(buildInvocationsPerProject);
+    public static BuildInvocationsContainer from(Map<String, Model<BuildInvocationFields>> buildInvocationsPerProject) {
+        return new BuildInvocationsContainer(buildInvocationsPerProject);
     }
 
 }

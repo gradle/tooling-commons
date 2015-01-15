@@ -210,11 +210,11 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
     }
 
     public static DefaultHierarchicalModel<GradleProjectFields> from(GradleProject gradleProject, boolean enforceAllTasksPublic) {
-        NewBuildInvocationsContainer buildInvocationsContainer = NewBuildInvocationsContainerFactory.createFrom(gradleProject, enforceAllTasksPublic);
+        BuildInvocationsContainer buildInvocationsContainer = BuildInvocationsContainerFactory.createFrom(gradleProject, enforceAllTasksPublic);
         return convert(gradleProject, buildInvocationsContainer);
     }
 
-    public static DefaultHierarchicalModel<GradleProjectFields> convert(GradleProject project, NewBuildInvocationsContainer buildInvocationsContainer) {
+    public static DefaultHierarchicalModel<GradleProjectFields> convert(GradleProject project, BuildInvocationsContainer buildInvocationsContainer) {
         DefaultHierarchicalModel<GradleProjectFields> gradleProject = new DefaultHierarchicalModel<GradleProjectFields>(GradleProjectComparator.INSTANCE);
         gradleProject.put(GradleProjectFields.NAME, project.getName());
         gradleProject.put(GradleProjectFields.DESCRIPTION, project.getDescription());

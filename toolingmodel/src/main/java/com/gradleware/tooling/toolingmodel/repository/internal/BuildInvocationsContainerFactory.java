@@ -30,21 +30,21 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 
 /**
- * Converts a {@link org.gradle.tooling.model.GradleProject} to a {@link NewBuildInvocationsContainer}.
+ * Converts a {@link org.gradle.tooling.model.GradleProject} to a {@link BuildInvocationsContainer}.
  */
-public final class NewBuildInvocationsContainerFactory {
+public final class BuildInvocationsContainerFactory {
 
     @SuppressWarnings("RedundantStringConstructorCall")
     private static final String NULL_STRING = new String(); // ensure unique instance to use it as a null-string placeholder
 
-    private NewBuildInvocationsContainerFactory() {
+    private BuildInvocationsContainerFactory() {
     }
 
-    public static NewBuildInvocationsContainer createFrom(GradleProject project, boolean enforceAllTasksPublic) {
+    public static BuildInvocationsContainer createFrom(GradleProject project, boolean enforceAllTasksPublic) {
         ImmutableMultimap<String, Model<ProjectTaskFields>> tasks = buildProjectTasksRecursively(project, ArrayListMultimap.<String, Model<ProjectTaskFields>>create(), enforceAllTasksPublic);
         ImmutableMultimap<String, Model<TaskSelectorsFields>> taskSelectors = buildTaskSelectorsRecursively(project, ArrayListMultimap.<String, Model<TaskSelectorsFields>>create(), enforceAllTasksPublic);
         ImmutableMap<String, Model<BuildInvocationFields>> buildInvocationsMap = buildBuildInvocationsMappingRecursively(tasks, taskSelectors, Maps.<String, Model<BuildInvocationFields>>newHashMap());
-        return NewBuildInvocationsContainer.from(buildInvocationsMap);
+        return BuildInvocationsContainer.from(buildInvocationsMap);
     }
 
     private static ImmutableMap<String, Model<BuildInvocationFields>> buildBuildInvocationsMappingRecursively(Multimap<String, Model<ProjectTaskFields>> projectTasks,
