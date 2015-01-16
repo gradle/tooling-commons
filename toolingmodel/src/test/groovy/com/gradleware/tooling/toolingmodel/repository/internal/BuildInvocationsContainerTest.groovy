@@ -16,11 +16,12 @@ class BuildInvocationsContainerTest extends ToolingModelToolingClientSpecificati
 
   def setup() {
     directoryProvider.createFile('settings.gradle') << '''
-rootProject.name = 'TestProject'
-include 'sub1'
-include 'sub2'
-include 'sub2:subSub'
-'''
+      rootProject.name = 'TestProject'
+      include 'sub1'
+      include 'sub2'
+      include 'sub2:subSub'
+    '''
+
     directoryProvider.createFile('build.gradle') << '''
        task alpha {
          description = 'ALPHA'
