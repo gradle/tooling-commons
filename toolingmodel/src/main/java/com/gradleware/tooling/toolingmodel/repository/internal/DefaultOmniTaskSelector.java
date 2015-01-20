@@ -16,7 +16,7 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
     private String name;
     private String description;
     private boolean isPublic;
-    private SortedSet<String> selectedTaskPaths;
+    private ImmutableSortedSet<String> selectedTaskPaths;
 
     @Override
     public String getName() {
@@ -46,7 +46,7 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
     }
 
     @Override
-    public SortedSet<String> getSelectedTaskPaths() {
+    public ImmutableSortedSet<String> getSelectedTaskPaths() {
         return this.selectedTaskPaths;
     }
 

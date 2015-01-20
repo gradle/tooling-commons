@@ -6,7 +6,7 @@ package com.gradleware.tooling.toolingmodel;
 public interface OmniProjectTask {
 
     /**
-     * Returns the name of this task. Note that the name is not a unique identifier for the project.
+     * Returns the name of this task. Note that the name is not a unique identifier for the task.
      *
      * @return the name of this task
      */
@@ -27,7 +27,7 @@ public interface OmniProjectTask {
     String getPath();
 
     /**
-     * Returns whether this task is public or not. Public tasks are those that have a non-null {@code group} property.     *
+     * Returns whether this task is public or not. Public tasks are those that have a non-empty {@code group} property.
      *
      * @return {@code true} if this task is public, {@code false} otherwise
      */
