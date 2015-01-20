@@ -2,6 +2,7 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Supplier;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.eventbus.EventBus;
@@ -220,34 +221,20 @@ public final class DefaultModelRepository implements ModelRepository {
 
         // natively supported by all Gradle versions >= 1.12, if BuildActions supported in the running environment
         if (!supportsBuildInvocations(transientRequestAttributes) || !supportsBuildActions(transientRequestAttributes)) {
-            // if model is only accessed from the cache, we can return immediately
-            if (FetchStrategy.FROM_CACHE_ONLY == fetchStrategy) {
-                Object result = this.cache.getIfPresent(OmniBuildInvocationsContainer.class);
-                return OmniBuildInvocationsContainer.class.cast(result);
-            }
-
-            // if model must be reloaded, we can invalidate the cache entry and then proceed as for FetchStrategy.LOAD_IF_NOT_CACHED
-            if (FetchStrategy.FORCE_RELOAD == fetchStrategy) {
-                this.cache.invalidate(OmniBuildInvocationsContainer.class);
-            }
-
-            // load the values from the cache iff not already cached
-            final AtomicBoolean modelLoaded = new AtomicBoolean(false);
-            OmniBuildInvocationsContainer value = getFromCache(OmniBuildInvocationsContainer.class, new Callable<OmniBuildInvocationsContainer>() {
+            Supplier<OmniBuildInvocationsContainer> operation = new Supplier<OmniBuildInvocationsContainer>() {
                 @Override
-                public OmniBuildInvocationsContainer call() {
-                    OmniBuildInvocationsContainer model = deriveBuildInvocationsFromOtherModel(transientRequestAttributes, fetchStrategy);
-                    modelLoaded.set(true);
-                    return model;
+                public OmniBuildInvocationsContainer get() {
+                    return deriveBuildInvocationsFromOtherModel(transientRequestAttributes, fetchStrategy);
                 }
-            });
-
-            // if the model was not in the cache before, notify the callback about the new cache entry
-            if (modelLoaded.get()) {
-                DefaultModelRepository.this.eventBus.post(new BuildInvocationsUpdateEvent(value));
-            }
-
-            return value;
+            };
+            Consumer<OmniBuildInvocationsContainer> successHandler = new Consumer<OmniBuildInvocationsContainer>() {
+                @Override
+                public void accept(OmniBuildInvocationsContainer result) {
+                    DefaultModelRepository.this.eventBus.post(new BuildInvocationsUpdateEvent(result));
+                }
+            };
+            Converter<OmniBuildInvocationsContainer, OmniBuildInvocationsContainer> converter = Converter.identity();
+            return executeRequest(operation, successHandler, fetchStrategy, OmniBuildInvocationsContainer.class, converter);
         }
 
         BuildActionRequest<Map<String, BuildInvocations>> request = createBuildActionRequestForProjectModel(BuildInvocations.class, transientRequestAttributes);
@@ -271,7 +258,7 @@ public final class DefaultModelRepository implements ModelRepository {
     private OmniBuildInvocationsContainer deriveBuildInvocationsFromOtherModel(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         // for fetch strategy FORCE_RELOAD, we re-fetch the GradleBuild model and derive the build invocations from it
         if (fetchStrategy == FetchStrategy.FORCE_RELOAD) {
-            OmniGradleBuild gradleBuild = fetchGradleBuild(transientRequestAttributes, fetchStrategy);
+            OmniGradleBuild gradleBuild = fetchGradleBuild(transientRequestAttributes, FetchStrategy.FORCE_RELOAD);
             return DefaultOmniBuildInvocationsContainer.from(gradleBuild.getRootProject());
         }
 
@@ -388,6 +375,17 @@ public final class DefaultModelRepository implements ModelRepository {
     }
 
     private <T, U> U executeRequest(final Request<T> request, final Consumer<U> newCacheEntryHandler, FetchStrategy fetchStrategy, Class<U> cacheKey, final Converter<T, U> resultConverter) {
+        return executeRequest(new Supplier<T>() {
+            @Override
+            public T get() {
+                // issue the request (synchronously)
+                // it is assumed that the result returned by a model request or build action request is never null
+                return request.executeAndWait();
+            }
+        }, newCacheEntryHandler, fetchStrategy, cacheKey, resultConverter);
+    }
+
+    private <T, U> U executeRequest(final Supplier<T> operation, final Consumer<U> newCacheEntryHandler, FetchStrategy fetchStrategy, Class<U> cacheKey, final Converter<T, U> resultConverter) {
         // if model is only accessed from the cache, we can return immediately
         if (FetchStrategy.FROM_CACHE_ONLY == fetchStrategy) {
             Object result = this.cache.getIfPresent(cacheKey);
@@ -404,7 +402,7 @@ public final class DefaultModelRepository implements ModelRepository {
         U value = getFromCache(cacheKey, new Callable<U>() {
             @Override
             public U call() {
-                U model = executeAndWait(request, resultConverter);
+                U model = executeAndWait(operation, resultConverter);
                 modelLoaded.set(true);
                 return model;
             }
@@ -468,10 +466,9 @@ public final class DefaultModelRepository implements ModelRepository {
         return request;
     }
 
-    private <T, U> U executeAndWait(Request<T> request, Converter<T, U> resultConverter) {
-        // issue the request (synchronously)
-        // it is assumed that the result returned by a model request or build action request is never null
-        T result = request.executeAndWait();
+    private <T, U> U executeAndWait(Supplier<T> operation, Converter<T, U> resultConverter) {
+        // invoke the operation and convert the result
+        T result = operation.get();
         return resultConverter.convert(result);
     }
 
