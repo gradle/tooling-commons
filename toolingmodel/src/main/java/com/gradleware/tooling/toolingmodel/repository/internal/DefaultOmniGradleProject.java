@@ -161,7 +161,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
         gradleProject.setBuildDirectory(project.get(GradleProjectFields.BUILD_DIRECTORY));
         gradleProject.setBuildScript(DefaultOmniGradleScript.from(project.get(GradleProjectFields.BUILD_SCRIPT)));
         gradleProject.setProjectTasks(toProjectTasks(project.get(GradleProjectFields.PROJECT_TASKS)));
-        gradleProject.setTaskSelectors(toSelectorTasks(project.get(GradleProjectFields.TASK_SELECTORS)));
+        gradleProject.setTaskSelectors(toTaskSelectors(project.get(GradleProjectFields.TASK_SELECTORS)));
 
         for (HierarchicalModel<GradleProjectFields> child : project.getChildren()) {
             DefaultOmniGradleProject gradleProjectChild = from(child);
@@ -180,7 +180,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
         }).toList();
     }
 
-    private static ImmutableList<OmniTaskSelector> toSelectorTasks(List<Model<TaskSelectorsFields>> projectTasks) {
+    private static ImmutableList<OmniTaskSelector> toTaskSelectors(List<Model<TaskSelectorsFields>> projectTasks) {
         return FluentIterable.from(projectTasks).transform(new Function<Model<TaskSelectorsFields>, OmniTaskSelector>() {
             @Override
             public DefaultOmniTaskSelector apply(Model<TaskSelectorsFields> input) {
