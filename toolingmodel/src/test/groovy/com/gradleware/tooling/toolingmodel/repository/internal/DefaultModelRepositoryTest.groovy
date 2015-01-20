@@ -12,15 +12,17 @@ import com.gradleware.tooling.testing.GradleVersionExtractor
 import com.gradleware.tooling.testing.GradleVersionParameterization
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
+import com.gradleware.tooling.toolingmodel.OmniBuildInvocationsContainer
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure
 import com.gradleware.tooling.toolingmodel.OmniGradleProject
+import com.gradleware.tooling.toolingmodel.repository.BuildEnvironmentUpdateEvent
+import com.gradleware.tooling.toolingmodel.repository.BuildInvocationsUpdateEvent
+import com.gradleware.tooling.toolingmodel.repository.EclipseGradleBuildUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.Environment
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
-import com.gradleware.tooling.toolingmodel.repository.BuildEnvironmentUpdateEvent
-import com.gradleware.tooling.toolingmodel.repository.EclipseGradleBuildUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildStructureUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
@@ -34,6 +36,8 @@ import java.util.concurrent.atomic.AtomicReference
 
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
 class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification {
+
+  private static final List<String> IMPLICIT_TASKS = ['init', 'wrapper', 'help', 'projects', 'tasks', 'properties', 'components', 'dependencies', 'dependencyInsight']
 
   @Rule
   TestDirectoryProvider directoryProvider = new TestDirectoryProvider();
@@ -432,50 +436,97 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
-//  def "fetchBuildInvocationsAndWait"() {
-//    given:
-//    AtomicReference<BuildInvocationsUpdateEvent> publishedEvent = new AtomicReference<>();
-//    repository.register(new Object() {
-//
-//      @Subscribe
-//      public void listen(BuildInvocationsUpdateEvent event) {
-//        publishedEvent.set(event)
-//      }
-//    })
-//
-//    when:
-//    repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-//
-//    then:
-//    def event = publishedEvent.get()
-//    event != null
-//    publishedEvent.get().buildInvocations.asMap()[':'].tasks.size() > 0
-//    publishedEvent.get().buildInvocations.asMap()[':'].taskSelectors.size() > 0
-//  }
+  def "fetchBuildInvocationsAndWait - send event after cache update"(GradleDistribution distribution, Environment environment) {
+    given:
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
 
-//  def "fetchBuildInvocationsAndWaitWhenExceptionIsThrown"() {
-//    given:
-//    def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
-//    transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-//    def repository = new DefaultModelRepository(fixedRequestAttributes, new EventBus(), toolingClient)
-//
-//    AtomicReference<BuildInvocationsUpdateEvent> publishedEvent = new AtomicReference<>();
-//    repository.register(new Object() {
-//
-//      @Subscribe
-//      public void listen(BuildInvocationsUpdateEvent event) {
-//        publishedEvent.set(event)
-//      }
-//    })
-//
-//    when:
-//    repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-//
-//    then:
-//    thrown(GradleConnectionException)
-//
-//    publishedEvent.get() == null
-//  }
+    AtomicReference<BuildInvocationsUpdateEvent> publishedEvent = new AtomicReference<>();
+    AtomicReference<OmniBuildInvocationsContainer> modelInRepository = new AtomicReference<>();
+    repository.register(new Object() {
+
+      @SuppressWarnings("GroovyUnusedDeclaration")
+      @Subscribe
+      public void listen(BuildInvocationsUpdateEvent event) {
+        publishedEvent.set(event)
+        modelInRepository.set(repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
+      }
+    })
+
+    when:
+    OmniBuildInvocationsContainer buildInvocations = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+
+    then:
+    buildInvocations != null
+    buildInvocations.asMap().size() == 4
+    def rootProjectExplicitTasks = buildInvocations.get(':').get().projectTasks.findAll { !IMPLICIT_TASKS.contains(it.name) }
+    rootProjectExplicitTasks.size() == 1
+
+    def projectSub1 = buildInvocations.get(':sub1').get()
+    def sub1ExplicitTasks = projectSub1.projectTasks.findAll { !IMPLICIT_TASKS.contains(it.name) }
+    sub1ExplicitTasks.size() == 2
+
+    def myFirstTaskOfSub1 = sub1ExplicitTasks[0]
+    myFirstTaskOfSub1.name == 'myFirstTaskOfSub1'
+    myFirstTaskOfSub1.description == '1st task of sub1'
+    myFirstTaskOfSub1.path == ':sub1:myFirstTaskOfSub1'
+    myFirstTaskOfSub1.isPublic()
+
+    def mySecondTaskOfSub1 = sub1ExplicitTasks[1]
+    mySecondTaskOfSub1.name == 'mySecondTaskOfSub1'
+    mySecondTaskOfSub1.description == '2nd task of sub1'
+    mySecondTaskOfSub1.path == ':sub1:mySecondTaskOfSub1'
+    mySecondTaskOfSub1.isPublic() == !higherOrEqual("2.1", distribution) // all versions < 2.1 default to 'true'
+
+    def projectSub2 = buildInvocations.get(':sub2').get()
+    def sub2ExplicitTaskSelectors = projectSub2.taskSelectors.findAll { !IMPLICIT_TASKS.contains(it.name) }
+    sub2ExplicitTaskSelectors.size() == 5
+
+    def myTaskSelector = sub2ExplicitTaskSelectors.find { it.name == 'myTask' }
+    myTaskSelector.name == 'myTask'
+    myTaskSelector.description == higherOrEqual("2.3", distribution)? 'another task of sub2' : 'sub2:myTask task selector'
+    myTaskSelector.isPublic()
+//    myTaskSelector.selectedTaskPaths as List == [':sub2:myTask', ':sub2:subSub1:myTask']
+
+    def event = publishedEvent.get()
+    event != null
+    event.buildInvocations == buildInvocations
+
+    def model = modelInRepository.get()
+    model == buildInvocations
+
+    where:
+    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.12") // todo support older versions than 1.12
+  }
+
+  def "fetchBuildInvocationsAndWait - when exception is thrown"(GradleDistribution distribution, Environment environment) {
+    given:
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
+
+    AtomicReference<BuildInvocationsUpdateEvent> publishedEvent = new AtomicReference<>();
+    repository.register(new Object() {
+
+      @SuppressWarnings("GroovyUnusedDeclaration")
+      @Subscribe
+      public void listen(BuildInvocationsUpdateEvent event) {
+        publishedEvent.set(event)
+      }
+    })
+
+    when:
+    repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+
+    then:
+    thrown(GradleConnectionException)
+
+    publishedEvent.get() == null
+
+    where:
+    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.12")
+  }
 
 //  def "fetchGradleProjectWithBuildInvocationsAndWait"() {
 //    given:

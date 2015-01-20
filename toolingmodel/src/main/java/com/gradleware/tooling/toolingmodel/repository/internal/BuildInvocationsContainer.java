@@ -21,6 +21,7 @@ import com.gradleware.tooling.toolingmodel.generic.Model;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.GradleTask;
+import org.gradle.tooling.model.gradle.BuildInvocations;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -55,13 +56,17 @@ public final class BuildInvocationsContainer {
     }
 
     /**
-     * Create a new instance from the given mapping of projects to build invocations.
+     * Converts a {@code Map} of {@link BuildInvocations} to a {@link BuildInvocationsContainer}.
      *
-     * @param buildInvocationsPerProject the mapping of projects to build invocations
-     * @return the new instance
+     * @param buildInvocations the build invocations to convert
+     * @return the build invocations container
      */
-    public static BuildInvocationsContainer from(Map<String, Model<BuildInvocationFields>> buildInvocationsPerProject) {
-        return new BuildInvocationsContainer(buildInvocationsPerProject);
+    public static BuildInvocationsContainer from(Map<String, BuildInvocations> buildInvocations) {
+        ImmutableMap.Builder<String, Model<BuildInvocationFields>> buildInvocationsMap = ImmutableMap.builder();
+        for (String projectPath : buildInvocations.keySet()) {
+            buildInvocationsMap.put(projectPath, DefaultOmniBuildInvocations.from(buildInvocations.get(projectPath)));
+        }
+        return new BuildInvocationsContainer(buildInvocationsMap.build());
     }
 
     /**
@@ -75,7 +80,7 @@ public final class BuildInvocationsContainer {
         ImmutableMultimap<String, Model<ProjectTaskFields>> tasks = buildProjectTasksRecursively(project, ArrayListMultimap.<String, Model<ProjectTaskFields>>create(), enforceAllTasksPublic);
         ImmutableMultimap<String, Model<TaskSelectorsFields>> taskSelectors = buildTaskSelectorsRecursively(project, ArrayListMultimap.<String, Model<TaskSelectorsFields>>create(), enforceAllTasksPublic);
         ImmutableMap<String, Model<BuildInvocationFields>> buildInvocationsMap = buildBuildInvocationsMappingRecursively(tasks, taskSelectors, Maps.<String, Model<BuildInvocationFields>>newHashMap());
-        return from(buildInvocationsMap);
+        return new BuildInvocationsContainer(buildInvocationsMap);
     }
 
     private static ImmutableMap<String, Model<BuildInvocationFields>> buildBuildInvocationsMappingRecursively(Multimap<String, Model<ProjectTaskFields>> projectTasks,

@@ -1,6 +1,7 @@
 package com.gradleware.tooling.toolingmodel.repository;
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
+import com.gradleware.tooling.toolingmodel.OmniBuildInvocationsContainer;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
@@ -61,14 +62,14 @@ public interface ModelRepository {
      */
     OmniEclipseGradleBuild fetchEclipseGradleBuildAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
-//    /**
-//     * Fetches the {@link org.gradle.tooling.model.gradle.BuildInvocations} synchronously and broadcasts them through a {@link com.gradleware.tooling.toolingmodel.repository.BuildInvocationsUpdateEvent}.
-//     *
-//     * @param transientRequestAttributes the transient request attributes
-//     * @param fetchStrategy the fetch strategy
-//     * @return the build invocations, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
-//     */
-//    BuildInvocationsContainer fetchBuildInvocationsAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
+    /**
+     * Fetches the {@link OmniBuildInvocationsContainer} synchronously and broadcasts it through a {@link BuildInvocationsUpdateEvent}.
+     *
+     * @param transientRequestAttributes the transient request attributes
+     * @param fetchStrategy the fetch strategy
+     * @return the build invocations container, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
+     */
+    OmniBuildInvocationsContainer fetchBuildInvocationsAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 //
 //    /**
 //     * Fetches the {@link org.gradle.tooling.model.GradleProject} and {@link org.gradle.tooling.model.gradle.BuildInvocations} synchronously and broadcasts them through a {@link com.gradleware.tooling.toolingmodel.repository.GradleProjectUpdateEvent} and {@link
