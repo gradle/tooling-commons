@@ -255,7 +255,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     gradleBuild.rootProject.projectDirectory?.absolutePath == (higherOrEqual("2.4", distribution) ? directoryProvider.testDirectory.absolutePath : null)
     gradleBuild.rootProject.buildDirectory?.absolutePath == (higherOrEqual("2.0", distribution) ? directoryProvider.file('build').absolutePath : null)
     gradleBuild.rootProject.buildScript.sourceFile?.absolutePath == (higherOrEqual("1.8", distribution) ? directoryProvider.file('build.gradle').absolutePath : null)
-    gradleBuild.rootProject.projectTasks.findAll { !IMPLICIT_TASKS.contains(it) }.size() == 1
+    gradleBuild.rootProject.projectTasks.findAll { !IMPLICIT_TASKS.contains(it.name) }.size() == 1
     gradleBuild.rootProject.parent == null
     gradleBuild.rootProject.children.size() == 2
     gradleBuild.rootProject.children*.name == ['sub1', 'sub2']
