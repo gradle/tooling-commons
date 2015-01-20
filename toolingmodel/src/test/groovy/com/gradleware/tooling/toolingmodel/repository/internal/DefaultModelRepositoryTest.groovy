@@ -108,7 +108,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     directoryProviderErroneousBuildFile.createFile('build.gradle') << 'task myTask {'
   }
 
-  def "fetchBuildEnvironmentAndWait - send event after cache update"(GradleDistribution distribution, Environment environment) {
+  def "fetchBuildEnvironment - send event after cache update"(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -122,12 +122,12 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
       @Subscribe
       public void listen(BuildEnvironmentUpdateEvent event) {
         publishedEvent.set(event)
-        modelInRepository.set(repository.fetchBuildEnvironmentAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
+        modelInRepository.set(repository.fetchBuildEnvironment(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
       }
     })
 
     when:
-    OmniBuildEnvironment buildEnvironment = repository.fetchBuildEnvironmentAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    OmniBuildEnvironment buildEnvironment = repository.fetchBuildEnvironment(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
     buildEnvironment != null
@@ -148,7 +148,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
-  def "fetchGradleBuildStructureAndWait - send event after cache update"(GradleDistribution distribution, Environment environment) {
+  def "fetchGradleBuildStructure - send event after cache update"(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -162,12 +162,12 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
       @Subscribe
       public void listen(GradleBuildStructureUpdateEvent event) {
         publishedEvent.set(event)
-        modelInRepository.set(repository.fetchGradleBuildStructureAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
+        modelInRepository.set(repository.fetchGradleBuildStructure(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
       }
     })
 
     when:
-    OmniGradleBuildStructure gradleBuildStructure = repository.fetchGradleBuildStructureAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    OmniGradleBuildStructure gradleBuildStructure = repository.fetchGradleBuildStructure(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
     gradleBuildStructure != null
@@ -197,7 +197,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
-  def "fetchGradleBuildStructureAndWait - when exception is thrown"(GradleDistribution distribution, Environment environment) {
+  def "fetchGradleBuildStructure - when exception is thrown"(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildStructure.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -214,7 +214,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     })
 
     when:
-    repository.fetchGradleBuildStructureAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    repository.fetchGradleBuildStructure(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
     thrown(GradleConnectionException)
@@ -225,7 +225,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
-  def "fetchGradleBuildAndWait - send event after cache update"(GradleDistribution distribution, Environment environment) {
+  def "fetchGradleBuild - send event after cache update"(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -239,12 +239,12 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
       @Subscribe
       public void listen(GradleBuildUpdateEvent event) {
         publishedEvent.set(event)
-        modelInRepository.set(repository.fetchGradleBuildAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
+        modelInRepository.set(repository.fetchGradleBuild(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
       }
     })
 
     when:
-    OmniGradleBuild gradleBuild = repository.fetchGradleBuildAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    OmniGradleBuild gradleBuild = repository.fetchGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
     gradleBuild != null
@@ -304,7 +304,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
-  def "fetchGradleBuildAndWait - when exception is thrown"(GradleDistribution distribution, Environment environment) {
+  def "fetchGradleBuild - when exception is thrown"(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -321,7 +321,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     })
 
     when:
-    repository.fetchGradleBuildAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    repository.fetchGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
     thrown(GradleConnectionException)
@@ -332,7 +332,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
-  def "fetchEclipseGradleBuildAndWait - send event after cache update"(GradleDistribution distribution, Environment environment) {
+  def "fetchEclipseGradleBuild - send event after cache update"(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -346,12 +346,12 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
       @Subscribe
       public void listen(EclipseGradleBuildUpdateEvent event) {
         publishedEvent.set(event)
-        modelInRepository.set(repository.fetchEclipseGradleBuildAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
+        modelInRepository.set(repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
       }
     })
 
     when:
-    OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuildAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
     eclipseGradleBuild != null
@@ -408,7 +408,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
-  def "fetchEclipseGradleBuildAndWait - when exception is thrown"(GradleDistribution distribution, Environment environment) {
+  def "fetchEclipseGradleBuild - when exception is thrown"(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -425,7 +425,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     })
 
     when:
-    repository.fetchEclipseGradleBuildAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
     thrown(GradleConnectionException)
@@ -436,7 +436,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
-  def "fetchBuildInvocationsAndWait - send event after cache update"(GradleDistribution distribution, Environment environment) {
+  def "fetchBuildInvocations - send event after cache update"(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -450,12 +450,12 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
       @Subscribe
       public void listen(BuildInvocationsUpdateEvent event) {
         publishedEvent.set(event)
-        modelInRepository.set(repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
+        modelInRepository.set(repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
       }
     })
 
     when:
-    OmniBuildInvocationsContainer buildInvocations = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    OmniBuildInvocationsContainer buildInvocations = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
     buildInvocations != null
@@ -500,7 +500,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.12") // todo support older versions than 1.12
   }
 
-  def "fetchBuildInvocationsAndWait - when exception is thrown"(GradleDistribution distribution, Environment environment) {
+  def "fetchBuildInvocations - when exception is thrown"(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -517,7 +517,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     })
 
     when:
-    repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
     thrown(GradleConnectionException)
@@ -600,7 +600,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
 //    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
 //
 //    when:
-//    def buildInvocations = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+//    def buildInvocations = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
 //
 //    then:
 //    buildInvocations != null
@@ -659,7 +659,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     when:
     publishedEvent.set(null)
     repository.register(listener)
-    repository.fetchBuildEnvironmentAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+    repository.fetchBuildEnvironment(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
 
     then:
     publishedEvent.get() != null
@@ -667,7 +667,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     when:
     publishedEvent.set(null)
     repository.unregister(listener)
-    repository.fetchBuildEnvironmentAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+    repository.fetchBuildEnvironment(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
 
     then:
     publishedEvent.get() == null

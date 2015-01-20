@@ -32,24 +32,24 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
     repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
   }
 
-  def "fetchBuildEnvironmentAndWait"() {
+  def "fetchBuildEnvironment"() {
     when:
-    def lookUp = repository.fetchBuildEnvironmentAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
+    def lookUp = repository.fetchBuildEnvironment(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
 
     then:
     lookUp == null
 
     when:
-    def firstLookUp = repository.fetchBuildEnvironmentAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-    def secondLookUp = repository.fetchBuildEnvironmentAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    def firstLookUp = repository.fetchBuildEnvironment(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    def secondLookUp = repository.fetchBuildEnvironment(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
     firstLookUp != null
     firstLookUp.is(secondLookUp)
 
     when:
-    def thirdLookUp = repository.fetchBuildEnvironmentAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
-    def fourthLookUp = repository.fetchBuildEnvironmentAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+    def thirdLookUp = repository.fetchBuildEnvironment(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+    def fourthLookUp = repository.fetchBuildEnvironment(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
 
     then:
     thirdLookUp != null
@@ -59,24 +59,24 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
     thirdLookUp.java.jvmArguments == fourthLookUp.java.jvmArguments
   }
 
-  def "fetchGradleBuildStructureAndWait"() {
+  def "fetchGradleBuildStructure"() {
     when:
-    def lookUp = repository.fetchGradleBuildStructureAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
+    def lookUp = repository.fetchGradleBuildStructure(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
 
     then:
     lookUp == null
 
     when:
-    def firstLookUp = repository.fetchGradleBuildStructureAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-    def secondLookUp = repository.fetchGradleBuildStructureAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    def firstLookUp = repository.fetchGradleBuildStructure(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    def secondLookUp = repository.fetchGradleBuildStructure(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
     firstLookUp != null
     firstLookUp.is(secondLookUp)
 
     when:
-    def thirdLookUp = repository.fetchGradleBuildStructureAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
-    def fourthLookUp = repository.fetchGradleBuildStructureAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+    def thirdLookUp = repository.fetchGradleBuildStructure(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+    def fourthLookUp = repository.fetchGradleBuildStructure(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
 
     then:
     thirdLookUp != null
@@ -85,24 +85,24 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
     thirdLookUp.rootProject.all.size() == fourthLookUp.rootProject.all.size()
   }
 
-  def "fetchGradleBuildAndWait"() {
+  def "fetchGradleBuild"() {
     when:
-    def lookUp = repository.fetchGradleBuildAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
+    def lookUp = repository.fetchGradleBuild(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
 
     then:
     lookUp == null
 
     when:
-    def firstLookUp = repository.fetchGradleBuildAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-    def secondLookUp = repository.fetchGradleBuildAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    def firstLookUp = repository.fetchGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    def secondLookUp = repository.fetchGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
     firstLookUp != null
     firstLookUp.is(secondLookUp)
 
     when:
-    def thirdLookUp = repository.fetchGradleBuildAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
-    def fourthLookUp = repository.fetchGradleBuildAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+    def thirdLookUp = repository.fetchGradleBuild(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+    def fourthLookUp = repository.fetchGradleBuild(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
 
     then:
     thirdLookUp != null
@@ -111,24 +111,24 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
     thirdLookUp.rootProject.all.size() == fourthLookUp.rootProject.all.size()
   }
 
-  def "fetchEclipseGradleBuildAndWait"() {
+  def "fetchEclipseGradleBuild"() {
     when:
-    def lookUp = repository.fetchEclipseGradleBuildAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
+    def lookUp = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
 
     then:
     lookUp == null
 
     when:
-    def firstLookUp = repository.fetchEclipseGradleBuildAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-    def secondLookUp = repository.fetchEclipseGradleBuildAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    def firstLookUp = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    def secondLookUp = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
     firstLookUp != null
     firstLookUp.is(secondLookUp)
 
     when:
-    def thirdLookUp = repository.fetchEclipseGradleBuildAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
-    def fourthLookUp = repository.fetchEclipseGradleBuildAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+    def thirdLookUp = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+    def fourthLookUp = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
 
     then:
     thirdLookUp != null
@@ -137,24 +137,24 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
     thirdLookUp.rootProject.all.size() == fourthLookUp.rootProject.all.size()
   }
 
-//  def "fetchBuildInvocationsAndWait"() {
+//  def "fetchBuildInvocations"() {
 //    when:
-//    def lookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
+//    def lookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
 //
 //    then:
 //    lookUp == null
 //
 //    when:
-//    def firstLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-//    def secondLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//    def firstLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//    def secondLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 //
 //    then:
 //    assert firstLookUp != null
 //    assert firstLookUp.is(secondLookUp)
 //
 //    when:
-//    def thirdLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
-//    def fourthLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+//    def thirdLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+//    def fourthLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
 //
 //    then:
 //    thirdLookUp != null
@@ -176,7 +176,7 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
 //  def "fetchGradleProjectWithBuildInvocationsAndWait_FromCacheOnly_CachePopulated"() {
 //    when:
 //    def gradleProjectLookUp = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-//    def buildInvocationsLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//    def buildInvocationsLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 //
 //    def compositeLookup = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
 //
@@ -191,7 +191,7 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
 //    def compositeLookup = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 //
 //    def gradleProjectLookUp = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-//    def buildInvocationsLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//    def buildInvocationsLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 //
 //    then:
 //    compositeLookup != null
@@ -202,7 +202,7 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
 //  def "fetchGradleProjectWithBuildInvocationsAndWait_LoadIfNotCached_CachePopulated"() {
 //    when:
 //    def gradleProjectLookUp = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-//    def buildInvocationsLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//    def buildInvocationsLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 //
 //    def compositeLookup = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 //
@@ -229,7 +229,7 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
 //    def compositeLookup = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
 //
 //    def gradleProjectLookUp = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-//    def buildInvocationsLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//    def buildInvocationsLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 //
 //    then:
 //    compositeLookup != null
@@ -240,7 +240,7 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
 //  def "fetchGradleProjectWithBuildInvocationsAndWait_ForceReload_CachePopulated"() {
 //    when:
 //    def gradleProjectLookUp = repository.fetchGradleProjectAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-//    def buildInvocationsLookUp = repository.fetchBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+//    def buildInvocationsLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 //
 //    def compositeLookup = repository.fetchGradleProjectWithBuildInvocationsAndWait(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
 //
