@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicReference
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
 class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification {
 
-  private static final List<String> IMPLICIT_TASKS = ['init', 'wrapper', 'help', 'projects', 'tasks', 'properties', 'components', 'dependencies', 'dependencyInsight']
+  private static final List<String> IMPLICIT_TASKS = ['init', 'wrapper', 'help', 'projects', 'tasks', 'properties', 'components', 'dependencies', 'dependencyInsight', 'setupBuild']
 
   @Rule
   TestDirectoryProvider directoryProvider = new TestDirectoryProvider();
@@ -255,7 +255,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     gradleBuild.rootProject.projectDirectory?.absolutePath == (higherOrEqual("2.4", distribution) ? directoryProvider.testDirectory.absolutePath : null)
     gradleBuild.rootProject.buildDirectory?.absolutePath == (higherOrEqual("2.0", distribution) ? directoryProvider.file('build').absolutePath : null)
     gradleBuild.rootProject.buildScript.sourceFile?.absolutePath == (higherOrEqual("1.8", distribution) ? directoryProvider.file('build.gradle').absolutePath : null)
-    gradleBuild.rootProject.projectTasks.size() == getImplicitlyAddedGradleProjectTasksCount(distribution) + 1
+    gradleBuild.rootProject.projectTasks.findAll { !IMPLICIT_TASKS.contains(it) }.size() == 1
     gradleBuild.rootProject.parent == null
     gradleBuild.rootProject.children.size() == 2
     gradleBuild.rootProject.children*.name == ['sub1', 'sub2']
@@ -485,9 +485,9 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
 
     def myTaskSelector = sub2ExplicitTaskSelectors.find { it.name == 'myTask' }
     myTaskSelector.name == 'myTask'
-    myTaskSelector.description == higherOrEqual("2.3", distribution)? 'another task of sub2' : 'sub2:myTask task selector'
+    myTaskSelector.description == higherOrEqual("2.3", distribution) ? 'another task of sub2' : 'sub2:myTask task selector'
     myTaskSelector.isPublic()
-//    myTaskSelector.selectedTaskPaths as List == [':sub2:myTask', ':sub2:subSub1:myTask']
+//    myTaskSelector.selectedTaskPaths as List == [':sub2:myTask', ':sub2:subSub1:myTask'] // todo (etst) enable
 
     def event = publishedEvent.get()
     event != null
@@ -672,29 +672,6 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     then:
     publishedEvent.get() == null
   }
-
-  private static int getImplicitlyAddedGradleProjectTasksCount(GradleDistribution distribution) {
-    // tasks implicitly provided by GradleProject#getTasks(): setupBuild
-    def version = GradleVersion.version(extractVersion(distribution))
-    version.compareTo(GradleVersion.version("1.6")) == 0 ? 1 : 0
-  }
-
-//  private static int getImplicitlyAddedBuildInvocationsTasksCount(GradleDistribution distribution, Environment environment) {
-//    // tasks implicitly provided by BuildInvocations#getTasks(): init, wrapper, help, properties, projects, tasks, dependencies, dependencyInsight, components
-//    def version = GradleVersion.version(extractVersion(distribution))
-//    version.baseVersion.compareTo(GradleVersion.version("2.3")) >= 0 || version.baseVersion.compareTo(GradleVersion.version("2.1")) >= 0 && environment != Environment.ECLIPSE ? 9 : version.baseVersion.compareTo(GradleVersion.version("2.0")) >= 0 && environment != Environment.ECLIPSE ? 8 : 0
-//  }
-//
-//  private static int getImplicitlyAddedBuildInvocationsTaskSelectorsCount(GradleDistribution distribution, Environment environment) {
-//    // tasks implicitly provided by BuildInvocations#getTaskSelectors():
-//    def version = GradleVersion.version(extractVersion(distribution));
-//    version.baseVersion.compareTo(GradleVersion.version("2.3")) >= 0 || version.baseVersion.compareTo(GradleVersion.version("2.1")) >= 0 && environment != Environment.ECLIPSE ? 9 : 0
-//  }
-//  private static int getImplicitlyAddedGradleProjectTaskSelectorsCount(GradleDistribution distribution) {
-//    // tasks implicitly provided by GradleProject#getTasks(): setupBuild
-//    def version = GradleVersion.version(extractVersion(distribution))
-//    version.compareTo(GradleVersion.version("1.6")) == 0 ? 1 : 0
-//  }
 
   private static boolean higherOrEqual(String minVersion, GradleDistribution distribution) {
     def gradleVersion = GradleVersion.version(extractVersion(distribution))
