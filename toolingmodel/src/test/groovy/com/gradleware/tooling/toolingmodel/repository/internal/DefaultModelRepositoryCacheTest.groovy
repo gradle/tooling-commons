@@ -5,6 +5,7 @@ import com.google.common.eventbus.EventBus
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
 import com.gradleware.tooling.toolingclient.GradleDistribution
+import com.gradleware.tooling.toolingmodel.repository.Environment
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
@@ -149,8 +150,8 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
     def secondLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
-    assert firstLookUp != null
-    assert firstLookUp.is(secondLookUp)
+    firstLookUp != null
+    firstLookUp.is(secondLookUp)
 
     when:
     def thirdLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
@@ -161,6 +162,40 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
     !thirdLookUp.is(fourthLookUp)
     thirdLookUp.asMap()[':'].projectTasks.size() == fourthLookUp.asMap()[':'].projectTasks.size()
     thirdLookUp.asMap()[':'].taskSelectors.size() == fourthLookUp.asMap()[':'].taskSelectors.size()
+  }
+
+  def "fetchBuildInvocations - fallback scenarios"() {
+    given:
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, GradleDistribution.forVersion('2.2'), null, ImmutableList.of(), ImmutableList.of())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), Environment.ECLIPSE)
+
+    when:
+    def lookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
+
+    then:
+    lookUp == null
+    repository.fetchGradleBuild(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY) == null
+
+    when:
+    def firstLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    def secondLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+
+    then:
+    firstLookUp != null
+    firstLookUp.is(secondLookUp)
+    repository.fetchGradleBuild(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY) != null
+
+    when:
+    def thirdLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+    def fourthLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+
+    then:
+    thirdLookUp != null
+    !thirdLookUp.is(fourthLookUp)
+    thirdLookUp.asMap()[':'].projectTasks.size() == fourthLookUp.asMap()[':'].projectTasks.size()
+    thirdLookUp.asMap()[':'].taskSelectors.size() == fourthLookUp.asMap()[':'].taskSelectors.size()
+    repository.fetchGradleBuild(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY) != null
   }
 
 //  def "fetchGradleProjectWithBuildInvocationsAndWait_FromCacheOnly_CacheNotPopulated"() {
