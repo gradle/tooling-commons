@@ -218,6 +218,11 @@ public final class DefaultModelRepository implements ModelRepository {
         Preconditions.checkNotNull(transientRequestAttributes);
         Preconditions.checkNotNull(fetchStrategy);
 
+        // natively supported by all Gradle versions >= 1.12, if BuildActions supported in the running environment
+        if (!supportsBuildInvocations(transientRequestAttributes) || !supportsBuildActions(transientRequestAttributes)) {
+            return deriveBuildInvocationsFromOtherModel(transientRequestAttributes, fetchStrategy);
+        }
+
         BuildActionRequest<Map<String, BuildInvocations>> request = createBuildActionRequestForProjectModel(BuildInvocations.class, transientRequestAttributes);
         Consumer<OmniBuildInvocationsContainer> successHandler = new Consumer<OmniBuildInvocationsContainer>() {
             @Override
@@ -234,6 +239,34 @@ public final class DefaultModelRepository implements ModelRepository {
 
         };
         return executeRequest(request, successHandler, fetchStrategy, OmniBuildInvocationsContainer.class, converter);
+    }
+
+    private OmniBuildInvocationsContainer deriveBuildInvocationsFromOtherModel(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
+        // for fetch strategy FORCE_RELOAD, we re-fetch the GradleBuild model and derive the build invocations from it
+        if (fetchStrategy == FetchStrategy.FORCE_RELOAD) {
+            OmniGradleBuild gradleBuild = fetchGradleBuild(transientRequestAttributes, fetchStrategy);
+            return DefaultOmniBuildInvocationsContainer.from(gradleBuild.getRootProject());
+        }
+
+        // for the fetch strategies other than FORCE_RELOAD, we first check if there is a model already available from which we can derive the build invocations
+        OmniGradleBuild gradleBuild = fetchGradleBuild(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY);
+        if (gradleBuild != null) {
+            return DefaultOmniBuildInvocationsContainer.from(gradleBuild.getRootProject());
+        } else {
+            OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY);
+            if (eclipseGradleBuild != null) {
+                return DefaultOmniBuildInvocationsContainer.from(eclipseGradleBuild.getRootProject());
+            }
+        }
+
+        // if no model is already available from which we can derive the build invocations, we give up for fetch strategy FROM_CACHE_ONLY
+        if (fetchStrategy == FetchStrategy.FROM_CACHE_ONLY) {
+            return null;
+        }
+
+        // for fetch strategy LOAD_IF_NOT_CACHED, fetch the GradleBuild model and derive the build invocations from it
+        gradleBuild = fetchGradleBuild(transientRequestAttributes, fetchStrategy);
+        return DefaultOmniBuildInvocationsContainer.from(gradleBuild.getRootProject());
     }
 
 //    @SuppressWarnings("ConstantConditions")
@@ -304,11 +337,32 @@ public final class DefaultModelRepository implements ModelRepository {
 //
 //    }
 
+    private boolean supportsBuildInvocations(TransientRequestAttributes transientRequestAttributes) {
+        return targetGradleVersionIsEqualOrHigherThan("1.12", transientRequestAttributes);
+    }
+
+    private boolean supportsBuildActions(TransientRequestAttributes transientRequestAttributes) {
+        if (this.environment == Environment.ECLIPSE) {
+            // in an Eclipse/OSGi environment, the Tooling API supports BuildActions only in Gradle versions >= 2.3
+            return targetGradleVersionIsEqualOrHigherThan("2.3", transientRequestAttributes);
+
+        } else {
+            // in all other environments, BuildActions are supported as of Gradle version >= 1.8
+            return targetGradleVersionIsEqualOrHigherThan("1.8", transientRequestAttributes);
+        }
+    }
+
     private boolean targetGradleVersionIsBetween(String minVersion, String maxVersion, TransientRequestAttributes transientRequestAttributes) {
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
         GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
         return gradleVersion.getBaseVersion().compareTo(GradleVersion.version(minVersion)) >= 0 &&
                 gradleVersion.getBaseVersion().compareTo(GradleVersion.version(maxVersion)) <= 0;
+    }
+
+    private boolean targetGradleVersionIsEqualOrHigherThan(String refVersion, TransientRequestAttributes transientRequestAttributes) {
+        OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
+        GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
+        return gradleVersion.getBaseVersion().compareTo(GradleVersion.version(refVersion)) >= 0;
     }
 
     private <T, U> U executeRequest(final Request<T> request, final Consumer<U> newCacheEntryHandler, FetchStrategy fetchStrategy, Class<U> cacheKey, final Converter<T, U> resultConverter) {

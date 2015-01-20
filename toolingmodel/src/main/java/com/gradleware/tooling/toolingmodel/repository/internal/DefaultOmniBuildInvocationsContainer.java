@@ -1,10 +1,12 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedMap;
 import com.gradleware.tooling.toolingmodel.BuildInvocationFields;
 import com.gradleware.tooling.toolingmodel.OmniBuildInvocations;
 import com.gradleware.tooling.toolingmodel.OmniBuildInvocationsContainer;
+import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.generic.Model;
 import org.gradle.tooling.model.gradle.BuildInvocations;
 
@@ -45,6 +47,21 @@ public final class DefaultOmniBuildInvocationsContainer implements OmniBuildInvo
             result.put(projectPath, DefaultOmniBuildInvocations.from(buildInvocations));
         }
         return new DefaultOmniBuildInvocationsContainer(result.build());
+    }
+
+    public static OmniBuildInvocationsContainer from(OmniGradleProject gradleProject) {
+        ImmutableSortedMap.Builder<String, OmniBuildInvocations> result = ImmutableSortedMap.orderedBy(PathComparator.INSTANCE);
+        collectBuildInvocations(gradleProject, result);
+        return new DefaultOmniBuildInvocationsContainer(result.build());
+    }
+
+    private static void collectBuildInvocations(OmniGradleProject project, ImmutableSortedMap.Builder<String, OmniBuildInvocations> result) {
+        result.put(project.getPath(), DefaultOmniBuildInvocations.from(project.getProjectTasks(), project.getTaskSelectors()));
+
+        ImmutableList<OmniGradleProject> children = project.getChildren();
+        for (OmniGradleProject child : children) {
+            collectBuildInvocations(child, result);
+        }
     }
 
 }
