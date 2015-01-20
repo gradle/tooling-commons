@@ -137,31 +137,31 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
     thirdLookUp.rootProject.all.size() == fourthLookUp.rootProject.all.size()
   }
 
-//  def "fetchBuildInvocations"() {
-//    when:
-//    def lookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
-//
-//    then:
-//    lookUp == null
-//
-//    when:
-//    def firstLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-//    def secondLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-//
-//    then:
-//    assert firstLookUp != null
-//    assert firstLookUp.is(secondLookUp)
-//
-//    when:
-//    def thirdLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
-//    def fourthLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
-//
-//    then:
-//    thirdLookUp != null
-//    !thirdLookUp.is(fourthLookUp)
-//    thirdLookUp.asMap()[':'].tasks.size() == fourthLookUp.asMap()[':'].tasks.size()
-//    thirdLookUp.asMap()[':'].taskSelectors.size() == fourthLookUp.asMap()[':'].taskSelectors.size()
-//  }
+  def "fetchBuildInvocations"() {
+    when:
+    def lookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
+
+    then:
+    lookUp == null
+
+    when:
+    def firstLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    def secondLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+
+    then:
+    assert firstLookUp != null
+    assert firstLookUp.is(secondLookUp)
+
+    when:
+    def thirdLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+    def fourthLookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+
+    then:
+    thirdLookUp != null
+    !thirdLookUp.is(fourthLookUp)
+    thirdLookUp.asMap()[':'].projectTasks.size() == fourthLookUp.asMap()[':'].projectTasks.size()
+    thirdLookUp.asMap()[':'].taskSelectors.size() == fourthLookUp.asMap()[':'].taskSelectors.size()
+  }
 
 //  def "fetchGradleProjectWithBuildInvocationsAndWait_FromCacheOnly_CacheNotPopulated"() {
 //    when:
