@@ -23,6 +23,13 @@ public interface OmniTaskSelector {
     String getDescription();
 
     /**
+     * Returns the path of the project and all its subprojects in which the task selector operates.
+     *
+     * @return the path of the project in which this task selector operates
+     */
+    String getProjectPath();
+
+    /**
      * Returns whether this task selector is public or not. Public task selectors are those that select at least one public project task.
      *
      * @return {@code true} if this task selector is public, {@code false} otherwise

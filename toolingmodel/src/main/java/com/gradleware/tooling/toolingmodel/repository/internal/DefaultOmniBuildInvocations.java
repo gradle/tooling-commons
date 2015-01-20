@@ -65,10 +65,10 @@ public final class DefaultOmniBuildInvocations implements OmniBuildInvocations {
         }).toList();
     }
 
-    public static DefaultModel<BuildInvocationFields> from(BuildInvocations buildInvocations) {
+    public static DefaultModel<BuildInvocationFields> from(BuildInvocations buildInvocations, String projectPath) {
         DefaultModel<BuildInvocationFields> model = new DefaultModel<BuildInvocationFields>();
         model.put(BuildInvocationFields.PROJECT_TASKS, createProjectTasksModel(buildInvocations.getTasks()));
-        model.put(BuildInvocationFields.TASK_SELECTORS, createTaskSelectorsModel(buildInvocations.getTaskSelectors()));
+        model.put(BuildInvocationFields.TASK_SELECTORS, createTaskSelectorsModel(buildInvocations.getTaskSelectors(), projectPath));
         return model;
     }
 
@@ -81,11 +81,11 @@ public final class DefaultOmniBuildInvocations implements OmniBuildInvocations {
         }).toList();
     }
 
-    private static ImmutableList<Model<TaskSelectorsFields>> createTaskSelectorsModel(DomainObjectSet<? extends TaskSelector> taskSelectors) {
+    private static ImmutableList<Model<TaskSelectorsFields>> createTaskSelectorsModel(DomainObjectSet<? extends TaskSelector> taskSelectors, final String projectPath) {
         return FluentIterable.from(taskSelectors).transform(new Function<TaskSelector, Model<TaskSelectorsFields>>() {
             @Override
             public Model<TaskSelectorsFields> apply(TaskSelector input) {
-                return DefaultOmniTaskSelector.from(input);
+                return DefaultOmniTaskSelector.from(input, projectPath);
             }
         }).toList();
     }

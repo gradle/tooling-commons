@@ -28,6 +28,12 @@ public final class TaskSelectorsFields {
             new DefaultModelField<String, TaskSelectorsFields>(TypeToken.of(String.class), TypeToken.of(TaskSelectorsFields.class));
 
     /**
+     * The project path of this task selector.
+     */
+    public static final ModelField<String, TaskSelectorsFields> PROJECT_PATH =
+            new DefaultModelField<String, TaskSelectorsFields>(TypeToken.of(String.class), TypeToken.of(TaskSelectorsFields.class));
+
+    /**
      * Flag to signal whether this task selector is public or not. Public task selectors are those that select at least one public project task.
      */
     public static final ModelField<Boolean, TaskSelectorsFields> IS_PUBLIC =

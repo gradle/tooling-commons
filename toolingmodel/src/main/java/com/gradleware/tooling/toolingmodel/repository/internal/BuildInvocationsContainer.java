@@ -63,7 +63,7 @@ public final class BuildInvocationsContainer {
     public static BuildInvocationsContainer from(Map<String, BuildInvocations> buildInvocations) {
         ImmutableSortedMap.Builder<String, Model<BuildInvocationFields>> buildInvocationsMap = ImmutableSortedMap.orderedBy(PathComparator.INSTANCE);
         for (String projectPath : buildInvocations.keySet()) {
-            buildInvocationsMap.put(projectPath, DefaultOmniBuildInvocations.from(buildInvocations.get(projectPath)));
+            buildInvocationsMap.put(projectPath, DefaultOmniBuildInvocations.from(buildInvocations.get(projectPath), projectPath));
         }
         return new BuildInvocationsContainer(buildInvocationsMap.build());
     }
@@ -125,6 +125,7 @@ public final class BuildInvocationsContainer {
             DefaultModel<TaskSelectorsFields> taskSelector = DefaultOmniTaskSelector.from(
                     selectorName,
                     description != NULL_STRING ? description : null,
+                    project.getPath(),
                     publicTasks.contains(selectorName),
                     fqnTaskNames);
 

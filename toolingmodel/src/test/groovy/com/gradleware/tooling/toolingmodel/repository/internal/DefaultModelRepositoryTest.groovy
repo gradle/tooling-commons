@@ -290,6 +290,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     def myTaskSelector = projectSub2.taskSelectors.find { it.name == 'myTask' }
     myTaskSelector.name == 'myTask'
     myTaskSelector.description == 'another task of sub2'
+    myTaskSelector.projectPath == ':sub2'
     myTaskSelector.isPublic()
     myTaskSelector.selectedTaskPaths as List == [':sub2:myTask', ':sub2:subSub1:myTask']
 
@@ -394,6 +395,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     def myTaskSelector = projectSub2.taskSelectors.find { it.name == 'myTask' }
     myTaskSelector.name == 'myTask'
     myTaskSelector.description == 'another task of sub2'
+    myTaskSelector.projectPath == ':sub2'
     myTaskSelector.isPublic()
     myTaskSelector.selectedTaskPaths as List == [':sub2:myTask', ':sub2:subSub1:myTask']
 
@@ -486,6 +488,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     def myTaskSelector = sub2ExplicitTaskSelectors.find { it.name == 'myTask' }
     myTaskSelector.name == 'myTask'
     myTaskSelector.description == higherOrEqual("2.3", distribution) ? 'another task of sub2' : 'sub2:myTask task selector'
+    myTaskSelector.projectPath == ':sub2'
     myTaskSelector.isPublic()
     myTaskSelector.selectedTaskPaths as List == [] // empty for 'authentic' task selectors received from Gradle
 

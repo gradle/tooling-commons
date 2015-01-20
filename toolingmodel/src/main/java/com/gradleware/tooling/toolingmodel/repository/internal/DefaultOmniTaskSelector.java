@@ -17,6 +17,7 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
 
     private String name;
     private String description;
+    private String projectPath;
     private boolean isPublic;
     private ImmutableSortedSet<String> selectedTaskPaths;
 
@@ -36,6 +37,15 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public String getProjectPath() {
+        return this.projectPath;
+    }
+
+    public void setProjectPath(String projectPath) {
+        this.projectPath = projectPath;
     }
 
     @Override
@@ -60,24 +70,27 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
         DefaultOmniTaskSelector taskSelector = new DefaultOmniTaskSelector();
         taskSelector.setName(task.get(TaskSelectorsFields.NAME));
         taskSelector.setDescription(task.get(TaskSelectorsFields.DESCRIPTION));
+        taskSelector.setProjectPath(task.get(TaskSelectorsFields.PROJECT_PATH));
         taskSelector.setPublic(task.get(TaskSelectorsFields.IS_PUBLIC));
         taskSelector.setSelectedTaskPaths(task.get(TaskSelectorsFields.SELECTED_TASK_PATHS));
         return taskSelector;
     }
 
-    public static DefaultModel<TaskSelectorsFields> from(TaskSelector taskSelector) {
+    public static DefaultModel<TaskSelectorsFields> from(TaskSelector taskSelector, String projectPath) {
         DefaultModel<TaskSelectorsFields> gradleTaskSelector = new DefaultModel<TaskSelectorsFields>();
         gradleTaskSelector.put(TaskSelectorsFields.NAME, taskSelector.getName());
         gradleTaskSelector.put(TaskSelectorsFields.DESCRIPTION, taskSelector.getDescription());
+        gradleTaskSelector.put(TaskSelectorsFields.PROJECT_PATH, projectPath);
         setIsPublic(gradleTaskSelector, TaskSelectorsFields.IS_PUBLIC, taskSelector);
         gradleTaskSelector.put(TaskSelectorsFields.SELECTED_TASK_PATHS, ImmutableSortedSet.<String>of());
         return gradleTaskSelector;
     }
 
-    public static DefaultModel<TaskSelectorsFields> from(String name, String description, boolean isPublic, SortedSet<String> selectedTaskPaths) {
+    public static DefaultModel<TaskSelectorsFields> from(String name, String description, String projectPath, boolean isPublic, SortedSet<String> selectedTaskPaths) {
         DefaultModel<TaskSelectorsFields> taskSelector = new DefaultModel<TaskSelectorsFields>();
         taskSelector.put(TaskSelectorsFields.NAME, name);
         taskSelector.put(TaskSelectorsFields.DESCRIPTION, description);
+        taskSelector.put(TaskSelectorsFields.PROJECT_PATH, projectPath);
         taskSelector.put(TaskSelectorsFields.IS_PUBLIC, isPublic);
         taskSelector.put(TaskSelectorsFields.SELECTED_TASK_PATHS, selectedTaskPaths);
         return taskSelector;
