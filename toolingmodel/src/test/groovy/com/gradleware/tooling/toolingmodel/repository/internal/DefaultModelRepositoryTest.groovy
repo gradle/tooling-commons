@@ -487,7 +487,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     myTaskSelector.name == 'myTask'
     myTaskSelector.description == higherOrEqual("2.3", distribution) ? 'another task of sub2' : 'sub2:myTask task selector'
     myTaskSelector.isPublic()
-//    myTaskSelector.selectedTaskPaths as List == [':sub2:myTask', ':sub2:subSub1:myTask'] // todo (etst) enable
+    myTaskSelector.selectedTaskPaths as List == [] // empty for 'authentic' task selectors received from Gradle
 
     def event = publishedEvent.get()
     event != null

@@ -70,7 +70,7 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
         gradleTaskSelector.put(TaskSelectorsFields.NAME, taskSelector.getName());
         gradleTaskSelector.put(TaskSelectorsFields.DESCRIPTION, taskSelector.getDescription());
         setIsPublic(gradleTaskSelector, TaskSelectorsFields.IS_PUBLIC, taskSelector);
-        gradleTaskSelector.put(TaskSelectorsFields.SELECTED_TASK_PATHS, ImmutableSortedSet.<String>of()); // todo (etst) should not be empty set
+        gradleTaskSelector.put(TaskSelectorsFields.SELECTED_TASK_PATHS, ImmutableSortedSet.<String>of());
         return gradleTaskSelector;
     }
 
