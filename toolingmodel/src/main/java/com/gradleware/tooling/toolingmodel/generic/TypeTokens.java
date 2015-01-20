@@ -13,14 +13,14 @@ import java.util.SortedSet;
  */
 public final class TypeTokens {
 
-    public static <T> TypeToken<Model<T>> domainObjectToken(Class<T> fieldAggregatorType) {
+    public static <T> TypeToken<Model<T>> modelToken(Class<T> fieldAggregatorType) {
         return new TypeToken<Model<T>>() {
             private static final long serialVersionUID = 1L;
         }.where(new TypeParameter<T>() {
         }, TypeToken.of(fieldAggregatorType));
     }
 
-    public static <T> TypeToken<List<Model<T>>> domainObjectListToken(Class<T> fieldAggregatorType) {
+    public static <T> TypeToken<List<Model<T>>> modelListToken(Class<T> fieldAggregatorType) {
         return new TypeToken<List<Model<T>>>() {
             private static final long serialVersionUID = 1L;
         }.where(new TypeParameter<T>() {

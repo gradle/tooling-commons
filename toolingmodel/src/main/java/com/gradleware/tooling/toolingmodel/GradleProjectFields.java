@@ -52,19 +52,19 @@ public final class GradleProjectFields {
      * The build script of this project.
      */
     public static final ModelField<Model<GradleScriptFields>, GradleProjectFields> BUILD_SCRIPT =
-            new DefaultModelField<Model<GradleScriptFields>, GradleProjectFields>(TypeTokens.domainObjectToken(GradleScriptFields.class), TypeToken.of(GradleProjectFields.class), Suppliers.<Model<GradleScriptFields>>ofInstance(new EmptyModel<GradleScriptFields>()));
+            new DefaultModelField<Model<GradleScriptFields>, GradleProjectFields>(TypeTokens.modelToken(GradleScriptFields.class), TypeToken.of(GradleProjectFields.class), Suppliers.<Model<GradleScriptFields>>ofInstance(new EmptyModel<GradleScriptFields>()));
 
     /**
      * The tasks of this project.
      */
     public static final ModelField<List<Model<ProjectTaskFields>>, GradleProjectFields> PROJECT_TASKS =
-            new DefaultModelField<List<Model<ProjectTaskFields>>, GradleProjectFields>(TypeTokens.domainObjectListToken(ProjectTaskFields.class), TypeToken.of(GradleProjectFields.class));
+            new DefaultModelField<List<Model<ProjectTaskFields>>, GradleProjectFields>(TypeTokens.modelListToken(ProjectTaskFields.class), TypeToken.of(GradleProjectFields.class));
 
     /**
      * The task selectors of this project.
      */
     public static final ModelField<List<Model<TaskSelectorsFields>>, GradleProjectFields> TASK_SELECTORS =
-            new DefaultModelField<List<Model<TaskSelectorsFields>>, GradleProjectFields>(TypeTokens.domainObjectListToken(TaskSelectorsFields.class), TypeToken.of(GradleProjectFields.class));
+            new DefaultModelField<List<Model<TaskSelectorsFields>>, GradleProjectFields>(TypeTokens.modelListToken(TaskSelectorsFields.class), TypeToken.of(GradleProjectFields.class));
 
     private GradleProjectFields() {
     }

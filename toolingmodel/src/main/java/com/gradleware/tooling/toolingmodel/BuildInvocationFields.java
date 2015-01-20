@@ -19,13 +19,13 @@ public final class BuildInvocationFields {
      * The project tasks.
      */
     public static final ModelField<List<Model<ProjectTaskFields>>, BuildInvocationFields> PROJECT_TASKS =
-            new DefaultModelField<List<Model<ProjectTaskFields>>, BuildInvocationFields>(TypeTokens.domainObjectListToken(ProjectTaskFields.class), TypeToken.of(BuildInvocationFields.class));
+            new DefaultModelField<List<Model<ProjectTaskFields>>, BuildInvocationFields>(TypeTokens.modelListToken(ProjectTaskFields.class), TypeToken.of(BuildInvocationFields.class));
 
     /**
      * The task selectors.
      */
     public static final ModelField<List<Model<TaskSelectorsFields>>, BuildInvocationFields> TASK_SELECTORS =
-            new DefaultModelField<List<Model<TaskSelectorsFields>>, BuildInvocationFields>(TypeTokens.domainObjectListToken(TaskSelectorsFields.class), TypeToken.of(BuildInvocationFields.class));
+            new DefaultModelField<List<Model<TaskSelectorsFields>>, BuildInvocationFields>(TypeTokens.modelListToken(TaskSelectorsFields.class), TypeToken.of(BuildInvocationFields.class));
 
     private BuildInvocationFields() {
     }
