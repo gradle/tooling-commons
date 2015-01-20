@@ -5,7 +5,7 @@ import com.gradleware.tooling.toolingmodel.ProjectTaskFields;
 import com.gradleware.tooling.toolingmodel.generic.DefaultModel;
 import com.gradleware.tooling.toolingmodel.generic.Model;
 import com.gradleware.tooling.toolingmodel.generic.ModelField;
-import org.gradle.tooling.model.GradleTask;
+import org.gradle.tooling.model.Task;
 
 /**
  * Default implementation of the {@link OmniProjectTask} interface.
@@ -62,7 +62,7 @@ public final class DefaultOmniProjectTask implements OmniProjectTask {
         return projectTask;
     }
 
-    public static DefaultModel<ProjectTaskFields> from(GradleTask task, boolean enforceAllTasksPublic) {
+    public static DefaultModel<ProjectTaskFields> from(Task task, boolean enforceAllTasksPublic) {
         DefaultModel<ProjectTaskFields> projectTask = new DefaultModel<ProjectTaskFields>();
         projectTask.put(ProjectTaskFields.NAME, task.getName());
         projectTask.put(ProjectTaskFields.DESCRIPTION, task.getDescription());
@@ -81,7 +81,7 @@ public final class DefaultOmniProjectTask implements OmniProjectTask {
      * @param task the task model
      * @param enforceAllTasksPublic flag to signal whether all tasks should be treated as public regardless of what the model says
      */
-    private static void setIsPublic(DefaultModel<ProjectTaskFields> projectTask, ModelField<Boolean, ProjectTaskFields> isPublicField, GradleTask task, boolean enforceAllTasksPublic) {
+    private static void setIsPublic(DefaultModel<ProjectTaskFields> projectTask, ModelField<Boolean, ProjectTaskFields> isPublicField, Task task, boolean enforceAllTasksPublic) {
         try {
             boolean isPublic = task.isPublic();
             projectTask.put(isPublicField, enforceAllTasksPublic || isPublic);
