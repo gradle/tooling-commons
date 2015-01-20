@@ -214,13 +214,40 @@ public final class DefaultModelRepository implements ModelRepository {
      * native support requires BuildActions which are available in standalone environments for Gradle versions >= 1.8 and in Eclipse environments for Gradle versions >= 2.3
      */
     @Override
-    public OmniBuildInvocationsContainer fetchBuildInvocations(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
+    public OmniBuildInvocationsContainer fetchBuildInvocations(final TransientRequestAttributes transientRequestAttributes, final FetchStrategy fetchStrategy) {
         Preconditions.checkNotNull(transientRequestAttributes);
         Preconditions.checkNotNull(fetchStrategy);
 
         // natively supported by all Gradle versions >= 1.12, if BuildActions supported in the running environment
         if (!supportsBuildInvocations(transientRequestAttributes) || !supportsBuildActions(transientRequestAttributes)) {
-            return deriveBuildInvocationsFromOtherModel(transientRequestAttributes, fetchStrategy);
+            // if model is only accessed from the cache, we can return immediately
+            if (FetchStrategy.FROM_CACHE_ONLY == fetchStrategy) {
+                Object result = this.cache.getIfPresent(OmniBuildInvocationsContainer.class);
+                return OmniBuildInvocationsContainer.class.cast(result);
+            }
+
+            // if model must be reloaded, we can invalidate the cache entry and then proceed as for FetchStrategy.LOAD_IF_NOT_CACHED
+            if (FetchStrategy.FORCE_RELOAD == fetchStrategy) {
+                this.cache.invalidate(OmniBuildInvocationsContainer.class);
+            }
+
+            // load the values from the cache iff not already cached
+            final AtomicBoolean modelLoaded = new AtomicBoolean(false);
+            OmniBuildInvocationsContainer value = getFromCache(OmniBuildInvocationsContainer.class, new Callable<OmniBuildInvocationsContainer>() {
+                @Override
+                public OmniBuildInvocationsContainer call() {
+                    OmniBuildInvocationsContainer model = deriveBuildInvocationsFromOtherModel(transientRequestAttributes, fetchStrategy);
+                    modelLoaded.set(true);
+                    return model;
+                }
+            });
+
+            // if the model was not in the cache before, notify the callback about the new cache entry
+            if (modelLoaded.get()) {
+                DefaultModelRepository.this.eventBus.post(new BuildInvocationsUpdateEvent(value));
+            }
+
+            return value;
         }
 
         BuildActionRequest<Map<String, BuildInvocations>> request = createBuildActionRequestForProjectModel(BuildInvocations.class, transientRequestAttributes);
@@ -257,11 +284,6 @@ public final class DefaultModelRepository implements ModelRepository {
             if (eclipseGradleBuild != null) {
                 return DefaultOmniBuildInvocationsContainer.from(eclipseGradleBuild.getRootProject());
             }
-        }
-
-        // if no model is already available from which we can derive the build invocations, we give up for fetch strategy FROM_CACHE_ONLY
-        if (fetchStrategy == FetchStrategy.FROM_CACHE_ONLY) {
-            return null;
         }
 
         // for fetch strategy LOAD_IF_NOT_CACHED, fetch the GradleBuild model and derive the build invocations from it
