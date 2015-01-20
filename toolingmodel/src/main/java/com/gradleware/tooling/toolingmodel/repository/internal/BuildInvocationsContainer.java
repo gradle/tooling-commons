@@ -39,7 +39,7 @@ public final class BuildInvocationsContainer {
     @SuppressWarnings("RedundantStringConstructorCall")
     private static final String NULL_STRING = new String(); // ensure unique instance to use it as a null-string placeholder
 
-    private final Map<String, Model<BuildInvocationFields>> buildInvocationsPerProject;
+    private final ImmutableMap<String, Model<BuildInvocationFields>> buildInvocationsPerProject;
 
     private BuildInvocationsContainer(Map<String, Model<BuildInvocationFields>> buildInvocationsPerProject) {
         this.buildInvocationsPerProject = ImmutableMap.copyOf(buildInvocationsPerProject);
