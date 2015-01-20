@@ -180,8 +180,8 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
         }).toList();
     }
 
-    private static ImmutableList<OmniTaskSelector> toTaskSelectors(List<Model<TaskSelectorsFields>> projectTasks) {
-        return FluentIterable.from(projectTasks).transform(new Function<Model<TaskSelectorsFields>, OmniTaskSelector>() {
+    private static ImmutableList<OmniTaskSelector> toTaskSelectors(List<Model<TaskSelectorsFields>> taskSelectors) {
+        return FluentIterable.from(taskSelectors).transform(new Function<Model<TaskSelectorsFields>, OmniTaskSelector>() {
             @Override
             public DefaultOmniTaskSelector apply(Model<TaskSelectorsFields> input) {
                 return DefaultOmniTaskSelector.from(input);
