@@ -90,4 +90,11 @@ public final class DefaultOmniBuildInvocations implements OmniBuildInvocations {
         }).toList();
     }
 
+    public static DefaultModel<BuildInvocationFields> from(List<Model<ProjectTaskFields>> projectTasks, ImmutableList<Model<TaskSelectorsFields>> selectorTasks) {
+        DefaultModel<BuildInvocationFields> buildInvocations = new DefaultModel<BuildInvocationFields>();
+        buildInvocations.put(BuildInvocationFields.PROJECT_TASKS, projectTasks);
+        buildInvocations.put(BuildInvocationFields.TASK_SELECTORS, selectorTasks);
+        return buildInvocations;
+    }
+
 }

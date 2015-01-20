@@ -92,10 +92,7 @@ public final class BuildInvocationsContainer {
         for (String projectPath : projectTasks.keySet()) {
             ImmutableList<Model<ProjectTaskFields>> projectTasksOfProject = ImmutableSortedSet.orderedBy(TaskComparator.INSTANCE).addAll(projectTasks.get(projectPath)).build().asList();
             ImmutableList<Model<TaskSelectorsFields>> taskSelectorsOfProject = ImmutableSortedSet.orderedBy(TaskSelectorComparator.INSTANCE).addAll(taskSelectors.get(projectPath)).build().asList();
-            DefaultModel<BuildInvocationFields> buildInvocations = new DefaultModel<BuildInvocationFields>();
-            buildInvocations.put(BuildInvocationFields.PROJECT_TASKS, projectTasksOfProject);
-            buildInvocations.put(BuildInvocationFields.TASK_SELECTORS, taskSelectorsOfProject);
-            mapping.put(projectPath, buildInvocations);
+            mapping.put(projectPath, DefaultOmniBuildInvocations.from(projectTasksOfProject, taskSelectorsOfProject));
         }
 
         return ImmutableMap.copyOf(mapping);
