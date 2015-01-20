@@ -1,7 +1,7 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedMap;
 import com.gradleware.tooling.toolingmodel.BuildInvocationFields;
 import com.gradleware.tooling.toolingmodel.OmniBuildInvocations;
 import com.gradleware.tooling.toolingmodel.OmniBuildInvocationsContainer;
@@ -9,16 +9,17 @@ import com.gradleware.tooling.toolingmodel.generic.Model;
 import org.gradle.tooling.model.gradle.BuildInvocations;
 
 import java.util.Map;
+import java.util.SortedMap;
 
 /**
  * Default implementation of the {@link OmniBuildInvocationsContainer} interface.
  */
 public final class DefaultOmniBuildInvocationsContainer implements OmniBuildInvocationsContainer {
 
-    private final ImmutableMap<String, OmniBuildInvocations> buildInvocationsPerProject;
+    private final ImmutableSortedMap<String, OmniBuildInvocations> buildInvocationsPerProject;
 
-    private DefaultOmniBuildInvocationsContainer(Map<String, OmniBuildInvocations> buildInvocationsPerProject) {
-        this.buildInvocationsPerProject = ImmutableMap.copyOf(buildInvocationsPerProject);
+    private DefaultOmniBuildInvocationsContainer(SortedMap<String, OmniBuildInvocations> buildInvocationsPerProject) {
+        this.buildInvocationsPerProject = ImmutableSortedMap.copyOfSorted(buildInvocationsPerProject);
     }
 
     @Override
@@ -27,7 +28,7 @@ public final class DefaultOmniBuildInvocationsContainer implements OmniBuildInvo
     }
 
     @Override
-    public ImmutableMap<String, OmniBuildInvocations> asMap() {
+    public ImmutableSortedMap<String, OmniBuildInvocations> asMap() {
         return this.buildInvocationsPerProject;
     }
 
@@ -37,7 +38,7 @@ public final class DefaultOmniBuildInvocationsContainer implements OmniBuildInvo
     }
 
     private static OmniBuildInvocationsContainer convert(BuildInvocationsContainer buildInvocationsContainer) {
-        ImmutableMap.Builder<String, OmniBuildInvocations> result = ImmutableMap.builder();
+        ImmutableSortedMap.Builder<String, OmniBuildInvocations> result = ImmutableSortedMap.orderedBy(PathComparator.INSTANCE);
         Map<String, Model<BuildInvocationFields>> buildInvocationsPerProject = buildInvocationsContainer.asMap();
         for (String projectPath : buildInvocationsPerProject.keySet()) {
             Model<BuildInvocationFields> buildInvocations = buildInvocationsPerProject.get(projectPath);

@@ -3,10 +3,9 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
@@ -40,10 +39,10 @@ public final class BuildInvocationsContainer {
     @SuppressWarnings("RedundantStringConstructorCall")
     private static final String NULL_STRING = new String(); // ensure unique instance to use it as a null-string placeholder
 
-    private final ImmutableMap<String, Model<BuildInvocationFields>> buildInvocationsPerProject;
+    private final ImmutableSortedMap<String, Model<BuildInvocationFields>> buildInvocationsPerProject;
 
-    private BuildInvocationsContainer(Map<String, Model<BuildInvocationFields>> buildInvocationsPerProject) {
-        this.buildInvocationsPerProject = ImmutableMap.copyOf(buildInvocationsPerProject);
+    private BuildInvocationsContainer(SortedMap<String, Model<BuildInvocationFields>> buildInvocationsPerProject) {
+        this.buildInvocationsPerProject = ImmutableSortedMap.copyOfSorted(buildInvocationsPerProject);
     }
 
     /**
@@ -51,7 +50,7 @@ public final class BuildInvocationsContainer {
      *
      * @return the mapping of projects to build invocations
      */
-    public Map<String, Model<BuildInvocationFields>> asMap() {
+    public ImmutableSortedMap<String, Model<BuildInvocationFields>> asMap() {
         return this.buildInvocationsPerProject;
     }
 
@@ -62,7 +61,7 @@ public final class BuildInvocationsContainer {
      * @return the build invocations container
      */
     public static BuildInvocationsContainer from(Map<String, BuildInvocations> buildInvocations) {
-        ImmutableMap.Builder<String, Model<BuildInvocationFields>> buildInvocationsMap = ImmutableMap.builder();
+        ImmutableSortedMap.Builder<String, Model<BuildInvocationFields>> buildInvocationsMap = ImmutableSortedMap.orderedBy(PathComparator.INSTANCE);
         for (String projectPath : buildInvocations.keySet()) {
             buildInvocationsMap.put(projectPath, DefaultOmniBuildInvocations.from(buildInvocations.get(projectPath)));
         }
@@ -79,23 +78,22 @@ public final class BuildInvocationsContainer {
     public static BuildInvocationsContainer from(GradleProject project, boolean enforceAllTasksPublic) {
         ImmutableMultimap<String, Model<ProjectTaskFields>> tasks = buildProjectTasksRecursively(project, ArrayListMultimap.<String, Model<ProjectTaskFields>>create(), enforceAllTasksPublic);
         ImmutableMultimap<String, Model<TaskSelectorsFields>> taskSelectors = buildTaskSelectorsRecursively(project, ArrayListMultimap.<String, Model<TaskSelectorsFields>>create(), enforceAllTasksPublic);
-        ImmutableMap<String, Model<BuildInvocationFields>> buildInvocationsMap = buildBuildInvocationsMappingRecursively(tasks, taskSelectors, Maps.<String, Model<BuildInvocationFields>>newHashMap());
+        ImmutableSortedMap<String, Model<BuildInvocationFields>> buildInvocationsMap = buildBuildInvocationsMappingRecursively(tasks, taskSelectors);
         return new BuildInvocationsContainer(buildInvocationsMap);
     }
 
-    private static ImmutableMap<String, Model<BuildInvocationFields>> buildBuildInvocationsMappingRecursively(Multimap<String, Model<ProjectTaskFields>> projectTasks,
-                                                                                                              Multimap<String, Model<TaskSelectorsFields>> taskSelectors,
-                                                                                                              Map<String, Model<BuildInvocationFields>> mapping) {
+    private static ImmutableSortedMap<String, Model<BuildInvocationFields>> buildBuildInvocationsMappingRecursively(Multimap<String, Model<ProjectTaskFields>> projectTasks,
+                                                                                                                    Multimap<String, Model<TaskSelectorsFields>> taskSelectors) {
         Preconditions.checkState(projectTasks.keySet().size() == taskSelectors.keySet().size());
         Preconditions.checkState(projectTasks.keySet().containsAll(taskSelectors.keySet()) && taskSelectors.keySet().containsAll(projectTasks.keySet()));
 
+        ImmutableSortedMap.Builder<String, Model<BuildInvocationFields>> mapping = ImmutableSortedMap.orderedBy(PathComparator.INSTANCE);
         for (String projectPath : projectTasks.keySet()) {
             ImmutableList<Model<ProjectTaskFields>> projectTasksOfProject = ImmutableSortedSet.orderedBy(TaskComparator.INSTANCE).addAll(projectTasks.get(projectPath)).build().asList();
             ImmutableList<Model<TaskSelectorsFields>> taskSelectorsOfProject = ImmutableSortedSet.orderedBy(TaskSelectorComparator.INSTANCE).addAll(taskSelectors.get(projectPath)).build().asList();
             mapping.put(projectPath, DefaultOmniBuildInvocations.from(projectTasksOfProject, taskSelectorsOfProject));
         }
-
-        return ImmutableMap.copyOf(mapping);
+        return mapping.build();
     }
 
     private static ImmutableMultimap<String, Model<ProjectTaskFields>> buildProjectTasksRecursively(GradleProject project, Multimap<String, Model<ProjectTaskFields>> tasksPerProject, boolean enforceAllTasksPublic) {

@@ -1,7 +1,7 @@
 package com.gradleware.tooling.toolingmodel;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedMap;
 
 /**
  * Holds the {@link OmniBuildInvocations} for a given set of projects. Each project is identified by its unique full path.
@@ -23,6 +23,6 @@ public interface OmniBuildInvocationsContainer {
      *
      * @return the mapping of projects to build invocations
      */
-    ImmutableMap<String, OmniBuildInvocations> asMap();
+    ImmutableSortedMap<String, OmniBuildInvocations> asMap();
 
 }
