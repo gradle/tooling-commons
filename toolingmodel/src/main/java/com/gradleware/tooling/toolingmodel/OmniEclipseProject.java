@@ -80,4 +80,25 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
      */
     File getProjectDirectory();
 
+    /**
+     * Returns the project dependencies of this project.
+     *
+     * @return the project dependencies
+     */
+    ImmutableList<OmniEclipseProjectDependency> getProjectDependencies();
+
+    /**
+     * Returns the external dependencies of this project.
+     *
+     * @return the external dependencies
+     */
+    ImmutableList<OmniExternalDependency> getExternalDependencies();
+
+    /**
+     * Returns the source directories of this project.
+     *
+     * @return the source directories
+     */
+    ImmutableList<OmniEclipseSourceDirectory> getSourceDirectories();
+
 }

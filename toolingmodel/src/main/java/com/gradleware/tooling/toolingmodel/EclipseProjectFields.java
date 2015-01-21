@@ -3,9 +3,12 @@ package com.gradleware.tooling.toolingmodel;
 import com.google.common.base.Suppliers;
 import com.google.common.reflect.TypeToken;
 import com.gradleware.tooling.toolingmodel.generic.DefaultModelField;
+import com.gradleware.tooling.toolingmodel.generic.Model;
 import com.gradleware.tooling.toolingmodel.generic.ModelField;
+import com.gradleware.tooling.toolingmodel.generic.TypeTokens;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Enumerates the detailed information available on a Eclipse project.
@@ -37,6 +40,24 @@ public final class EclipseProjectFields {
      */
     public static final ModelField<File, EclipseProjectFields> PROJECT_DIRECTORY =
             new DefaultModelField<File, EclipseProjectFields>(TypeToken.of(File.class), TypeToken.of(EclipseProjectFields.class), Suppliers.<File>ofInstance(null));
+
+    /**
+     * The project dependencies of this project.
+     */
+    public static final ModelField<List<Model<EclipseProjectDependencyFields>>, EclipseProjectFields> PROJECT_DEPENDENCIES =
+            new DefaultModelField<List<Model<EclipseProjectDependencyFields>>, EclipseProjectFields>(TypeTokens.modelListToken(EclipseProjectDependencyFields.class), TypeToken.of(EclipseProjectFields.class));
+
+    /**
+     * The external dependencies of this project.
+     */
+    public static final ModelField<List<Model<ExternalDependencyFields>>, EclipseProjectFields> EXTERNAL_DEPENDENCIES =
+            new DefaultModelField<List<Model<ExternalDependencyFields>>, EclipseProjectFields>(TypeTokens.modelListToken(ExternalDependencyFields.class), TypeToken.of(EclipseProjectFields.class));
+
+    /**
+     * The source directories of this project.
+     */
+    public static final ModelField<List<Model<EclipseSourceDirectoryFields>>, EclipseProjectFields> SOURCE_DIRECTORIES =
+            new DefaultModelField<List<Model<EclipseSourceDirectoryFields>>, EclipseProjectFields>(TypeTokens.modelListToken(EclipseSourceDirectoryFields.class), TypeToken.of(EclipseProjectFields.class));
 
     private EclipseProjectFields() {
     }
