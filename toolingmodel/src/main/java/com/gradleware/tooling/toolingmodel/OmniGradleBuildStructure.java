@@ -1,7 +1,5 @@
 package com.gradleware.tooling.toolingmodel;
 
-import com.gradleware.tooling.toolingmodel.generic.HierarchicalModel;
-
 /**
  * Provides information about the Gradle build structure.
  *
@@ -15,12 +13,5 @@ public interface OmniGradleBuildStructure extends BuildScopedModel {
      * @return the root project
      */
     OmniGradleProjectStructure getRootProject();
-
-    /**
-     * Returns the root project of the build.
-     *
-     * @return the root project
-     */
-    HierarchicalModel<BasicGradleProjectFields> getRootProjectModel();
 
 }

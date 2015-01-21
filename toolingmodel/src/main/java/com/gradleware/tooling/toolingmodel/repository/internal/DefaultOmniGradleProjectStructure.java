@@ -4,12 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingmodel.BasicGradleProjectFields;
 import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
-import com.gradleware.tooling.toolingmodel.generic.DefaultHierarchicalModel;
-import com.gradleware.tooling.toolingmodel.generic.HierarchicalModel;
-import com.gradleware.tooling.toolingmodel.generic.Model;
-import com.gradleware.tooling.toolingmodel.generic.ModelField;
 import org.gradle.tooling.model.gradle.BasicGradleProject;
 
 import java.io.File;
@@ -90,45 +85,30 @@ public final class DefaultOmniGradleProjectStructure implements OmniGradleProjec
         return this.hierarchyHelper.tryFind(predicate);
     }
 
-    public static DefaultOmniGradleProjectStructure from(HierarchicalModel<BasicGradleProjectFields> project) {
-        DefaultOmniGradleProjectStructure gradleProjectStructure = new DefaultOmniGradleProjectStructure(OmniGradleProjectStructureComparator.INSTANCE);
-        gradleProjectStructure.setName(project.get(BasicGradleProjectFields.NAME));
-        gradleProjectStructure.setPath(project.get(BasicGradleProjectFields.PATH));
-        gradleProjectStructure.setProjectDirectory(project.get(BasicGradleProjectFields.PROJECT_DIRECTORY));
-
-        for (HierarchicalModel<BasicGradleProjectFields> child : project.getChildren()) {
-            DefaultOmniGradleProjectStructure gradleProjectStructureChild = from(child);
-            gradleProjectStructure.addChild(gradleProjectStructureChild);
-        }
-
-        return gradleProjectStructure;
-    }
-
-    public static DefaultHierarchicalModel<BasicGradleProjectFields> from(BasicGradleProject project) {
-        DefaultHierarchicalModel<BasicGradleProjectFields> basicGradleProject = new DefaultHierarchicalModel<BasicGradleProjectFields>(BasicGradleProjectComparator.INSTANCE);
-        basicGradleProject.put(BasicGradleProjectFields.NAME, project.getName());
-        basicGradleProject.put(BasicGradleProjectFields.PATH, project.getPath());
-        setProjectDirectory(basicGradleProject, BasicGradleProjectFields.PROJECT_DIRECTORY, project);
+    public static DefaultOmniGradleProjectStructure from(BasicGradleProject project) {
+        DefaultOmniGradleProjectStructure projectStructure = new DefaultOmniGradleProjectStructure(OmniGradleProjectStructureComparator.INSTANCE);
+        projectStructure.setName(project.getName());
+        projectStructure.setPath(project.getPath());
+        setProjectDirectory(projectStructure, project);
 
         for (BasicGradleProject child : project.getChildren()) {
-            DefaultHierarchicalModel<BasicGradleProjectFields> basicGradleProjectChild = from(child);
-            basicGradleProject.addChild(basicGradleProjectChild);
+            DefaultOmniGradleProjectStructure basicGradleProjectChild = from(child);
+            projectStructure.addChild(basicGradleProjectChild);
         }
 
-        return basicGradleProject;
+        return projectStructure;
     }
 
     /**
      * BasicGradleProject#getProjectDirectory is only available in Gradle versions >= 1.8.
      *
-     * @param basicGradleProject the project to populate
-     * @param projectDirectoryField the field from which to derive the default project directory in case it is not available on the project model
+     * @param projectStructure the project to populate
      * @param project the project model
      */
-    private static void setProjectDirectory(DefaultHierarchicalModel<BasicGradleProjectFields> basicGradleProject, ModelField<File, BasicGradleProjectFields> projectDirectoryField, BasicGradleProject project) {
+    private static void setProjectDirectory(DefaultOmniGradleProjectStructure projectStructure, BasicGradleProject project) {
         try {
             File projectDirectory = project.getProjectDirectory();
-            basicGradleProject.put(projectDirectoryField, projectDirectory);
+            projectStructure.setProjectDirectory(projectDirectory);
         } catch (Exception ignore) {
             // do not store if field value is not present
         }
@@ -144,20 +124,6 @@ public final class DefaultOmniGradleProjectStructure implements OmniGradleProjec
         @Override
         public int compare(OmniGradleProjectStructure o1, OmniGradleProjectStructure o2) {
             return PathComparator.INSTANCE.compare(o1.getPath(), o2.getPath());
-        }
-
-    }
-
-    /**
-     * Compares BasicGradleProjects by their project path.
-     */
-    private static final class BasicGradleProjectComparator implements Comparator<Model<BasicGradleProjectFields>> {
-
-        public static final BasicGradleProjectComparator INSTANCE = new BasicGradleProjectComparator();
-
-        @Override
-        public int compare(Model<BasicGradleProjectFields> o1, Model<BasicGradleProjectFields> o2) {
-            return PathComparator.INSTANCE.compare(o1.get(BasicGradleProjectFields.PATH), o2.get(BasicGradleProjectFields.PATH));
         }
 
     }
