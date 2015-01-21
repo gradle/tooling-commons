@@ -11,12 +11,9 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
-import com.gradleware.tooling.toolingmodel.BuildInvocationFields;
+import com.gradleware.tooling.toolingmodel.OmniBuildInvocations;
 import com.gradleware.tooling.toolingmodel.OmniProjectTask;
-import com.gradleware.tooling.toolingmodel.ProjectTaskFields;
-import com.gradleware.tooling.toolingmodel.TaskSelectorsFields;
-import com.gradleware.tooling.toolingmodel.generic.DefaultModel;
-import com.gradleware.tooling.toolingmodel.generic.Model;
+import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.GradleTask;
@@ -39,18 +36,18 @@ public final class BuildInvocationsContainer {
     @SuppressWarnings("RedundantStringConstructorCall")
     private static final String NULL_STRING = new String(); // ensure unique instance to use it as a null-string placeholder
 
-    private final ImmutableSortedMap<String, Model<BuildInvocationFields>> buildInvocationsPerProject;
+    private final ImmutableSortedMap<String, OmniBuildInvocations> buildInvocationsPerProject;
 
-    private BuildInvocationsContainer(SortedMap<String, Model<BuildInvocationFields>> buildInvocationsPerProject) {
+    private BuildInvocationsContainer(SortedMap<String, OmniBuildInvocations> buildInvocationsPerProject) {
         this.buildInvocationsPerProject = ImmutableSortedMap.copyOfSorted(buildInvocationsPerProject);
     }
 
     /**
-     * A {@code Map} of {@code Model&lt;BuildInvocationFields&gt;} per project, where each project is identified by its unique full path.
+     * A {@code Map} of {@code OmniBuildInvocations} per project, where each project is identified by its unique full path.
      *
      * @return the mapping of projects to build invocations
      */
-    public ImmutableSortedMap<String, Model<BuildInvocationFields>> asMap() {
+    public ImmutableSortedMap<String, OmniBuildInvocations> asMap() {
         return this.buildInvocationsPerProject;
     }
 
@@ -61,7 +58,7 @@ public final class BuildInvocationsContainer {
      * @return the build invocations container
      */
     public static BuildInvocationsContainer from(Map<String, BuildInvocations> buildInvocations) {
-        ImmutableSortedMap.Builder<String, Model<BuildInvocationFields>> buildInvocationsMap = ImmutableSortedMap.orderedBy(PathComparator.INSTANCE);
+        ImmutableSortedMap.Builder<String, OmniBuildInvocations> buildInvocationsMap = ImmutableSortedMap.orderedBy(PathComparator.INSTANCE);
         for (String projectPath : buildInvocations.keySet()) {
             buildInvocationsMap.put(projectPath, DefaultOmniBuildInvocations.from(buildInvocations.get(projectPath), projectPath));
         }
@@ -76,27 +73,27 @@ public final class BuildInvocationsContainer {
      * @return the build invocations container
      */
     public static BuildInvocationsContainer from(GradleProject project, boolean enforceAllTasksPublic) {
-        ImmutableMultimap<String, Model<ProjectTaskFields>> tasks = buildProjectTasksRecursively(project, ArrayListMultimap.<String, Model<ProjectTaskFields>>create(), enforceAllTasksPublic);
-        ImmutableMultimap<String, Model<TaskSelectorsFields>> taskSelectors = buildTaskSelectorsRecursively(project, ArrayListMultimap.<String, Model<TaskSelectorsFields>>create(), enforceAllTasksPublic);
-        ImmutableSortedMap<String, Model<BuildInvocationFields>> buildInvocationsMap = buildBuildInvocationsMappingRecursively(tasks, taskSelectors);
+        ImmutableMultimap<String, OmniProjectTask> tasks = buildProjectTasksRecursively(project, ArrayListMultimap.<String, OmniProjectTask>create(), enforceAllTasksPublic);
+        ImmutableMultimap<String, OmniTaskSelector> taskSelectors = buildTaskSelectorsRecursively(project, ArrayListMultimap.<String, OmniTaskSelector>create(), enforceAllTasksPublic);
+        ImmutableSortedMap<String, OmniBuildInvocations> buildInvocationsMap = buildBuildInvocationsMappingRecursively(tasks, taskSelectors);
         return new BuildInvocationsContainer(buildInvocationsMap);
     }
 
-    private static ImmutableSortedMap<String, Model<BuildInvocationFields>> buildBuildInvocationsMappingRecursively(Multimap<String, Model<ProjectTaskFields>> projectTasks,
-                                                                                                                    Multimap<String, Model<TaskSelectorsFields>> taskSelectors) {
+    private static ImmutableSortedMap<String, OmniBuildInvocations> buildBuildInvocationsMappingRecursively(Multimap<String, OmniProjectTask> projectTasks,
+                                                                                                            Multimap<String, OmniTaskSelector> taskSelectors) {
         Preconditions.checkState(projectTasks.keySet().size() == taskSelectors.keySet().size());
         Preconditions.checkState(projectTasks.keySet().containsAll(taskSelectors.keySet()) && taskSelectors.keySet().containsAll(projectTasks.keySet()));
 
-        ImmutableSortedMap.Builder<String, Model<BuildInvocationFields>> mapping = ImmutableSortedMap.orderedBy(PathComparator.INSTANCE);
+        ImmutableSortedMap.Builder<String, OmniBuildInvocations> mapping = ImmutableSortedMap.orderedBy(PathComparator.INSTANCE);
         for (String projectPath : projectTasks.keySet()) {
-            ImmutableList<Model<ProjectTaskFields>> projectTasksOfProject = ImmutableSortedSet.orderedBy(TaskComparator.INSTANCE).addAll(projectTasks.get(projectPath)).build().asList();
-            ImmutableList<Model<TaskSelectorsFields>> taskSelectorsOfProject = ImmutableSortedSet.orderedBy(TaskSelectorComparator.INSTANCE).addAll(taskSelectors.get(projectPath)).build().asList();
+            ImmutableList<OmniProjectTask> projectTasksOfProject = ImmutableSortedSet.orderedBy(TaskComparator.INSTANCE).addAll(projectTasks.get(projectPath)).build().asList();
+            ImmutableList<OmniTaskSelector> taskSelectorsOfProject = ImmutableSortedSet.orderedBy(TaskSelectorComparator.INSTANCE).addAll(taskSelectors.get(projectPath)).build().asList();
             mapping.put(projectPath, DefaultOmniBuildInvocations.from(projectTasksOfProject, taskSelectorsOfProject));
         }
         return mapping.build();
     }
 
-    private static ImmutableMultimap<String, Model<ProjectTaskFields>> buildProjectTasksRecursively(GradleProject project, Multimap<String, Model<ProjectTaskFields>> tasksPerProject, boolean enforceAllTasksPublic) {
+    private static ImmutableMultimap<String, OmniProjectTask> buildProjectTasksRecursively(GradleProject project, Multimap<String, OmniProjectTask> tasksPerProject, boolean enforceAllTasksPublic) {
         // add tasks of the current project
         for (GradleTask task : project.getTasks()) {
             tasksPerProject.put(project.getPath(), DefaultOmniProjectTask.from(task, enforceAllTasksPublic));
@@ -112,7 +109,7 @@ public final class BuildInvocationsContainer {
     }
 
     @SuppressWarnings("StringEquality")
-    private static ImmutableMultimap<String, Model<TaskSelectorsFields>> buildTaskSelectorsRecursively(GradleProject project, Multimap<String, Model<TaskSelectorsFields>> taskSelectorsPerProject, boolean enforceAllTasksPublic) {
+    private static ImmutableMultimap<String, OmniTaskSelector> buildTaskSelectorsRecursively(GradleProject project, Multimap<String, OmniTaskSelector> taskSelectorsPerProject, boolean enforceAllTasksPublic) {
         // add task selectors of the current project
         TreeBasedTable<String, String, String> aggregatedTasksWithDescription = TreeBasedTable.create(Ordering.usingToString(), PathComparator.INSTANCE);
         Set<String> publicTasks = Sets.newLinkedHashSet();
@@ -122,7 +119,7 @@ public final class BuildInvocationsContainer {
             String description = pathsAndDescriptions.get(pathsAndDescriptions.firstKey()); // description from project task with smallest path
             SortedSet<String> fqnTaskNames = ImmutableSortedSet.orderedBy(PathComparator.INSTANCE).addAll(pathsAndDescriptions.keySet()).build();
 
-            DefaultModel<TaskSelectorsFields> taskSelector = DefaultOmniTaskSelector.from(
+            OmniTaskSelector taskSelector = DefaultOmniTaskSelector.from(
                     selectorName,
                     description != NULL_STRING ? description : null,
                     project.getPath(),
@@ -145,7 +142,7 @@ public final class BuildInvocationsContainer {
     private static void collectAllTasksRecursively(GradleProject project, Table<String, String, String> tasksWithDescription, Collection<String> publicTasks, boolean enforceAllTasksPublic) {
         for (GradleTask task : project.getTasks()) {
             // convert to OmniProjectTask to have the version-specific logic and default-values applied
-            OmniProjectTask projectTask = DefaultOmniProjectTask.from(DefaultOmniProjectTask.from(task, enforceAllTasksPublic));
+            OmniProjectTask projectTask = DefaultOmniProjectTask.from(task, enforceAllTasksPublic);
 
             // 1) store the path since the task selectors keep all the paths of the tasks they select
             // 2) store the description first by task name and then by path
@@ -165,24 +162,24 @@ public final class BuildInvocationsContainer {
         }
     }
 
-    private static final class TaskComparator implements Comparator<Model<ProjectTaskFields>> {
+    private static final class TaskComparator implements Comparator<OmniProjectTask> {
 
         private static final TaskComparator INSTANCE = new TaskComparator();
 
         @Override
-        public int compare(Model<ProjectTaskFields> o1, Model<ProjectTaskFields> o2) {
-            return PathComparator.INSTANCE.compare(o1.get(ProjectTaskFields.PATH), o2.get(ProjectTaskFields.PATH));
+        public int compare(OmniProjectTask o1, OmniProjectTask o2) {
+            return PathComparator.INSTANCE.compare(o1.getName(), o2.getName());
         }
 
     }
 
-    private static final class TaskSelectorComparator implements Comparator<Model<TaskSelectorsFields>> {
+    private static final class TaskSelectorComparator implements Comparator<OmniTaskSelector> {
 
         private static final TaskSelectorComparator INSTANCE = new TaskSelectorComparator();
 
         @Override
-        public int compare(Model<TaskSelectorsFields> o1, Model<TaskSelectorsFields> o2) {
-            return PathComparator.INSTANCE.compare(o1.get(TaskSelectorsFields.NAME), o2.get(TaskSelectorsFields.NAME));
+        public int compare(OmniTaskSelector o1, OmniTaskSelector o2) {
+            return PathComparator.INSTANCE.compare(o1.getName(), o2.getName());
         }
 
     }

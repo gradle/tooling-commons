@@ -3,14 +3,9 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingmodel.BuildInvocationFields;
 import com.gradleware.tooling.toolingmodel.OmniBuildInvocations;
 import com.gradleware.tooling.toolingmodel.OmniProjectTask;
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
-import com.gradleware.tooling.toolingmodel.ProjectTaskFields;
-import com.gradleware.tooling.toolingmodel.TaskSelectorsFields;
-import com.gradleware.tooling.toolingmodel.generic.DefaultModel;
-import com.gradleware.tooling.toolingmodel.generic.Model;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.Task;
 import org.gradle.tooling.model.TaskSelector;
@@ -41,64 +36,32 @@ public final class DefaultOmniBuildInvocations implements OmniBuildInvocations {
         return this.taskSelectors;
     }
 
-    public static DefaultOmniBuildInvocations from(Model<BuildInvocationFields> model) {
-        ImmutableList<OmniProjectTask> projectTasks = toProjectTasks(model.get(BuildInvocationFields.PROJECT_TASKS));
-        ImmutableList<OmniTaskSelector> taskSelectors = toSelectorTasks(model.get(BuildInvocationFields.TASK_SELECTORS));
-        return new DefaultOmniBuildInvocations(projectTasks, taskSelectors);
+    public static DefaultOmniBuildInvocations from(BuildInvocations buildInvocations, String projectPath) {
+        return new DefaultOmniBuildInvocations(
+                createProjectTasks(buildInvocations.getTasks()),
+                createTaskSelectors(buildInvocations.getTaskSelectors(), projectPath));
     }
 
-    private static ImmutableList<OmniProjectTask> toProjectTasks(List<Model<ProjectTaskFields>> projectTasks) {
-        return FluentIterable.from(projectTasks).transform(new Function<Model<ProjectTaskFields>, OmniProjectTask>() {
+    private static ImmutableList<OmniProjectTask> createProjectTasks(DomainObjectSet<? extends Task> projectTasks) {
+        return FluentIterable.from(projectTasks).transform(new Function<Task, OmniProjectTask>() {
             @Override
-            public DefaultOmniProjectTask apply(Model<ProjectTaskFields> input) {
-                return DefaultOmniProjectTask.from(input);
+            public OmniProjectTask apply(Task input) {
+                return DefaultOmniProjectTask.from(input, false);
             }
         }).toList();
     }
 
-    private static ImmutableList<OmniTaskSelector> toSelectorTasks(List<Model<TaskSelectorsFields>> taskSelectors) {
-        return FluentIterable.from(taskSelectors).transform(new Function<Model<TaskSelectorsFields>, OmniTaskSelector>() {
+    private static ImmutableList<OmniTaskSelector> createTaskSelectors(DomainObjectSet<? extends TaskSelector> taskSelectors, final String projectPath) {
+        return FluentIterable.from(taskSelectors).transform(new Function<TaskSelector, OmniTaskSelector>() {
             @Override
-            public DefaultOmniTaskSelector apply(Model<TaskSelectorsFields> input) {
-                return DefaultOmniTaskSelector.from(input);
+            public OmniTaskSelector apply(TaskSelector input) {
+                return DefaultOmniTaskSelector.from(input, projectPath);
             }
         }).toList();
     }
 
     public static DefaultOmniBuildInvocations from(List<OmniProjectTask> projectTasks, List<OmniTaskSelector> taskSelectors) {
         return new DefaultOmniBuildInvocations(projectTasks, taskSelectors);
-    }
-
-    public static DefaultModel<BuildInvocationFields> from(BuildInvocations buildInvocations, String projectPath) {
-        DefaultModel<BuildInvocationFields> model = new DefaultModel<BuildInvocationFields>();
-        model.put(BuildInvocationFields.PROJECT_TASKS, createProjectTasksModel(buildInvocations.getTasks()));
-        model.put(BuildInvocationFields.TASK_SELECTORS, createTaskSelectorsModel(buildInvocations.getTaskSelectors(), projectPath));
-        return model;
-    }
-
-    private static ImmutableList<Model<ProjectTaskFields>> createProjectTasksModel(DomainObjectSet<? extends Task> projectTasks) {
-        return FluentIterable.from(projectTasks).transform(new Function<Task, Model<ProjectTaskFields>>() {
-            @Override
-            public Model<ProjectTaskFields> apply(Task input) {
-                return DefaultOmniProjectTask.from(input, false);
-            }
-        }).toList();
-    }
-
-    private static ImmutableList<Model<TaskSelectorsFields>> createTaskSelectorsModel(DomainObjectSet<? extends TaskSelector> taskSelectors, final String projectPath) {
-        return FluentIterable.from(taskSelectors).transform(new Function<TaskSelector, Model<TaskSelectorsFields>>() {
-            @Override
-            public Model<TaskSelectorsFields> apply(TaskSelector input) {
-                return DefaultOmniTaskSelector.from(input, projectPath);
-            }
-        }).toList();
-    }
-
-    public static DefaultModel<BuildInvocationFields> from(List<Model<ProjectTaskFields>> projectTasks, ImmutableList<Model<TaskSelectorsFields>> selectorTasks) {
-        DefaultModel<BuildInvocationFields> buildInvocations = new DefaultModel<BuildInvocationFields>();
-        buildInvocations.put(BuildInvocationFields.PROJECT_TASKS, projectTasks);
-        buildInvocations.put(BuildInvocationFields.TASK_SELECTORS, selectorTasks);
-        return buildInvocations;
     }
 
 }

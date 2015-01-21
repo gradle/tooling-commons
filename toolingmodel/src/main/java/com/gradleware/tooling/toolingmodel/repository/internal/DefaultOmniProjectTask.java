@@ -1,10 +1,6 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.gradleware.tooling.toolingmodel.OmniProjectTask;
-import com.gradleware.tooling.toolingmodel.ProjectTaskFields;
-import com.gradleware.tooling.toolingmodel.generic.DefaultModel;
-import com.gradleware.tooling.toolingmodel.generic.Model;
-import com.gradleware.tooling.toolingmodel.generic.ModelField;
 import org.gradle.tooling.model.Task;
 
 /**
@@ -53,21 +49,12 @@ public final class DefaultOmniProjectTask implements OmniProjectTask {
         this.isPublic = isPublic;
     }
 
-    public static DefaultOmniProjectTask from(Model<ProjectTaskFields> task) {
+    public static DefaultOmniProjectTask from(Task task, boolean enforceAllTasksPublic) {
         DefaultOmniProjectTask projectTask = new DefaultOmniProjectTask();
-        projectTask.setName(task.get(ProjectTaskFields.NAME));
-        projectTask.setDescription(task.get(ProjectTaskFields.DESCRIPTION));
-        projectTask.setPath(task.get(ProjectTaskFields.PATH));
-        projectTask.setPublic(task.get(ProjectTaskFields.IS_PUBLIC));
-        return projectTask;
-    }
-
-    public static DefaultModel<ProjectTaskFields> from(Task task, boolean enforceAllTasksPublic) {
-        DefaultModel<ProjectTaskFields> projectTask = new DefaultModel<ProjectTaskFields>();
-        projectTask.put(ProjectTaskFields.NAME, task.getName());
-        projectTask.put(ProjectTaskFields.DESCRIPTION, task.getDescription());
-        projectTask.put(ProjectTaskFields.PATH, task.getPath());
-        setIsPublic(projectTask, ProjectTaskFields.IS_PUBLIC, task, enforceAllTasksPublic);
+        projectTask.setName(task.getName());
+        projectTask.setDescription(task.getDescription());
+        projectTask.setPath(task.getPath());
+        setIsPublic(projectTask, task, enforceAllTasksPublic);
         return projectTask;
     }
 
@@ -77,16 +64,15 @@ public final class DefaultOmniProjectTask implements OmniProjectTask {
      * For versions 2.1 and 2.2.x, GradleTask#isPublic always returns {@code false} and needs to be corrected to {@code true}.
      *
      * @param projectTask the task to populate
-     * @param isPublicField the field from which to derive the default isPublic value in case it is not available on the task model
      * @param task the task model
      * @param enforceAllTasksPublic flag to signal whether all tasks should be treated as public regardless of what the model says
      */
-    private static void setIsPublic(DefaultModel<ProjectTaskFields> projectTask, ModelField<Boolean, ProjectTaskFields> isPublicField, Task task, boolean enforceAllTasksPublic) {
+    private static void setIsPublic(DefaultOmniProjectTask projectTask, Task task, boolean enforceAllTasksPublic) {
         try {
             boolean isPublic = task.isPublic();
-            projectTask.put(isPublicField, enforceAllTasksPublic || isPublic);
+            projectTask.setPublic(enforceAllTasksPublic || isPublic);
         } catch (Exception ignore) {
-            // do not store if field value is not present
+            projectTask.setPublic(true);
         }
     }
 

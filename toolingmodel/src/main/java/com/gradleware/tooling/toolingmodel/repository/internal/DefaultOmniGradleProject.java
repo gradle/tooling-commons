@@ -1,19 +1,14 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingmodel.BuildInvocationFields;
+import com.gradleware.tooling.toolingmodel.OmniBuildInvocations;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleScript;
 import com.gradleware.tooling.toolingmodel.OmniProjectTask;
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
-import com.gradleware.tooling.toolingmodel.ProjectTaskFields;
-import com.gradleware.tooling.toolingmodel.TaskSelectorsFields;
-import com.gradleware.tooling.toolingmodel.generic.Model;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.gradle.GradleScript;
@@ -160,9 +155,9 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
         setProjectDirectory(gradleProject, project);
         setBuildDirectory(gradleProject, project);
         setBuildScript(gradleProject, project);
-        Model<BuildInvocationFields> buildInvocations = buildInvocationsContainer.asMap().get(project.getPath());
-        gradleProject.setProjectTasks(toProjectTasks(buildInvocations.get(BuildInvocationFields.PROJECT_TASKS)));
-        gradleProject.setTaskSelectors(toTaskSelectors(buildInvocations.get(BuildInvocationFields.TASK_SELECTORS)));
+        OmniBuildInvocations buildInvocations = buildInvocationsContainer.asMap().get(project.getPath());
+        gradleProject.setProjectTasks(buildInvocations.getProjectTasks());
+        gradleProject.setTaskSelectors(buildInvocations.getTaskSelectors());
 
         for (GradleProject child : project.getChildren()) {
             DefaultOmniGradleProject gradleProjectChild = convert(child, buildInvocationsContainer);
@@ -170,24 +165,6 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
         }
 
         return gradleProject;
-    }
-
-    private static ImmutableList<OmniProjectTask> toProjectTasks(List<Model<ProjectTaskFields>> projectTasks) {
-        return FluentIterable.from(projectTasks).transform(new Function<Model<ProjectTaskFields>, OmniProjectTask>() {
-            @Override
-            public DefaultOmniProjectTask apply(Model<ProjectTaskFields> input) {
-                return DefaultOmniProjectTask.from(input);
-            }
-        }).toList();
-    }
-
-    private static ImmutableList<OmniTaskSelector> toTaskSelectors(List<Model<TaskSelectorsFields>> taskSelectors) {
-        return FluentIterable.from(taskSelectors).transform(new Function<Model<TaskSelectorsFields>, OmniTaskSelector>() {
-            @Override
-            public DefaultOmniTaskSelector apply(Model<TaskSelectorsFields> input) {
-                return DefaultOmniTaskSelector.from(input);
-            }
-        }).toList();
     }
 
     /**

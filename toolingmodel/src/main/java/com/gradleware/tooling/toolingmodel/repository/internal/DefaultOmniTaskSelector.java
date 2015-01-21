@@ -2,10 +2,6 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.google.common.collect.ImmutableSortedSet;
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
-import com.gradleware.tooling.toolingmodel.TaskSelectorsFields;
-import com.gradleware.tooling.toolingmodel.generic.DefaultModel;
-import com.gradleware.tooling.toolingmodel.generic.Model;
-import com.gradleware.tooling.toolingmodel.generic.ModelField;
 import org.gradle.tooling.model.TaskSelector;
 
 import java.util.SortedSet;
@@ -66,33 +62,23 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
         this.selectedTaskPaths = ImmutableSortedSet.copyOfSorted(selectedTaskPaths);
     }
 
-    public static DefaultOmniTaskSelector from(Model<TaskSelectorsFields> task) {
+    public static DefaultOmniTaskSelector from(TaskSelector selector, String projectPath) {
         DefaultOmniTaskSelector taskSelector = new DefaultOmniTaskSelector();
-        taskSelector.setName(task.get(TaskSelectorsFields.NAME));
-        taskSelector.setDescription(task.get(TaskSelectorsFields.DESCRIPTION));
-        taskSelector.setProjectPath(task.get(TaskSelectorsFields.PROJECT_PATH));
-        taskSelector.setPublic(task.get(TaskSelectorsFields.IS_PUBLIC));
-        taskSelector.setSelectedTaskPaths(task.get(TaskSelectorsFields.SELECTED_TASK_PATHS));
+        taskSelector.setName(selector.getName());
+        taskSelector.setDescription(selector.getDescription());
+        taskSelector.setProjectPath(projectPath);
+        setIsPublic(taskSelector, selector);
+        taskSelector.setSelectedTaskPaths(ImmutableSortedSet.<String>of());
         return taskSelector;
     }
 
-    public static DefaultModel<TaskSelectorsFields> from(TaskSelector taskSelector, String projectPath) {
-        DefaultModel<TaskSelectorsFields> gradleTaskSelector = new DefaultModel<TaskSelectorsFields>();
-        gradleTaskSelector.put(TaskSelectorsFields.NAME, taskSelector.getName());
-        gradleTaskSelector.put(TaskSelectorsFields.DESCRIPTION, taskSelector.getDescription());
-        gradleTaskSelector.put(TaskSelectorsFields.PROJECT_PATH, projectPath);
-        setIsPublic(gradleTaskSelector, TaskSelectorsFields.IS_PUBLIC, taskSelector);
-        gradleTaskSelector.put(TaskSelectorsFields.SELECTED_TASK_PATHS, ImmutableSortedSet.<String>of());
-        return gradleTaskSelector;
-    }
-
-    public static DefaultModel<TaskSelectorsFields> from(String name, String description, String projectPath, boolean isPublic, SortedSet<String> selectedTaskPaths) {
-        DefaultModel<TaskSelectorsFields> taskSelector = new DefaultModel<TaskSelectorsFields>();
-        taskSelector.put(TaskSelectorsFields.NAME, name);
-        taskSelector.put(TaskSelectorsFields.DESCRIPTION, description);
-        taskSelector.put(TaskSelectorsFields.PROJECT_PATH, projectPath);
-        taskSelector.put(TaskSelectorsFields.IS_PUBLIC, isPublic);
-        taskSelector.put(TaskSelectorsFields.SELECTED_TASK_PATHS, selectedTaskPaths);
+    public static DefaultOmniTaskSelector from(String name, String description, String projectPath, boolean isPublic, SortedSet<String> selectedTaskPaths) {
+        DefaultOmniTaskSelector taskSelector = new DefaultOmniTaskSelector();
+        taskSelector.setName(name);
+        taskSelector.setDescription(description);
+        taskSelector.setProjectPath(projectPath);
+        taskSelector.setPublic(isPublic);
+        taskSelector.setSelectedTaskPaths(selectedTaskPaths);
         return taskSelector;
     }
 
@@ -100,15 +86,14 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
      * TaskSelector#isPublic is only available in Gradle versions >= 2.1.
      *
      * @param gradleTaskSelector the task selector to populate
-     * @param isPublicField the field from which to derive the default isPublic value in case it is not available on the task selector model
      * @param taskSelector the task selector model
      */
-    private static void setIsPublic(DefaultModel<TaskSelectorsFields> gradleTaskSelector, ModelField<Boolean, TaskSelectorsFields> isPublicField, TaskSelector taskSelector) {
+    private static void setIsPublic(DefaultOmniTaskSelector gradleTaskSelector, TaskSelector taskSelector) {
         try {
             boolean isPublic = taskSelector.isPublic();
-            gradleTaskSelector.put(isPublicField, isPublic);
+            gradleTaskSelector.setPublic(isPublic);
         } catch (Exception ignore) {
-            // do not store if field value is not present
+            gradleTaskSelector.setPublic(true);
         }
     }
 

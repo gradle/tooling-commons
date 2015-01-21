@@ -2,10 +2,9 @@ package com.gradleware.tooling.toolingmodel.repository.internal
 
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
-import com.gradleware.tooling.toolingmodel.BuildInvocationFields
-import com.gradleware.tooling.toolingmodel.ProjectTaskFields
-import com.gradleware.tooling.toolingmodel.TaskSelectorsFields
-import com.gradleware.tooling.toolingmodel.generic.Model
+import com.gradleware.tooling.toolingmodel.OmniBuildInvocations
+import com.gradleware.tooling.toolingmodel.OmniProjectTask
+import com.gradleware.tooling.toolingmodel.OmniTaskSelector
 import org.gradle.tooling.model.GradleProject
 import org.junit.Rule
 
@@ -66,74 +65,74 @@ class BuildInvocationsContainerTest extends ToolingModelToolingClientSpecificati
 
     then:
     buildInvocationsContainer != null
-    Map<String, Model<BuildInvocationFields>> mapping = buildInvocationsContainer.asMap()
+    Map<String, OmniBuildInvocations> mapping = buildInvocationsContainer.asMap()
     mapping.keySet() == [':', ':sub1', ':sub2', ':sub2:subSub'] as Set
 
-    Model<BuildInvocationFields> invocationsAtRoot = mapping[':']
-    invocationsAtRoot.get(BuildInvocationFields.TASK_SELECTORS).collect { it.get(TaskSelectorsFields.NAME) } as Set == ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta'] as Set
-    assertTaskSelector('alpha', 'ALPHA', true, [':alpha', ':sub2:subSub:alpha'], invocationsAtRoot.get(BuildInvocationFields.TASK_SELECTORS))
-    assertTaskSelector('beta', null, true, [':beta', ':sub1:beta', ':sub2:beta'], invocationsAtRoot.get(BuildInvocationFields.TASK_SELECTORS))
-    assertTaskSelector('gamma', null, false, [':sub1:gamma'], invocationsAtRoot.get(BuildInvocationFields.TASK_SELECTORS))
-    assertTaskSelector('delta', 'DELTA', false, [':sub2:delta', ':sub2:subSub:delta'], invocationsAtRoot.get(BuildInvocationFields.TASK_SELECTORS))
-    assertTaskSelector('epsilon', null, true, [':sub1:epsilon', ':sub2:epsilon'], invocationsAtRoot.get(BuildInvocationFields.TASK_SELECTORS))
-    assertTaskSelector('zeta', null, false, [':sub2:subSub:zeta'], invocationsAtRoot.get(BuildInvocationFields.TASK_SELECTORS))
+    OmniBuildInvocations invocationsAtRoot = mapping[':']
+    invocationsAtRoot.taskSelectors.collect { it.name } as Set == ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta'] as Set
+    assertTaskSelector('alpha', 'ALPHA', true, [':alpha', ':sub2:subSub:alpha'], invocationsAtRoot.taskSelectors)
+    assertTaskSelector('beta', null, true, [':beta', ':sub1:beta', ':sub2:beta'], invocationsAtRoot.taskSelectors)
+    assertTaskSelector('gamma', null, false, [':sub1:gamma'], invocationsAtRoot.taskSelectors)
+    assertTaskSelector('delta', 'DELTA', false, [':sub2:delta', ':sub2:subSub:delta'], invocationsAtRoot.taskSelectors)
+    assertTaskSelector('epsilon', null, true, [':sub1:epsilon', ':sub2:epsilon'], invocationsAtRoot.taskSelectors)
+    assertTaskSelector('zeta', null, false, [':sub2:subSub:zeta'], invocationsAtRoot.taskSelectors)
 
-    invocationsAtRoot.get(BuildInvocationFields.PROJECT_TASKS).collect { it.get(ProjectTaskFields.NAME) } as Set == ['alpha', 'beta'] as Set
-    assertTask('alpha', 'ALPHA', true, ':alpha', invocationsAtRoot.get(BuildInvocationFields.PROJECT_TASKS))
-    assertTask('beta', null, false, ':beta', invocationsAtRoot.get(BuildInvocationFields.PROJECT_TASKS))
+    invocationsAtRoot.projectTasks.collect { it.name } as Set == ['alpha', 'beta'] as Set
+    assertTask('alpha', 'ALPHA', true, ':alpha', invocationsAtRoot.projectTasks)
+    assertTask('beta', null, false, ':beta', invocationsAtRoot.projectTasks)
 
-    Model<BuildInvocationFields> invocationsAtSub1 = mapping[':sub1']
-    invocationsAtSub1.get(BuildInvocationFields.TASK_SELECTORS).collect { it.get(TaskSelectorsFields.NAME) } as Set == ['beta', 'gamma', 'epsilon'] as Set
-    assertTaskSelector('beta', 'BETA', true, [':sub1:beta'], invocationsAtSub1.get(BuildInvocationFields.TASK_SELECTORS))
-    assertTaskSelector('gamma', null, false, [':sub1:gamma'], invocationsAtSub1.get(BuildInvocationFields.TASK_SELECTORS))
-    assertTaskSelector('epsilon', null, false, [':sub1:epsilon'], invocationsAtSub1.get(BuildInvocationFields.TASK_SELECTORS))
+    OmniBuildInvocations invocationsAtSub1 = mapping[':sub1']
+    invocationsAtSub1.taskSelectors.collect { it.name } as Set == ['beta', 'gamma', 'epsilon'] as Set
+    assertTaskSelector('beta', 'BETA', true, [':sub1:beta'], invocationsAtSub1.taskSelectors)
+    assertTaskSelector('gamma', null, false, [':sub1:gamma'], invocationsAtSub1.taskSelectors)
+    assertTaskSelector('epsilon', null, false, [':sub1:epsilon'], invocationsAtSub1.taskSelectors)
 
-    invocationsAtSub1.get(BuildInvocationFields.PROJECT_TASKS).collect { it.get(ProjectTaskFields.NAME) } as Set == ['beta', 'gamma', 'epsilon'] as Set
-    assertTask('beta', 'BETA', true, ':sub1:beta', invocationsAtSub1.get(BuildInvocationFields.PROJECT_TASKS))
-    assertTask('gamma', null, false, ':sub1:gamma', invocationsAtSub1.get(BuildInvocationFields.PROJECT_TASKS))
-    assertTask('epsilon', null, false, ':sub1:epsilon', invocationsAtSub1.get(BuildInvocationFields.PROJECT_TASKS))
+    invocationsAtSub1.projectTasks.collect { it.name } as Set == ['beta', 'gamma', 'epsilon'] as Set
+    assertTask('beta', 'BETA', true, ':sub1:beta', invocationsAtSub1.projectTasks)
+    assertTask('gamma', null, false, ':sub1:gamma', invocationsAtSub1.projectTasks)
+    assertTask('epsilon', null, false, ':sub1:epsilon', invocationsAtSub1.projectTasks)
 
-    Model<BuildInvocationFields> invocationsAtSub2 = mapping[':sub2']
-    invocationsAtSub2.get(BuildInvocationFields.TASK_SELECTORS).collect { it.get(TaskSelectorsFields.NAME) } as Set == ['alpha', 'beta', 'delta', 'epsilon', 'zeta'] as Set
-    assertTaskSelector('alpha', 'ALPHA_SUB2', false, [':sub2:subSub:alpha'], invocationsAtSub2.get(BuildInvocationFields.TASK_SELECTORS))
-    assertTaskSelector('beta', null, false, [':sub2:beta'], invocationsAtSub2.get(BuildInvocationFields.TASK_SELECTORS))
-    assertTaskSelector('delta', 'DELTA', false, [':sub2:delta', ':sub2:subSub:delta'], invocationsAtSub2.get(BuildInvocationFields.TASK_SELECTORS))
-    assertTaskSelector('epsilon', null, true, [':sub2:epsilon'], invocationsAtSub2.get(BuildInvocationFields.TASK_SELECTORS))
-    assertTaskSelector('zeta', null, false, [':sub2:subSub:zeta'], invocationsAtSub2.get(BuildInvocationFields.TASK_SELECTORS))
+    OmniBuildInvocations invocationsAtSub2 = mapping[':sub2']
+    invocationsAtSub2.taskSelectors.collect { it.name } as Set == ['alpha', 'beta', 'delta', 'epsilon', 'zeta'] as Set
+    assertTaskSelector('alpha', 'ALPHA_SUB2', false, [':sub2:subSub:alpha'], invocationsAtSub2.taskSelectors)
+    assertTaskSelector('beta', null, false, [':sub2:beta'], invocationsAtSub2.taskSelectors)
+    assertTaskSelector('delta', 'DELTA', false, [':sub2:delta', ':sub2:subSub:delta'], invocationsAtSub2.taskSelectors)
+    assertTaskSelector('epsilon', null, true, [':sub2:epsilon'], invocationsAtSub2.taskSelectors)
+    assertTaskSelector('zeta', null, false, [':sub2:subSub:zeta'], invocationsAtSub2.taskSelectors)
 
-    invocationsAtSub2.get(BuildInvocationFields.PROJECT_TASKS).collect { it.get(ProjectTaskFields.NAME) } as Set == ['beta', 'delta', 'epsilon'] as Set
-    assertTask('beta', null, false, ':sub2:beta', invocationsAtSub2.get(BuildInvocationFields.PROJECT_TASKS))
-    assertTask('delta', 'DELTA', false, ':sub2:delta', invocationsAtSub2.get(BuildInvocationFields.PROJECT_TASKS))
-    assertTask('epsilon', null, true, ':sub2:epsilon', invocationsAtSub2.get(BuildInvocationFields.PROJECT_TASKS))
+    invocationsAtSub2.projectTasks.collect { it.name } as Set == ['beta', 'delta', 'epsilon'] as Set
+    assertTask('beta', null, false, ':sub2:beta', invocationsAtSub2.projectTasks)
+    assertTask('delta', 'DELTA', false, ':sub2:delta', invocationsAtSub2.projectTasks)
+    assertTask('epsilon', null, true, ':sub2:epsilon', invocationsAtSub2.projectTasks)
 
-    Model<BuildInvocationFields> invocationsAtSubSub = mapping[':sub2:subSub']
-    invocationsAtSubSub.get(BuildInvocationFields.TASK_SELECTORS).collect { it.get(TaskSelectorsFields.NAME) } as Set == ['alpha', 'delta', 'zeta'] as Set
-    assertTaskSelector('alpha', 'ALPHA_SUB2', false, [':sub2:subSub:alpha'], invocationsAtSubSub.get(BuildInvocationFields.TASK_SELECTORS))
-    assertTaskSelector('delta', 'DELTA_SUB2', false, [':sub2:subSub:delta'], invocationsAtSubSub.get(BuildInvocationFields.TASK_SELECTORS))
-    assertTaskSelector('zeta', null, false, [':sub2:subSub:zeta'], invocationsAtSubSub.get(BuildInvocationFields.TASK_SELECTORS))
+    OmniBuildInvocations invocationsAtSubSub = mapping[':sub2:subSub']
+    invocationsAtSubSub.taskSelectors.collect { it.name } as Set == ['alpha', 'delta', 'zeta'] as Set
+    assertTaskSelector('alpha', 'ALPHA_SUB2', false, [':sub2:subSub:alpha'], invocationsAtSubSub.taskSelectors)
+    assertTaskSelector('delta', 'DELTA_SUB2', false, [':sub2:subSub:delta'], invocationsAtSubSub.taskSelectors)
+    assertTaskSelector('zeta', null, false, [':sub2:subSub:zeta'], invocationsAtSubSub.taskSelectors)
 
-    invocationsAtSubSub.get(BuildInvocationFields.PROJECT_TASKS).collect { it.get(ProjectTaskFields.NAME) } as Set == ['alpha', 'delta', 'zeta'] as Set
-    assertTask('alpha', 'ALPHA_SUB2', false, ':sub2:subSub:alpha', invocationsAtSubSub.get(BuildInvocationFields.PROJECT_TASKS))
-    assertTask('delta', 'DELTA_SUB2', false, ':sub2:subSub:delta', invocationsAtSubSub.get(BuildInvocationFields.PROJECT_TASKS))
-    assertTask('zeta', null, false, ':sub2:subSub:zeta', invocationsAtSubSub.get(BuildInvocationFields.PROJECT_TASKS))
+    invocationsAtSubSub.projectTasks.collect { it.name } as Set == ['alpha', 'delta', 'zeta'] as Set
+    assertTask('alpha', 'ALPHA_SUB2', false, ':sub2:subSub:alpha', invocationsAtSubSub.projectTasks)
+    assertTask('delta', 'DELTA_SUB2', false, ':sub2:subSub:delta', invocationsAtSubSub.projectTasks)
+    assertTask('zeta', null, false, ':sub2:subSub:zeta', invocationsAtSubSub.projectTasks)
   }
 
-  private static void assertTaskSelector(String name, String description, boolean isPublic, List<String> taskNames, List<Model<TaskSelectorsFields>> selectors) {
-    def element = selectors.find { it.get(TaskSelectorsFields.NAME) == name }
+  private static void assertTaskSelector(String name, String description, boolean isPublic, List<String> taskNames, List<OmniTaskSelector> selectors) {
+    def element = selectors.find { it.name == name }
     assert element != null
-    assert element.get(TaskSelectorsFields.NAME) == name
-    assert element.get(TaskSelectorsFields.DESCRIPTION) == description
-    assert element.get(TaskSelectorsFields.IS_PUBLIC) == isPublic
-    assert element.get(TaskSelectorsFields.SELECTED_TASK_PATHS) as List == taskNames
+    assert element.name == name
+    assert element.description == description
+    assert element.isPublic() == isPublic
+    assert element.selectedTaskPaths as List == taskNames
   }
 
-  private static void assertTask(String name, String description, boolean isPublic, String path, List<Model<ProjectTaskFields>> tasks) {
-    def element = tasks.find { it.get(ProjectTaskFields.NAME) == name }
+  private static void assertTask(String name, String description, boolean isPublic, String path, List<OmniProjectTask> tasks) {
+    def element = tasks.find { it.name == name }
     assert element != null
-    assert element.get(ProjectTaskFields.NAME) == name
-    assert element.get(ProjectTaskFields.DESCRIPTION) == description
-    assert element.get(ProjectTaskFields.IS_PUBLIC) == isPublic
-    assert element.get(ProjectTaskFields.PATH) == path
+    assert element.name == name
+    assert element.description == description
+    assert element.isPublic() == isPublic
+    assert element.path == path
   }
 
 }
