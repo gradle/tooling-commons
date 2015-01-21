@@ -1,9 +1,6 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import com.gradleware.tooling.toolingmodel.EclipseProjectDependencyFields;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
-import com.gradleware.tooling.toolingmodel.generic.DefaultModel;
-import com.gradleware.tooling.toolingmodel.generic.Model;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
 
@@ -30,15 +27,10 @@ public final class DefaultOmniEclipseProjectDependency implements OmniEclipsePro
         return this.path;
     }
 
-    public static DefaultOmniEclipseProjectDependency from(Model<EclipseProjectDependencyFields> input) {
-        return new DefaultOmniEclipseProjectDependency(input.get(EclipseProjectDependencyFields.TARGET_PROJECT_PATH), input.get(EclipseProjectDependencyFields.PATH));
-    }
-
-    public static Model<EclipseProjectDependencyFields> from(EclipseProjectDependency input) {
-        DefaultModel<EclipseProjectDependencyFields> projectDependency = new DefaultModel<EclipseProjectDependencyFields>();
-        projectDependency.put(EclipseProjectDependencyFields.TARGET_PROJECT_PATH, ((EclipseProject) input.getTargetProject()).getGradleProject().getPath());
-        projectDependency.put(EclipseProjectDependencyFields.PATH, input.getPath());
-        return projectDependency;
+    public static DefaultOmniEclipseProjectDependency from(EclipseProjectDependency projectDependency) {
+        return new DefaultOmniEclipseProjectDependency(
+                ((EclipseProject) projectDependency.getTargetProject()).getGradleProject().getPath(),
+                projectDependency.getPath());
     }
 
 }

@@ -1,10 +1,7 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import com.gradleware.tooling.toolingmodel.ExternalDependencyFields;
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
 import com.gradleware.tooling.toolingmodel.OmniGradleModuleVersion;
-import com.gradleware.tooling.toolingmodel.generic.DefaultModel;
-import com.gradleware.tooling.toolingmodel.generic.Model;
 import org.gradle.tooling.model.ExternalDependency;
 
 import java.io.File;
@@ -46,21 +43,12 @@ public final class DefaultOmniExternalDependency implements OmniExternalDependen
         return this.gradleModuleVersion;
     }
 
-    public static DefaultOmniExternalDependency from(Model<ExternalDependencyFields> input) {
+    public static DefaultOmniExternalDependency from(ExternalDependency externalDependency) {
         return new DefaultOmniExternalDependency(
-                input.get(ExternalDependencyFields.FILE),
-                input.get(ExternalDependencyFields.SOURCE),
-                input.get(ExternalDependencyFields.JAVADOC),
-                input.get(ExternalDependencyFields.GRADLE_MODULE_VERSION));
-    }
-
-    public static Model<ExternalDependencyFields> from(ExternalDependency input) {
-        DefaultModel<ExternalDependencyFields> externalDependency = new DefaultModel<ExternalDependencyFields>();
-        externalDependency.put(ExternalDependencyFields.FILE, input.getFile());
-        externalDependency.put(ExternalDependencyFields.SOURCE, input.getSource());
-        externalDependency.put(ExternalDependencyFields.JAVADOC, input.getJavadoc());
-        externalDependency.put(ExternalDependencyFields.GRADLE_MODULE_VERSION, DefaultOmniGradleModuleVersion.from(input.getGradleModuleVersion()));
-        return externalDependency;
+                externalDependency.getFile(),
+                externalDependency.getSource(),
+                externalDependency.getJavadoc(),
+                DefaultOmniGradleModuleVersion.from(externalDependency.getGradleModuleVersion()));
     }
 
 }

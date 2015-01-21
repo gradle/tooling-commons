@@ -6,14 +6,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingmodel.EclipseProjectDependencyFields;
-import com.gradleware.tooling.toolingmodel.EclipseSourceDirectoryFields;
-import com.gradleware.tooling.toolingmodel.ExternalDependencyFields;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
-import com.gradleware.tooling.toolingmodel.generic.Model;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.ExternalDependency;
 import org.gradle.tooling.model.eclipse.EclipseProject;
@@ -145,9 +141,9 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         eclipseProject.setDescription(project.getDescription());
         eclipseProject.setPath(project.getGradleProject().getPath());
         eclipseProject.setProjectDirectory(project.getProjectDirectory());
-        eclipseProject.setProjectDependencies(toProjectDependencies(toProjectDependencies(project.getProjectDependencies())));
-        eclipseProject.setExternalDependencies(toExternalDependencies(toExternalDependencies(project.getClasspath())));
-        eclipseProject.setSourceDirectories(toSourceDirectories(toSourceDirectories(project.getSourceDirectories())));
+        eclipseProject.setProjectDependencies(toProjectDependencies(project.getProjectDependencies()));
+        eclipseProject.setExternalDependencies(toExternalDependencies(project.getClasspath()));
+        eclipseProject.setSourceDirectories(toSourceDirectories(project.getSourceDirectories()));
 
         for (EclipseProject child : project.getChildren()) {
             DefaultOmniEclipseProject eclipseChildProject = from(child);
@@ -157,55 +153,28 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         return eclipseProject;
     }
 
-    private static ImmutableList<OmniEclipseProjectDependency> toProjectDependencies(List<Model<EclipseProjectDependencyFields>> projectDependencies) {
-        return FluentIterable.from(projectDependencies).transform(new Function<Model<EclipseProjectDependencyFields>, OmniEclipseProjectDependency>() {
+    private static ImmutableList<OmniEclipseProjectDependency> toProjectDependencies(DomainObjectSet<? extends EclipseProjectDependency> projectDependencies) {
+        return FluentIterable.from(projectDependencies).transform(new Function<EclipseProjectDependency, OmniEclipseProjectDependency>() {
             @Override
-            public OmniEclipseProjectDependency apply(Model<EclipseProjectDependencyFields> input) {
+            public OmniEclipseProjectDependency apply(EclipseProjectDependency input) {
                 return DefaultOmniEclipseProjectDependency.from(input);
             }
         }).toList();
     }
 
-    private static ImmutableList<OmniExternalDependency> toExternalDependencies(List<Model<ExternalDependencyFields>> externalDependencies) {
-        return FluentIterable.from(externalDependencies).transform(new Function<Model<ExternalDependencyFields>, OmniExternalDependency>() {
+    private static ImmutableList<OmniExternalDependency> toExternalDependencies(DomainObjectSet<? extends ExternalDependency> externalDependencies) {
+        return FluentIterable.from(externalDependencies).transform(new Function<ExternalDependency, OmniExternalDependency>() {
             @Override
-            public OmniExternalDependency apply(Model<ExternalDependencyFields> input) {
+            public OmniExternalDependency apply(ExternalDependency input) {
                 return DefaultOmniExternalDependency.from(input);
             }
         }).toList();
     }
 
-    private static ImmutableList<OmniEclipseSourceDirectory> toSourceDirectories(List<Model<EclipseSourceDirectoryFields>> sourceDirectories) {
-        return FluentIterable.from(sourceDirectories).transform(new Function<Model<EclipseSourceDirectoryFields>, OmniEclipseSourceDirectory>() {
+    private static ImmutableList<OmniEclipseSourceDirectory> toSourceDirectories(DomainObjectSet<? extends EclipseSourceDirectory> sourceDirectories) {
+        return FluentIterable.from(sourceDirectories).transform(new Function<EclipseSourceDirectory, OmniEclipseSourceDirectory>() {
             @Override
-            public OmniEclipseSourceDirectory apply(Model<EclipseSourceDirectoryFields> input) {
-                return DefaultOmniEclipseSourceDirectory.from(input);
-            }
-        }).toList();
-    }
-
-    private static ImmutableList<Model<EclipseProjectDependencyFields>> toProjectDependencies(DomainObjectSet<? extends EclipseProjectDependency> projectDependencies) {
-        return FluentIterable.from(projectDependencies).transform(new Function<EclipseProjectDependency, Model<EclipseProjectDependencyFields>>() {
-            @Override
-            public Model<EclipseProjectDependencyFields> apply(EclipseProjectDependency input) {
-                return DefaultOmniEclipseProjectDependency.from(input);
-            }
-        }).toList();
-    }
-
-    private static ImmutableList<Model<ExternalDependencyFields>> toExternalDependencies(DomainObjectSet<? extends ExternalDependency> externalDependencies) {
-        return FluentIterable.from(externalDependencies).transform(new Function<ExternalDependency, Model<ExternalDependencyFields>>() {
-            @Override
-            public Model<ExternalDependencyFields> apply(ExternalDependency input) {
-                return DefaultOmniExternalDependency.from(input);
-            }
-        }).toList();
-    }
-
-    private static ImmutableList<Model<EclipseSourceDirectoryFields>> toSourceDirectories(DomainObjectSet<? extends EclipseSourceDirectory> sourceDirectories) {
-        return FluentIterable.from(sourceDirectories).transform(new Function<EclipseSourceDirectory, Model<EclipseSourceDirectoryFields>>() {
-            @Override
-            public Model<EclipseSourceDirectoryFields> apply(EclipseSourceDirectory input) {
+            public OmniEclipseSourceDirectory apply(EclipseSourceDirectory input) {
                 return DefaultOmniEclipseSourceDirectory.from(input);
             }
         }).toList();
