@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
+import com.gradleware.tooling.toolingmodel.util.Maybe;
 import org.gradle.tooling.model.gradle.BasicGradleProject;
 
 import java.io.File;
@@ -18,7 +19,7 @@ public final class DefaultOmniGradleProjectStructure implements OmniGradleProjec
     private final HierarchyHelper<OmniGradleProjectStructure> hierarchyHelper;
     private String name;
     private String path;
-    private File projectDirectory;
+    private Maybe<File> projectDirectory;
 
     private DefaultOmniGradleProjectStructure(Comparator<? super OmniGradleProjectStructure> comparator) {
         this.hierarchyHelper = new HierarchyHelper<OmniGradleProjectStructure>(this, Preconditions.checkNotNull(comparator));
@@ -43,11 +44,11 @@ public final class DefaultOmniGradleProjectStructure implements OmniGradleProjec
     }
 
     @Override
-    public File getProjectDirectory() {
+    public Maybe<File> getProjectDirectory() {
         return this.projectDirectory;
     }
 
-    private void setProjectDirectory(File projectDirectory) {
+    private void setProjectDirectory(Maybe<File> projectDirectory) {
         this.projectDirectory = projectDirectory;
     }
 
@@ -108,9 +109,9 @@ public final class DefaultOmniGradleProjectStructure implements OmniGradleProjec
     private static void setProjectDirectory(DefaultOmniGradleProjectStructure projectStructure, BasicGradleProject project) {
         try {
             File projectDirectory = project.getProjectDirectory();
-            projectStructure.setProjectDirectory(projectDirectory);
+            projectStructure.setProjectDirectory(Maybe.of(projectDirectory));
         } catch (Exception ignore) {
-            // do not store if field value is not present
+            projectStructure.setProjectDirectory(Maybe.<File>absent());
         }
     }
 

@@ -3,6 +3,7 @@ package com.gradleware.tooling.toolingmodel;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.gradleware.tooling.toolingmodel.util.Maybe;
 
 import java.io.File;
 
@@ -71,6 +72,6 @@ public interface OmniGradleProjectStructure extends HierarchicalModel<OmniGradle
      *
      * @return the project directory
      */
-    File getProjectDirectory();
+    Maybe<File> getProjectDirectory();
 
 }

@@ -174,13 +174,17 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     gradleBuildStructure.rootProject != null
     gradleBuildStructure.rootProject.name == 'my root project'
     gradleBuildStructure.rootProject.path == ':'
-    gradleBuildStructure.rootProject.projectDirectory?.absolutePath == (higherOrEqual("1.8", distribution) ? directoryProvider.testDirectory.absolutePath : null)
+    if (higherOrEqual("1.8", distribution)) {
+      gradleBuildStructure.rootProject.projectDirectory.get().absolutePath == directoryProvider.testDirectory.absolutePath
+    } else {
+      !gradleBuildStructure.rootProject.projectDirectory.isPresent()
+    }
     gradleBuildStructure.rootProject.parent == null
     gradleBuildStructure.rootProject.children.size() == 2
     gradleBuildStructure.rootProject.children*.name == ['sub1', 'sub2']
     gradleBuildStructure.rootProject.children*.path == [':sub1', ':sub2']
     gradleBuildStructure.rootProject.children*.projectDirectory.collect {
-      it?.absolutePath
+      it.present ? it.get().absolutePath : null
     } == (higherOrEqual("1.8", distribution) ? ['sub1', 'sub2'].collect { new File(directoryProvider.testDirectory, it).absolutePath } : [null, null])
     gradleBuildStructure.rootProject.children*.parent == [gradleBuildStructure.rootProject, gradleBuildStructure.rootProject]
     gradleBuildStructure.rootProject.all.size() == 4
