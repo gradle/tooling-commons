@@ -1,11 +1,10 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
+import com.google.common.base.Preconditions;
 import com.gradleware.tooling.toolingmodel.EclipseProjectFields;
-import com.gradleware.tooling.toolingmodel.GradleProjectFields;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
-import com.gradleware.tooling.toolingmodel.generic.DefaultHierarchicalModel;
 import com.gradleware.tooling.toolingmodel.generic.HierarchicalModel;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
@@ -14,15 +13,11 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
  */
 public final class DefaultOmniEclipseGradleBuild implements OmniEclipseGradleBuild {
 
-    private final HierarchicalModel<EclipseProjectFields> rootEclipseProjectModel;
     private final OmniEclipseProject rootEclipseProject;
-    private final HierarchicalModel<GradleProjectFields> rootProjectModel;
     private final OmniGradleProject rootProject;
 
-    public DefaultOmniEclipseGradleBuild(HierarchicalModel<EclipseProjectFields> rootEclipseProjectModel, OmniEclipseProject rootEclipseProject, HierarchicalModel<GradleProjectFields> rootProjectModel, OmniGradleProject rootProject) {
-        this.rootEclipseProjectModel = rootEclipseProjectModel;
+    private DefaultOmniEclipseGradleBuild(OmniEclipseProject rootEclipseProject, OmniGradleProject rootProject) {
         this.rootEclipseProject = rootEclipseProject;
-        this.rootProjectModel = rootProjectModel;
         this.rootProject = rootProject;
     }
 
@@ -32,26 +27,17 @@ public final class DefaultOmniEclipseGradleBuild implements OmniEclipseGradleBui
     }
 
     @Override
-    public HierarchicalModel<EclipseProjectFields> getRootEclipseProjectModel() {
-        return this.rootEclipseProjectModel;
-    }
-
-    @Override
-    public HierarchicalModel<GradleProjectFields> getRootProjectModel() {
-        return this.rootProjectModel;
-    }
-
-    @Override
     public OmniGradleProject getRootProject() {
         return this.rootProject;
     }
 
-    public static DefaultOmniEclipseGradleBuild from(EclipseProject eclipseGradleRootProject, boolean enforceAllTasksPublic) {
-        HierarchicalModel<EclipseProjectFields> rootEclipseProjectModel = DefaultOmniEclipseProject.from(eclipseGradleRootProject);
+    public static DefaultOmniEclipseGradleBuild from(EclipseProject eclipseProject, boolean enforceAllTasksPublic) {
+        Preconditions.checkState(eclipseProject.getParent() == null, "Provided Eclipse project is not the root project.");
+        HierarchicalModel<EclipseProjectFields> rootEclipseProjectModel = DefaultOmniEclipseProject.from(eclipseProject);
         OmniEclipseProject rootEclipseProject = DefaultOmniEclipseProject.from(rootEclipseProjectModel);
-        DefaultHierarchicalModel<GradleProjectFields> rootGradleProjectModel = DefaultOmniGradleProject.from(eclipseGradleRootProject.getGradleProject(), enforceAllTasksPublic);
-        DefaultOmniGradleProject rootGradleProject = DefaultOmniGradleProject.from(rootGradleProjectModel);
-        return new DefaultOmniEclipseGradleBuild(rootEclipseProjectModel, rootEclipseProject, rootGradleProjectModel, rootGradleProject);
+        return new DefaultOmniEclipseGradleBuild(
+                rootEclipseProject,
+                DefaultOmniGradleProject.from(eclipseProject.getGradleProject(), enforceAllTasksPublic));
     }
 
 }

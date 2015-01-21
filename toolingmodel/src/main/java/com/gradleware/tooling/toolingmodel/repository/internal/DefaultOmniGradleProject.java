@@ -7,19 +7,14 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.BuildInvocationFields;
-import com.gradleware.tooling.toolingmodel.GradleProjectFields;
-import com.gradleware.tooling.toolingmodel.GradleScriptFields;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleScript;
 import com.gradleware.tooling.toolingmodel.OmniProjectTask;
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
 import com.gradleware.tooling.toolingmodel.ProjectTaskFields;
 import com.gradleware.tooling.toolingmodel.TaskSelectorsFields;
-import com.gradleware.tooling.toolingmodel.generic.DefaultHierarchicalModel;
-import com.gradleware.tooling.toolingmodel.generic.DefaultModel;
-import com.gradleware.tooling.toolingmodel.generic.HierarchicalModel;
 import com.gradleware.tooling.toolingmodel.generic.Model;
-import com.gradleware.tooling.toolingmodel.generic.ModelField;
+import com.gradleware.tooling.toolingmodel.util.Maybe;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.gradle.GradleScript;
 
@@ -36,9 +31,9 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
     private String name;
     private String description;
     private String path;
-    private File projectDirectory;
-    private File buildDirectory;
-    private OmniGradleScript buildScript;
+    private Maybe<File> projectDirectory;
+    private Maybe<File> buildDirectory;
+    private Maybe<OmniGradleScript> buildScript;
     private ImmutableList<OmniProjectTask> projectTasks;
     private ImmutableList<OmniTaskSelector> taskSelectors;
 
@@ -74,29 +69,29 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
     }
 
     @Override
-    public File getProjectDirectory() {
+    public Maybe<File> getProjectDirectory() {
         return this.projectDirectory;
     }
 
-    private void setProjectDirectory(File projectDirectory) {
+    private void setProjectDirectory(Maybe<File> projectDirectory) {
         this.projectDirectory = projectDirectory;
     }
 
     @Override
-    public File getBuildDirectory() {
+    public Maybe<File> getBuildDirectory() {
         return this.buildDirectory;
     }
 
-    public void setBuildDirectory(File buildDirectory) {
+    public void setBuildDirectory(Maybe<File> buildDirectory) {
         this.buildDirectory = buildDirectory;
     }
 
     @Override
-    public OmniGradleScript getBuildScript() {
+    public Maybe<OmniGradleScript> getBuildScript() {
         return this.buildScript;
     }
 
-    public void setBuildScript(OmniGradleScript buildScript) {
+    public void setBuildScript(Maybe<OmniGradleScript> buildScript) {
         this.buildScript = buildScript;
     }
 
@@ -152,19 +147,25 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
         return this.hierarchyHelper.tryFind(predicate);
     }
 
-    public static DefaultOmniGradleProject from(HierarchicalModel<GradleProjectFields> project) {
-        DefaultOmniGradleProject gradleProject = new DefaultOmniGradleProject(OmniGradleProjectComparator.INSTANCE);
-        gradleProject.setName(project.get(GradleProjectFields.NAME));
-        gradleProject.setDescription(project.get(GradleProjectFields.DESCRIPTION));
-        gradleProject.setPath(project.get(GradleProjectFields.PATH));
-        gradleProject.setProjectDirectory(project.get(GradleProjectFields.PROJECT_DIRECTORY));
-        gradleProject.setBuildDirectory(project.get(GradleProjectFields.BUILD_DIRECTORY));
-        gradleProject.setBuildScript(DefaultOmniGradleScript.from(project.get(GradleProjectFields.BUILD_SCRIPT)));
-        gradleProject.setProjectTasks(toProjectTasks(project.get(GradleProjectFields.PROJECT_TASKS)));
-        gradleProject.setTaskSelectors(toTaskSelectors(project.get(GradleProjectFields.TASK_SELECTORS)));
+    public static DefaultOmniGradleProject from(GradleProject project, boolean enforceAllTasksPublic) {
+        BuildInvocationsContainer buildInvocationsContainer = BuildInvocationsContainer.from(project, enforceAllTasksPublic);
+        return convert(project, buildInvocationsContainer);
+    }
 
-        for (HierarchicalModel<GradleProjectFields> child : project.getChildren()) {
-            DefaultOmniGradleProject gradleProjectChild = from(child);
+    private static DefaultOmniGradleProject convert(GradleProject project, BuildInvocationsContainer buildInvocationsContainer) {
+        DefaultOmniGradleProject gradleProject = new DefaultOmniGradleProject(OmniGradleProjectComparator.INSTANCE);
+        gradleProject.setName(project.getName());
+        gradleProject.setDescription(project.getDescription());
+        gradleProject.setPath(project.getPath());
+        setProjectDirectory(gradleProject, project);
+        setBuildDirectory(gradleProject, project);
+        setBuildScript(gradleProject, project);
+        Model<BuildInvocationFields> buildInvocations = buildInvocationsContainer.asMap().get(project.getPath());
+        gradleProject.setProjectTasks(toProjectTasks(buildInvocations.get(BuildInvocationFields.PROJECT_TASKS)));
+        gradleProject.setTaskSelectors(toTaskSelectors(buildInvocations.get(BuildInvocationFields.TASK_SELECTORS)));
+
+        for (GradleProject child : project.getChildren()) {
+            DefaultOmniGradleProject gradleProjectChild = convert(child, buildInvocationsContainer);
             gradleProject.addChild(gradleProjectChild);
         }
 
@@ -189,44 +190,18 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
         }).toList();
     }
 
-    public static DefaultHierarchicalModel<GradleProjectFields> from(GradleProject gradleProject, boolean enforceAllTasksPublic) {
-        BuildInvocationsContainer buildInvocationsContainer = BuildInvocationsContainer.from(gradleProject, enforceAllTasksPublic);
-        return convert(gradleProject, buildInvocationsContainer);
-    }
-
-    public static DefaultHierarchicalModel<GradleProjectFields> convert(GradleProject project, BuildInvocationsContainer buildInvocationsContainer) {
-        DefaultHierarchicalModel<GradleProjectFields> gradleProject = new DefaultHierarchicalModel<GradleProjectFields>(GradleProjectComparator.INSTANCE);
-        gradleProject.put(GradleProjectFields.NAME, project.getName());
-        gradleProject.put(GradleProjectFields.DESCRIPTION, project.getDescription());
-        gradleProject.put(GradleProjectFields.PATH, project.getPath());
-        setProjectDirectory(gradleProject, GradleProjectFields.PROJECT_DIRECTORY, project);
-        setBuildDirectory(gradleProject, GradleProjectFields.BUILD_DIRECTORY, project);
-        setBuildScript(gradleProject, GradleProjectFields.BUILD_SCRIPT, project);
-        Model<BuildInvocationFields> buildInvocations = buildInvocationsContainer.asMap().get(project.getPath());
-        gradleProject.put(GradleProjectFields.PROJECT_TASKS, buildInvocations.get(BuildInvocationFields.PROJECT_TASKS));
-        gradleProject.put(GradleProjectFields.TASK_SELECTORS, buildInvocations.get(BuildInvocationFields.TASK_SELECTORS));
-
-        for (GradleProject child : project.getChildren()) {
-            DefaultHierarchicalModel<GradleProjectFields> gradleProjectChild = convert(child, buildInvocationsContainer);
-            gradleProject.addChild(gradleProjectChild);
-        }
-
-        return gradleProject;
-    }
-
     /**
      * GradleProject#getProjectDirectory is only available in Gradle versions >= 2.4.
      *
      * @param gradleProject the project to populate
-     * @param projectDirectoryField the field from which to derive the default project directory in case it is not available on the project model
      * @param project the project model
      */
-    private static void setProjectDirectory(DefaultHierarchicalModel<GradleProjectFields> gradleProject, ModelField<File, GradleProjectFields> projectDirectoryField, GradleProject project) {
+    private static void setProjectDirectory(DefaultOmniGradleProject gradleProject, GradleProject project) {
         try {
             File projectDirectory = project.getProjectDirectory();
-            gradleProject.put(projectDirectoryField, projectDirectory);
+            gradleProject.setProjectDirectory(Maybe.of(projectDirectory));
         } catch (Exception ignore) {
-            // do not store if field value is not present
+            gradleProject.setProjectDirectory(Maybe.<File>absent());
         }
     }
 
@@ -234,15 +209,14 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
      * GradleProject#getBuildDirectory is only available in Gradle versions >= 2.0.
      *
      * @param gradleProject the project to populate
-     * @param buildDirectoryField the field from which to derive the default build directory in case it is not available on the project model
      * @param project the project model
      */
-    private static void setBuildDirectory(DefaultHierarchicalModel<GradleProjectFields> gradleProject, ModelField<File, GradleProjectFields> buildDirectoryField, GradleProject project) {
+    private static void setBuildDirectory(DefaultOmniGradleProject gradleProject, GradleProject project) {
         try {
             File buildDirectory = project.getBuildDirectory();
-            gradleProject.put(buildDirectoryField, buildDirectory);
+            gradleProject.setBuildDirectory(Maybe.of(buildDirectory));
         } catch (Exception ignore) {
-            // do not store if field value is not present
+            gradleProject.setBuildDirectory(Maybe.<File>absent());
         }
     }
 
@@ -250,17 +224,14 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
      * GradleProject#getBuildScript is only available in Gradle versions >= 1.8.
      *
      * @param gradleProject the project to populate
-     * @param buildScriptField the field from which to derive the default build script in case it is not available on the project model
      * @param project the project model
      */
-    private static void setBuildScript(DefaultHierarchicalModel<GradleProjectFields> gradleProject, ModelField<Model<GradleScriptFields>, GradleProjectFields> buildScriptField, GradleProject project) {
+    private static void setBuildScript(DefaultOmniGradleProject gradleProject, GradleProject project) {
         try {
-            GradleScript buildScriptOrigin = project.getBuildScript();
-            DefaultModel<GradleScriptFields> buildScript = new DefaultModel<GradleScriptFields>();
-            buildScript.put(GradleScriptFields.SOURCE_FILE, buildScriptOrigin.getSourceFile());
-            gradleProject.put(buildScriptField, buildScript);
+            GradleScript buildScript = project.getBuildScript();
+            gradleProject.setBuildScript(Maybe.<OmniGradleScript>of(DefaultOmniGradleScript.from(buildScript)));
         } catch (Exception ignore) {
-            // do not store if field value is not present
+            gradleProject.setBuildScript(Maybe.<OmniGradleScript>absent());
         }
     }
 
@@ -274,20 +245,6 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
         @Override
         public int compare(OmniGradleProject o1, OmniGradleProject o2) {
             return PathComparator.INSTANCE.compare(o1.getPath(), o2.getPath());
-        }
-
-    }
-
-    /**
-     * Compares GradleProjects by their project path.
-     */
-    private static final class GradleProjectComparator implements Comparator<Model<GradleProjectFields>> {
-
-        public static final GradleProjectComparator INSTANCE = new GradleProjectComparator();
-
-        @Override
-        public int compare(Model<GradleProjectFields> o1, Model<GradleProjectFields> o2) {
-            return PathComparator.INSTANCE.compare(o1.get(GradleProjectFields.PATH), o2.get(GradleProjectFields.PATH));
         }
 
     }

@@ -175,9 +175,9 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     gradleBuildStructure.rootProject.name == 'my root project'
     gradleBuildStructure.rootProject.path == ':'
     if (higherOrEqual("1.8", distribution)) {
-      gradleBuildStructure.rootProject.projectDirectory.get().absolutePath == directoryProvider.testDirectory.absolutePath
+      assert gradleBuildStructure.rootProject.projectDirectory.get().absolutePath == directoryProvider.testDirectory.absolutePath
     } else {
-      !gradleBuildStructure.rootProject.projectDirectory.isPresent()
+      assert !gradleBuildStructure.rootProject.projectDirectory.isPresent()
     }
     gradleBuildStructure.rootProject.parent == null
     gradleBuildStructure.rootProject.children.size() == 2
@@ -256,9 +256,21 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     gradleBuild.rootProject.name == 'my root project'
     gradleBuild.rootProject.description == 'a sample root project'
     gradleBuild.rootProject.path == ':'
-    gradleBuild.rootProject.projectDirectory?.absolutePath == (higherOrEqual("2.4", distribution) ? directoryProvider.testDirectory.absolutePath : null)
-    gradleBuild.rootProject.buildDirectory?.absolutePath == (higherOrEqual("2.0", distribution) ? directoryProvider.file('build').absolutePath : null)
-    gradleBuild.rootProject.buildScript.sourceFile?.absolutePath == (higherOrEqual("1.8", distribution) ? directoryProvider.file('build.gradle').absolutePath : null)
+    if (higherOrEqual("2.4", distribution)) {
+      assert gradleBuild.rootProject.projectDirectory.get().absolutePath == directoryProvider.testDirectory.absolutePath
+    } else {
+      assert !gradleBuild.rootProject.projectDirectory.isPresent()
+    }
+    if (higherOrEqual("2.0", distribution)) {
+      assert gradleBuild.rootProject.buildDirectory.get().absolutePath == directoryProvider.file('build').absolutePath
+    } else {
+      assert !gradleBuild.rootProject.buildDirectory.isPresent()
+    }
+    if (higherOrEqual("1.8", distribution)) {
+      assert gradleBuild.rootProject.buildScript.get().sourceFile.absolutePath == directoryProvider.file('build.gradle').absolutePath
+    } else {
+      assert !gradleBuild.rootProject.buildScript.isPresent()
+    }
     gradleBuild.rootProject.projectTasks.findAll { !IMPLICIT_TASKS.contains(it.name) }.size() == 1
     gradleBuild.rootProject.parent == null
     gradleBuild.rootProject.children.size() == 2

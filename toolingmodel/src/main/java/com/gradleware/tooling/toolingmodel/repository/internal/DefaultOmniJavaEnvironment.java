@@ -15,7 +15,7 @@ public final class DefaultOmniJavaEnvironment implements OmniJavaEnvironment {
     private final File javaHome;
     private final ImmutableList<String> jvmArguments;
 
-    public DefaultOmniJavaEnvironment(File javaHome, List<String> jvmArguments) {
+    private DefaultOmniJavaEnvironment(File javaHome, List<String> jvmArguments) {
         this.javaHome = javaHome;
         this.jvmArguments = ImmutableList.copyOf(jvmArguments);
     }

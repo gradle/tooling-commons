@@ -3,6 +3,7 @@ package com.gradleware.tooling.toolingmodel;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.gradleware.tooling.toolingmodel.util.Maybe;
 
 import java.io.File;
 
@@ -78,21 +79,21 @@ public interface OmniGradleProject extends HierarchicalModel<OmniGradleProject> 
      *
      * @return the project directory
      */
-    File getProjectDirectory();
+    Maybe<File> getProjectDirectory();
 
     /**
      * Returns the build directory of this project.
      *
      * @return the build directory
      */
-    File getBuildDirectory();
+    Maybe<File> getBuildDirectory();
 
     /**
      * Returns the build script of this project.
      *
      * @return the build script
      */
-    OmniGradleScript getBuildScript();
+    Maybe<OmniGradleScript> getBuildScript();
 
     /**
      * Returns the tasks of this project.

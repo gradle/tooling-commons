@@ -1,8 +1,7 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import com.gradleware.tooling.toolingmodel.GradleScriptFields;
 import com.gradleware.tooling.toolingmodel.OmniGradleScript;
-import com.gradleware.tooling.toolingmodel.generic.Model;
+import org.gradle.tooling.model.gradle.GradleScript;
 
 import java.io.File;
 
@@ -13,7 +12,7 @@ public final class DefaultOmniGradleScript implements OmniGradleScript {
 
     private final File sourceFile;
 
-    public DefaultOmniGradleScript(File sourceFile) {
+    private DefaultOmniGradleScript(File sourceFile) {
         this.sourceFile = sourceFile;
     }
 
@@ -22,8 +21,8 @@ public final class DefaultOmniGradleScript implements OmniGradleScript {
         return this.sourceFile;
     }
 
-    public static DefaultOmniGradleScript from(Model<GradleScriptFields> gradleScript) {
-        return new DefaultOmniGradleScript(gradleScript.get(GradleScriptFields.SOURCE_FILE));
+    public static DefaultOmniGradleScript from(GradleScript gradleScript) {
+        return new DefaultOmniGradleScript(gradleScript.getSourceFile());
     }
 
 }

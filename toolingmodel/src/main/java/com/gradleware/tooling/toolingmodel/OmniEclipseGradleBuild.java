@@ -1,7 +1,5 @@
 package com.gradleware.tooling.toolingmodel;
 
-import com.gradleware.tooling.toolingmodel.generic.HierarchicalModel;
-
 /**
  * Provides detailed information about the Gradle build, suited for consumption in Eclipse.
  *
@@ -22,19 +20,5 @@ public interface OmniEclipseGradleBuild extends BuildScopedModel {
      * @return the root Gradle project
      */
     OmniGradleProject getRootProject();
-
-    /**
-     * Returns the root Eclipse project of the build.
-     *
-     * @return the root Eclipse project
-     */
-    HierarchicalModel<EclipseProjectFields> getRootEclipseProjectModel();
-
-    /**
-     * Returns the root Gradle project of the build.
-     *
-     * @return the root Gradle project
-     */
-    HierarchicalModel<GradleProjectFields> getRootProjectModel();
 
 }
