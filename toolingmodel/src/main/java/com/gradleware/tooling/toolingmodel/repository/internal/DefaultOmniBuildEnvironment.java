@@ -1,32 +1,19 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import com.gradleware.tooling.toolingmodel.GradleEnvironmentFields;
-import com.gradleware.tooling.toolingmodel.JavaEnvironmentFields;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniGradleEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniJavaEnvironment;
-import com.gradleware.tooling.toolingmodel.generic.DefaultModel;
-import com.gradleware.tooling.toolingmodel.generic.Model;
 import org.gradle.tooling.model.build.BuildEnvironment;
-import org.gradle.tooling.model.build.GradleEnvironment;
-import org.gradle.tooling.model.build.JavaEnvironment;
-
-import java.io.File;
-import java.util.List;
 
 /**
  * Default implementation of the {@link OmniBuildEnvironment} interface.
  */
 public final class DefaultOmniBuildEnvironment implements OmniBuildEnvironment {
 
-    private final Model<GradleEnvironmentFields> gradleModel;
-    private final Model<JavaEnvironmentFields> javaModel;
     private final OmniGradleEnvironment gradle;
     private final OmniJavaEnvironment java;
 
-    private DefaultOmniBuildEnvironment(Model<GradleEnvironmentFields> gradleModel, Model<JavaEnvironmentFields> javaModel, OmniGradleEnvironment gradle, OmniJavaEnvironment java) {
-        this.gradleModel = gradleModel;
-        this.javaModel = javaModel;
+    private DefaultOmniBuildEnvironment(OmniGradleEnvironment gradle, OmniJavaEnvironment java) {
         this.gradle = gradle;
         this.java = java;
     }
@@ -37,50 +24,14 @@ public final class DefaultOmniBuildEnvironment implements OmniBuildEnvironment {
     }
 
     @Override
-    public Model<GradleEnvironmentFields> getGradleModel() {
-        return this.gradleModel;
-    }
-
-    @Override
     public OmniJavaEnvironment getJava() {
         return this.java;
     }
 
-    @Override
-    public Model<JavaEnvironmentFields> getJavaModel() {
-        return this.javaModel;
-    }
-
     public static DefaultOmniBuildEnvironment from(BuildEnvironment buildEnvironment) {
-        final DefaultModel<GradleEnvironmentFields> gradleModel = new DefaultModel<GradleEnvironmentFields>();
-        GradleEnvironment gradleOrigin = buildEnvironment.getGradle();
-        gradleModel.put(GradleEnvironmentFields.GRADLE_VERSION, gradleOrigin.getGradleVersion());
-
-        final DefaultModel<JavaEnvironmentFields> javaModel = new DefaultModel<JavaEnvironmentFields>();
-        JavaEnvironment javaOrigin = buildEnvironment.getJava();
-        javaModel.put(JavaEnvironmentFields.JAVA_HOME, javaOrigin.getJavaHome());
-        javaModel.put(JavaEnvironmentFields.JVM_ARGS, javaOrigin.getJvmArguments());
-
-        OmniGradleEnvironment gradle = new OmniGradleEnvironment() {
-            @Override
-            public String getGradleVersion() {
-                return gradleModel.get(GradleEnvironmentFields.GRADLE_VERSION);
-            }
-        };
-
-        OmniJavaEnvironment java = new OmniJavaEnvironment() {
-            @Override
-            public File getJavaHome() {
-                return javaModel.get(JavaEnvironmentFields.JAVA_HOME);
-            }
-
-            @Override
-            public List<String> getJvmArguments() {
-                return javaModel.get(JavaEnvironmentFields.JVM_ARGS);
-            }
-        };
-
-        return new DefaultOmniBuildEnvironment(gradleModel, javaModel, gradle, java);
+        return new DefaultOmniBuildEnvironment(
+                DefaultOmniGradleEnvironment.from(buildEnvironment.getGradle()),
+                DefaultOmniJavaEnvironment.from(buildEnvironment.getJava()));
     }
 
 }
