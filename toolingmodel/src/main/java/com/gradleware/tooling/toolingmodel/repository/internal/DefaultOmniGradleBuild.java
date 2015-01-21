@@ -1,5 +1,6 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
+import com.google.common.base.Preconditions;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import org.gradle.tooling.model.GradleProject;
@@ -21,6 +22,7 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
     }
 
     public static DefaultOmniGradleBuild from(GradleProject gradleRootProject, boolean enforceAllTasksPublic) {
+        Preconditions.checkState(gradleRootProject.getParent() == null, "Provided Gradle project is not the root project.");
         return new DefaultOmniGradleBuild(DefaultOmniGradleProject.from(gradleRootProject, enforceAllTasksPublic));
     }
 

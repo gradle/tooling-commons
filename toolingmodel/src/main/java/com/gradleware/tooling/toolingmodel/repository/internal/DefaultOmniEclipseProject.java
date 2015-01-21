@@ -7,15 +7,12 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.EclipseProjectDependencyFields;
-import com.gradleware.tooling.toolingmodel.EclipseProjectFields;
 import com.gradleware.tooling.toolingmodel.EclipseSourceDirectoryFields;
 import com.gradleware.tooling.toolingmodel.ExternalDependencyFields;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
-import com.gradleware.tooling.toolingmodel.generic.DefaultHierarchicalModel;
-import com.gradleware.tooling.toolingmodel.generic.HierarchicalModel;
 import com.gradleware.tooling.toolingmodel.generic.Model;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.ExternalDependency;
@@ -142,17 +139,17 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         return this.hierarchyHelper.tryFind(predicate);
     }
 
-    public static DefaultOmniEclipseProject from(HierarchicalModel<EclipseProjectFields> project) {
+    public static DefaultOmniEclipseProject from(EclipseProject project) {
         DefaultOmniEclipseProject eclipseProject = new DefaultOmniEclipseProject(OmniEclipseProjectComparator.INSTANCE);
-        eclipseProject.setName(project.get(EclipseProjectFields.NAME));
-        eclipseProject.setDescription(project.get(EclipseProjectFields.DESCRIPTION));
-        eclipseProject.setPath(project.get(EclipseProjectFields.PATH));
-        eclipseProject.setProjectDirectory(project.get(EclipseProjectFields.PROJECT_DIRECTORY));
-        eclipseProject.setProjectDependencies(toProjectDependencies(project.get(EclipseProjectFields.PROJECT_DEPENDENCIES)));
-        eclipseProject.setExternalDependencies(toExternalDependencies(project.get(EclipseProjectFields.EXTERNAL_DEPENDENCIES)));
-        eclipseProject.setSourceDirectories(toSourceDirectories(project.get(EclipseProjectFields.SOURCE_DIRECTORIES)));
+        eclipseProject.setName(project.getName());
+        eclipseProject.setDescription(project.getDescription());
+        eclipseProject.setPath(project.getGradleProject().getPath());
+        eclipseProject.setProjectDirectory(project.getProjectDirectory());
+        eclipseProject.setProjectDependencies(toProjectDependencies(toProjectDependencies(project.getProjectDependencies())));
+        eclipseProject.setExternalDependencies(toExternalDependencies(toExternalDependencies(project.getClasspath())));
+        eclipseProject.setSourceDirectories(toSourceDirectories(toSourceDirectories(project.getSourceDirectories())));
 
-        for (HierarchicalModel<EclipseProjectFields> child : project.getChildren()) {
+        for (EclipseProject child : project.getChildren()) {
             DefaultOmniEclipseProject eclipseChildProject = from(child);
             eclipseProject.addChild(eclipseChildProject);
         }
@@ -185,24 +182,6 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
                 return DefaultOmniEclipseSourceDirectory.from(input);
             }
         }).toList();
-    }
-
-    public static DefaultHierarchicalModel<EclipseProjectFields> from(EclipseProject project) {
-        DefaultHierarchicalModel<EclipseProjectFields> eclipseProject = new DefaultHierarchicalModel<EclipseProjectFields>(EclipseProjectComparator.INSTANCE);
-        eclipseProject.put(EclipseProjectFields.NAME, project.getName());
-        eclipseProject.put(EclipseProjectFields.DESCRIPTION, project.getDescription());
-        eclipseProject.put(EclipseProjectFields.PATH, project.getGradleProject().getPath());
-        eclipseProject.put(EclipseProjectFields.PROJECT_DIRECTORY, project.getProjectDirectory());
-        eclipseProject.put(EclipseProjectFields.PROJECT_DEPENDENCIES, toProjectDependencies(project.getProjectDependencies()));
-        eclipseProject.put(EclipseProjectFields.EXTERNAL_DEPENDENCIES, toExternalDependencies(project.getClasspath()));
-        eclipseProject.put(EclipseProjectFields.SOURCE_DIRECTORIES, toSourceDirectories(project.getSourceDirectories()));
-
-        for (EclipseProject child : project.getChildren()) {
-            DefaultHierarchicalModel<EclipseProjectFields> eclipseChildProject = from(child);
-            eclipseProject.addChild(eclipseChildProject);
-        }
-
-        return eclipseProject;
     }
 
     private static ImmutableList<Model<EclipseProjectDependencyFields>> toProjectDependencies(DomainObjectSet<? extends EclipseProjectDependency> projectDependencies) {
@@ -242,20 +221,6 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         @Override
         public int compare(OmniEclipseProject o1, OmniEclipseProject o2) {
             return PathComparator.INSTANCE.compare(o1.getPath(), o2.getPath());
-        }
-
-    }
-
-    /**
-     * Compares EclipseProjects by their project path.
-     */
-    private static final class EclipseProjectComparator implements Comparator<Model<EclipseProjectFields>> {
-
-        public static final EclipseProjectComparator INSTANCE = new EclipseProjectComparator();
-
-        @Override
-        public int compare(Model<EclipseProjectFields> o1, Model<EclipseProjectFields> o2) {
-            return PathComparator.INSTANCE.compare(o1.get(EclipseProjectFields.PATH), o2.get(EclipseProjectFields.PATH));
         }
 
     }
