@@ -163,7 +163,14 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     }
 
     private static ImmutableList<OmniExternalDependency> toExternalDependencies(DomainObjectSet<? extends ExternalDependency> externalDependencies) {
-        return FluentIterable.from(externalDependencies).transform(new Function<ExternalDependency, OmniExternalDependency>() {
+        // filter out invalid external dependencies
+        // Gradle versions <= 1.10 return external dependencies from dependent projects that are not valid, i.e. all fields are null except the file with name 'unresolved dependency...'
+        return FluentIterable.from(externalDependencies).filter(new Predicate<ExternalDependency>() {
+            @Override
+            public boolean apply(ExternalDependency input) {
+                return input.getFile().exists();
+            }
+        }).transform(new Function<ExternalDependency, OmniExternalDependency>() {
             @Override
             public OmniExternalDependency apply(ExternalDependency input) {
                 return DefaultOmniExternalDependency.from(input);
