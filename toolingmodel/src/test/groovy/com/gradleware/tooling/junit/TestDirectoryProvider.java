@@ -40,7 +40,7 @@ public final class TestDirectoryProvider implements TestRule {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestDirectoryProvider.class);
 
-    private final int providerId;
+    private final String id;
     private File dir;
     private String prefix;
 
@@ -52,7 +52,11 @@ public final class TestDirectoryProvider implements TestRule {
     }
 
     public TestDirectoryProvider() {
-        this.providerId = providerCounter.getAndIncrement();
+        this(String.valueOf(providerCounter.getAndIncrement()));
+    }
+
+    public TestDirectoryProvider(String id) {
+        this.id = id;
     }
 
     @Override
@@ -79,7 +83,7 @@ public final class TestDirectoryProvider implements TestRule {
             if (safeMethodName.length() > 128) {
                 safeMethodName = safeMethodName.substring(0, 64) + "..." + safeMethodName.substring(safeMethodName.length() - 64);
             }
-            this.prefix = String.format("%s/%s", className, safeMethodName);
+            this.prefix = String.format("%s/%s/%s", className, safeMethodName, this.id);
             LOG.debug("Using prefix '{}'", this.prefix);
         }
     }
@@ -123,7 +127,7 @@ public final class TestDirectoryProvider implements TestRule {
                 return Iterables.getLast(Splitter.on('.').split(element.getClassName())) + "/unknown-test";
             }
         }
-        return String.format("UnknownTestClass-%d/unknown-test", testCounter.getAndIncrement());
+        return String.format("UnknownTestClass-%d/unknown-test/%s", testCounter.getAndIncrement(), this.id);
     }
 
     public File file(Object... path) {

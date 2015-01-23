@@ -41,16 +41,16 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
   private static final List<String> IMPLICIT_TASKS = ['init', 'wrapper', 'help', 'projects', 'tasks', 'properties', 'components', 'dependencies', 'dependencyInsight', 'setupBuild']
 
   @Rule
-  TestDirectoryProvider directoryProvider = new TestDirectoryProvider();
+  TestDirectoryProvider directoryProvider = new TestDirectoryProvider("single-project");
 
   @Rule
-  TestDirectoryProvider directoryProviderMultiProjectBuild = new TestDirectoryProvider();
+  TestDirectoryProvider directoryProviderMultiProjectBuild = new TestDirectoryProvider("multi-project");
 
   @Rule
-  TestDirectoryProvider directoryProviderErroneousBuildStructure = new TestDirectoryProvider();
+  TestDirectoryProvider directoryProviderErroneousBuildStructure = new TestDirectoryProvider("erroneous-build-structure");
 
   @Rule
-  TestDirectoryProvider directoryProviderErroneousBuildFile = new TestDirectoryProvider();
+  TestDirectoryProvider directoryProviderErroneousBuildFile = new TestDirectoryProvider("erroneous-build-file");
 
   def setup() {
     // prepare a Gradle build that has a root project and two child projects, and one gradle child project
