@@ -113,6 +113,12 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     directoryProviderMultiProjectBuild.createDir('api')
     directoryProviderMultiProjectBuild.createFile('api', 'build.gradle') << '''
         apply plugin: 'java'
+        repositories {
+            mavenCentral()
+            dependencies {
+                compile 'com.google.guava:guava:18.0'
+            }
+        }
     '''
 
     directoryProviderMultiProjectBuild.createDir('impl')
@@ -477,6 +483,13 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     eclipseGradleBuild.rootEclipseProject.projectDependencies == []
     eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Predicate).get().projectDependencies == []
     eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Predicate).get().projectDependencies*.targetProjectPath == [':api']
+    eclipseGradleBuild.rootEclipseProject.externalDependencies == []
+    def apiExternalDependencies = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Predicate).get().externalDependencies
+    apiExternalDependencies.size() == 1
+    apiExternalDependencies[0].gradleModuleVersion.group == 'com.google.guava'
+    apiExternalDependencies[0].gradleModuleVersion.name == 'guava'
+    apiExternalDependencies[0].gradleModuleVersion.version == '18.0'
+    eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Predicate).get().externalDependencies == []
 
     def event = publishedEvent.get()
     event != null
