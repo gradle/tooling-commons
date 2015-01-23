@@ -1,5 +1,7 @@
 package com.gradleware.tooling.toolingmodel;
 
+import com.gradleware.tooling.toolingmodel.util.Maybe;
+
 import java.io.File;
 
 /**
@@ -33,6 +35,6 @@ public interface OmniExternalDependency {
      *
      * @return the Gradle module information for this dependency, or {@code null} if the dependency does not originate from a remote repository
      */
-    OmniGradleModuleVersion getGradleModuleVersion();
+    Maybe<OmniGradleModuleVersion> getGradleModuleVersion();
 
 }

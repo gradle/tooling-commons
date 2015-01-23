@@ -204,7 +204,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     gradleBuildStructure.rootProject != null
     gradleBuildStructure.rootProject.name == 'my root project'
     gradleBuildStructure.rootProject.path == ':'
-    if (higherOrEqual("1.8", distribution)) {
+    if (higherOrEqual('1.8', distribution)) {
       assert gradleBuildStructure.rootProject.projectDirectory.get().absolutePath == directoryProvider.testDirectory.absolutePath
     } else {
       assert !gradleBuildStructure.rootProject.projectDirectory.isPresent()
@@ -215,7 +215,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     gradleBuildStructure.rootProject.children*.path == [':sub1', ':sub2']
     gradleBuildStructure.rootProject.children*.projectDirectory.collect {
       it.present ? it.get().absolutePath : null
-    } == (higherOrEqual("1.8", distribution) ? ['sub1', 'sub2'].collect { new File(directoryProvider.testDirectory, it).absolutePath } : [null, null])
+    } == (higherOrEqual('1.8', distribution) ? ['sub1', 'sub2'].collect { new File(directoryProvider.testDirectory, it).absolutePath } : [null, null])
     gradleBuildStructure.rootProject.children*.parent == [gradleBuildStructure.rootProject, gradleBuildStructure.rootProject]
     gradleBuildStructure.rootProject.all.size() == 4
     gradleBuildStructure.rootProject.all*.name == ['my root project', 'sub1', 'sub2', 'subSub1']
@@ -286,17 +286,17 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     gradleBuild.rootProject.name == 'my root project'
     gradleBuild.rootProject.description == 'a sample root project'
     gradleBuild.rootProject.path == ':'
-    if (higherOrEqual("2.4", distribution)) {
+    if (higherOrEqual('2.4', distribution)) {
       assert gradleBuild.rootProject.projectDirectory.get().absolutePath == directoryProvider.testDirectory.absolutePath
     } else {
       assert !gradleBuild.rootProject.projectDirectory.isPresent()
     }
-    if (higherOrEqual("2.0", distribution)) {
+    if (higherOrEqual('2.0', distribution)) {
       assert gradleBuild.rootProject.buildDirectory.get().absolutePath == directoryProvider.file('build').absolutePath
     } else {
       assert !gradleBuild.rootProject.buildDirectory.isPresent()
     }
-    if (higherOrEqual("1.8", distribution)) {
+    if (higherOrEqual('1.8', distribution)) {
       assert gradleBuild.rootProject.buildScript.get().sourceFile.absolutePath == directoryProvider.file('build.gradle').absolutePath
     } else {
       assert !gradleBuild.rootProject.buildScript.isPresent()
@@ -326,7 +326,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     mySecondTaskOfSub1.name == 'mySecondTaskOfSub1'
     mySecondTaskOfSub1.description == '2nd task of sub1'
     mySecondTaskOfSub1.path == ':sub1:mySecondTaskOfSub1'
-    mySecondTaskOfSub1.isPublic() == !higherOrEqual("2.3", distribution) // all versions < 2.3 are corrected to or default to 'true'
+    mySecondTaskOfSub1.isPublic() == !higherOrEqual('2.3', distribution) // all versions < 2.3 are corrected to or default to 'true'
 
     def projectSub2 = gradleBuild.rootProject.tryFind({ OmniGradleProject input ->
       return input.getPath().equals(':sub2')
@@ -431,7 +431,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     mySecondTaskOfSub1.name == 'mySecondTaskOfSub1'
     mySecondTaskOfSub1.description == '2nd task of sub1'
     mySecondTaskOfSub1.path == ':sub1:mySecondTaskOfSub1'
-    mySecondTaskOfSub1.isPublic() == !higherOrEqual("2.3", distribution) // all versions < 2.3 are corrected to or default to 'true'
+    mySecondTaskOfSub1.isPublic() == !higherOrEqual('2.3', distribution) // all versions < 2.3 are corrected to or default to 'true'
 
     def projectSub2 = eclipseGradleBuild.rootProject.tryFind({ OmniGradleProject input ->
       return input.getPath().equals(':sub2')
@@ -508,9 +508,13 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     guavaDependency.file != null
     guavaDependency.source != null
     guavaDependency.javadoc == null
-    guavaDependency.gradleModuleVersion.group == 'com.google.guava'
-    guavaDependency.gradleModuleVersion.name == 'guava'
-    guavaDependency.gradleModuleVersion.version == '18.0'
+    if (higherOrEqual('1.1', distribution)) {
+      assert guavaDependency.gradleModuleVersion.get().group == 'com.google.guava'
+      assert guavaDependency.gradleModuleVersion.get().name == 'guava'
+      assert guavaDependency.gradleModuleVersion.get().version == '18.0'
+    } else {
+      !guavaDependency.gradleModuleVersion.isPresent()
+    }
     eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Predicate).get().externalDependencies == []
 
     where:
@@ -595,7 +599,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
 
     def myTaskSelector = sub2ExplicitTaskSelectors.find { it.name == 'myTask' }
     myTaskSelector.name == 'myTask'
-    myTaskSelector.description == higherOrEqual("2.3", distribution) ? 'another task of sub2' : 'sub2:myTask task selector'
+    myTaskSelector.description == higherOrEqual('2.3', distribution) ? 'another task of sub2' : 'sub2:myTask task selector'
     myTaskSelector.projectPath == ':sub2'
     myTaskSelector.isPublic()
     myTaskSelector.selectedTaskPaths as List == (!higherOrEqual('1.12', distribution) || !higherOrEqual('2.3', distribution) && environment == Environment.ECLIPSE ? [':sub2:myTask', ':sub2:subSub1:myTask'] : [])

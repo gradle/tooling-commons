@@ -2,7 +2,9 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
 import com.gradleware.tooling.toolingmodel.OmniGradleModuleVersion;
+import com.gradleware.tooling.toolingmodel.util.Maybe;
 import org.gradle.tooling.model.ExternalDependency;
+import org.gradle.tooling.model.GradleModuleVersion;
 
 import java.io.File;
 
@@ -14,9 +16,9 @@ public final class DefaultOmniExternalDependency implements OmniExternalDependen
     private final File file;
     private final File source;
     private final File javadoc;
-    private final OmniGradleModuleVersion gradleModuleVersion;
+    private final Maybe<OmniGradleModuleVersion> gradleModuleVersion;
 
-    private DefaultOmniExternalDependency(File file, File source, File javadoc, OmniGradleModuleVersion gradleModuleVersion) {
+    private DefaultOmniExternalDependency(File file, File source, File javadoc, Maybe<OmniGradleModuleVersion> gradleModuleVersion) {
         this.file = file;
         this.source = source;
         this.javadoc = javadoc;
@@ -39,7 +41,7 @@ public final class DefaultOmniExternalDependency implements OmniExternalDependen
     }
 
     @Override
-    public OmniGradleModuleVersion getGradleModuleVersion() {
+    public Maybe<OmniGradleModuleVersion> getGradleModuleVersion() {
         return this.gradleModuleVersion;
     }
 
@@ -48,7 +50,21 @@ public final class DefaultOmniExternalDependency implements OmniExternalDependen
                 externalDependency.getFile(),
                 externalDependency.getSource(),
                 externalDependency.getJavadoc(),
-                DefaultOmniGradleModuleVersion.from(externalDependency.getGradleModuleVersion()));
+                getGradleModuleVersion(externalDependency));
+    }
+
+    /**
+     * ExternalDependency#getGradleModuleVersion is only available in Gradle versions >= 1.1.
+     *
+     * @param externalDependency the external dependency model
+     */
+    private static Maybe<OmniGradleModuleVersion> getGradleModuleVersion(ExternalDependency externalDependency) {
+        try {
+            GradleModuleVersion gav = externalDependency.getGradleModuleVersion();
+            return Maybe.of((OmniGradleModuleVersion) DefaultOmniGradleModuleVersion.from(gav));
+        } catch (Exception ignore) {
+            return Maybe.absent();
+        }
     }
 
 }
