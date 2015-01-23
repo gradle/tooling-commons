@@ -75,17 +75,16 @@ public final class BuildInvocationsContainer {
     public static BuildInvocationsContainer from(GradleProject project, boolean enforceAllTasksPublic) {
         ImmutableMultimap<String, OmniProjectTask> tasks = buildProjectTasksRecursively(project, ArrayListMultimap.<String, OmniProjectTask>create(), enforceAllTasksPublic);
         ImmutableMultimap<String, OmniTaskSelector> taskSelectors = buildTaskSelectorsRecursively(project, ArrayListMultimap.<String, OmniTaskSelector>create(), enforceAllTasksPublic);
-        ImmutableSortedMap<String, OmniBuildInvocations> buildInvocationsMap = buildBuildInvocationsMappingRecursively(tasks, taskSelectors);
+        ImmutableSortedMap<String, OmniBuildInvocations> buildInvocationsMap = buildBuildInvocationsMapping(tasks, taskSelectors);
         return new BuildInvocationsContainer(buildInvocationsMap);
     }
 
-    private static ImmutableSortedMap<String, OmniBuildInvocations> buildBuildInvocationsMappingRecursively(Multimap<String, OmniProjectTask> projectTasks,
-                                                                                                            Multimap<String, OmniTaskSelector> taskSelectors) {
-        Preconditions.checkState(projectTasks.keySet().size() == taskSelectors.keySet().size());
-        Preconditions.checkState(projectTasks.keySet().containsAll(taskSelectors.keySet()) && taskSelectors.keySet().containsAll(projectTasks.keySet()));
+    private static ImmutableSortedMap<String, OmniBuildInvocations> buildBuildInvocationsMapping(Multimap<String, OmniProjectTask> projectTasks,
+                                                                                                 Multimap<String, OmniTaskSelector> taskSelectors) {
+        Preconditions.checkState(taskSelectors.keySet().containsAll(projectTasks.keySet()), "Task selectors are always configured for all projects");
 
         ImmutableSortedMap.Builder<String, OmniBuildInvocations> mapping = ImmutableSortedMap.orderedBy(PathComparator.INSTANCE);
-        for (String projectPath : projectTasks.keySet()) {
+        for (String projectPath : taskSelectors.keySet()) {
             ImmutableList<OmniProjectTask> projectTasksOfProject = ImmutableSortedSet.orderedBy(TaskComparator.INSTANCE).addAll(projectTasks.get(projectPath)).build().asList();
             ImmutableList<OmniTaskSelector> taskSelectorsOfProject = ImmutableSortedSet.orderedBy(TaskSelectorComparator.INSTANCE).addAll(taskSelectors.get(projectPath)).build().asList();
             mapping.put(projectPath, DefaultOmniBuildInvocations.from(projectTasksOfProject, taskSelectorsOfProject));
