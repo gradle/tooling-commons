@@ -19,7 +19,6 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
-import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,32 +32,27 @@ import java.util.concurrent.atomic.AtomicInteger;
  * A JUnit rule which provides a unique temporary folder for the test.
  */
 @SuppressWarnings("deprecation")
-public final class TestDirectoryProvider implements TestRule, org.junit.rules.MethodRule {
+public final class TestDirectoryProvider implements TestRule {
 
     private static File root;
+    private static AtomicInteger providerCounter;
     private static AtomicInteger testCounter;
 
     private static final Logger LOG = LoggerFactory.getLogger(TestDirectoryProvider.class);
 
+    private final int providerId;
     private File dir;
     private String prefix;
 
     static {
         // the space in the root directory name is intentional to ensure our code works with directories that contain spaces
         root = new File("build/tmp/test files");
+        providerCounter = new AtomicInteger(1);
         testCounter = new AtomicInteger(1);
     }
 
-    @Deprecated
-    @Override
-    public Statement apply(Statement base, FrameworkMethod method, Object target) {
-        // already calculate the test directory prefix since the method name is known to this method
-        String methodName = method.getName() != null ? method.getName() : "unknown-test";
-        String className = target != null ? target.getClass().getSimpleName() : String.format("UnknownTestClass-%d", testCounter.getAndIncrement());
-        init(methodName, className);
-
-        // create a statement that will execute the given statement and cleans up the created test directory afterwards
-        return createStatementWithDirectoryCleanup(base);
+    public TestDirectoryProvider() {
+        this.providerId = providerCounter.getAndIncrement();
     }
 
     @Override
@@ -74,9 +68,16 @@ public final class TestDirectoryProvider implements TestRule, org.junit.rules.Me
 
     private void init(String methodName, String className) {
         if (this.prefix == null) {
-            String safeMethodName = methodName.replaceAll("\\s", "_").replace(":", "_").replace('"', '_').replace('\'', '_').replace(File.pathSeparator, "_");
-            if (safeMethodName.length() > 64) {
-                safeMethodName = safeMethodName.substring(0, 32) + "..." + safeMethodName.substring(safeMethodName.length() - 32);
+            String safeMethodName = methodName.
+                    replaceAll("\\s", "_").
+                    replace(":", "_").
+                    replace('"', '_').
+                    replace('\'', '_').
+                    replace('+', '_').
+                    replace('-', '_').
+                    replace(File.pathSeparator, "_");
+            if (safeMethodName.length() > 128) {
+                safeMethodName = safeMethodName.substring(0, 64) + "..." + safeMethodName.substring(safeMethodName.length() - 64);
             }
             this.prefix = String.format("%s/%s", className, safeMethodName);
             LOG.debug("Using prefix '{}'", this.prefix);
