@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
 import com.google.common.eventbus.Subscribe
 import com.gradleware.tooling.junit.TestDirectoryProvider
+import com.gradleware.tooling.junit.TestFile
 import com.gradleware.tooling.spock.DataValueFormatter
 import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
 import com.gradleware.tooling.spock.VerboseUnroll
@@ -455,23 +456,24 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
-  def "fetchEclipseGradleBuild - project and external dependencies "(GradleDistribution distribution, Environment environment) {
+  def "fetchEclipseGradleBuild - sources and project/external dependencies "(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderMultiProjectBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
     def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
-    AtomicReference<EclipseGradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
-    AtomicReference<OmniEclipseGradleBuild> modelInRepository = new AtomicReference<>();
-    repository.register(new Object() {
-
-      @SuppressWarnings("GroovyUnusedDeclaration")
-      @Subscribe
-      public void listen(EclipseGradleBuildUpdateEvent event) {
-        publishedEvent.set(event)
-        modelInRepository.set(repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
+    def apiProjectDir = new TestFile(this.directoryProviderMultiProjectBuild.testDirectory, 'api')
+    apiProjectDir.create {
+      src {
+        main {
+          java {}
+          resources {}
+        }
+        test {
+          java {}
+        }
       }
-    })
+    }
 
     when:
     OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
@@ -480,10 +482,26 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     eclipseGradleBuild != null
     eclipseGradleBuild.rootEclipseProject != null
     eclipseGradleBuild.rootEclipseProject.name == 'root project of multi-project build'
+    eclipseGradleBuild.rootEclipseProject.sourceDirectories == []
     eclipseGradleBuild.rootEclipseProject.projectDependencies == []
+    eclipseGradleBuild.rootEclipseProject.externalDependencies == []
+
+    // verify source directories
+    def apiSourceDirectories = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Predicate).get().sourceDirectories
+    apiSourceDirectories.size() == 3
+    apiSourceDirectories[0].path == 'src/main/java'
+    apiSourceDirectories[0].directory == apiProjectDir.file('src/main/java')
+    apiSourceDirectories[1].path == 'src/main/resources'
+    apiSourceDirectories[1].directory == apiProjectDir.file('src/main/resources')
+    apiSourceDirectories[2].path == 'src/test/java'
+    apiSourceDirectories[2].directory == apiProjectDir.file('src/test/java')
+    eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Predicate).get().sourceDirectories == []
+
+    // verify project dependencies
     eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Predicate).get().projectDependencies == []
     eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Predicate).get().projectDependencies*.targetProjectPath == [':api']
-    eclipseGradleBuild.rootEclipseProject.externalDependencies == []
+
+    // verify external dependencies
     def apiExternalDependencies = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Predicate).get().externalDependencies
     apiExternalDependencies.size() == 1
     def guavaDependency = apiExternalDependencies[0]
@@ -494,13 +512,6 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     guavaDependency.gradleModuleVersion.name == 'guava'
     guavaDependency.gradleModuleVersion.version == '18.0'
     eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Predicate).get().externalDependencies == []
-
-    def event = publishedEvent.get()
-    event != null
-    event.eclipseGradleBuild == eclipseGradleBuild
-
-    def model = modelInRepository.get()
-    model == eclipseGradleBuild
 
     where:
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
