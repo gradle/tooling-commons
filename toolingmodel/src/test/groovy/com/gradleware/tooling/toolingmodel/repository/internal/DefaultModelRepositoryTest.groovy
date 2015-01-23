@@ -486,9 +486,13 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     eclipseGradleBuild.rootEclipseProject.externalDependencies == []
     def apiExternalDependencies = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Predicate).get().externalDependencies
     apiExternalDependencies.size() == 1
-    apiExternalDependencies[0].gradleModuleVersion.group == 'com.google.guava'
-    apiExternalDependencies[0].gradleModuleVersion.name == 'guava'
-    apiExternalDependencies[0].gradleModuleVersion.version == '18.0'
+    def guavaDependency = apiExternalDependencies[0]
+    guavaDependency.file != null
+    guavaDependency.source != null
+    guavaDependency.javadoc == null
+    guavaDependency.gradleModuleVersion.group == 'com.google.guava'
+    guavaDependency.gradleModuleVersion.name == 'guava'
+    guavaDependency.gradleModuleVersion.version == '18.0'
     eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Predicate).get().externalDependencies == []
 
     def event = publishedEvent.get()
