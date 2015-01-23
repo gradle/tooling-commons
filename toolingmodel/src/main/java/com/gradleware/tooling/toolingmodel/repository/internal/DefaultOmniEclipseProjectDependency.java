@@ -1,7 +1,9 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
-import org.gradle.tooling.model.eclipse.EclipseProject;
+import org.gradle.internal.reflect.JavaReflectionUtil;
+import org.gradle.internal.reflect.PropertyAccessor;
+import org.gradle.tooling.internal.adapter.ProtocolToModelAdapter;
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
 
 /**
@@ -28,8 +30,13 @@ public final class DefaultOmniEclipseProjectDependency implements OmniEclipsePro
     }
 
     public static DefaultOmniEclipseProjectDependency from(EclipseProjectDependency projectDependency) {
+        // cannot cast due to class in proxy delegate is loaded by a different class loader
+        Object targetEclipseProject = new ProtocolToModelAdapter().unpack(projectDependency.getTargetProject());
+        PropertyAccessor pathProperty = JavaReflectionUtil.readableProperty(targetEclipseProject.getClass(), "path");
+        String targetEclipseProjectPath = (String) pathProperty.getValue(targetEclipseProject);
+
         return new DefaultOmniEclipseProjectDependency(
-                ((EclipseProject) projectDependency.getTargetProject()).getGradleProject().getPath(),
+                targetEclipseProjectPath,
                 projectDependency.getPath());
     }
 

@@ -43,6 +43,9 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
   TestDirectoryProvider directoryProvider = new TestDirectoryProvider();
 
   @Rule
+  TestDirectoryProvider directoryProviderMultiProjectBuild = new TestDirectoryProvider();
+
+  @Rule
   TestDirectoryProvider directoryProviderErroneousBuildStructure = new TestDirectoryProvider();
 
   @Rule
@@ -98,6 +101,26 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
          description = '2nd task of sub2:subSub1'
        }
        task myTask {}
+    '''
+
+    // prepare a Gradle build with a multi-project structure
+    directoryProviderMultiProjectBuild.createFile('settings.gradle') << '''
+      rootProject.name = 'root project of multi-project build'
+      include 'api'
+      include 'impl'
+    '''
+
+    directoryProviderMultiProjectBuild.createDir('api')
+    directoryProviderMultiProjectBuild.createFile('api', 'build.gradle') << '''
+        apply plugin: 'java'
+    '''
+
+    directoryProviderMultiProjectBuild.createDir('impl')
+    directoryProviderMultiProjectBuild.createFile('impl', 'build.gradle') << '''
+        apply plugin: 'java'
+        dependencies {
+            compile project(':api')
+        }
     '''
 
     // prepare a Gradle build that has an erroneous structure
@@ -414,6 +437,46 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     myTaskSelector.projectPath == ':sub2'
     myTaskSelector.isPublic()
     myTaskSelector.selectedTaskPaths as List == [':sub2:myTask', ':sub2:subSub1:myTask']
+
+    def event = publishedEvent.get()
+    event != null
+    event.eclipseGradleBuild == eclipseGradleBuild
+
+    def model = modelInRepository.get()
+    model == eclipseGradleBuild
+
+    where:
+    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+  }
+
+  def "fetchEclipseGradleBuild - project and external dependencies "(GradleDistribution distribution, Environment environment) {
+    given:
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderMultiProjectBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+
+    AtomicReference<EclipseGradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
+    AtomicReference<OmniEclipseGradleBuild> modelInRepository = new AtomicReference<>();
+    repository.register(new Object() {
+
+      @SuppressWarnings("GroovyUnusedDeclaration")
+      @Subscribe
+      public void listen(EclipseGradleBuildUpdateEvent event) {
+        publishedEvent.set(event)
+        modelInRepository.set(repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
+      }
+    })
+
+    when:
+    OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+
+    then:
+    eclipseGradleBuild != null
+    eclipseGradleBuild.rootEclipseProject != null
+    eclipseGradleBuild.rootEclipseProject.name == 'root project of multi-project build'
+    eclipseGradleBuild.rootEclipseProject.projectDependencies == []
+    eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Predicate).get().projectDependencies == []
+    eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Predicate).get().projectDependencies*.targetProjectPath == [':api']
 
     def event = publishedEvent.get()
     event != null
