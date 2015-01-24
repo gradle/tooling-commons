@@ -1,5 +1,4 @@
 package com.gradleware.tooling.toolingclient.internal
-
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingclient.LaunchableConfig
@@ -8,10 +7,13 @@ import org.gradle.internal.Factory
 import org.gradle.tooling.BuildAction
 import org.gradle.tooling.BuildController
 import org.gradle.tooling.GradleConnector
+import org.gradle.tooling.ProgressListener
 import org.gradle.tooling.internal.consumer.DefaultGradleConnector
 import org.gradle.tooling.model.build.BuildEnvironment
 import org.junit.Rule
 import spock.lang.Specification
+
+import java.util.concurrent.atomic.AtomicBoolean
 
 @SuppressWarnings("GroovyAssignabilityCheck")
 class DefaultToolingClientTest extends Specification {
@@ -70,6 +72,21 @@ class DefaultToolingClientTest extends Specification {
 
     cleanup:
     toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
+  }
+
+  def "progressListenersInvoked"() {
+    setup:
+    AtomicBoolean invoked = new AtomicBoolean(false)
+    DefaultToolingClient toolingClient = new DefaultToolingClient()
+    def modelRequest = toolingClient.newModelRequest(BuildEnvironment.class)
+    modelRequest.projectDir(directoryProvider.testDirectory)
+    modelRequest.progressListeners({ invoked.set(true) } as ProgressListener)
+
+    when:
+    modelRequest.executeAndWait()
+
+    then:
+    assert invoked.get()
   }
 
   def "stop - forceful stop strategy not implemented yet"() {
