@@ -72,6 +72,17 @@ class DefaultToolingClientTest extends Specification {
     toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
   }
 
+  def "stop - forceful stop strategy not implemented yet"() {
+    given:
+    DefaultToolingClient toolingClient = new DefaultToolingClient()
+
+    when:
+    toolingClient.stop(ToolingClient.CleanUpStrategy.FORCEFULLY)
+
+    then:
+    thrown(UnsupportedOperationException)
+  }
+
   private static final class EmptyBuildAction<String> implements BuildAction<String> {
 
     @Override
