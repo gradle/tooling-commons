@@ -1,4 +1,3 @@
-run all tests with code coverage to see missing coverage
 more tests for default tooling client on connection pooling
 
 add logging
