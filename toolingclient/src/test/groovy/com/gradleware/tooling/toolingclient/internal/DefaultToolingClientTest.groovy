@@ -15,6 +15,7 @@ import org.junit.Rule
 import spock.lang.Specification
 
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 
 @SuppressWarnings("GroovyAssignabilityCheck")
 class DefaultToolingClientTest extends Specification {
@@ -70,6 +71,55 @@ class DefaultToolingClientTest extends Specification {
 
     then:
     model != null
+
+    cleanup:
+    toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
+  }
+
+  def "connectionPooling"() {
+    given:
+    AtomicInteger connectionCreationCount = new AtomicInteger(0)
+    Factory<GradleConnector> connectorFactory = Mock(Factory.class)
+    2 * connectorFactory.create() >> {
+      connectionCreationCount.incrementAndGet()
+      def connector = GradleConnector.newConnector()
+      ((DefaultGradleConnector) connector).embedded(true)
+      return connector
+    } // must combine mocking with stubbing
+
+    DefaultToolingClient toolingClient = new DefaultToolingClient(connectorFactory)
+    def modelRequest = toolingClient.newModelRequest(BuildEnvironment.class)
+
+    when:
+    modelRequest.projectDir(directoryProvider.testDirectory)
+    modelRequest.gradleUserHomeDir(new File(System.getProperty("user.home") + File.separator + ".gradle"))
+    modelRequest.gradleDistribution(GradleDistribution.fromBuild())
+    modelRequest.executeAndWait()
+
+    then:
+    connectionCreationCount.get() == 1
+
+    when:
+    modelRequest.executeAndWait()
+
+    then:
+    connectionCreationCount.get() == 1
+
+    when:
+    modelRequest.gradleDistribution(GradleDistribution.forVersion("2.1"))
+    modelRequest.executeAndWait()
+
+    then:
+    // new connection is created iff combination of fixed request attributes is new
+    connectionCreationCount.get() == 2
+
+    when:
+    modelRequest.progressListeners(Mock(ProgressListener))
+    modelRequest.executeAndWait()
+
+    then:
+    // no new connection is created if only combination of transient request attributes is new
+    connectionCreationCount.get() == 2
 
     cleanup:
     toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
