@@ -6,8 +6,6 @@ import org.gradle.tooling.BuildController;
 
 /**
  * Composite build action to execute three actions at once.
- *
- * @since 2.3
  */
 public final class TripleBuildAction<S, T, U> implements BuildAction<Triple<S, T, U>> {
 

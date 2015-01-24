@@ -12,7 +12,6 @@ import org.gradle.tooling.ModelBuilder;
  * Promise in the context of long running operations, i.e. getting a model, launching a build, executing an action.
  *
  * @see LongRunningOperation
- * @since 2.3
  */
 public abstract class LongRunningOperationPromise<T> {
 
@@ -22,7 +21,6 @@ public abstract class LongRunningOperationPromise<T> {
      * @param modelBuilder the modeler builder to run
      * @param <T> the type of model queried and returned
      * @return the promise of the long running operation
-     * @since 2.3
      */
     public static <T> LongRunningOperationPromise<T> forModelBuilder(ModelBuilder<T> modelBuilder) {
         Preconditions.checkNotNull(modelBuilder);
@@ -36,7 +34,6 @@ public abstract class LongRunningOperationPromise<T> {
      *
      * @param buildLauncher the build launcher to run
      * @return the promise of the long running operation
-     * @since 2.3
      */
     public static LongRunningOperationPromise<Void> forBuildLauncher(BuildLauncher buildLauncher) {
         Preconditions.checkNotNull(buildLauncher);
@@ -51,7 +48,6 @@ public abstract class LongRunningOperationPromise<T> {
      * @param buildActionExecuter the build action executor to run
      * @param <T> the type of model queried and returned
      * @return the promise of the long running operation
-     * @since 2.3
      */
     public static <T> LongRunningOperationPromise<T> forBuildActionExecuter(BuildActionExecuter<T> buildActionExecuter) {
         Preconditions.checkNotNull(buildActionExecuter);
@@ -66,7 +62,6 @@ public abstract class LongRunningOperationPromise<T> {
      *
      * @param completeHandler the handler to invoke in case of successful completion of the operation
      * @return the promise
-     * @since 2.3
      */
     public abstract LongRunningOperationPromise<T> onComplete(Consumer<? super T> completeHandler);
 
@@ -76,7 +71,6 @@ public abstract class LongRunningOperationPromise<T> {
      *
      * @param failureHandler the handler to invoke in case of a failure while running the operation
      * @return the promise
-     * @since 2.3
      */
     public abstract LongRunningOperationPromise<T> onFailure(Consumer<? super GradleConnectionException> failureHandler);
 

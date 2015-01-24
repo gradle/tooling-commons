@@ -5,8 +5,6 @@ import org.gradle.tooling.BuildController;
 
 /**
  * Build action to get a specific global model of a build.
- *
- * @since 2.3
  */
 public final class GlobalModelBuildAction<T> implements BuildAction<T> {
 

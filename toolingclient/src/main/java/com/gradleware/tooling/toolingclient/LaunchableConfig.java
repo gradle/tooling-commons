@@ -10,8 +10,6 @@ import java.util.List;
 
 /**
  * Encapsulates the {@link Launchable} instances to execute as part of running a Gradle build.
- *
- * @since 2.3
  */
 public final class LaunchableConfig {
 
@@ -33,7 +31,6 @@ public final class LaunchableConfig {
      * Configures the specified build launcher with this launchable configuration.
      *
      * @param buildLauncher the build launcher to configure
-     * @since 2.3
      */
     public void apply(BuildLauncher buildLauncher) {
         Preconditions.checkNotNull(buildLauncher);
@@ -49,7 +46,6 @@ public final class LaunchableConfig {
      *
      * @param tasks the paths of the tasks to be executed, relative paths are evaluated relative to the project for which the build launch request was created
      * @return a new instance
-     * @since 2.3
      */
     public static LaunchableConfig forTasks(String... tasks) {
         return forTasks(Arrays.asList(tasks));
@@ -60,7 +56,6 @@ public final class LaunchableConfig {
      *
      * @param tasks the paths of the tasks to be executed, relative paths are evaluated relative to the project for which the build launch request was created
      * @return a new instance
-     * @since 2.3
      */
     public static LaunchableConfig forTasks(Iterable<String> tasks) {
         return new LaunchableConfig(ImmutableList.copyOf(tasks), ImmutableList.<Launchable>of());
@@ -71,7 +66,6 @@ public final class LaunchableConfig {
      *
      * @param launchables the launchables to execute
      * @return a new instance
-     * @since 2.3
      */
     public static LaunchableConfig forLaunchables(Launchable... launchables) {
         return forLaunchables(Arrays.asList(launchables));
@@ -82,7 +76,6 @@ public final class LaunchableConfig {
      *
      * @param launchables the launchables to execute
      * @return a new instance
-     * @since 2.3
      */
     public static LaunchableConfig forLaunchables(Iterable<? extends Launchable> launchables) {
         return new LaunchableConfig(ImmutableList.<String>of(), ImmutableList.copyOf(launchables));

@@ -6,8 +6,6 @@ import org.gradle.tooling.BuildController;
 
 /**
  * Composite build action to execute two actions at once.
- *
- * @since 2.3
  */
 public final class DoubleBuildAction<S, T> implements BuildAction<Pair<S, T>> {
 

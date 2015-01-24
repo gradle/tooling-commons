@@ -15,7 +15,6 @@ public final class BuildActionFactory {
      * @param modelType the model to fetch
      * @param <T> the model type
      * @return the build action
-     * @since 2.3
      */
     public static <T> ModelForSingleProjectBuildAction<T> getModelForProject(String projectPath, Class<T> modelType) {
         Preconditions.checkNotNull(projectPath);
@@ -29,7 +28,6 @@ public final class BuildActionFactory {
      * @param modelType the model to fetch
      * @param <T> the model type
      * @return the build action
-     * @since 2.3
      */
     public static <T> ModelForAllProjectsBuildAction<T> getModelForAllProjects(Class<T> modelType) {
         Preconditions.checkNotNull(modelType);
@@ -42,7 +40,6 @@ public final class BuildActionFactory {
      * @param modelType the model to fetch
      * @param <T> the model type
      * @return the build action
-     * @since 2.3
      */
     public static <T> GlobalModelBuildAction<T> getBuildModel(Class<T> modelType) {
         Preconditions.checkNotNull(modelType);
@@ -57,7 +54,6 @@ public final class BuildActionFactory {
      * @param <S> the result type of the first action
      * @param <T> the result type of the second action
      * @return the build action
-     * @since 2.3
      */
     public static <S, T> DoubleBuildAction<S, T> getPairResult(BuildAction<S> first, BuildAction<T> second) {
         Preconditions.checkNotNull(first);
@@ -75,7 +71,6 @@ public final class BuildActionFactory {
      * @param <T> the result type of the second action
      * @param <U> the result type of the third action
      * @return the build action
-     * @since 2.3
      */
     public static <S, T, U> TripleBuildAction<S, T, U> getTripleResult(BuildAction<S> first, BuildAction<T> second, BuildAction<U> third) {
         Preconditions.checkNotNull(first);

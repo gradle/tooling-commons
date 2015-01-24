@@ -11,8 +11,6 @@ import java.util.List;
 
 /**
  * Represents a Gradle distribution that can be located locally or remotely, be a fixed version, or be project-specific.
- *
- * @since 2.3
  */
 public final class GradleDistribution {
 
@@ -43,7 +41,6 @@ public final class GradleDistribution {
      * Configures the specified connector with this distribution.
      *
      * @param connector the connector to configure
-     * @since 2.3
      */
     public void apply(GradleConnector connector) {
         Preconditions.checkNotNull(connector);
@@ -98,7 +95,6 @@ public final class GradleDistribution {
      * @param installationDir the local Gradle installation directory to use
      * @return a new distribution instance
      * @see org.gradle.tooling.GradleConnector#useInstallation(java.io.File)
-     * @since 2.3
      */
     public static GradleDistribution forLocalInstallation(File installationDir) {
         Preconditions.checkNotNull(installationDir);
@@ -111,7 +107,6 @@ public final class GradleDistribution {
      * @param distributionUri the remote Gradle distribution location to use
      * @return a new distribution instance
      * @see org.gradle.tooling.GradleConnector#useDistribution(java.net.URI)
-     * @since 2.3
      */
     public static GradleDistribution forRemoteDistribution(URI distributionUri) {
         Preconditions.checkNotNull(distributionUri);
@@ -124,7 +119,6 @@ public final class GradleDistribution {
      * @param version the Gradle version to use
      * @return a new distribution instance
      * @see org.gradle.tooling.GradleConnector#useGradleVersion(String)
-     * @since 2.3
      */
     public static GradleDistribution forVersion(String version) {
         Preconditions.checkNotNull(version);
@@ -136,7 +130,6 @@ public final class GradleDistribution {
      *
      * @return a new distribution instance
      * @see org.gradle.tooling.GradleConnector#useBuildDistribution()
-     * @since 2.3
      */
     public static GradleDistribution fromBuild() {
         return new GradleDistribution(null, null, null);

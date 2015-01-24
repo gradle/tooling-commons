@@ -7,8 +7,6 @@ import org.gradle.tooling.model.gradle.GradleBuild;
 
 /**
  * Build action to get a specific model for a given project.
- *
- * @since 2.3
  */
 public final class ModelForSingleProjectBuildAction<T> implements BuildAction<T> {
 

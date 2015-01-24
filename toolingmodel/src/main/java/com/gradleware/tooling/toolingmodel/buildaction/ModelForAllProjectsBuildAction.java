@@ -10,8 +10,6 @@ import java.util.Map;
 
 /**
  * Build action to get a specific model for all projects of a build.
- *
- * @since 2.3
  */
 public final class ModelForAllProjectsBuildAction<T> implements BuildAction<Map<String, T>> {
 

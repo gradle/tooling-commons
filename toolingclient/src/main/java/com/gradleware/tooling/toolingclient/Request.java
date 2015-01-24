@@ -9,8 +9,6 @@ import java.io.OutputStream;
 
 /**
  * Describes the state and actions common to all requests issued through the tooling client.
- *
- * @since 2.3
  */
 public interface Request<T> {
 
@@ -19,7 +17,6 @@ public interface Request<T> {
      *
      * @param projectDir the working directory
      * @return this
-     * @since 2.3
      */
     Request<T> projectDir(File projectDir);
 
@@ -28,7 +25,6 @@ public interface Request<T> {
      *
      * @param gradleUserHomeDir the user's Gradle home directory to use
      * @return this
-     * @since 2.3
      */
     Request<T> gradleUserHomeDir(File gradleUserHomeDir);
 
@@ -37,7 +33,6 @@ public interface Request<T> {
      *
      * @param gradleDistribution the Gradle distribution to use
      * @return this
-     * @since 2.3
      */
     Request<T> gradleDistribution(GradleDistribution gradleDistribution);
 
@@ -46,7 +41,6 @@ public interface Request<T> {
      *
      * @param colorOutput {@code true} to request color output (using ANSI encoding)
      * @return this
-     * @since 2.3
      */
     Request<T> colorOutput(boolean colorOutput);
 
@@ -55,7 +49,6 @@ public interface Request<T> {
      *
      * @param outputStream the output stream, the system default character encoding will be used to encode characters written to this stream
      * @return this
-     * @since 2.3
      */
     Request<T> standardOutput(OutputStream outputStream);
 
@@ -64,7 +57,6 @@ public interface Request<T> {
      *
      * @param outputStream the output stream, the system default character encoding will be used to encode characters written to this stream
      * @return this
-     * @since 2.3
      */
     Request<T> standardError(OutputStream outputStream);
 
@@ -73,7 +65,6 @@ public interface Request<T> {
      *
      * @param inputStream the input stream
      * @return this
-     * @since 2.3
      */
     Request<T> standardInput(InputStream inputStream);
 
@@ -82,7 +73,6 @@ public interface Request<T> {
      *
      * @param javaHomeDir the home directory of the java installation to use for the Gradle process
      * @return this
-     * @since 2.3
      */
     Request<T> javaHomeDir(File javaHomeDir);
 
@@ -91,7 +81,6 @@ public interface Request<T> {
      *
      * @param jvmArguments the jvm arguments to use for the Gradle process
      * @return this
-     * @since 2.3
      */
     Request<T> jvmArguments(String... jvmArguments);
 
@@ -100,7 +89,6 @@ public interface Request<T> {
      *
      * @param arguments the Gradle command line arguments
      * @return this
-     * @since 2.3
      */
     Request<T> arguments(String... arguments);
 
@@ -109,7 +97,6 @@ public interface Request<T> {
      *
      * @param listeners the progress listeners to register
      * @return this
-     * @since 2.3
      */
     Request<T> progressListeners(ProgressListener... listeners);
 
@@ -118,7 +105,6 @@ public interface Request<T> {
      *
      * @param cancellationToken the cancellation token
      * @return this
-     * @since 2.3
      */
     Request<T> cancellationToken(CancellationToken cancellationToken);
 
@@ -126,7 +112,6 @@ public interface Request<T> {
      * Executes this request synchronously. Calling this method will block until the request has completed or a failure has occurred.
      *
      * @return the request result
-     * @since 2.3
      */
     T executeAndWait();
 
@@ -134,7 +119,6 @@ public interface Request<T> {
      * Executes this request asynchronously. Calling this method will return immediately. The returned promise is used to configure the success and failure behavior.
      *
      * @return the promise of the request result
-     * @since 2.3
      */
     LongRunningOperationPromise<T> execute();
 
