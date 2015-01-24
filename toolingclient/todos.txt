@@ -1,6 +1,5 @@
 add logging
 keep track of cancellation tokens for shutdown of ToolingClient and cancel all tokens when tooling client is shutdown
 extend api on modelrequest regarding tasks (String, Launchable)
-forceful cleanup strategy not yet implemented -> shared vs. non-shared daemon
 use @NotNull / @Nullable annotation
 introduce @Immutable annotation for collection return values
