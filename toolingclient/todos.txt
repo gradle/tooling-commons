@@ -1,3 +1,4 @@
+complete javadoc on all public classes in toolingmodel and toolingclient
 add logging
 keep track of cancellation tokens for shutdown of ToolingClient and cancel all tokens when tooling client is shutdown
 extend api on modelrequest regarding tasks (String, Launchable)

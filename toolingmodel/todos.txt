@@ -1,1 +1,0 @@
-complete javadoc on all public classes in toolingmodel and toolingclient
