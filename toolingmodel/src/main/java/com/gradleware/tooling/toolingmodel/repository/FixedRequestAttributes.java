@@ -4,6 +4,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.Request;
+import com.gradleware.tooling.utils.ImmutableCollection;
 
 import java.io.File;
 import java.util.List;
@@ -50,13 +51,15 @@ public final class FixedRequestAttributes {
         return this.javaHome;
     }
 
+    @ImmutableCollection
     @SuppressWarnings("UnusedDeclaration")
-    public ImmutableList<String> getJvmArguments() {
+    public List<String> getJvmArguments() {
         return this.jvmArguments;
     }
 
+    @ImmutableCollection
     @SuppressWarnings("UnusedDeclaration")
-    public ImmutableList<String> getArguments() {
+    public List<String> getArguments() {
         return this.arguments;
     }
 

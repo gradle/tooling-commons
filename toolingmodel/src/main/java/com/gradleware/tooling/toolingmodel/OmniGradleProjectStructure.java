@@ -2,10 +2,11 @@ package com.gradleware.tooling.toolingmodel;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
+import com.gradleware.tooling.utils.ImmutableCollection;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Provides basic information about the Gradle project and its hierarchy.
@@ -25,7 +26,8 @@ public interface OmniGradleProjectStructure extends HierarchicalModel<OmniGradle
      *
      * @return the immediate child projects of this project
      */
-    ImmutableList<OmniGradleProjectStructure> getChildren();
+    @ImmutableCollection
+    List<OmniGradleProjectStructure> getChildren();
 
     /**
      * Returns this project and all the nested child projects in its hierarchy.
@@ -33,7 +35,8 @@ public interface OmniGradleProjectStructure extends HierarchicalModel<OmniGradle
      * @return this project and all the nested child projects in its hierarchy
      */
     @Override
-    ImmutableList<OmniGradleProjectStructure> getAll();
+    @ImmutableCollection
+    List<OmniGradleProjectStructure> getAll();
 
     /**
      * Returns all projects that match the given criteria.
@@ -42,7 +45,8 @@ public interface OmniGradleProjectStructure extends HierarchicalModel<OmniGradle
      * @return the matching projects
      */
     @Override
-    ImmutableList<OmniGradleProjectStructure> filter(Predicate<? super OmniGradleProjectStructure> predicate);
+    @ImmutableCollection
+    List<OmniGradleProjectStructure> filter(Predicate<? super OmniGradleProjectStructure> predicate);
 
     /**
      * Returns the first project that matches the given criteria, if any.

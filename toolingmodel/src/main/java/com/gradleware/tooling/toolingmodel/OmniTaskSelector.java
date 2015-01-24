@@ -1,6 +1,8 @@
 package com.gradleware.tooling.toolingmodel;
 
-import com.google.common.collect.ImmutableSortedSet;
+import com.gradleware.tooling.utils.ImmutableCollection;
+
+import java.util.SortedSet;
 
 /**
  * Represents a task selector which is executable by Gradle. A task selector requests to execute all project tasks with a given name in the context of some project and all its
@@ -41,6 +43,7 @@ public interface OmniTaskSelector {
      *
      * @return the selected tasks, identified by their unique path
      */
-    ImmutableSortedSet<String> getSelectedTaskPaths();
+    @ImmutableCollection
+    SortedSet<String> getSelectedTaskPaths();
 
 }

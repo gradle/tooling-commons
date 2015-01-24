@@ -1,6 +1,8 @@
 package com.gradleware.tooling.toolingmodel;
 
-import com.google.common.collect.ImmutableList;
+import com.gradleware.tooling.utils.ImmutableCollection;
+
+import java.util.List;
 
 /**
  * Provides information about the launchables (project tasks, task selectors) that can be used to initiate a Gradle build.
@@ -14,13 +16,15 @@ public interface OmniBuildInvocations {
      *
      * @return the tasks of this project
      */
-    ImmutableList<OmniProjectTask> getProjectTasks();
+    @ImmutableCollection
+    List<OmniProjectTask> getProjectTasks();
 
     /**
      * Returns the task selectors of this project.
      *
      * @return the task selectors of this project
      */
-    ImmutableList<OmniTaskSelector> getTaskSelectors();
+    @ImmutableCollection
+    List<OmniTaskSelector> getTaskSelectors();
 
 }

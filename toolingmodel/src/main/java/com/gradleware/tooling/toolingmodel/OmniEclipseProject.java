@@ -2,9 +2,10 @@ package com.gradleware.tooling.toolingmodel;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
+import com.gradleware.tooling.utils.ImmutableCollection;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Provides detailed information about the Eclipse project and its hierarchy.
@@ -24,7 +25,8 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
      *
      * @return the immediate child projects of this project
      */
-    ImmutableList<OmniEclipseProject> getChildren();
+    @ImmutableCollection
+    List<OmniEclipseProject> getChildren();
 
     /**
      * Returns this project and all the nested child projects in its hierarchy.
@@ -32,7 +34,8 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
      * @return this project and all the nested child projects in its hierarchy
      */
     @Override
-    ImmutableList<OmniEclipseProject> getAll();
+    @ImmutableCollection
+    List<OmniEclipseProject> getAll();
 
     /**
      * Returns all projects that match the given criteria.
@@ -41,7 +44,8 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
      * @return the matching projects
      */
     @Override
-    ImmutableList<OmniEclipseProject> filter(Predicate<? super OmniEclipseProject> predicate);
+    @ImmutableCollection
+    List<OmniEclipseProject> filter(Predicate<? super OmniEclipseProject> predicate);
 
     /**
      * Returns the first project that matches the given criteria, if any.
@@ -85,20 +89,23 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
      *
      * @return the project dependencies
      */
-    ImmutableList<OmniEclipseProjectDependency> getProjectDependencies();
+    @ImmutableCollection
+    List<OmniEclipseProjectDependency> getProjectDependencies();
 
     /**
      * Returns the external dependencies of this project.
      *
      * @return the external dependencies
      */
-    ImmutableList<OmniExternalDependency> getExternalDependencies();
+    @ImmutableCollection
+    List<OmniExternalDependency> getExternalDependencies();
 
     /**
      * Returns the source directories of this project.
      *
      * @return the source directories
      */
-    ImmutableList<OmniEclipseSourceDirectory> getSourceDirectories();
+    @ImmutableCollection
+    List<OmniEclipseSourceDirectory> getSourceDirectories();
 
 }

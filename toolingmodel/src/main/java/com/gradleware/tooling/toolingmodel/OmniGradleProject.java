@@ -2,10 +2,11 @@ package com.gradleware.tooling.toolingmodel;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
+import com.gradleware.tooling.utils.ImmutableCollection;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Provides detailed information about the Gradle project and its hierarchy.
@@ -25,7 +26,8 @@ public interface OmniGradleProject extends HierarchicalModel<OmniGradleProject> 
      *
      * @return the immediate child projects of this project
      */
-    ImmutableList<OmniGradleProject> getChildren();
+    @ImmutableCollection
+    List<OmniGradleProject> getChildren();
 
     /**
      * Returns this project and all the nested child projects in its hierarchy.
@@ -33,7 +35,8 @@ public interface OmniGradleProject extends HierarchicalModel<OmniGradleProject> 
      * @return this project and all the nested child projects in its hierarchy
      */
     @Override
-    ImmutableList<OmniGradleProject> getAll();
+    @ImmutableCollection
+    List<OmniGradleProject> getAll();
 
     /**
      * Returns all projects that match the given criteria.
@@ -42,7 +45,8 @@ public interface OmniGradleProject extends HierarchicalModel<OmniGradleProject> 
      * @return the matching projects
      */
     @Override
-    ImmutableList<OmniGradleProject> filter(Predicate<? super OmniGradleProject> predicate);
+    @ImmutableCollection
+    List<OmniGradleProject> filter(Predicate<? super OmniGradleProject> predicate);
 
     /**
      * Returns the first project that matches the given criteria, if any.
@@ -100,13 +104,15 @@ public interface OmniGradleProject extends HierarchicalModel<OmniGradleProject> 
      *
      * @return the tasks of this project
      */
-    ImmutableList<OmniProjectTask> getProjectTasks();
+    @ImmutableCollection
+    List<OmniProjectTask> getProjectTasks();
 
     /**
      * Returns the task selectors of this project.
      *
      * @return the task selectors of this project
      */
-    ImmutableList<OmniTaskSelector> getTaskSelectors();
+    @ImmutableCollection
+    List<OmniTaskSelector> getTaskSelectors();
 
 }
