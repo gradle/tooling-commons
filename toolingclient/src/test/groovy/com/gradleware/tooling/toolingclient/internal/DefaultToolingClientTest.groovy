@@ -1,4 +1,5 @@
 package com.gradleware.tooling.toolingclient.internal
+
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingclient.LaunchableConfig
@@ -87,6 +88,9 @@ class DefaultToolingClientTest extends Specification {
 
     then:
     assert invoked.get()
+
+    cleanup:
+    toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
   }
 
   def "stop - forceful stop strategy not implemented yet"() {
@@ -98,6 +102,9 @@ class DefaultToolingClientTest extends Specification {
 
     then:
     thrown(UnsupportedOperationException)
+
+    cleanup:
+    toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
   }
 
   private static final class EmptyBuildAction<String> implements BuildAction<String> {
