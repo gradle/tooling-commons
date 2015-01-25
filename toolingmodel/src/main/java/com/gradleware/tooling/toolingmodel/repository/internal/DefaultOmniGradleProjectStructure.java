@@ -2,11 +2,11 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
 import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
+import org.gradle.api.specs.Spec;
 import org.gradle.tooling.model.gradle.BasicGradleProject;
 
 import java.io.File;
@@ -78,12 +78,12 @@ public final class DefaultOmniGradleProjectStructure implements OmniGradleProjec
     }
 
     @Override
-    public ImmutableList<OmniGradleProjectStructure> filter(Predicate<? super OmniGradleProjectStructure> predicate) {
+    public ImmutableList<OmniGradleProjectStructure> filter(Spec<? super OmniGradleProjectStructure> predicate) {
         return this.hierarchyHelper.filter(predicate);
     }
 
     @Override
-    public Optional<OmniGradleProjectStructure> tryFind(Predicate<? super OmniGradleProjectStructure> predicate) {
+    public Optional<OmniGradleProjectStructure> tryFind(Spec<? super OmniGradleProjectStructure> predicate) {
         return this.hierarchyHelper.tryFind(predicate);
     }
 

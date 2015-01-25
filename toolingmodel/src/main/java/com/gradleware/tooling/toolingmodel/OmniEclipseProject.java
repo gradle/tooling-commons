@@ -1,8 +1,8 @@
 package com.gradleware.tooling.toolingmodel;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.gradleware.tooling.utils.ImmutableCollection;
+import org.gradle.api.specs.Spec;
 
 import java.io.File;
 import java.util.List;
@@ -25,6 +25,7 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
      *
      * @return the immediate child projects of this project
      */
+    @Override
     @ImmutableCollection
     List<OmniEclipseProject> getChildren();
 
@@ -45,7 +46,7 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
      */
     @Override
     @ImmutableCollection
-    List<OmniEclipseProject> filter(Predicate<? super OmniEclipseProject> predicate);
+    List<OmniEclipseProject> filter(Spec<? super OmniEclipseProject> predicate);
 
     /**
      * Returns the first project that matches the given criteria, if any.
@@ -54,7 +55,7 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
      * @return the matching project, if any
      */
     @Override
-    Optional<OmniEclipseProject> tryFind(Predicate<? super OmniEclipseProject> predicate);
+    Optional<OmniEclipseProject> tryFind(Spec<? super OmniEclipseProject> predicate);
 
     /**
      * Returns the name of this project. Note that the name is not a unique identifier for the project.

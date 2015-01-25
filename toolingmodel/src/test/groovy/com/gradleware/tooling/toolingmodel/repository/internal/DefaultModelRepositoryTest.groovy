@@ -1,6 +1,5 @@
 package com.gradleware.tooling.toolingmodel.repository.internal
 
-import com.google.common.base.Predicate
 import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
 import com.google.common.eventbus.Subscribe
@@ -28,6 +27,7 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildStructureUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
+import org.gradle.api.specs.Spec
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
@@ -314,7 +314,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
 
     def projectSub1 = gradleBuild.rootProject.tryFind({ OmniGradleProject input ->
       input.path.path == ':sub1'
-    } as Predicate).get()
+    } as Spec).get()
     projectSub1.projectTasks.size() == 2
 
     def myFirstTaskOfSub1 = projectSub1.projectTasks[0]
@@ -331,7 +331,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
 
     def projectSub2 = gradleBuild.rootProject.tryFind({ OmniGradleProject input ->
       input.path.path == ':sub2'
-    } as Predicate).get()
+    } as Spec).get()
     projectSub2.taskSelectors.size() == 5
 
     def myTaskSelector = projectSub2.taskSelectors.find { it.name == 'myTask' }
@@ -419,7 +419,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
 
     def projectSub1 = eclipseGradleBuild.rootProject.tryFind({ OmniGradleProject input ->
       return input.path.path == ':sub1'
-    } as Predicate).get()
+    } as Spec).get()
     projectSub1.projectTasks.size() == 2
 
     def myFirstTaskOfSub1 = projectSub1.projectTasks[0]
@@ -436,7 +436,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
 
     def projectSub2 = eclipseGradleBuild.rootProject.tryFind({ OmniGradleProject input ->
       return input.path.path == ':sub2'
-    } as Predicate).get()
+    } as Spec).get()
     projectSub2.taskSelectors.size() == 5
 
     def myTaskSelector = projectSub2.taskSelectors.find { it.name == 'myTask' }
@@ -488,7 +488,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     eclipseGradleBuild.rootEclipseProject.externalDependencies == []
 
     // verify source directories
-    def apiSourceDirectories = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Predicate).get().sourceDirectories
+    def apiSourceDirectories = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Spec).get().sourceDirectories
     apiSourceDirectories.size() == 3
     apiSourceDirectories[0].path == 'src/main/java'
     apiSourceDirectories[0].directory == apiProjectDir.file('src/main/java')
@@ -496,14 +496,14 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     apiSourceDirectories[1].directory == apiProjectDir.file('src/main/resources')
     apiSourceDirectories[2].path == 'src/test/java'
     apiSourceDirectories[2].directory == apiProjectDir.file('src/test/java')
-    eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Predicate).get().sourceDirectories == []
+    eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Spec).get().sourceDirectories == []
 
     // verify project dependencies
-    eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Predicate).get().projectDependencies == []
-    eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Predicate).get().projectDependencies*.targetProjectPath.path == [':api']
+    eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Spec).get().projectDependencies == []
+    eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Spec).get().projectDependencies*.targetProjectPath.path == [':api']
 
     // verify external dependencies
-    def apiExternalDependencies = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Predicate).get().externalDependencies
+    def apiExternalDependencies = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Spec).get().externalDependencies
     apiExternalDependencies.size() == 1
     def guavaDependency = apiExternalDependencies[0]
     guavaDependency.file != null
@@ -516,7 +516,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     } else {
       !guavaDependency.gradleModuleVersion.isPresent()
     }
-    eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Predicate).get().externalDependencies == []
+    eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Spec).get().externalDependencies == []
 
     where:
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")

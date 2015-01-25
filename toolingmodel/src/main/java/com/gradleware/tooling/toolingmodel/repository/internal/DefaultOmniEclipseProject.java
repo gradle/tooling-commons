@@ -11,6 +11,7 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
 import com.gradleware.tooling.toolingmodel.Path;
+import org.gradle.api.specs.Spec;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.ExternalDependency;
 import org.gradle.tooling.model.eclipse.EclipseProject;
@@ -127,12 +128,12 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     }
 
     @Override
-    public ImmutableList<OmniEclipseProject> filter(Predicate<? super OmniEclipseProject> predicate) {
+    public ImmutableList<OmniEclipseProject> filter(Spec<? super OmniEclipseProject> predicate) {
         return this.hierarchyHelper.filter(predicate);
     }
 
     @Override
-    public Optional<OmniEclipseProject> tryFind(Predicate<? super OmniEclipseProject> predicate) {
+    public Optional<OmniEclipseProject> tryFind(Spec<? super OmniEclipseProject> predicate) {
         return this.hierarchyHelper.tryFind(predicate);
     }
 

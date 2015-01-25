@@ -9,6 +9,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.gradleware.tooling.toolingmodel.HierarchicalModel;
+import org.gradle.api.specs.Spec;
 
 import java.util.Comparator;
 import java.util.List;
@@ -62,12 +63,21 @@ final class HierarchyHelper<T extends HierarchicalModel<T>> {
         return Ordering.from(this.comparator).immutableSortedCopy(elements);
     }
 
-    ImmutableList<T> filter(Predicate<? super T> predicate) {
-        return FluentIterable.from(getAll()).filter(predicate).toList();
+    ImmutableList<T> filter(Spec<? super T> predicate) {
+        return FluentIterable.from(getAll()).filter(toPredicate(predicate)).toList();
     }
 
-    Optional<T> tryFind(Predicate<? super T> predicate) {
-        return Iterables.tryFind(getAll(), predicate);
+    Optional<T> tryFind(Spec<? super T> predicate) {
+        return Iterables.tryFind(getAll(), toPredicate(predicate));
+    }
+
+    private static <T> Predicate<? super T> toPredicate(final Spec<? super T> spec) {
+        return new Predicate<T>() {
+            @Override
+            public boolean apply(T input) {
+                return spec.isSatisfiedBy(input);
+            }
+        };
     }
 
 }

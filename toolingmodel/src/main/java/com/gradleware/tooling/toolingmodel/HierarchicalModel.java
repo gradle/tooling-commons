@@ -1,8 +1,8 @@
 package com.gradleware.tooling.toolingmodel;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.gradleware.tooling.utils.ImmutableCollection;
+import org.gradle.api.specs.Spec;
 
 import java.util.List;
 
@@ -41,7 +41,7 @@ public interface HierarchicalModel<T extends HierarchicalModel<T>> {
      * @return the matching models
      */
     @ImmutableCollection
-    List<T> filter(Predicate<? super T> predicate);
+    List<T> filter(Spec<? super T> predicate);
 
     /**
      * Returns the first model that matches the given criteria, if any.
@@ -49,6 +49,6 @@ public interface HierarchicalModel<T extends HierarchicalModel<T>> {
      * @param predicate the criteria to match
      * @return the matching model, if any
      */
-    Optional<T> tryFind(Predicate<? super T> predicate);
+    Optional<T> tryFind(Spec<? super T> predicate);
 
 }

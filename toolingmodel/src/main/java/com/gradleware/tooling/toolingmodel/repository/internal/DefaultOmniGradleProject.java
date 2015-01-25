@@ -2,7 +2,6 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.OmniBuildInvocations;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
@@ -11,6 +10,7 @@ import com.gradleware.tooling.toolingmodel.OmniProjectTask;
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
 import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
+import org.gradle.api.specs.Spec;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.gradle.GradleScript;
 
@@ -134,12 +134,12 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
     }
 
     @Override
-    public ImmutableList<OmniGradleProject> filter(Predicate<? super OmniGradleProject> predicate) {
+    public ImmutableList<OmniGradleProject> filter(Spec<? super OmniGradleProject> predicate) {
         return this.hierarchyHelper.filter(predicate);
     }
 
     @Override
-    public Optional<OmniGradleProject> tryFind(Predicate<? super OmniGradleProject> predicate) {
+    public Optional<OmniGradleProject> tryFind(Spec<? super OmniGradleProject> predicate) {
         return this.hierarchyHelper.tryFind(predicate);
     }
 
