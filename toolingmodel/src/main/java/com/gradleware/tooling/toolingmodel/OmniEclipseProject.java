@@ -102,6 +102,14 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
     List<OmniExternalDependency> getExternalDependencies();
 
     /**
+     * Returns the linked resources of this project.
+     *
+     * @return the linked resources
+     */
+    @ImmutableCollection
+    List<OmniEclipseLinkedResource> getLinkedResources();
+
+    /**
      * Returns the source directories of this project.
      *
      * @return the source directories

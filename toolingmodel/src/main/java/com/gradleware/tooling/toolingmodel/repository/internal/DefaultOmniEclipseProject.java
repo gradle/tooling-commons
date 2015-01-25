@@ -6,6 +6,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.gradleware.tooling.toolingmodel.OmniEclipseLinkedResource;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
@@ -14,6 +15,7 @@ import com.gradleware.tooling.toolingmodel.Path;
 import org.gradle.api.specs.Spec;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.ExternalDependency;
+import org.gradle.tooling.model.eclipse.EclipseLinkedResource;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
 import org.gradle.tooling.model.eclipse.EclipseSourceDirectory;
@@ -34,6 +36,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     private File projectDirectory;
     private ImmutableList<OmniEclipseProjectDependency> projectDependencies;
     private ImmutableList<OmniExternalDependency> externalDependencies;
+    private ImmutableList<OmniEclipseLinkedResource> linkedResources;
     private ImmutableList<OmniEclipseSourceDirectory> sourceDirectories;
 
     private DefaultOmniEclipseProject(Comparator<? super OmniEclipseProject> comparator) {
@@ -95,6 +98,15 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     }
 
     @Override
+    public ImmutableList<OmniEclipseLinkedResource> getLinkedResources() {
+        return this.linkedResources;
+    }
+
+    public void setLinkedResources(List<OmniEclipseLinkedResource> linkedResources) {
+        this.linkedResources = ImmutableList.copyOf(linkedResources);
+    }
+
+    @Override
     public ImmutableList<OmniEclipseSourceDirectory> getSourceDirectories() {
         return this.sourceDirectories;
     }
@@ -145,6 +157,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         eclipseProject.setProjectDirectory(project.getProjectDirectory());
         eclipseProject.setProjectDependencies(toProjectDependencies(project.getProjectDependencies()));
         eclipseProject.setExternalDependencies(toExternalDependencies(project.getClasspath()));
+        eclipseProject.setLinkedResources(toLinkedResources(project.getLinkedResources()));
         eclipseProject.setSourceDirectories(toSourceDirectories(project.getSourceDirectories()));
 
         for (EclipseProject child : project.getChildren()) {
@@ -176,6 +189,15 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
             @Override
             public OmniExternalDependency apply(ExternalDependency input) {
                 return DefaultOmniExternalDependency.from(input);
+            }
+        }).toList();
+    }
+
+    private static ImmutableList<OmniEclipseLinkedResource> toLinkedResources(DomainObjectSet<? extends EclipseLinkedResource> linkedResources) {
+        return FluentIterable.from(linkedResources).transform(new Function<EclipseLinkedResource, OmniEclipseLinkedResource>() {
+            @Override
+            public OmniEclipseLinkedResource apply(EclipseLinkedResource input) {
+                return DefaultOmniEclipseLinkedResource.from(input);
             }
         }).toList();
     }
