@@ -102,5 +102,3 @@ def getVersion(def baseVersion) {
     baseVersion
   }
 }
-
-// test
