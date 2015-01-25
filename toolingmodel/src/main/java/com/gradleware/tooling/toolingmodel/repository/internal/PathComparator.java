@@ -7,9 +7,9 @@ import java.util.Comparator;
  *
  * @see org.gradle.tooling.internal.consumer.converters.TaskNameComparator
  */
-final class PathComparator implements Comparator<String> {
+public final class PathComparator implements Comparator<String> {
 
-    static final PathComparator INSTANCE = new PathComparator();
+    public static final PathComparator INSTANCE = new PathComparator();
 
     private PathComparator() {
     }

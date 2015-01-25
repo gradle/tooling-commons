@@ -222,7 +222,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
 
         @Override
         public int compare(OmniGradleProject o1, OmniGradleProject o2) {
-            return PathComparator.INSTANCE.compare(o1.getPath().getPath(), o2.getPath().getPath());
+            return o1.getPath().compareTo(o2.getPath());
         }
 
     }

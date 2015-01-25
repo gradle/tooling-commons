@@ -86,7 +86,7 @@ public final class BuildInvocationsContainer {
     }
 
     private static ImmutableSortedMap<Path, OmniBuildInvocations> buildBuildInvocationsMapping(Multimap<Path, OmniProjectTask> projectTasks,
-                                                                                                 Multimap<Path, OmniTaskSelector> taskSelectors) {
+                                                                                               Multimap<Path, OmniTaskSelector> taskSelectors) {
         Preconditions.checkState(taskSelectors.keySet().containsAll(projectTasks.keySet()), "Task selectors are always configured for all projects");
 
         ImmutableSortedMap.Builder<Path, OmniBuildInvocations> mapping = ImmutableSortedMap.orderedBy(new Comparator<Path>() {
@@ -178,7 +178,7 @@ public final class BuildInvocationsContainer {
 
         @Override
         public int compare(OmniProjectTask o1, OmniProjectTask o2) {
-            return PathComparator.INSTANCE.compare(o1.getName(), o2.getName());
+            return o1.getName().compareTo(o2.getName());
         }
 
     }
@@ -189,7 +189,7 @@ public final class BuildInvocationsContainer {
 
         @Override
         public int compare(OmniTaskSelector o1, OmniTaskSelector o2) {
-            return PathComparator.INSTANCE.compare(o1.getName(), o2.getName());
+            return o1.getName().compareTo(o2.getName());
         }
 
     }

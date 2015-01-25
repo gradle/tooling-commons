@@ -197,7 +197,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 
         @Override
         public int compare(OmniEclipseProject o1, OmniEclipseProject o2) {
-            return PathComparator.INSTANCE.compare(o1.getPath().getPath(), o2.getPath().getPath());
+            return o1.getPath().compareTo(o2.getPath());
         }
 
     }

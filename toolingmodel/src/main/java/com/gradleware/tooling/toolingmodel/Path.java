@@ -2,11 +2,12 @@ package com.gradleware.tooling.toolingmodel;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.gradleware.tooling.toolingmodel.repository.internal.PathComparator;
 
 /**
  * Represents a path in Gradle. The path can point to a project, task, etc.
  */
-public final class Path {
+public final class Path implements Comparable<Path> {
 
     private final String path;
 
@@ -16,6 +17,13 @@ public final class Path {
 
     public String getPath() {
         return this.path;
+    }
+
+    @SuppressWarnings("NullableProblems")
+    @Override
+    public int compareTo(Path other) {
+        Preconditions.checkNotNull(other);
+        return PathComparator.INSTANCE.compare(this.path, other.path);
     }
 
     @Override

@@ -125,7 +125,7 @@ public final class DefaultOmniGradleProjectStructure implements OmniGradleProjec
 
         @Override
         public int compare(OmniGradleProjectStructure o1, OmniGradleProjectStructure o2) {
-            return PathComparator.INSTANCE.compare(o1.getPath().getPath(), o2.getPath().getPath());
+            return o1.getPath().compareTo(o2.getPath());
         }
 
     }
