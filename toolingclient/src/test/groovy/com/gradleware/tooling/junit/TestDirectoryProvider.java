@@ -15,11 +15,11 @@
  */
 package com.gradleware.tooling.junit;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
-import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,13 +33,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  * A JUnit rule which provides a unique temporary folder for the test.
  */
 @SuppressWarnings("deprecation")
-public final class TestDirectoryProvider implements TestRule, org.junit.rules.MethodRule {
+public final class TestDirectoryProvider implements TestRule {
 
     private static File root;
     private static AtomicInteger testCounter;
 
     private static final Logger LOG = LoggerFactory.getLogger(TestDirectoryProvider.class);
 
+    private final Optional<String> id;
     private File dir;
     private String prefix;
 
@@ -49,16 +50,12 @@ public final class TestDirectoryProvider implements TestRule, org.junit.rules.Me
         testCounter = new AtomicInteger(1);
     }
 
-    @Deprecated
-    @Override
-    public Statement apply(Statement base, FrameworkMethod method, Object target) {
-        // already calculate the test directory prefix since the method name is known to this method
-        String methodName = method.getName() != null ? method.getName() : "unknown-test";
-        String className = target != null ? target.getClass().getSimpleName() : String.format("UnknownTestClass-%d", testCounter.getAndIncrement());
-        init(methodName, className);
+    public TestDirectoryProvider() {
+        this.id = Optional.absent();
+    }
 
-        // create a statement that will execute the given statement and cleans up the created test directory afterwards
-        return createStatementWithDirectoryCleanup(base);
+    public TestDirectoryProvider(String id) {
+        this.id = Optional.of(id);
     }
 
     @Override
@@ -74,11 +71,18 @@ public final class TestDirectoryProvider implements TestRule, org.junit.rules.Me
 
     private void init(String methodName, String className) {
         if (this.prefix == null) {
-            String safeMethodName = methodName.replaceAll("\\s", "_").replace(":", "_").replace('"', '_').replace('\'', '_').replace(File.pathSeparator, "_");
-            if (safeMethodName.length() > 64) {
-                safeMethodName = safeMethodName.substring(0, 32) + "..." + safeMethodName.substring(safeMethodName.length() - 32);
+            String safeMethodName = methodName.
+                    replaceAll("\\s", "_").
+                    replace(":", "_").
+                    replace('"', '_').
+                    replace('\'', '_').
+                    replace('+', '_').
+                    replace('-', '_').
+                    replace(File.pathSeparator, "_");
+            if (safeMethodName.length() > 128) {
+                safeMethodName = safeMethodName.substring(0, 64) + "..." + safeMethodName.substring(safeMethodName.length() - 64);
             }
-            this.prefix = String.format("%s/%s", className, safeMethodName);
+            this.prefix = this.id.isPresent() ? String.format("%s/%s/%s", className, safeMethodName, this.id.get()) : String.format("%s/%s", className, safeMethodName);
             LOG.debug("Using prefix '{}'", this.prefix);
         }
     }
@@ -122,7 +126,8 @@ public final class TestDirectoryProvider implements TestRule, org.junit.rules.Me
                 return Iterables.getLast(Splitter.on('.').split(element.getClassName())) + "/unknown-test";
             }
         }
-        return String.format("UnknownTestClass-%d/unknown-test", testCounter.getAndIncrement());
+        return this.id.isPresent() ? String.format("UnknownTestClass-%d/unknown-test/%s", testCounter.getAndIncrement(), this.id.get()) :
+                String.format("UnknownTestClass-%d/unknown-test", testCounter.getAndIncrement());
     }
 
     public File file(Object... path) {
@@ -142,7 +147,7 @@ public final class TestDirectoryProvider implements TestRule, org.junit.rules.Me
         try {
             boolean success = file.createNewFile();
             if (!success) {
-                throw new RuntimeException(String.format("File '%s' already exists.", this.dir));
+                throw new RuntimeException(String.format("File '%s' already exists'.", this.dir));
             }
         } catch (IOException e) {
             throw new RuntimeException(String.format("Cannot create new file '%s'.", file), e);
@@ -154,7 +159,7 @@ public final class TestDirectoryProvider implements TestRule, org.junit.rules.Me
         File dir = file(path);
         boolean success = dir.mkdirs();
         if (!success) {
-            throw new RuntimeException(String.format("Directory '%s' already exists.", dir));
+            throw new RuntimeException(String.format("Directory '%s' already exists'.", dir));
         }
         return dir;
     }

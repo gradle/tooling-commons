@@ -15,6 +15,7 @@
  */
 package com.gradleware.tooling.junit;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import org.junit.rules.TestRule;
@@ -35,28 +36,26 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class TestDirectoryProvider implements TestRule {
 
     private static File root;
-    private static AtomicInteger providerCounter;
     private static AtomicInteger testCounter;
 
     private static final Logger LOG = LoggerFactory.getLogger(TestDirectoryProvider.class);
 
-    private final String id;
+    private final Optional<String> id;
     private File dir;
     private String prefix;
 
     static {
         // the space in the root directory name is intentional to ensure our code works with directories that contain spaces
         root = new File("build/tmp/test files");
-        providerCounter = new AtomicInteger(1);
         testCounter = new AtomicInteger(1);
     }
 
     public TestDirectoryProvider() {
-        this(String.valueOf(providerCounter.getAndIncrement()));
+        this.id = Optional.absent();
     }
 
     public TestDirectoryProvider(String id) {
-        this.id = id;
+        this.id = Optional.of(id);
     }
 
     @Override
@@ -83,7 +82,7 @@ public final class TestDirectoryProvider implements TestRule {
             if (safeMethodName.length() > 128) {
                 safeMethodName = safeMethodName.substring(0, 64) + "..." + safeMethodName.substring(safeMethodName.length() - 64);
             }
-            this.prefix = String.format("%s/%s/%s", className, safeMethodName, this.id);
+            this.prefix = this.id.isPresent() ? String.format("%s/%s/%s", className, safeMethodName, this.id.get()) : String.format("%s/%s", className, safeMethodName);
             LOG.debug("Using prefix '{}'", this.prefix);
         }
     }
@@ -127,7 +126,8 @@ public final class TestDirectoryProvider implements TestRule {
                 return Iterables.getLast(Splitter.on('.').split(element.getClassName())) + "/unknown-test";
             }
         }
-        return String.format("UnknownTestClass-%d/unknown-test/%s", testCounter.getAndIncrement(), this.id);
+        return this.id.isPresent() ? String.format("UnknownTestClass-%d/unknown-test/%s", testCounter.getAndIncrement(), this.id.get()) :
+                String.format("UnknownTestClass-%d/unknown-test", testCounter.getAndIncrement());
     }
 
     public File file(Object... path) {
