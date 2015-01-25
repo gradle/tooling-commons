@@ -18,7 +18,7 @@ public interface OmniEclipseLinkedResource {
     /**
      * The resource type. <p> If 'location' property is used the values are: "1" for a file, or "2" for a folder. <p> If 'locationUri' property is used then the values are: "1" for
      * file or folder when 'locationUri' first segment is a workspace path variable (or path variable navigation element), "2" for an eclipse virtual folder. <p> See the official
-     * Eclipse documentation for most up-to-date information on properties of a linked resource
+     * Eclipse documentation for most up-to-date information on properties of a linked resource.
      *
      * @return the Eclipse link type
      */
@@ -34,7 +34,7 @@ public interface OmniEclipseLinkedResource {
 
     /**
      * If the file is not in the local file system, this attribute contains the absolute URI of the resource in some backing file system. Mutually exclusive with 'location'. <p>
-     * When a workspace path variable is used as part of path then this property must be used instead of 'location'. <p> Used for virtual folders. In that case the value is:
+     * When a workspace path variable is used as part of the path then this property must be used instead of 'location'. <p> Used for virtual folders. In that case the value is:
      * 'virtual:/virtual'. <p> See the official Eclipse documentation for most up-to-date information on properties of a linked resource.
      *
      * @return the location uri
