@@ -124,7 +124,7 @@ class BuildInvocationsContainerTest extends ToolingModelToolingClientSpecificati
     assert element.name == name
     assert element.description == description
     assert element.isPublic() == isPublic
-    assert element.selectedTaskPaths as List == taskNames
+    assert element.selectedTaskPaths*.path as List == taskNames
   }
 
   private static void assertTask(String name, String description, boolean isPublic, String path, List<OmniProjectTask> tasks) {

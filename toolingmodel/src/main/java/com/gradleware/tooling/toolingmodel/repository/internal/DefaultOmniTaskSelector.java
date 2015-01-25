@@ -16,7 +16,7 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
     private String description;
     private Path projectPath;
     private boolean isPublic;
-    private ImmutableSortedSet<String> selectedTaskPaths;
+    private ImmutableSortedSet<Path> selectedTaskPaths;
 
     @Override
     public String getName() {
@@ -55,11 +55,11 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
     }
 
     @Override
-    public ImmutableSortedSet<String> getSelectedTaskPaths() {
+    public ImmutableSortedSet<Path> getSelectedTaskPaths() {
         return this.selectedTaskPaths;
     }
 
-    public void setSelectedTaskPaths(SortedSet<String> selectedTaskPaths) {
+    public void setSelectedTaskPaths(SortedSet<Path> selectedTaskPaths) {
         this.selectedTaskPaths = ImmutableSortedSet.copyOfSorted(selectedTaskPaths);
     }
 
@@ -69,11 +69,11 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
         taskSelector.setDescription(selector.getDescription());
         taskSelector.setProjectPath(projectPath);
         setIsPublic(taskSelector, selector);
-        taskSelector.setSelectedTaskPaths(ImmutableSortedSet.<String>of());
+        taskSelector.setSelectedTaskPaths(ImmutableSortedSet.<Path>of());
         return taskSelector;
     }
 
-    public static DefaultOmniTaskSelector from(String name, String description, Path projectPath, boolean isPublic, SortedSet<String> selectedTaskPaths) {
+    public static DefaultOmniTaskSelector from(String name, String description, Path projectPath, boolean isPublic, SortedSet<Path> selectedTaskPaths) {
         DefaultOmniTaskSelector taskSelector = new DefaultOmniTaskSelector();
         taskSelector.setName(name);
         taskSelector.setDescription(description);

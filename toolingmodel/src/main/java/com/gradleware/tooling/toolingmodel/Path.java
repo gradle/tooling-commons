@@ -48,4 +48,18 @@ public final class Path implements Comparable<Path> {
         return new Path(path);
     }
 
+    public static final class Comparator implements java.util.Comparator<Path> {
+
+        public static final Comparator INSTANCE = new Comparator();
+
+        private Comparator() {
+        }
+
+        @Override
+        public int compare(Path o1, Path o2) {
+            return o1.getPath().compareTo(o2.getPath());
+        }
+
+    }
+
 }

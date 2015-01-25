@@ -8,7 +8,6 @@ import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.Path;
 import org.gradle.tooling.model.gradle.BuildInvocations;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -40,12 +39,7 @@ public final class DefaultOmniBuildInvocationsContainer implements OmniBuildInvo
     }
 
     public static OmniBuildInvocationsContainer from(OmniGradleProject gradleProject) {
-        ImmutableSortedMap.Builder<Path, OmniBuildInvocations> result = ImmutableSortedMap.orderedBy(new Comparator<Path>() {
-            @Override
-            public int compare(Path o1, Path o2) {
-                return o1.getPath().compareTo(o2.getPath());
-            }
-        });
+        ImmutableSortedMap.Builder<Path, OmniBuildInvocations> result = ImmutableSortedMap.orderedBy(Path.Comparator.INSTANCE);
         collectBuildInvocations(gradleProject, result);
         return new DefaultOmniBuildInvocationsContainer(result.build());
     }

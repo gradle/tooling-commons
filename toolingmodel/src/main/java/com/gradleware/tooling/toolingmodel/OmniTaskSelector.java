@@ -44,6 +44,6 @@ public interface OmniTaskSelector {
      * @return the selected tasks, identified by their unique path
      */
     @ImmutableCollection
-    SortedSet<String> getSelectedTaskPaths();
+    SortedSet<Path> getSelectedTaskPaths();
 
 }

@@ -339,7 +339,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     myTaskSelector.description == 'another task of sub2'
     myTaskSelector.projectPath.path == ':sub2'
     myTaskSelector.isPublic()
-    myTaskSelector.selectedTaskPaths as List == [':sub2:myTask', ':sub2:subSub1:myTask']
+    myTaskSelector.selectedTaskPaths*.path as List == [':sub2:myTask', ':sub2:subSub1:myTask']
 
     def event = publishedEvent.get()
     event != null
@@ -444,7 +444,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     myTaskSelector.description == 'another task of sub2'
     myTaskSelector.projectPath.path == ':sub2'
     myTaskSelector.isPublic()
-    myTaskSelector.selectedTaskPaths as List == [':sub2:myTask', ':sub2:subSub1:myTask']
+    myTaskSelector.selectedTaskPaths*.path as List == [':sub2:myTask', ':sub2:subSub1:myTask']
 
     def event = publishedEvent.get()
     event != null
@@ -603,7 +603,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     myTaskSelector.description == higherOrEqual('2.3', distribution) ? 'another task of sub2' : 'sub2:myTask task selector'
     myTaskSelector.projectPath.path == ':sub2'
     myTaskSelector.isPublic()
-    myTaskSelector.selectedTaskPaths as List == (!higherOrEqual('1.12', distribution) || !higherOrEqual('2.3', distribution) && environment == Environment.ECLIPSE ? [':sub2:myTask', ':sub2:subSub1:myTask'] : [])
+    myTaskSelector.selectedTaskPaths*.path as List == (!higherOrEqual('1.12', distribution) || !higherOrEqual('2.3', distribution) && environment == Environment.ECLIPSE ? [':sub2:myTask', ':sub2:subSub1:myTask'] : [])
     // empty selected task paths for task selectors from 'authentic' build invocations
 
     def event = publishedEvent.get()
