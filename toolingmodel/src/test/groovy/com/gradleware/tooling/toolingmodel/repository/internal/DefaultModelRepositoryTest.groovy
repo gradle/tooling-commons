@@ -204,7 +204,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     gradleBuildStructure != null
     gradleBuildStructure.rootProject != null
     gradleBuildStructure.rootProject.name == 'my root project'
-    gradleBuildStructure.rootProject.path.path == ':'
+    gradleBuildStructure.rootProject.path == Path.from(':')
     if (higherOrEqual('1.8', distribution)) {
       assert gradleBuildStructure.rootProject.projectDirectory.get().absolutePath == directoryProvider.testDirectory.absolutePath
     } else {
@@ -307,13 +307,13 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     gradleBuild.rootProject.children.size() == 2
     gradleBuild.rootProject.children*.name == ['sub1', 'sub2']
     gradleBuild.rootProject.children*.description == ['sub project 1', 'sub project 2']
-    gradleBuild.rootProject.children*.path == [Path.from(':sub1'), Path.from(':sub2')]
+    gradleBuild.rootProject.children*.path.path == [':sub1', ':sub2']
     gradleBuild.rootProject.children*.parent == [gradleBuild.rootProject, gradleBuild.rootProject]
     gradleBuild.rootProject.all.size() == 4
     gradleBuild.rootProject.all*.name == ['my root project', 'sub1', 'sub2', 'subSub1']
 
     def projectSub1 = gradleBuild.rootProject.tryFind({ OmniGradleProject input ->
-      return input.path.equals(Path.from(':sub1'))
+      input.path.path == ':sub1'
     } as Predicate).get()
     projectSub1.projectTasks.size() == 2
 
@@ -330,7 +330,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     mySecondTaskOfSub1.isPublic() == !higherOrEqual('2.3', distribution) // all versions < 2.3 are corrected to or default to 'true'
 
     def projectSub2 = gradleBuild.rootProject.tryFind({ OmniGradleProject input ->
-      return input.path.equals(Path.from(':sub2'))
+      input.path.path == ':sub2'
     } as Predicate).get()
     projectSub2.taskSelectors.size() == 5
 
@@ -412,13 +412,13 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     eclipseGradleBuild.rootEclipseProject.children.size() == 2
     eclipseGradleBuild.rootEclipseProject.children*.name == ['sub1', 'sub2']
     eclipseGradleBuild.rootEclipseProject.children*.description == ['sub project 1', 'sub project 2']
-    eclipseGradleBuild.rootEclipseProject.children*.path == [Path.from(':sub1'), Path.from(':sub2')]
+    eclipseGradleBuild.rootEclipseProject.children*.path.path == [':sub1', ':sub2']
     eclipseGradleBuild.rootEclipseProject.children*.parent == [eclipseGradleBuild.rootEclipseProject, eclipseGradleBuild.rootEclipseProject]
     eclipseGradleBuild.rootEclipseProject.all.size() == 4
     eclipseGradleBuild.rootEclipseProject.all*.name == ['my root project', 'sub1', 'sub2', 'subSub1']
 
     def projectSub1 = eclipseGradleBuild.rootProject.tryFind({ OmniGradleProject input ->
-      return input.path.equals(Path.from(':sub1'))
+      return input.path.path == ':sub1'
     } as Predicate).get()
     projectSub1.projectTasks.size() == 2
 
@@ -435,7 +435,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     mySecondTaskOfSub1.isPublic() == !higherOrEqual('2.3', distribution) // all versions < 2.3 are corrected to or default to 'true'
 
     def projectSub2 = eclipseGradleBuild.rootProject.tryFind({ OmniGradleProject input ->
-      return input.path.equals(Path.from(':sub2'))
+      return input.path.path == ':sub2'
     } as Predicate).get()
     projectSub2.taskSelectors.size() == 5
 
@@ -500,7 +500,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
 
     // verify project dependencies
     eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Predicate).get().projectDependencies == []
-    eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Predicate).get().projectDependencies*.targetProjectPath == [Path.from(':api')]
+    eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Predicate).get().projectDependencies*.targetProjectPath.path == [':api']
 
     // verify external dependencies
     def apiExternalDependencies = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Predicate).get().externalDependencies
