@@ -18,11 +18,9 @@ import com.gradleware.tooling.toolingmodel.Path;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.GradleTask;
-import org.gradle.tooling.model.gradle.BuildInvocations;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -37,35 +35,6 @@ public final class BuildInvocationsContainer {
     @SuppressWarnings("RedundantStringConstructorCall")
     private static final String NULL_STRING = new String(); // ensure unique instance to use it as a null-string placeholder
 
-    private final ImmutableSortedMap<Path, OmniBuildInvocations> buildInvocationsPerProject;
-
-    private BuildInvocationsContainer(SortedMap<Path, OmniBuildInvocations> buildInvocationsPerProject) {
-        this.buildInvocationsPerProject = ImmutableSortedMap.copyOfSorted(buildInvocationsPerProject);
-    }
-
-    /**
-     * A {@code Map} of {@code OmniBuildInvocations} per project, where each project is identified by its unique full path.
-     *
-     * @return the mapping of projects to build invocations
-     */
-    public ImmutableSortedMap<Path, OmniBuildInvocations> asMap() {
-        return this.buildInvocationsPerProject;
-    }
-
-    /**
-     * Converts a {@code Map} of {@link BuildInvocations} to a {@link BuildInvocationsContainer}.
-     *
-     * @param buildInvocations the build invocations to convert
-     * @return the build invocations container
-     */
-    public static BuildInvocationsContainer from(Map<String, BuildInvocations> buildInvocations) {
-        ImmutableSortedMap.Builder<Path, OmniBuildInvocations> buildInvocationsMap = ImmutableSortedMap.orderedBy(Path.Comparator.INSTANCE);
-        for (String projectPath : buildInvocations.keySet()) {
-            buildInvocationsMap.put(Path.from(projectPath), DefaultOmniBuildInvocations.from(buildInvocations.get(projectPath), Path.from(projectPath)));
-        }
-        return new BuildInvocationsContainer(buildInvocationsMap.build());
-    }
-
     /**
      * Converts a {@link GradleProject} to a {@link BuildInvocationsContainer}.
      *
@@ -73,11 +42,10 @@ public final class BuildInvocationsContainer {
      * @param enforceAllTasksPublic if set to true {@code true}, all tasks should be made public
      * @return the build invocations container
      */
-    public static BuildInvocationsContainer from(GradleProject project, boolean enforceAllTasksPublic) {
+    public static ImmutableSortedMap<Path, OmniBuildInvocations> from(GradleProject project, boolean enforceAllTasksPublic) {
         ImmutableMultimap<Path, OmniProjectTask> tasks = buildProjectTasksRecursively(project, ArrayListMultimap.<Path, OmniProjectTask>create(), enforceAllTasksPublic);
         ImmutableMultimap<Path, OmniTaskSelector> taskSelectors = buildTaskSelectorsRecursively(project, ArrayListMultimap.<Path, OmniTaskSelector>create(), enforceAllTasksPublic);
-        ImmutableSortedMap<Path, OmniBuildInvocations> buildInvocationsMap = buildBuildInvocationsMapping(tasks, taskSelectors);
-        return new BuildInvocationsContainer(buildInvocationsMap);
+        return buildBuildInvocationsMapping(tasks, taskSelectors);
     }
 
     private static ImmutableSortedMap<Path, OmniBuildInvocations> buildBuildInvocationsMapping(Multimap<Path, OmniProjectTask> projectTasks,
@@ -183,4 +151,5 @@ public final class BuildInvocationsContainer {
         }
 
     }
+
 }

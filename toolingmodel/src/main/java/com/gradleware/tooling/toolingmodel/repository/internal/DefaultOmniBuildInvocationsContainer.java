@@ -6,6 +6,7 @@ import com.gradleware.tooling.toolingmodel.OmniBuildInvocations;
 import com.gradleware.tooling.toolingmodel.OmniBuildInvocationsContainer;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.Path;
+import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.gradle.BuildInvocations;
 
 import java.util.List;
@@ -34,8 +35,15 @@ public final class DefaultOmniBuildInvocationsContainer implements OmniBuildInvo
     }
 
     public static OmniBuildInvocationsContainer from(Map<String, BuildInvocations> buildInvocationsPerProject) {
-        BuildInvocationsContainer buildInvocationsContainer = BuildInvocationsContainer.from(buildInvocationsPerProject);
-        return new DefaultOmniBuildInvocationsContainer(buildInvocationsContainer.asMap());
+        ImmutableSortedMap.Builder<Path, OmniBuildInvocations> buildInvocationsMap = ImmutableSortedMap.orderedBy(Path.Comparator.INSTANCE);
+        for (String projectPath : buildInvocationsPerProject.keySet()) {
+            buildInvocationsMap.put(Path.from(projectPath), DefaultOmniBuildInvocations.from(buildInvocationsPerProject.get(projectPath), Path.from(projectPath)));
+        }
+        return new DefaultOmniBuildInvocationsContainer(buildInvocationsMap.build());
+    }
+
+    public static DefaultOmniBuildInvocationsContainer from(GradleProject project, boolean enforceAllTasksPublic) {
+        return new DefaultOmniBuildInvocationsContainer(BuildInvocationsContainer.from(project, enforceAllTasksPublic));
     }
 
     public static OmniBuildInvocationsContainer from(OmniGradleProject gradleProject) {

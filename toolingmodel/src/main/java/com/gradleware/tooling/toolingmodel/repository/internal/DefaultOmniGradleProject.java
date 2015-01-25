@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.OmniBuildInvocations;
+import com.gradleware.tooling.toolingmodel.OmniBuildInvocationsContainer;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleScript;
 import com.gradleware.tooling.toolingmodel.OmniProjectTask;
@@ -144,11 +145,11 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
     }
 
     public static DefaultOmniGradleProject from(GradleProject project, boolean enforceAllTasksPublic) {
-        BuildInvocationsContainer buildInvocationsContainer = BuildInvocationsContainer.from(project, enforceAllTasksPublic);
+        OmniBuildInvocationsContainer buildInvocationsContainer = DefaultOmniBuildInvocationsContainer.from(project, enforceAllTasksPublic);
         return convert(project, buildInvocationsContainer);
     }
 
-    private static DefaultOmniGradleProject convert(GradleProject project, BuildInvocationsContainer buildInvocationsContainer) {
+    private static DefaultOmniGradleProject convert(GradleProject project, OmniBuildInvocationsContainer buildInvocationsContainer) {
         DefaultOmniGradleProject gradleProject = new DefaultOmniGradleProject(OmniGradleProjectComparator.INSTANCE);
         gradleProject.setName(project.getName());
         gradleProject.setDescription(project.getDescription());
