@@ -5,6 +5,7 @@ import com.google.common.eventbus.EventBus
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
 import com.gradleware.tooling.toolingclient.GradleDistribution
+import com.gradleware.tooling.toolingmodel.Path
 import com.gradleware.tooling.toolingmodel.repository.Environment
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
@@ -160,8 +161,8 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
     then:
     thirdLookUp != null
     !thirdLookUp.is(fourthLookUp)
-    thirdLookUp.asMap()[':'].projectTasks.size() == fourthLookUp.asMap()[':'].projectTasks.size()
-    thirdLookUp.asMap()[':'].taskSelectors.size() == fourthLookUp.asMap()[':'].taskSelectors.size()
+    thirdLookUp.asMap()[Path.from(':')].projectTasks.size() == fourthLookUp.asMap()[Path.from(':')].projectTasks.size()
+    thirdLookUp.asMap()[Path.from(':')].taskSelectors.size() == fourthLookUp.asMap()[Path.from(':')].taskSelectors.size()
   }
 
   def "fetchBuildInvocations - fallback scenarios"() {
@@ -193,8 +194,8 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
     then:
     thirdLookUp != null
     !thirdLookUp.is(fourthLookUp)
-    thirdLookUp.asMap()[':'].projectTasks.size() == fourthLookUp.asMap()[':'].projectTasks.size()
-    thirdLookUp.asMap()[':'].taskSelectors.size() == fourthLookUp.asMap()[':'].taskSelectors.size()
+    thirdLookUp.asMap()[Path.from(':')].projectTasks.size() == fourthLookUp.asMap()[Path.from(':')].projectTasks.size()
+    thirdLookUp.asMap()[Path.from(':')].taskSelectors.size() == fourthLookUp.asMap()[Path.from(':')].taskSelectors.size()
     repository.fetchGradleBuild(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY) != null
   }
 
