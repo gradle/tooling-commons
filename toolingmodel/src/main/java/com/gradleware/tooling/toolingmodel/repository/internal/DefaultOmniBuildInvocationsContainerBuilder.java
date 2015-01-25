@@ -26,26 +26,25 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 
 /**
- * Holds the {@code Model&lt;BuildInvocationFields&gt;} for a given set of projects. Each project is identified by its unique full path.
- *
- * The primary advantage of this container is that it allows to work with a generics-free type compared to <code>Map&lt;String, Model&lt;BuildInvocationFields&gt;&gt;</code>.
+ * Builds a {@code DefaultOmniBuildInvocationsContainer} from a given Gradle project.
  */
-public final class BuildInvocationsContainer {
+public final class DefaultOmniBuildInvocationsContainerBuilder {
 
     @SuppressWarnings("RedundantStringConstructorCall")
     private static final String NULL_STRING = new String(); // ensure unique instance to use it as a null-string placeholder
 
     /**
-     * Converts a {@link GradleProject} to a {@link BuildInvocationsContainer}.
+     * Converts a {@link GradleProject} to a {@link DefaultOmniBuildInvocationsContainer}.
      *
      * @param project the Gradle project to convert
      * @param enforceAllTasksPublic if set to true {@code true}, all tasks should be made public
      * @return the build invocations container
      */
-    public static ImmutableSortedMap<Path, OmniBuildInvocations> from(GradleProject project, boolean enforceAllTasksPublic) {
+    public static DefaultOmniBuildInvocationsContainer build(GradleProject project, boolean enforceAllTasksPublic) {
         ImmutableMultimap<Path, OmniProjectTask> tasks = buildProjectTasksRecursively(project, ArrayListMultimap.<Path, OmniProjectTask>create(), enforceAllTasksPublic);
         ImmutableMultimap<Path, OmniTaskSelector> taskSelectors = buildTaskSelectorsRecursively(project, ArrayListMultimap.<Path, OmniTaskSelector>create(), enforceAllTasksPublic);
-        return buildBuildInvocationsMapping(tasks, taskSelectors);
+        ImmutableSortedMap<Path, OmniBuildInvocations> buildInvocationsPerProject = buildBuildInvocationsMapping(tasks, taskSelectors);
+        return DefaultOmniBuildInvocationsContainer.from(buildInvocationsPerProject);
     }
 
     private static ImmutableSortedMap<Path, OmniBuildInvocations> buildBuildInvocationsMapping(Multimap<Path, OmniProjectTask> projectTasks,

@@ -145,7 +145,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
     }
 
     public static DefaultOmniGradleProject from(GradleProject project, boolean enforceAllTasksPublic) {
-        OmniBuildInvocationsContainer buildInvocationsContainer = DefaultOmniBuildInvocationsContainer.from(project, enforceAllTasksPublic);
+        OmniBuildInvocationsContainer buildInvocationsContainer = DefaultOmniBuildInvocationsContainerBuilder.build(project, enforceAllTasksPublic);
         return convert(project, buildInvocationsContainer);
     }
 
