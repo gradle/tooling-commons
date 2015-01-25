@@ -70,15 +70,5 @@ public interface ModelRepository {
      * @return the build invocations container, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
      */
     OmniBuildInvocationsContainer fetchBuildInvocations(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
-//
-//    /**
-//     * Fetches the {@link org.gradle.tooling.model.GradleProject} and {@link org.gradle.tooling.model.gradle.BuildInvocations} synchronously and broadcasts them through a {@link com.gradleware.tooling.toolingmodel.repository.GradleProjectUpdateEvent} and {@link
-//     * com.gradleware.tooling.toolingmodel.repository.BuildInvocationsUpdateEvent}.
-//     *
-//     * @param transientRequestAttributes the transient request attributes
-//     * @param fetchStrategy the fetch strategy
-//     * @return the gradle project and build invocations, pair values never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
-//     */
-//    Pair<GradleProject, BuildInvocationsContainer> fetchGradleProjectWithBuildInvocationsAndWait(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
 }
