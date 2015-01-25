@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
+import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
 import org.gradle.tooling.model.gradle.BasicGradleProject;
 
@@ -18,7 +19,7 @@ public final class DefaultOmniGradleProjectStructure implements OmniGradleProjec
 
     private final HierarchyHelper<OmniGradleProjectStructure> hierarchyHelper;
     private String name;
-    private String path;
+    private Path path;
     private Maybe<File> projectDirectory;
 
     private DefaultOmniGradleProjectStructure(Comparator<? super OmniGradleProjectStructure> comparator) {
@@ -35,11 +36,11 @@ public final class DefaultOmniGradleProjectStructure implements OmniGradleProjec
     }
 
     @Override
-    public String getPath() {
+    public Path getPath() {
         return this.path;
     }
 
-    private void setPath(String path) {
+    private void setPath(Path path) {
         this.path = path;
     }
 
@@ -89,7 +90,7 @@ public final class DefaultOmniGradleProjectStructure implements OmniGradleProjec
     public static DefaultOmniGradleProjectStructure from(BasicGradleProject project) {
         DefaultOmniGradleProjectStructure projectStructure = new DefaultOmniGradleProjectStructure(OmniGradleProjectStructureComparator.INSTANCE);
         projectStructure.setName(project.getName());
-        projectStructure.setPath(project.getPath());
+        projectStructure.setPath(Path.from((project.getPath())));
         setProjectDirectory(projectStructure, project);
 
         for (BasicGradleProject child : project.getChildren()) {
@@ -124,7 +125,7 @@ public final class DefaultOmniGradleProjectStructure implements OmniGradleProjec
 
         @Override
         public int compare(OmniGradleProjectStructure o1, OmniGradleProjectStructure o2) {
-            return PathComparator.INSTANCE.compare(o1.getPath(), o2.getPath());
+            return PathComparator.INSTANCE.compare(o1.getPath().getPath(), o2.getPath().getPath());
         }
 
     }

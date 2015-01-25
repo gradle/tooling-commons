@@ -24,7 +24,7 @@ public interface OmniProjectTask {
      *
      * @return the path of this task
      */
-    String getPath();
+    Path getPath();
 
     /**
      * Returns whether this task is public or not. Public tasks are those that have a non-empty {@code group} property.

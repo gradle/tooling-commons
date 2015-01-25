@@ -5,8 +5,10 @@ import com.google.common.collect.ImmutableSortedMap;
 import com.gradleware.tooling.toolingmodel.OmniBuildInvocations;
 import com.gradleware.tooling.toolingmodel.OmniBuildInvocationsContainer;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
+import com.gradleware.tooling.toolingmodel.Path;
 import org.gradle.tooling.model.gradle.BuildInvocations;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -16,19 +18,19 @@ import java.util.SortedMap;
  */
 public final class DefaultOmniBuildInvocationsContainer implements OmniBuildInvocationsContainer {
 
-    private final ImmutableSortedMap<String, OmniBuildInvocations> buildInvocationsPerProject;
+    private final ImmutableSortedMap<Path, OmniBuildInvocations> buildInvocationsPerProject;
 
-    private DefaultOmniBuildInvocationsContainer(SortedMap<String, OmniBuildInvocations> buildInvocationsPerProject) {
+    private DefaultOmniBuildInvocationsContainer(SortedMap<Path, OmniBuildInvocations> buildInvocationsPerProject) {
         this.buildInvocationsPerProject = ImmutableSortedMap.copyOfSorted(buildInvocationsPerProject);
     }
 
     @Override
-    public Optional<OmniBuildInvocations> get(String projectPath) {
+    public Optional<OmniBuildInvocations> get(Path projectPath) {
         return Optional.fromNullable(this.buildInvocationsPerProject.get(projectPath));
     }
 
     @Override
-    public ImmutableSortedMap<String, OmniBuildInvocations> asMap() {
+    public ImmutableSortedMap<Path, OmniBuildInvocations> asMap() {
         return this.buildInvocationsPerProject;
     }
 
@@ -38,12 +40,17 @@ public final class DefaultOmniBuildInvocationsContainer implements OmniBuildInvo
     }
 
     public static OmniBuildInvocationsContainer from(OmniGradleProject gradleProject) {
-        ImmutableSortedMap.Builder<String, OmniBuildInvocations> result = ImmutableSortedMap.orderedBy(PathComparator.INSTANCE);
+        ImmutableSortedMap.Builder<Path, OmniBuildInvocations> result = ImmutableSortedMap.orderedBy(new Comparator<Path>() {
+            @Override
+            public int compare(Path o1, Path o2) {
+                return o1.getPath().compareTo(o2.getPath());
+            }
+        });
         collectBuildInvocations(gradleProject, result);
         return new DefaultOmniBuildInvocationsContainer(result.build());
     }
 
-    private static void collectBuildInvocations(OmniGradleProject project, ImmutableSortedMap.Builder<String, OmniBuildInvocations> result) {
+    private static void collectBuildInvocations(OmniGradleProject project, ImmutableSortedMap.Builder<Path, OmniBuildInvocations> result) {
         result.put(project.getPath(), DefaultOmniBuildInvocations.from(project.getProjectTasks(), project.getTaskSelectors()));
 
         List<OmniGradleProject> children = project.getChildren();

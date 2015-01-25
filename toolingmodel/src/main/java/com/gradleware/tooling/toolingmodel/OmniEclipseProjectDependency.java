@@ -6,11 +6,11 @@ package com.gradleware.tooling.toolingmodel;
 public interface OmniEclipseProjectDependency {
 
     /**
-     * Returns the unique path of the target project of this dependency.
+     * Returns the path of the target project of this dependency.
      *
-     * @return the unique path of the target project of this dependency, never null
+     * @return the path of the target project of this dependency, never null
      */
-    String getTargetProjectPath();
+    Path getTargetProjectPath();
 
     /**
      * Returns the path to use for this project dependency.

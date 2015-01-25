@@ -1,6 +1,7 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
+import com.gradleware.tooling.toolingmodel.Path;
 import org.gradle.internal.reflect.JavaReflectionUtil;
 import org.gradle.internal.reflect.PropertyAccessor;
 import org.gradle.tooling.internal.adapter.ProtocolToModelAdapter;
@@ -11,16 +12,16 @@ import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
  */
 public final class DefaultOmniEclipseProjectDependency implements OmniEclipseProjectDependency {
 
-    private final String targetProjectPath;
+    private final Path targetProjectPath;
     private final String path;
 
-    private DefaultOmniEclipseProjectDependency(String targetProjectPath, String path) {
+    private DefaultOmniEclipseProjectDependency(Path targetProjectPath, String path) {
         this.targetProjectPath = targetProjectPath;
         this.path = path;
     }
 
     @Override
-    public String getTargetProjectPath() {
+    public Path getTargetProjectPath() {
         return this.targetProjectPath;
     }
 
@@ -36,7 +37,7 @@ public final class DefaultOmniEclipseProjectDependency implements OmniEclipsePro
         String targetEclipseProjectPath = (String) pathProperty.getValue(targetEclipseProject);
 
         return new DefaultOmniEclipseProjectDependency(
-                targetEclipseProjectPath,
+                Path.from(targetEclipseProjectPath),
                 projectDependency.getPath());
     }
 

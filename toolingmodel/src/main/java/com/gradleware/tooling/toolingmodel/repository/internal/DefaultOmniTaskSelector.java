@@ -2,6 +2,7 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.google.common.collect.ImmutableSortedSet;
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
+import com.gradleware.tooling.toolingmodel.Path;
 import org.gradle.tooling.model.TaskSelector;
 
 import java.util.SortedSet;
@@ -13,7 +14,7 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
 
     private String name;
     private String description;
-    private String projectPath;
+    private Path projectPath;
     private boolean isPublic;
     private ImmutableSortedSet<String> selectedTaskPaths;
 
@@ -36,11 +37,11 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
     }
 
     @Override
-    public String getProjectPath() {
+    public Path getProjectPath() {
         return this.projectPath;
     }
 
-    public void setProjectPath(String projectPath) {
+    public void setProjectPath(Path projectPath) {
         this.projectPath = projectPath;
     }
 
@@ -62,7 +63,7 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
         this.selectedTaskPaths = ImmutableSortedSet.copyOfSorted(selectedTaskPaths);
     }
 
-    public static DefaultOmniTaskSelector from(TaskSelector selector, String projectPath) {
+    public static DefaultOmniTaskSelector from(TaskSelector selector, Path projectPath) {
         DefaultOmniTaskSelector taskSelector = new DefaultOmniTaskSelector();
         taskSelector.setName(selector.getName());
         taskSelector.setDescription(selector.getDescription());
@@ -72,7 +73,7 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
         return taskSelector;
     }
 
-    public static DefaultOmniTaskSelector from(String name, String description, String projectPath, boolean isPublic, SortedSet<String> selectedTaskPaths) {
+    public static DefaultOmniTaskSelector from(String name, String description, Path projectPath, boolean isPublic, SortedSet<String> selectedTaskPaths) {
         DefaultOmniTaskSelector taskSelector = new DefaultOmniTaskSelector();
         taskSelector.setName(name);
         taskSelector.setDescription(description);

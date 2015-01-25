@@ -75,7 +75,7 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
      *
      * @return the path of this project
      */
-    String getPath();
+    Path getPath();
 
     /**
      * Returns the project directory of this project.

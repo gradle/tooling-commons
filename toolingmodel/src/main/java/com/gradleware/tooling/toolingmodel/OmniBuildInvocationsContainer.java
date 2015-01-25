@@ -18,7 +18,7 @@ public interface OmniBuildInvocationsContainer {
      * @param projectPath the full path of the project for which to get the build invocations
      * @return the build invocations, if present
      */
-    Optional<OmniBuildInvocations> get(String projectPath);
+    Optional<OmniBuildInvocations> get(Path projectPath);
 
     /**
      * A {@code Map} of {@code OmniBuildInvocations} per project, where each project is identified by its unique full path.
@@ -26,6 +26,6 @@ public interface OmniBuildInvocationsContainer {
      * @return the mapping of projects to build invocations
      */
     @ImmutableCollection
-    SortedMap<String, OmniBuildInvocations> asMap();
+    SortedMap<Path, OmniBuildInvocations> asMap();
 
 }

@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.OmniBuildInvocations;
 import com.gradleware.tooling.toolingmodel.OmniProjectTask;
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
+import com.gradleware.tooling.toolingmodel.Path;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.Task;
 import org.gradle.tooling.model.TaskSelector;
@@ -36,7 +37,7 @@ public final class DefaultOmniBuildInvocations implements OmniBuildInvocations {
         return this.taskSelectors;
     }
 
-    public static DefaultOmniBuildInvocations from(BuildInvocations buildInvocations, String projectPath) {
+    public static DefaultOmniBuildInvocations from(BuildInvocations buildInvocations, Path projectPath) {
         return new DefaultOmniBuildInvocations(
                 createProjectTasks(buildInvocations.getTasks()),
                 createTaskSelectors(buildInvocations.getTaskSelectors(), projectPath));
@@ -51,7 +52,7 @@ public final class DefaultOmniBuildInvocations implements OmniBuildInvocations {
         }).toList();
     }
 
-    private static ImmutableList<OmniTaskSelector> createTaskSelectors(DomainObjectSet<? extends TaskSelector> taskSelectors, final String projectPath) {
+    private static ImmutableList<OmniTaskSelector> createTaskSelectors(DomainObjectSet<? extends TaskSelector> taskSelectors, final Path projectPath) {
         return FluentIterable.from(taskSelectors).transform(new Function<TaskSelector, OmniTaskSelector>() {
             @Override
             public OmniTaskSelector apply(TaskSelector input) {

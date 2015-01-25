@@ -1,6 +1,7 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.gradleware.tooling.toolingmodel.OmniProjectTask;
+import com.gradleware.tooling.toolingmodel.Path;
 import org.gradle.tooling.model.Task;
 
 /**
@@ -10,7 +11,7 @@ public final class DefaultOmniProjectTask implements OmniProjectTask {
 
     private String name;
     private String description;
-    private String path;
+    private Path path;
     private boolean isPublic;
 
     @Override
@@ -32,11 +33,11 @@ public final class DefaultOmniProjectTask implements OmniProjectTask {
     }
 
     @Override
-    public String getPath() {
+    public Path getPath() {
         return this.path;
     }
 
-    public void setPath(String path) {
+    public void setPath(Path path) {
         this.path = path;
     }
 
@@ -53,7 +54,7 @@ public final class DefaultOmniProjectTask implements OmniProjectTask {
         DefaultOmniProjectTask projectTask = new DefaultOmniProjectTask();
         projectTask.setName(task.getName());
         projectTask.setDescription(task.getDescription());
-        projectTask.setPath(task.getPath());
+        projectTask.setPath(Path.from(task.getPath()));
         setIsPublic(projectTask, task, enforceAllTasksPublic);
         return projectTask;
     }

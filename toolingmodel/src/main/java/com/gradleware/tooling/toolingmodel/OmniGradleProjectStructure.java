@@ -69,7 +69,7 @@ public interface OmniGradleProjectStructure extends HierarchicalModel<OmniGradle
      *
      * @return the path of this project
      */
-    String getPath();
+    Path getPath();
 
     /**
      * Returns the project directory of this project.

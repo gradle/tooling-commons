@@ -9,6 +9,7 @@ import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleScript;
 import com.gradleware.tooling.toolingmodel.OmniProjectTask;
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
+import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.gradle.GradleScript;
@@ -25,7 +26,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
     private final HierarchyHelper<OmniGradleProject> hierarchyHelper;
     private String name;
     private String description;
-    private String path;
+    private Path path;
     private Maybe<File> projectDirectory;
     private Maybe<File> buildDirectory;
     private Maybe<OmniGradleScript> buildScript;
@@ -55,11 +56,11 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
     }
 
     @Override
-    public String getPath() {
+    public Path getPath() {
         return this.path;
     }
 
-    private void setPath(String path) {
+    private void setPath(Path path) {
         this.path = path;
     }
 
@@ -151,11 +152,11 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
         DefaultOmniGradleProject gradleProject = new DefaultOmniGradleProject(OmniGradleProjectComparator.INSTANCE);
         gradleProject.setName(project.getName());
         gradleProject.setDescription(project.getDescription());
-        gradleProject.setPath(project.getPath());
+        gradleProject.setPath(Path.from(project.getPath()));
         setProjectDirectory(gradleProject, project);
         setBuildDirectory(gradleProject, project);
         setBuildScript(gradleProject, project);
-        OmniBuildInvocations buildInvocations = buildInvocationsContainer.asMap().get(project.getPath());
+        OmniBuildInvocations buildInvocations = buildInvocationsContainer.asMap().get(Path.from(project.getPath()));
         gradleProject.setProjectTasks(buildInvocations.getProjectTasks());
         gradleProject.setTaskSelectors(buildInvocations.getTaskSelectors());
 
@@ -221,7 +222,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
 
         @Override
         public int compare(OmniGradleProject o1, OmniGradleProject o2) {
-            return PathComparator.INSTANCE.compare(o1.getPath(), o2.getPath());
+            return PathComparator.INSTANCE.compare(o1.getPath().getPath(), o2.getPath().getPath());
         }
 
     }

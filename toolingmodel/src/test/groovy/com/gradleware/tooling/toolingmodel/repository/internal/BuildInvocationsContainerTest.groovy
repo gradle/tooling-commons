@@ -5,6 +5,7 @@ import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
 import com.gradleware.tooling.toolingmodel.OmniBuildInvocations
 import com.gradleware.tooling.toolingmodel.OmniProjectTask
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector
+import com.gradleware.tooling.toolingmodel.Path
 import org.gradle.tooling.model.GradleProject
 import org.junit.Rule
 
@@ -65,10 +66,10 @@ class BuildInvocationsContainerTest extends ToolingModelToolingClientSpecificati
 
     then:
     buildInvocationsContainer != null
-    Map<String, OmniBuildInvocations> mapping = buildInvocationsContainer.asMap()
-    mapping.keySet() == [':', ':sub1', ':sub2', ':sub2:subSub'] as Set
+    Map<Path, OmniBuildInvocations> mapping = buildInvocationsContainer.asMap()
+    mapping.keySet() == [Path.from(':'), Path.from(':sub1'), Path.from(':sub2'), Path.from(':sub2:subSub')] as Set
 
-    OmniBuildInvocations invocationsAtRoot = mapping[':']
+    OmniBuildInvocations invocationsAtRoot = mapping[Path.from(':')]
     invocationsAtRoot.taskSelectors.collect { it.name } as Set == ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta'] as Set
     assertTaskSelector('alpha', 'ALPHA', true, [':alpha', ':sub2:subSub:alpha'], invocationsAtRoot.taskSelectors)
     assertTaskSelector('beta', null, true, [':beta', ':sub1:beta', ':sub2:beta'], invocationsAtRoot.taskSelectors)
@@ -81,7 +82,7 @@ class BuildInvocationsContainerTest extends ToolingModelToolingClientSpecificati
     assertTask('alpha', 'ALPHA', true, ':alpha', invocationsAtRoot.projectTasks)
     assertTask('beta', null, false, ':beta', invocationsAtRoot.projectTasks)
 
-    OmniBuildInvocations invocationsAtSub1 = mapping[':sub1']
+    OmniBuildInvocations invocationsAtSub1 = mapping[Path.from(':sub1')]
     invocationsAtSub1.taskSelectors.collect { it.name } as Set == ['beta', 'gamma', 'epsilon'] as Set
     assertTaskSelector('beta', 'BETA', true, [':sub1:beta'], invocationsAtSub1.taskSelectors)
     assertTaskSelector('gamma', null, false, [':sub1:gamma'], invocationsAtSub1.taskSelectors)
@@ -92,7 +93,7 @@ class BuildInvocationsContainerTest extends ToolingModelToolingClientSpecificati
     assertTask('gamma', null, false, ':sub1:gamma', invocationsAtSub1.projectTasks)
     assertTask('epsilon', null, false, ':sub1:epsilon', invocationsAtSub1.projectTasks)
 
-    OmniBuildInvocations invocationsAtSub2 = mapping[':sub2']
+    OmniBuildInvocations invocationsAtSub2 = mapping[Path.from(':sub2')]
     invocationsAtSub2.taskSelectors.collect { it.name } as Set == ['alpha', 'beta', 'delta', 'epsilon', 'zeta'] as Set
     assertTaskSelector('alpha', 'ALPHA_SUB2', false, [':sub2:subSub:alpha'], invocationsAtSub2.taskSelectors)
     assertTaskSelector('beta', null, false, [':sub2:beta'], invocationsAtSub2.taskSelectors)
@@ -105,7 +106,7 @@ class BuildInvocationsContainerTest extends ToolingModelToolingClientSpecificati
     assertTask('delta', 'DELTA', false, ':sub2:delta', invocationsAtSub2.projectTasks)
     assertTask('epsilon', null, true, ':sub2:epsilon', invocationsAtSub2.projectTasks)
 
-    OmniBuildInvocations invocationsAtSubSub = mapping[':sub2:subSub']
+    OmniBuildInvocations invocationsAtSubSub = mapping[Path.from(':sub2:subSub')]
     invocationsAtSubSub.taskSelectors.collect { it.name } as Set == ['alpha', 'delta', 'zeta'] as Set
     assertTaskSelector('alpha', 'ALPHA_SUB2', false, [':sub2:subSub:alpha'], invocationsAtSubSub.taskSelectors)
     assertTaskSelector('delta', 'DELTA_SUB2', false, [':sub2:subSub:delta'], invocationsAtSubSub.taskSelectors)
@@ -132,7 +133,7 @@ class BuildInvocationsContainerTest extends ToolingModelToolingClientSpecificati
     assert element.name == name
     assert element.description == description
     assert element.isPublic() == isPublic
-    assert element.path == path
+    assert element.path.path == path
   }
 
 }

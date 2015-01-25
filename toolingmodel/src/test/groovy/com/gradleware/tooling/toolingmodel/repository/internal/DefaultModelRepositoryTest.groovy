@@ -18,6 +18,7 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure
 import com.gradleware.tooling.toolingmodel.OmniGradleProject
+import com.gradleware.tooling.toolingmodel.Path
 import com.gradleware.tooling.toolingmodel.repository.BuildEnvironmentUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.BuildInvocationsUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.EclipseGradleBuildUpdateEvent
@@ -203,7 +204,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     gradleBuildStructure != null
     gradleBuildStructure.rootProject != null
     gradleBuildStructure.rootProject.name == 'my root project'
-    gradleBuildStructure.rootProject.path == ':'
+    gradleBuildStructure.rootProject.path.path == ':'
     if (higherOrEqual('1.8', distribution)) {
       assert gradleBuildStructure.rootProject.projectDirectory.get().absolutePath == directoryProvider.testDirectory.absolutePath
     } else {
@@ -212,7 +213,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     gradleBuildStructure.rootProject.parent == null
     gradleBuildStructure.rootProject.children.size() == 2
     gradleBuildStructure.rootProject.children*.name == ['sub1', 'sub2']
-    gradleBuildStructure.rootProject.children*.path == [':sub1', ':sub2']
+    gradleBuildStructure.rootProject.children*.path.path == [':sub1', ':sub2']
     gradleBuildStructure.rootProject.children*.projectDirectory.collect {
       it.present ? it.get().absolutePath : null
     } == (higherOrEqual('1.8', distribution) ? ['sub1', 'sub2'].collect { new File(directoryProvider.testDirectory, it).absolutePath } : [null, null])
@@ -285,7 +286,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     gradleBuild.rootProject != null
     gradleBuild.rootProject.name == 'my root project'
     gradleBuild.rootProject.description == 'a sample root project'
-    gradleBuild.rootProject.path == ':'
+    gradleBuild.rootProject.path == Path.from(':')
     if (higherOrEqual('2.4', distribution)) {
       assert gradleBuild.rootProject.projectDirectory.get().absolutePath == directoryProvider.testDirectory.absolutePath
     } else {
@@ -306,37 +307,37 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     gradleBuild.rootProject.children.size() == 2
     gradleBuild.rootProject.children*.name == ['sub1', 'sub2']
     gradleBuild.rootProject.children*.description == ['sub project 1', 'sub project 2']
-    gradleBuild.rootProject.children*.path == [':sub1', ':sub2']
+    gradleBuild.rootProject.children*.path == [Path.from(':sub1'), Path.from(':sub2')]
     gradleBuild.rootProject.children*.parent == [gradleBuild.rootProject, gradleBuild.rootProject]
     gradleBuild.rootProject.all.size() == 4
     gradleBuild.rootProject.all*.name == ['my root project', 'sub1', 'sub2', 'subSub1']
 
     def projectSub1 = gradleBuild.rootProject.tryFind({ OmniGradleProject input ->
-      return input.getPath().equals(':sub1')
+      return input.path.equals(Path.from(':sub1'))
     } as Predicate).get()
     projectSub1.projectTasks.size() == 2
 
     def myFirstTaskOfSub1 = projectSub1.projectTasks[0]
     myFirstTaskOfSub1.name == 'myFirstTaskOfSub1'
     myFirstTaskOfSub1.description == '1st task of sub1'
-    myFirstTaskOfSub1.path == ':sub1:myFirstTaskOfSub1'
+    myFirstTaskOfSub1.path.path == ':sub1:myFirstTaskOfSub1'
     myFirstTaskOfSub1.isPublic()
 
     def mySecondTaskOfSub1 = projectSub1.projectTasks[1]
     mySecondTaskOfSub1.name == 'mySecondTaskOfSub1'
     mySecondTaskOfSub1.description == '2nd task of sub1'
-    mySecondTaskOfSub1.path == ':sub1:mySecondTaskOfSub1'
+    mySecondTaskOfSub1.path.path == ':sub1:mySecondTaskOfSub1'
     mySecondTaskOfSub1.isPublic() == !higherOrEqual('2.3', distribution) // all versions < 2.3 are corrected to or default to 'true'
 
     def projectSub2 = gradleBuild.rootProject.tryFind({ OmniGradleProject input ->
-      return input.getPath().equals(':sub2')
+      return input.path.equals(Path.from(':sub2'))
     } as Predicate).get()
     projectSub2.taskSelectors.size() == 5
 
     def myTaskSelector = projectSub2.taskSelectors.find { it.name == 'myTask' }
     myTaskSelector.name == 'myTask'
     myTaskSelector.description == 'another task of sub2'
-    myTaskSelector.projectPath == ':sub2'
+    myTaskSelector.projectPath.path == ':sub2'
     myTaskSelector.isPublic()
     myTaskSelector.selectedTaskPaths as List == [':sub2:myTask', ':sub2:subSub1:myTask']
 
@@ -405,43 +406,43 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     eclipseGradleBuild.rootEclipseProject != null
     eclipseGradleBuild.rootEclipseProject.name == 'my root project'
     eclipseGradleBuild.rootEclipseProject.description == 'a sample root project'
-    eclipseGradleBuild.rootEclipseProject.path == ':'
+    eclipseGradleBuild.rootEclipseProject.path == Path.from(':')
     eclipseGradleBuild.rootEclipseProject.projectDirectory.absolutePath == directoryProvider.testDirectory.absolutePath
     eclipseGradleBuild.rootEclipseProject.parent == null
     eclipseGradleBuild.rootEclipseProject.children.size() == 2
     eclipseGradleBuild.rootEclipseProject.children*.name == ['sub1', 'sub2']
     eclipseGradleBuild.rootEclipseProject.children*.description == ['sub project 1', 'sub project 2']
-    eclipseGradleBuild.rootEclipseProject.children*.path == [':sub1', ':sub2']
+    eclipseGradleBuild.rootEclipseProject.children*.path == [Path.from(':sub1'), Path.from(':sub2')]
     eclipseGradleBuild.rootEclipseProject.children*.parent == [eclipseGradleBuild.rootEclipseProject, eclipseGradleBuild.rootEclipseProject]
     eclipseGradleBuild.rootEclipseProject.all.size() == 4
     eclipseGradleBuild.rootEclipseProject.all*.name == ['my root project', 'sub1', 'sub2', 'subSub1']
 
     def projectSub1 = eclipseGradleBuild.rootProject.tryFind({ OmniGradleProject input ->
-      return input.getPath().equals(':sub1')
+      return input.path.equals(Path.from(':sub1'))
     } as Predicate).get()
     projectSub1.projectTasks.size() == 2
 
     def myFirstTaskOfSub1 = projectSub1.projectTasks[0]
     myFirstTaskOfSub1.name == 'myFirstTaskOfSub1'
     myFirstTaskOfSub1.description == '1st task of sub1'
-    myFirstTaskOfSub1.path == ':sub1:myFirstTaskOfSub1'
+    myFirstTaskOfSub1.path.path == ':sub1:myFirstTaskOfSub1'
     myFirstTaskOfSub1.isPublic()
 
     def mySecondTaskOfSub1 = projectSub1.projectTasks[1]
     mySecondTaskOfSub1.name == 'mySecondTaskOfSub1'
     mySecondTaskOfSub1.description == '2nd task of sub1'
-    mySecondTaskOfSub1.path == ':sub1:mySecondTaskOfSub1'
+    mySecondTaskOfSub1.path.path == ':sub1:mySecondTaskOfSub1'
     mySecondTaskOfSub1.isPublic() == !higherOrEqual('2.3', distribution) // all versions < 2.3 are corrected to or default to 'true'
 
     def projectSub2 = eclipseGradleBuild.rootProject.tryFind({ OmniGradleProject input ->
-      return input.getPath().equals(':sub2')
+      return input.path.equals(Path.from(':sub2'))
     } as Predicate).get()
     projectSub2.taskSelectors.size() == 5
 
     def myTaskSelector = projectSub2.taskSelectors.find { it.name == 'myTask' }
     myTaskSelector.name == 'myTask'
     myTaskSelector.description == 'another task of sub2'
-    myTaskSelector.projectPath == ':sub2'
+    myTaskSelector.projectPath.path == ':sub2'
     myTaskSelector.isPublic()
     myTaskSelector.selectedTaskPaths as List == [':sub2:myTask', ':sub2:subSub1:myTask']
 
@@ -499,7 +500,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
 
     // verify project dependencies
     eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Predicate).get().projectDependencies == []
-    eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Predicate).get().projectDependencies*.targetProjectPath == [':api']
+    eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Predicate).get().projectDependencies*.targetProjectPath == [Path.from(':api')]
 
     // verify external dependencies
     def apiExternalDependencies = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Predicate).get().externalDependencies
@@ -573,34 +574,34 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     then:
     buildInvocations != null
     buildInvocations.asMap().size() == 4
-    def rootProjectExplicitTasks = buildInvocations.get(':').get().projectTasks.findAll { !IMPLICIT_TASKS.contains(it.name) }
+    def rootProjectExplicitTasks = buildInvocations.get(Path.from(':')).get().projectTasks.findAll { !IMPLICIT_TASKS.contains(it.name) }
     rootProjectExplicitTasks.size() == 1
 
-    def projectSub1 = buildInvocations.get(':sub1').get()
+    def projectSub1 = buildInvocations.get(Path.from(':sub1')).get()
     def sub1ExplicitTasks = projectSub1.projectTasks.findAll { !IMPLICIT_TASKS.contains(it.name) }
     sub1ExplicitTasks.size() == 2
 
     def myFirstTaskOfSub1 = sub1ExplicitTasks[0]
     myFirstTaskOfSub1.name == 'myFirstTaskOfSub1'
     myFirstTaskOfSub1.description == '1st task of sub1'
-    myFirstTaskOfSub1.path == ':sub1:myFirstTaskOfSub1'
+    myFirstTaskOfSub1.path.path == ':sub1:myFirstTaskOfSub1'
     myFirstTaskOfSub1.isPublic()
 
     def mySecondTaskOfSub1 = sub1ExplicitTasks[1]
     mySecondTaskOfSub1.name == 'mySecondTaskOfSub1'
     mySecondTaskOfSub1.description == '2nd task of sub1'
-    mySecondTaskOfSub1.path == ':sub1:mySecondTaskOfSub1'
+    mySecondTaskOfSub1.path.path == ':sub1:mySecondTaskOfSub1'
     mySecondTaskOfSub1.isPublic() == (!higherOrEqual('2.1', distribution) || !higherOrEqual('2.3', distribution) && environment == Environment.ECLIPSE)
     // only 'authentic' build invocations know the task is private prior to version 2.3
 
-    def projectSub2 = buildInvocations.get(':sub2').get()
+    def projectSub2 = buildInvocations.get(Path.from(':sub2')).get()
     def sub2ExplicitTaskSelectors = projectSub2.taskSelectors.findAll { !IMPLICIT_TASKS.contains(it.name) }
     sub2ExplicitTaskSelectors.size() == 5
 
     def myTaskSelector = sub2ExplicitTaskSelectors.find { it.name == 'myTask' }
     myTaskSelector.name == 'myTask'
     myTaskSelector.description == higherOrEqual('2.3', distribution) ? 'another task of sub2' : 'sub2:myTask task selector'
-    myTaskSelector.projectPath == ':sub2'
+    myTaskSelector.projectPath.path == ':sub2'
     myTaskSelector.isPublic()
     myTaskSelector.selectedTaskPaths as List == (!higherOrEqual('1.12', distribution) || !higherOrEqual('2.3', distribution) && environment == Environment.ECLIPSE ? [':sub2:myTask', ':sub2:subSub1:myTask'] : [])
     // empty selected task paths for task selectors from 'authentic' build invocations

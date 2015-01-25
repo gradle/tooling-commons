@@ -10,6 +10,7 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
+import com.gradleware.tooling.toolingmodel.Path;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.ExternalDependency;
 import org.gradle.tooling.model.eclipse.EclipseProject;
@@ -28,7 +29,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     private final HierarchyHelper<OmniEclipseProject> hierarchyHelper;
     private String name;
     private String description;
-    private String path;
+    private Path path;
     private File projectDirectory;
     private ImmutableList<OmniEclipseProjectDependency> projectDependencies;
     private ImmutableList<OmniExternalDependency> externalDependencies;
@@ -57,11 +58,11 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     }
 
     @Override
-    public String getPath() {
+    public Path getPath() {
         return this.path;
     }
 
-    private void setPath(String path) {
+    private void setPath(Path path) {
         this.path = path;
     }
 
@@ -139,7 +140,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         DefaultOmniEclipseProject eclipseProject = new DefaultOmniEclipseProject(OmniEclipseProjectComparator.INSTANCE);
         eclipseProject.setName(project.getName());
         eclipseProject.setDescription(project.getDescription());
-        eclipseProject.setPath(project.getGradleProject().getPath());
+        eclipseProject.setPath(Path.from(project.getGradleProject().getPath()));
         eclipseProject.setProjectDirectory(project.getProjectDirectory());
         eclipseProject.setProjectDependencies(toProjectDependencies(project.getProjectDependencies()));
         eclipseProject.setExternalDependencies(toExternalDependencies(project.getClasspath()));
@@ -196,7 +197,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 
         @Override
         public int compare(OmniEclipseProject o1, OmniEclipseProject o2) {
-            return PathComparator.INSTANCE.compare(o1.getPath(), o2.getPath());
+            return PathComparator.INSTANCE.compare(o1.getPath().getPath(), o2.getPath().getPath());
         }
 
     }
