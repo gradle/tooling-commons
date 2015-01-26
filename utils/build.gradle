@@ -1,1 +1,25 @@
+apply plugin: 'maven-publish'
+
+// publish to private Gradleware repository
+publishing {
+  repositories {
+    maven {
+      name = 'privateGradle'
+      url gradlePrivateRepositoryUrl
+      credentials {
+        username GRADLE_REPO_USER
+        password GRADLE_REPO_PASSWORD
+      }
+    }
+  }
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+      artifact sourcesJar {
+        classifier "sources"
+      }
+    }
+  }
+}
+
 description = "IDE-agnostic Utils component of the Commons project of the Gradle Tooling Platform."
