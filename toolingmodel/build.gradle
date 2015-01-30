@@ -23,7 +23,7 @@ publishing {
 }
 
 dependencies {
-  compile project(':utils')
+  compile project(':toolingutils')
   compile project(':toolingclient')
   compile "org.gradle:gradle-tooling-api:$toolingApiVersion"
   compile "com.google.guava:guava:$guavaVersion"
