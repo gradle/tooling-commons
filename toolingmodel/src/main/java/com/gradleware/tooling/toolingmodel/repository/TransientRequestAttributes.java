@@ -2,7 +2,7 @@ package com.gradleware.tooling.toolingmodel.repository;
 
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingclient.Request;
-import com.gradleware.tooling.utils.ImmutableCollection;
+import com.gradleware.tooling.toolingutils.ImmutableCollection;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
 

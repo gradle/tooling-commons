@@ -1,4 +1,4 @@
-package com.gradleware.tooling.utils;
+package com.gradleware.tooling.toolingutils;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

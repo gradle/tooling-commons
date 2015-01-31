@@ -4,7 +4,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.Request;
-import com.gradleware.tooling.utils.ImmutableCollection;
+import com.gradleware.tooling.toolingutils.ImmutableCollection;
 
 import java.io.File;
 import java.util.List;

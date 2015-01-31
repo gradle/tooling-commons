@@ -1,7 +1,7 @@
 package com.gradleware.tooling.toolingmodel;
 
 import com.google.common.base.Optional;
-import com.gradleware.tooling.utils.ImmutableCollection;
+import com.gradleware.tooling.toolingutils.ImmutableCollection;
 
 import java.util.SortedMap;
 

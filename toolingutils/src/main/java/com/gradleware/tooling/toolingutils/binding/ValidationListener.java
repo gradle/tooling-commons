@@ -1,4 +1,4 @@
-package com.gradleware.tooling.utils.binding;
+package com.gradleware.tooling.toolingutils.binding;
 
 import com.google.common.base.Optional;
 
