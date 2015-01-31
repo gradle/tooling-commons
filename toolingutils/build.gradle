@@ -23,6 +23,7 @@ publishing {
 }
 
 dependencies {
+  compile "com.google.guava:guava:$guavaVersion"
   compile "com.google.code.gson:gson:$gsonVersion"
 }
 
