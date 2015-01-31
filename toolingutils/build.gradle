@@ -22,4 +22,8 @@ publishing {
   }
 }
 
+dependencies {
+  compile "com.google.code.gson:gson:$gsonVersion"
+}
+
 description = "IDE-agnostic Utils component of the Commons project of the Gradle Tooling Platform."
