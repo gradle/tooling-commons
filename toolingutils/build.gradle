@@ -25,6 +25,9 @@ publishing {
 dependencies {
   compile "com.google.guava:guava:$guavaVersion"
   compile "com.google.code.gson:gson:$gsonVersion"
+  testCompile "org.spockframework:spock-core:$spockVersion"
+  testRuntime "cglib:cglib-nodep:$cglibVersion"
+  testRuntime "org.objenesis:objenesis:$objenesisVersion"
 }
 
 description = "IDE-agnostic Utils component of the Commons project of the Gradle Tooling Platform."
