@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * Provides information about the Gradle versions available from services.gradle.org.
  */
-public final class GradlePublishedVersions {
+public final class PublishedGradleVersions {
 
     // end-point that provides full version information
     private static final String VERSIONS_URL = "https://services.gradle.org/versions/all";
@@ -38,7 +38,7 @@ public final class GradlePublishedVersions {
 
     private final List<Map<String, String>> versions;
 
-    private GradlePublishedVersions(List<Map<String, String>> versions) {
+    private PublishedGradleVersions(List<Map<String, String>> versions) {
         this.versions = ImmutableList.copyOf(versions);
     }
 
@@ -68,7 +68,7 @@ public final class GradlePublishedVersions {
         }).toList();
     }
 
-    public static GradlePublishedVersions create() {
+    public static PublishedGradleVersions create() {
         // read versions from Gradle services end-point
         String json;
         try {
@@ -85,7 +85,7 @@ public final class GradlePublishedVersions {
         List<Map<String, String>> versions = gson.fromJson(json, typeToken.getType());
 
         // create instance
-        return new GradlePublishedVersions(versions);
+        return new PublishedGradleVersions(versions);
     }
 
     private static URL createURL(String url) {
@@ -97,7 +97,7 @@ public final class GradlePublishedVersions {
     }
 
     public static void main(String[] args) {
-        GradlePublishedVersions publishedVersions = create();
+        PublishedGradleVersions publishedVersions = create();
         List<GradleVersion> versions1 = publishedVersions.getVersions();
         System.out.println("versions1 = " + versions1);
     }
