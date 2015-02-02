@@ -26,9 +26,11 @@ dependencies {
   compile "org.gradle:gradle-tooling-api:$toolingApiVersion"
   compile "com.google.guava:guava:$guavaVersion"
   compile "com.google.code.gson:gson:$gsonVersion"
+  compile "org.slf4j:slf4j-api:$slf4jVersion"
   testCompile "org.spockframework:spock-core:$spockVersion"
   testRuntime "cglib:cglib-nodep:$cglibVersion"
   testRuntime "org.objenesis:objenesis:$objenesisVersion"
+  testRuntime "ch.qos.logback:logback-classic:$logbackVersion"
 }
 
 description = "IDE-agnostic Utils component of the Commons project of the Gradle Tooling Platform."
