@@ -68,6 +68,11 @@ public final class PublishedGradleVersions {
         }).toList();
     }
 
+    /**
+     * Creates a new instance based on version information available on services.gradle.org.
+     *
+     * @return the new instance
+     */
     public static PublishedGradleVersions create() {
         // read versions from Gradle services end-point
         String json;
@@ -77,7 +82,15 @@ public final class PublishedGradleVersions {
         } catch (IOException e) {
             throw new RuntimeException("Unable to download published Gradle versions.", e);
         }
+        return create(json);
+    }
 
+    /**
+     * Creates a new instance based on the provided version information.
+     *
+     * @return the new instance
+     */
+    public static PublishedGradleVersions create(String json) {
         // convert versions from JSON String to JSON Map
         Gson gson = new GsonBuilder().create();
         TypeToken<List<Map<String, String>>> typeToken = new TypeToken<List<Map<String, String>>>() {
@@ -94,12 +107,6 @@ public final class PublishedGradleVersions {
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Invalid URL: " + url, e);
         }
-    }
-
-    public static void main(String[] args) {
-        PublishedGradleVersions publishedVersions = create();
-        List<GradleVersion> versions1 = publishedVersions.getVersions();
-        System.out.println("versions1 = " + versions1);
     }
 
 }
