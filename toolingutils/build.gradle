@@ -23,6 +23,7 @@ publishing {
 }
 
 dependencies {
+  compile "org.gradle:gradle-tooling-api:$toolingApiVersion"
   compile "com.google.guava:guava:$guavaVersion"
   compile "com.google.code.gson:gson:$gsonVersion"
   testCompile "org.spockframework:spock-core:$spockVersion"
