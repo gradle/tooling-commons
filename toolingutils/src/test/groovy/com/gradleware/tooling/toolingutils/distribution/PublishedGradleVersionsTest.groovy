@@ -40,12 +40,19 @@ class PublishedGradleVersionsTest extends Specification {
 
   def "fetch version info remotely with caching"() {
     setup:
+    CACHE_FILE.delete()
     PublishedGradleVersions publishedVersions = PublishedGradleVersions.create(true)
     assert publishedVersions.versions.size() >= 18
     assert CACHE_FILE.exists()
   }
 
   def "fetch version info remotely with caching - only update cache file after download"() {
+    when:
+    CACHE_FILE.delete()
+
+    then:
+    assert !CACHE_FILE.exists()
+
     when:
     PublishedGradleVersions.create(true)
     def lastModified = CACHE_FILE.lastModified()
