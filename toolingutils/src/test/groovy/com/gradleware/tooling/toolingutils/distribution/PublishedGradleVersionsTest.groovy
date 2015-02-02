@@ -5,6 +5,8 @@ import spock.lang.Specification
 
 class PublishedGradleVersionsTest extends Specification {
 
+  private static final File CACHE_FILE = new File(System.getProperty("user.home"), ".tooling/gradle/versions.json")
+
   def "create version info from JSON string"() {
     setup:
     def json = PublishedGradleVersions.class.getResource("versions_20150202.json")
@@ -28,6 +30,37 @@ class PublishedGradleVersionsTest extends Specification {
                                           '1.1',
                                           '1.0',
     ].collect { GradleVersion.version(it) }
+  }
+
+  def "fetch version info remotely without caching"() {
+    setup:
+    PublishedGradleVersions publishedVersions = PublishedGradleVersions.create(false)
+    assert publishedVersions.versions.size() >= 18
+  }
+
+  def "fetch version info remotely with caching"() {
+    setup:
+    PublishedGradleVersions publishedVersions = PublishedGradleVersions.create(true)
+    assert publishedVersions.versions.size() >= 18
+    assert CACHE_FILE.exists()
+  }
+
+  def "fetch version info remotely with caching - only update cache file after download"() {
+    when:
+    PublishedGradleVersions.create(true)
+    def lastModified = CACHE_FILE.lastModified()
+
+    then:
+    assert CACHE_FILE.exists()
+
+    when:
+    Thread.sleep(2000)
+    PublishedGradleVersions.create(true)
+    def lastModifiedAfterCacheHit = CACHE_FILE.lastModified()
+
+    then:
+    assert CACHE_FILE.exists()
+    assert lastModifiedAfterCacheHit == lastModified
   }
 
 }
