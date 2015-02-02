@@ -5,7 +5,7 @@ import spock.lang.Specification
 
 class PublishedGradleVersionsTest extends Specification {
 
-  def "getVersions"() {
+  def "create version info from JSON string"() {
     setup:
     def json = PublishedGradleVersions.class.getResource("versions_20150202.json")
     PublishedGradleVersions publishedVersions = PublishedGradleVersions.create(json.text)
