@@ -46,7 +46,7 @@ public final class TestDirectoryProvider implements TestRule {
 
     static {
         // the space in the root directory name is intentional to ensure our code works with directories that contain spaces
-        root = new File("build/tmp/test files");
+        root = new File("build/tmp/test files").getAbsoluteFile();
         testCounter = new AtomicInteger(1);
     }
 
