@@ -1,0 +1,8 @@
+dependencies {
+    compile "org.codehaus.groovy:groovy-all:$groovyVersion"
+    compile "junit:junit-dep:$junitVersion"
+    compile "com.google.guava:guava:$guavaVersion"
+    compile "org.slf4j:slf4j-api:$slf4jVersion"
+}
+
+description = "IDE-agnostic Junit Testing component of the Commons project of the Gradle Tooling Platform."

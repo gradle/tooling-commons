@@ -29,6 +29,7 @@ dependencies {
   compile "com.google.guava:guava:$guavaVersion"
   compile "org.slf4j:slf4j-api:$slf4jVersion"
   testCompile project(':testing')
+  testCompile project(':testing-junit')
   testCompile "org.spockframework:spock-core:$spockVersion"
   testCompile "nl.jqno.equalsverifier:equalsverifier:$equalsverifierVersion"
   testRuntime "cglib:cglib-nodep:$cglibVersion"
