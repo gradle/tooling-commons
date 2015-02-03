@@ -1,5 +1,5 @@
-include 'testing'
 include 'testing-junit'
+include 'testing-crossversion'
 include 'toolingutils'
 include 'toolingclient'
 include 'toolingmodel'
