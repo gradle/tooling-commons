@@ -33,21 +33,15 @@ public final class Property<T> {
     }
 
     /**
-     * Sets the given property value. The value is set regardless of whether it is valid or not.
+     * Sets the given property value. The value is set regardless of whether it is valid or not. The new value is validated and the attached validation listeners are notified about
+     * the outcome of the validation.
      *
      * @param value the property value to set, can be null
+     * @return {@code Optional} that contains the error message iff the validation has failed
      */
-    public void setValue(T value) {
+    public Optional<String> setValue(T value) {
         this.value = value;
-    }
-
-    /**
-     * Validates the property value. The attached validation listeners are invoked.
-     *
-     * @return {@code Optional} that contains the error message iff the validation fails
-     */
-    public Optional<String> validate() {
-        Optional<String> errorMessage = this.validator.validate(this.value);
+        Optional<String> errorMessage = validate();
         for (ValidationListener listener : getListeners()) { // do not invoke listeners in synchronized block
             listener.validationTriggered(this, errorMessage);
         }
@@ -55,13 +49,21 @@ public final class Property<T> {
     }
 
     /**
-     * Returns whether the property value is valid or not. The attached validation listeners are <i>never</i> invoked when calling this method. Use {@link #validate()} to do
-     * validation that invokes the validation listeners.
+     * Validates the property value.
+     *
+     * @return {@code Optional} that contains the error message iff the validation has failed
+     */
+    public Optional<String> validate() {
+        return this.validator.validate(this.value);
+    }
+
+    /**
+     * Returns whether the property value is valid or not.
      *
      * @return {@code true} if the property value is valid, {@code false} otherwise
      */
     public boolean isValid() {
-        return !this.validator.validate(this.value).isPresent();
+        return !validate().isPresent();
     }
 
     /**

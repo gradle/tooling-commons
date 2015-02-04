@@ -28,36 +28,91 @@ class PropertyTest extends Specification {
     assert property.getValue() == 'alpha'
   }
 
-  def "validator is not invoked when setting value"() {
+  def "property value can be set to null"() {
+    setup:
+    def validator = Mock(Validator)
+    Property property = Property.create(validator)
+    property.setValue(null)
+    assert property.getValue() == null
+  }
+
+  def "validator is invoked when calling setValue()"() {
     given:
     def validator = Mock(Validator)
+    1 * validator.validate('alpha') >> { Optional.absent() }
     Property property = Property.create(validator)
 
     when:
-    property.setValue('alpha')
+    def errorMessage = property.setValue('alpha')
 
     then:
-    0 * validator.validate(_)
+    errorMessage == Optional.absent()
   }
 
   def "validator is invoked when calling validate()"() {
     given:
     def validator = Mock(Validator)
+    1 * validator.validate(null) >> { Optional.absent() }
+    Property property = Property.create(validator)
+
+    when:
+    def errorMessage = property.validate()
+
+    then:
+    errorMessage == Optional.absent()
+  }
+
+  def "validator is invoked when calling isValid()"() {
+    given:
+    def validator = Mock(Validator)
+    1 * validator.validate(null) >> { Optional.absent() }
+    Property property = Property.create(validator)
+
+    when:
+    def isValid = property.isValid()
+
+    then:
+    isValid
+  }
+
+  def "validation listeners are invoked when calling setValue()"() {
+    given:
+    def validator = Mock(Validator)
     1 * validator.validate('alpha') >> { Optional.absent() }
     Property property = Property.create(validator)
-    property.setValue('alpha')
+
+    ValidationListener listener = Mock(ValidationListener)
+    1 * listener.validationTriggered(property, Optional.absent())
+    property.addValidationListener(listener)
+
+    when:
+    def validate = property.setValue('alpha')
+
+    then:
+    validate == Optional.absent()
+  }
+
+  def "validation listeners are not invoked when calling validate()"() {
+    given:
+    def validator = Mock(Validator)
+    1 * validator.validate(null) >> { Optional.absent() }
+    Property property = Property.create(validator)
+
+    ValidationListener listener = Mock(ValidationListener)
+    property.addValidationListener(listener)
 
     when:
     def validate = property.validate()
 
     then:
+    0 * listener.validationTriggered(_, _)
     validate == Optional.absent()
   }
 
   def "validation listeners are not invoked when calling isValid()"() {
     given:
     def validator = Mock(Validator)
-    _ * validator.validate(_) >> { Optional.absent() }
+    1 * validator.validate(null) >> { Optional.absent() }
     Property property = Property.create(validator)
 
     ValidationListener listener = Mock(ValidationListener)
@@ -69,23 +124,6 @@ class PropertyTest extends Specification {
     then:
     0 * listener.validationTriggered(_, _)
     isValid
-  }
-
-  def "validation listeners are invoked when calling validate()"() {
-    given:
-    def validator = Mock(Validator)
-    _ * validator.validate(_) >> { Optional.absent() }
-    Property property = Property.create(validator)
-
-    ValidationListener listener = Mock(ValidationListener)
-    1 * listener.validationTriggered(property, Optional.absent())
-    property.addValidationListener(listener)
-
-    when:
-    def validate = property.validate()
-
-    then:
-    validate == Optional.absent()
   }
 
   def "validation listeners can be unregistered"() {
