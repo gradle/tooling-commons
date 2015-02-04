@@ -12,7 +12,7 @@ import java.util.Set;
  */
 public final class Property<T> {
 
-    public static final Object LOCK = new Object();
+    public final Object LOCK = new Object();
 
     private T value;
     private final Validator<T> validator;
@@ -72,7 +72,7 @@ public final class Property<T> {
      * @param listener the listener to add
      */
     public void addValidationListener(ValidationListener listener) {
-        synchronized (LOCK) {
+        synchronized (this.LOCK) {
             this.listeners.add(listener);
         }
     }
@@ -83,13 +83,13 @@ public final class Property<T> {
      * @param listener the listener to remove
      */
     public void removeValidationListener(ValidationListener listener) {
-        synchronized (LOCK) {
+        synchronized (this.LOCK) {
             this.listeners.remove(listener);
         }
     }
 
     private ImmutableList<ValidationListener> getListeners() {
-        synchronized (LOCK) {
+        synchronized (this.LOCK) {
             return ImmutableList.copyOf(this.listeners);
         }
     }
