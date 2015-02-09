@@ -11,7 +11,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 /**
- * Container to hold those attributes of a {@link com.gradleware.tooling.toolingclient.Request} that do change between request invocations.
+ * Container to hold those attributes of a {@link Request} that do change between request invocations.
  */
 public final class TransientRequestAttributes {
 
