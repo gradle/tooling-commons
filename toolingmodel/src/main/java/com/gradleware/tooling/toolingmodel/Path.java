@@ -57,7 +57,7 @@ public final class Path implements Comparable<Path> {
 
         @Override
         public int compare(Path o1, Path o2) {
-            return o1.getPath().compareTo(o2.getPath());
+            return o1.compareTo(o2);
         }
 
     }
