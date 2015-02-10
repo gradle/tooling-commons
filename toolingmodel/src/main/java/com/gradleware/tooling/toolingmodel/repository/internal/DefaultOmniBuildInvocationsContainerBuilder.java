@@ -43,21 +43,44 @@ public final class DefaultOmniBuildInvocationsContainerBuilder {
     public static DefaultOmniBuildInvocationsContainer build(GradleProject project, boolean enforceAllTasksPublic) {
         ImmutableMultimap<Path, OmniProjectTask> tasks = buildProjectTasksRecursively(project, ArrayListMultimap.<Path, OmniProjectTask>create(), enforceAllTasksPublic);
         ImmutableMultimap<Path, OmniTaskSelector> taskSelectors = buildTaskSelectorsRecursively(project, ArrayListMultimap.<Path, OmniTaskSelector>create(), enforceAllTasksPublic);
-        ImmutableSortedMap<Path, OmniBuildInvocations> buildInvocationsPerProject = buildBuildInvocationsMapping(tasks, taskSelectors);
+        ImmutableSortedMap<Path, OmniBuildInvocations> buildInvocationsPerProject = buildBuildInvocationsMapping(project, tasks, taskSelectors);
         return DefaultOmniBuildInvocationsContainer.from(buildInvocationsPerProject);
     }
 
-    private static ImmutableSortedMap<Path, OmniBuildInvocations> buildBuildInvocationsMapping(Multimap<Path, OmniProjectTask> projectTasks,
+    private static ImmutableSortedMap<Path, OmniBuildInvocations> buildBuildInvocationsMapping(GradleProject project,
+                                                                                               Multimap<Path, OmniProjectTask> projectTasks,
                                                                                                Multimap<Path, OmniTaskSelector> taskSelectors) {
         Preconditions.checkState(taskSelectors.keySet().containsAll(projectTasks.keySet()), "Task selectors are always configured for all projects");
 
+        // create mappings for all projects which contain tasks selectors (which covers at least those projects that contain project tasks)
         ImmutableSortedMap.Builder<Path, OmniBuildInvocations> mapping = ImmutableSortedMap.orderedBy(Path.Comparator.INSTANCE);
         for (Path projectPath : taskSelectors.keySet()) {
             ImmutableList<OmniProjectTask> projectTasksOfProject = ImmutableSortedSet.orderedBy(TaskComparator.INSTANCE).addAll(projectTasks.get(projectPath)).build().asList();
             ImmutableList<OmniTaskSelector> taskSelectorsOfProject = ImmutableSortedSet.orderedBy(TaskSelectorComparator.INSTANCE).addAll(taskSelectors.get(projectPath)).build().asList();
             mapping.put(projectPath, DefaultOmniBuildInvocations.from(projectTasksOfProject, taskSelectorsOfProject));
         }
+
+        // create additional mappings for all those projects which do not contain any task selectors
+        // this is the case if a project does not contain any tasks nor does any of its child projects
+        // these additional mappings ensure the caller never gets back null for any project in the hierarchy
+        Set<Path> projectPaths = Sets.newLinkedHashSet();
+        collectProjectPathsRecursively(project, projectPaths);
+        projectPaths.removeAll(taskSelectors.keySet());
+        for (Path projectPath : projectPaths) {
+            mapping.put(projectPath, DefaultOmniBuildInvocations.from(ImmutableList.<OmniProjectTask>of(), ImmutableList.<OmniTaskSelector>of()));
+        }
+
         return mapping.build();
+    }
+
+    private static void collectProjectPathsRecursively(GradleProject project, Set<Path> projectPaths) {
+        // add project's path
+        projectPaths.add(Path.from(project.getPath()));
+
+        // recurse into child projects and add their path
+        for (GradleProject childProject : project.getChildren()) {
+            collectProjectPathsRecursively(childProject, projectPaths);
+        }
     }
 
     private static ImmutableMultimap<Path, OmniProjectTask> buildProjectTasksRecursively(GradleProject project, Multimap<Path, OmniProjectTask> tasksPerProject, boolean enforceAllTasksPublic) {
