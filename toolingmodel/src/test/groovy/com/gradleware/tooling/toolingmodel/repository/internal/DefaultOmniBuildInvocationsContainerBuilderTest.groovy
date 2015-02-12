@@ -1,7 +1,11 @@
 package com.gradleware.tooling.toolingmodel.repository.internal
 
+import com.google.common.collect.ImmutableList
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
+import com.gradleware.tooling.spock.VerboseUnroll
+import com.gradleware.tooling.testing.GradleVersionParameterization
+import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.OmniBuildInvocations
 import com.gradleware.tooling.toolingmodel.OmniProjectTask
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector
@@ -9,6 +13,7 @@ import com.gradleware.tooling.toolingmodel.Path
 import org.gradle.tooling.model.GradleProject
 import org.junit.Rule
 
+@VerboseUnroll(formatter = GradleDistributionFormatter.class)
 class DefaultOmniBuildInvocationsContainerBuilderTest extends ToolingModelToolingClientSpecification {
 
     @Rule
@@ -128,6 +133,28 @@ class DefaultOmniBuildInvocationsContainerBuilderTest extends ToolingModelToolin
         assertTask('zeta', null, false, ':sub2:subSub:zeta', invocationsAtSubSub.projectTasks)
     }
 
+    def "convertFromProjectsWithoutTasks"(GradleDistribution distribution) {
+        given:
+        def modelRequest = toolingClient.newModelRequest(GradleProject.class)
+        modelRequest.projectDir(directoryProviderProjectsWithoutTasks.testDirectory)
+        modelRequest.gradleDistribution(distribution)
+        def gradleProject = modelRequest.executeAndWait()
+
+        when:
+        DefaultOmniBuildInvocationsContainer buildInvocations = DefaultOmniBuildInvocationsContainerBuilder.build(gradleProject, false)
+
+        then:
+        buildInvocations != null
+        buildInvocations.asMap().keySet() == [Path.from(':'), Path.from(':sub1'), Path.from(':sub2')] as Set
+        buildInvocations.asMap().keySet().each {
+            assert buildInvocations.get(it).get().projectTasks == []
+            assert buildInvocations.get(it).get().taskSelectors == []
+        }
+
+        where:
+        distribution << runInAllEnvironmentsForGradleTargetVersions("<2.4 !=1.6")
+    }
+
     private static Set<String> collectNamesOfNonImplicitTaskSelectors(List<OmniTaskSelector> tasks) {
         tasks.collect { it.name }.findAll { !ImplicitTasks.ALL.contains(it) } as Set
     }
@@ -152,6 +179,10 @@ class DefaultOmniBuildInvocationsContainerBuilderTest extends ToolingModelToolin
         assert element.description == description
         assert element.isPublic() == isPublic
         assert element.path.path == path
+    }
+
+    private static ImmutableList<GradleDistribution> runInAllEnvironmentsForGradleTargetVersions(String versionPattern) {
+        GradleVersionParameterization.Default.INSTANCE.getGradleDistributions(versionPattern)
     }
 
 }

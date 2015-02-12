@@ -16,6 +16,7 @@ public final class GradleVersionSpec {
     private static final String CURRENT = "current";
     private static final String NOT_CURRENT = "!current";
     private static final String EQUALS = "=";
+    private static final String NOT_EQUALS = "!=";
     private static final String GREATER_THAN_OR_EQUALS = ">=";
     private static final String GREATER_THAN = ">";
     private static final String SMALLER_THAN_OR_EQUALS = "<=";
@@ -63,12 +64,29 @@ public final class GradleVersionSpec {
                 }
             };
         }
+        if (trimmed.startsWith(NOT_EQUALS)) {
+            final GradleVersion target = GradleVersion.version(trimmed.substring(2)).getBaseVersion();
+            return new Spec<GradleVersion>() {
+                @Override
+                public boolean isSatisfiedBy(GradleVersion element) {
+                    return !element.getBaseVersion().equals(target);
+                }
+            };
+        }
 
         // AND-combined patterns
         List<Spec<GradleVersion>> specs = new ArrayList<Spec<GradleVersion>>();
         String[] patterns = trimmed.split("\\s+");
         for (String value : patterns) {
-            if (value.startsWith(GREATER_THAN_OR_EQUALS)) {
+            if (value.startsWith(NOT_EQUALS)) {
+                final GradleVersion version = GradleVersion.version(value.substring(2));
+                specs.add(new Spec<GradleVersion>() {
+                    @Override
+                    public boolean isSatisfiedBy(GradleVersion element) {
+                        return !element.getBaseVersion().equals(version);
+                    }
+                });
+            } else if (value.startsWith(GREATER_THAN_OR_EQUALS)) {
                 final GradleVersion minVersion = GradleVersion.version(value.substring(2));
                 specs.add(new Spec<GradleVersion>() {
                     @Override
