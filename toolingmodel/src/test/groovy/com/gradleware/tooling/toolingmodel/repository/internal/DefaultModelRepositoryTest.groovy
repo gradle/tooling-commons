@@ -39,8 +39,6 @@ import java.util.concurrent.atomic.AtomicReference
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
 class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification {
 
-  private static final List<String> IMPLICIT_TASKS = ['init', 'wrapper', 'help', 'projects', 'tasks', 'properties', 'components', 'dependencies', 'dependencyInsight', 'setupBuild']
-
   @Rule
   TestDirectoryProvider directoryProvider = new TestDirectoryProvider("single-project");
 
@@ -307,7 +305,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     } else {
       assert !gradleBuild.rootProject.buildScript.isPresent()
     }
-    gradleBuild.rootProject.projectTasks.findAll { !IMPLICIT_TASKS.contains(it.name) }.size() == 1
+    gradleBuild.rootProject.projectTasks.findAll { !ImplicitTasks.ALL.contains(it.name) }.size() == 1
     gradleBuild.rootProject.parent == null
     gradleBuild.rootProject.children.size() == 2
     gradleBuild.rootProject.children*.name == ['sub1', 'sub2']
@@ -320,15 +318,15 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     def projectSub1 = gradleBuild.rootProject.tryFind({ OmniGradleProject input ->
       input.path.path == ':sub1'
     } as Spec).get()
-    projectSub1.projectTasks.size() == 2
+    projectSub1.projectTasks.findAll { !ImplicitTasks.ALL.contains(it.name) }.size() == 2
 
-    def myFirstTaskOfSub1 = projectSub1.projectTasks[0]
+    def myFirstTaskOfSub1 = projectSub1.projectTasks.findAll { !ImplicitTasks.ALL.contains(it.name) }[0]
     myFirstTaskOfSub1.name == 'myFirstTaskOfSub1'
     myFirstTaskOfSub1.description == '1st task of sub1'
     myFirstTaskOfSub1.path.path == ':sub1:myFirstTaskOfSub1'
     myFirstTaskOfSub1.isPublic()
 
-    def mySecondTaskOfSub1 = projectSub1.projectTasks[1]
+    def mySecondTaskOfSub1 = projectSub1.projectTasks.findAll { !ImplicitTasks.ALL.contains(it.name) }[1]
     mySecondTaskOfSub1.name == 'mySecondTaskOfSub1'
     mySecondTaskOfSub1.description == '2nd task of sub1'
     mySecondTaskOfSub1.path.path == ':sub1:mySecondTaskOfSub1'
@@ -337,7 +335,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     def projectSub2 = gradleBuild.rootProject.tryFind({ OmniGradleProject input ->
       input.path.path == ':sub2'
     } as Spec).get()
-    projectSub2.taskSelectors.size() == 5
+    projectSub2.taskSelectors.findAll { !ImplicitTasks.ALL.contains(it.name) }.size() == 5
 
     def myTaskSelector = projectSub2.taskSelectors.find { it.name == 'myTask' }
     myTaskSelector.name == 'myTask'
@@ -425,15 +423,15 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     def projectSub1 = eclipseGradleBuild.rootProject.tryFind({ OmniGradleProject input ->
       return input.path.path == ':sub1'
     } as Spec).get()
-    projectSub1.projectTasks.size() == 2
+    projectSub1.projectTasks.findAll { !ImplicitTasks.ALL.contains(it.name) }.size() == 2
 
-    def myFirstTaskOfSub1 = projectSub1.projectTasks[0]
+    def myFirstTaskOfSub1 = projectSub1.projectTasks.findAll { !ImplicitTasks.ALL.contains(it.name) }[0]
     myFirstTaskOfSub1.name == 'myFirstTaskOfSub1'
     myFirstTaskOfSub1.description == '1st task of sub1'
     myFirstTaskOfSub1.path.path == ':sub1:myFirstTaskOfSub1'
     myFirstTaskOfSub1.isPublic()
 
-    def mySecondTaskOfSub1 = projectSub1.projectTasks[1]
+    def mySecondTaskOfSub1 = projectSub1.projectTasks.findAll { !ImplicitTasks.ALL.contains(it.name) }[1]
     mySecondTaskOfSub1.name == 'mySecondTaskOfSub1'
     mySecondTaskOfSub1.description == '2nd task of sub1'
     mySecondTaskOfSub1.path.path == ':sub1:mySecondTaskOfSub1'
@@ -442,7 +440,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     def projectSub2 = eclipseGradleBuild.rootProject.tryFind({ OmniGradleProject input ->
       return input.path.path == ':sub2'
     } as Spec).get()
-    projectSub2.taskSelectors.size() == 5
+    projectSub2.taskSelectors.findAll { !ImplicitTasks.ALL.contains(it.name) }.size() == 5
 
     def myTaskSelector = projectSub2.taskSelectors.find { it.name == 'myTask' }
     myTaskSelector.name == 'myTask'
@@ -579,11 +577,11 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     then:
     buildInvocations != null
     buildInvocations.asMap().size() == 4
-    def rootProjectExplicitTasks = buildInvocations.get(Path.from(':')).get().projectTasks.findAll { !IMPLICIT_TASKS.contains(it.name) }
+    def rootProjectExplicitTasks = buildInvocations.get(Path.from(':')).get().projectTasks.findAll { !ImplicitTasks.ALL.contains(it.name) }
     rootProjectExplicitTasks.size() == 1
 
     def projectSub1 = buildInvocations.get(Path.from(':sub1')).get()
-    def sub1ExplicitTasks = projectSub1.projectTasks.findAll { !IMPLICIT_TASKS.contains(it.name) }
+    def sub1ExplicitTasks = projectSub1.projectTasks.findAll { !ImplicitTasks.ALL.contains(it.name) }
     sub1ExplicitTasks.size() == 2
 
     def myFirstTaskOfSub1 = sub1ExplicitTasks[0]
@@ -600,7 +598,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     // only 'authentic' build invocations know the task is private prior to version 2.3
 
     def projectSub2 = buildInvocations.get(Path.from(':sub2')).get()
-    def sub2ExplicitTaskSelectors = projectSub2.taskSelectors.findAll { !IMPLICIT_TASKS.contains(it.name) }
+    def sub2ExplicitTaskSelectors = projectSub2.taskSelectors.findAll { !ImplicitTasks.ALL.contains(it.name) }
     sub2ExplicitTaskSelectors.size() == 5
 
     def myTaskSelector = sub2ExplicitTaskSelectors.find { it.name == 'myTask' }
