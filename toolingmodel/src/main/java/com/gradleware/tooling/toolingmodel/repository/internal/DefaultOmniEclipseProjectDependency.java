@@ -31,14 +31,18 @@ public final class DefaultOmniEclipseProjectDependency implements OmniEclipsePro
     }
 
     public static DefaultOmniEclipseProjectDependency from(EclipseProjectDependency projectDependency) {
-        // cannot cast due to class in proxy delegate is loaded by a different class loader
-        Object targetEclipseProject = new ProtocolToModelAdapter().unpack(projectDependency.getTargetProject());
-        PropertyAccessor pathProperty = JavaReflectionUtil.readableProperty(targetEclipseProject.getClass(), "path");
-        String targetEclipseProjectPath = (String) pathProperty.getValue(targetEclipseProject);
-
+        String targetEclipseProjectPath = inspectTargetEclipseProjectPath(projectDependency);
         return new DefaultOmniEclipseProjectDependency(
                 Path.from(targetEclipseProjectPath),
                 projectDependency.getPath());
+    }
+
+    @SuppressWarnings("unchecked")
+    private static String inspectTargetEclipseProjectPath(EclipseProjectDependency projectDependency) {
+        // cannot cast due to class in proxy delegate is loaded by a different class loader
+        Object targetEclipseProject = new ProtocolToModelAdapter().unpack(projectDependency.getTargetProject());
+        PropertyAccessor<Object, String> pathProperty = (PropertyAccessor<Object, String>) JavaReflectionUtil.readableProperty(targetEclipseProject.getClass(), String.class, "path");
+        return pathProperty.getValue(targetEclipseProject);
     }
 
 }
