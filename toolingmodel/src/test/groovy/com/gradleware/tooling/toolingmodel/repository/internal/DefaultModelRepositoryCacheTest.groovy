@@ -56,6 +56,7 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
     then:
     thirdLookUp != null
     !thirdLookUp.is(fourthLookUp)
+    thirdLookUp.gradle.gradleUserHome.get() == fourthLookUp.gradle.gradleUserHome.get()
     thirdLookUp.gradle.gradleVersion == fourthLookUp.gradle.gradleVersion
     thirdLookUp.java.javaHome == fourthLookUp.java.javaHome
     thirdLookUp.java.jvmArguments == fourthLookUp.java.jvmArguments

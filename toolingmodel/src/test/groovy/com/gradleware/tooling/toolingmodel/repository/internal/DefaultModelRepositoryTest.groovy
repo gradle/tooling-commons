@@ -163,6 +163,11 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     then:
     buildEnvironment != null
     buildEnvironment.gradle != null
+    if (higherOrEqual('2.4', distribution)) {
+        assert buildEnvironment.gradle.gradleUserHome.get() == new File(System.getProperty('user.home'), '.gradle')
+    } else {
+        assert !buildEnvironment.gradle.gradleUserHome.isPresent()
+    }
     buildEnvironment.gradle.gradleVersion == extractVersion(distribution)
     buildEnvironment.java != null
     buildEnvironment.java.javaHome != null
