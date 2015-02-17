@@ -13,6 +13,14 @@ import java.util.List;
 public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject> {
 
     /**
+     * Returns the root project of this project.
+     *
+     * @return the root project, never null
+     */
+    @Override
+    OmniEclipseProject getRoot();
+
+    /**
      * Returns the parent project of this project.
      *
      * @return the parent project, can be null

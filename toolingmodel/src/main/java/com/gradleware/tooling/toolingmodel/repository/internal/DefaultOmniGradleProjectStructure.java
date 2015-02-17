@@ -54,6 +54,11 @@ public final class DefaultOmniGradleProjectStructure implements OmniGradleProjec
     }
 
     @Override
+    public OmniGradleProjectStructure getRoot() {
+        return this.hierarchyHelper.getRoot();
+    }
+
+    @Override
     public OmniGradleProjectStructure getParent() {
         return this.hierarchyHelper.getParent();
     }

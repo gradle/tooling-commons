@@ -12,6 +12,13 @@ import java.util.List;
 public interface HierarchicalModel<T extends HierarchicalModel<T>> {
 
     /**
+     * Returns the root model of this model.
+     *
+     * @return the root model, never null
+     */
+    T getRoot();
+
+    /**
      * Returns the parent model of this model.
      *
      * @return the parent model, can be null

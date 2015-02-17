@@ -111,6 +111,11 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
     }
 
     @Override
+    public OmniGradleProject getRoot() {
+        return this.hierarchyHelper.getRoot();
+    }
+
+    @Override
     public OmniGradleProject getParent() {
         return this.hierarchyHelper.getParent();
     }

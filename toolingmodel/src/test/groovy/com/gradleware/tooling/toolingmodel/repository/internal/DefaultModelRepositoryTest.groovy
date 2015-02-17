@@ -212,6 +212,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     } else {
       assert !gradleBuildStructure.rootProject.projectDirectory.isPresent()
     }
+    gradleBuildStructure.rootProject.root == gradleBuildStructure.rootProject
     gradleBuildStructure.rootProject.parent == null
     gradleBuildStructure.rootProject.children.size() == 2
     gradleBuildStructure.rootProject.children*.name == ['sub1', 'sub2']
@@ -219,6 +220,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     gradleBuildStructure.rootProject.children*.projectDirectory.collect {
       it.present ? it.get().absolutePath : null
     } == (higherOrEqual('1.8', distribution) ? ['sub1', 'sub2'].collect { new File(directoryProvider.testDirectory, it).absolutePath } : [null, null])
+    gradleBuildStructure.rootProject.children*.root == [gradleBuildStructure.rootProject, gradleBuildStructure.rootProject]
     gradleBuildStructure.rootProject.children*.parent == [gradleBuildStructure.rootProject, gradleBuildStructure.rootProject]
     gradleBuildStructure.rootProject.all.size() == 4
     gradleBuildStructure.rootProject.all*.name == ['my root project', 'sub1', 'sub2', 'subSub1']
@@ -305,11 +307,13 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
       assert !gradleBuild.rootProject.buildScript.isPresent()
     }
     gradleBuild.rootProject.projectTasks.findAll { !ImplicitTasks.ALL.contains(it.name) }.size() == 1
+    gradleBuild.rootProject.root == gradleBuild.rootProject
     gradleBuild.rootProject.parent == null
     gradleBuild.rootProject.children.size() == 2
     gradleBuild.rootProject.children*.name == ['sub1', 'sub2']
     gradleBuild.rootProject.children*.description == ['sub project 1', 'sub project 2']
     gradleBuild.rootProject.children*.path.path == [':sub1', ':sub2']
+    gradleBuild.rootProject.children*.root == [gradleBuild.rootProject, gradleBuild.rootProject]
     gradleBuild.rootProject.children*.parent == [gradleBuild.rootProject, gradleBuild.rootProject]
     gradleBuild.rootProject.all.size() == 4
     gradleBuild.rootProject.all*.name == ['my root project', 'sub1', 'sub2', 'subSub1']
@@ -410,11 +414,13 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     eclipseGradleBuild.rootEclipseProject.description == 'a sample root project'
     eclipseGradleBuild.rootEclipseProject.path == Path.from(':')
     eclipseGradleBuild.rootEclipseProject.projectDirectory.absolutePath == directoryProvider.testDirectory.absolutePath
+    eclipseGradleBuild.rootProject.root == eclipseGradleBuild.rootProject
     eclipseGradleBuild.rootEclipseProject.parent == null
     eclipseGradleBuild.rootEclipseProject.children.size() == 2
     eclipseGradleBuild.rootEclipseProject.children*.name == ['sub1', 'sub2']
     eclipseGradleBuild.rootEclipseProject.children*.description == ['sub project 1', 'sub project 2']
     eclipseGradleBuild.rootEclipseProject.children*.path.path == [':sub1', ':sub2']
+    eclipseGradleBuild.rootProject.children*.root == [eclipseGradleBuild.rootProject, eclipseGradleBuild.rootProject]
     eclipseGradleBuild.rootEclipseProject.children*.parent == [eclipseGradleBuild.rootEclipseProject, eclipseGradleBuild.rootEclipseProject]
     eclipseGradleBuild.rootEclipseProject.all.size() == 4
     eclipseGradleBuild.rootEclipseProject.all*.name == ['my root project', 'sub1', 'sub2', 'subSub1']

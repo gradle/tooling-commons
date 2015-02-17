@@ -116,6 +116,11 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     }
 
     @Override
+    public OmniEclipseProject getRoot() {
+        return this.hierarchyHelper.getRoot();
+    }
+
+    @Override
     public OmniEclipseProject getParent() {
         return this.hierarchyHelper.getParent();
     }

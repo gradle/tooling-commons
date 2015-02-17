@@ -30,6 +30,14 @@ final class HierarchyHelper<T extends HierarchicalModel<T>> {
         this.comparator = Preconditions.checkNotNull(comparator);
     }
 
+    public T getRoot() {
+        T root = this.current;
+        while (root.getParent() != null) {
+            root = root.getParent();
+        }
+        return root;
+    }
+
     T getParent() {
         return this.parent;
     }

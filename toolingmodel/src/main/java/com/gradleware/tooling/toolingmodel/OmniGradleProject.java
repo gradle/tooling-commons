@@ -14,6 +14,14 @@ import java.util.List;
 public interface OmniGradleProject extends HierarchicalModel<OmniGradleProject> {
 
     /**
+     * Returns the root project of this project.
+     *
+     * @return the root project, never null
+     */
+    @Override
+    OmniGradleProject getRoot();
+
+    /**
      * Returns the parent project of this project.
      *
      * @return the parent project, can be null
