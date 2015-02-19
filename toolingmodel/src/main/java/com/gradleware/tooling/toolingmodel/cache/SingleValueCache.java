@@ -1,11 +1,11 @@
 package com.gradleware.tooling.toolingmodel.cache;
 
+import java.util.EnumSet;
+import java.util.concurrent.Callable;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-
-import java.util.EnumSet;
-import java.util.concurrent.Callable;
 
 /**
  * Cached mapping of a value.
@@ -203,7 +203,7 @@ public final class SingleValueCache<V> {
                 return false;
             }
 
-            StateBoundValue that = (StateBoundValue) other;
+            StateBoundValue<?> that = (StateBoundValue) other;
             return Objects.equal(this.state, that.state) &&
                     Objects.equal(this.value, that.value) &&
                     Objects.equal(this.modifier, that.modifier);
