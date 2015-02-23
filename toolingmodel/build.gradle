@@ -37,4 +37,4 @@ dependencies {
   testRuntime "ch.qos.logback:logback-classic:$logbackVersion"
 }
 
-description = "IDE-agnostic Domain component of the Commons project of the Gradle Tooling Platform."
+description = "IDE-agnostic Model component of the Commons project of the Gradle Tooling Platform."
