@@ -31,7 +31,6 @@ dependencies {
   testCompile "nl.jqno.equalsverifier:equalsverifier:$equalsverifierVersion"
   testRuntime "cglib:cglib-nodep:$cglibVersion"
   testRuntime "org.objenesis:objenesis:$objenesisVersion"
-  testRuntime "ch.qos.logback:logback-classic:$logbackVersion"
 }
 
 description = "IDE-agnostic Tooling API component of the Commons project of the Gradle Tooling Platform."
