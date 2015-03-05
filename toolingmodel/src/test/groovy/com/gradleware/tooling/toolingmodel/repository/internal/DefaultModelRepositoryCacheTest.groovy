@@ -12,6 +12,7 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
+import org.gradle.tooling.TestProgressListener
 import org.junit.Rule
 
 class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecification {
@@ -30,7 +31,7 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
 
     // request attributes and model repository for testing
     fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
-    transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
     repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
   }
 
@@ -169,7 +170,7 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
   def "fetchBuildInvocations - fallback scenarios"() {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, GradleDistribution.forVersion('2.2'), null, ImmutableList.of(), ImmutableList.of())
-    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
     def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), Environment.ECLIPSE)
 
     when:

@@ -133,11 +133,11 @@ class DefaultOmniBuildInvocationsContainerBuilderTest extends ToolingModelToolin
         assertTask('zeta', null, false, ':sub2:subSub:zeta', invocationsAtSubSub.projectTasks)
     }
 
-    def "convertFromProjectsWithoutTasks"(GradleDistribution distribution) {
+    def "convertFromGradleProjectWithoutTasks"() {
         given:
         def modelRequest = toolingClient.newModelRequest(GradleProject.class)
         modelRequest.projectDir(directoryProviderProjectsWithoutTasks.testDirectory)
-        modelRequest.gradleDistribution(distribution)
+        modelRequest.gradleDistribution(GradleDistribution.forVersion('1.0'))
         def gradleProject = modelRequest.executeAndWait()
 
         when:
@@ -150,10 +150,7 @@ class DefaultOmniBuildInvocationsContainerBuilderTest extends ToolingModelToolin
             assert buildInvocations.get(it).get().projectTasks == []
             assert buildInvocations.get(it).get().taskSelectors == []
         }
-
-        where:
-        distribution << runInAllEnvironmentsForGradleTargetVersions("<2.4 !=1.6")
-    }
+  }
 
     private static Set<String> collectNamesOfNonImplicitTaskSelectors(List<OmniTaskSelector> tasks) {
         tasks.collect { it.name }.findAll { !ImplicitTasks.ALL.contains(it) } as Set
@@ -179,10 +176,6 @@ class DefaultOmniBuildInvocationsContainerBuilderTest extends ToolingModelToolin
         assert element.description == description
         assert element.isPublic() == isPublic
         assert element.path.path == path
-    }
-
-    private static ImmutableList<GradleDistribution> runInAllEnvironmentsForGradleTargetVersions(String versionPattern) {
-        GradleVersionParameterization.Default.INSTANCE.getGradleDistributions(versionPattern)
     }
 
 }
