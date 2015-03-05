@@ -6,6 +6,7 @@ import com.gradleware.tooling.toolingclient.GradleDistribution;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.TestProgressListener;
 
 import java.io.File;
 import java.io.InputStream;
@@ -29,6 +30,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Insp
     private ImmutableList<String> jvmArguments;
     private ImmutableList<String> arguments;
     private ImmutableList<ProgressListener> progressListeners;
+    private ImmutableList<TestProgressListener> testProgressListeners;
     private CancellationToken cancellationToken;
 
     BaseRequest(ExecutableToolingClient toolingClient) {
@@ -37,6 +39,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Insp
         this.jvmArguments = ImmutableList.of();
         this.arguments = ImmutableList.of();
         this.progressListeners = ImmutableList.of();
+        this.testProgressListeners = ImmutableList.of();
         this.cancellationToken = GradleConnector.newCancellationTokenSource().token();
     }
 
@@ -166,6 +169,16 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Insp
     }
 
     @Override
+    public SELF testProgressListeners(TestProgressListener... listeners) {
+        this.testProgressListeners = ImmutableList.copyOf(listeners);
+        return getThis();
+    }
+
+    public TestProgressListener[] getTestProgressListeners() {
+        return this.testProgressListeners.toArray(new TestProgressListener[this.testProgressListeners.size()]);
+    }
+
+    @Override
     public SELF cancellationToken(CancellationToken cancellationToken) {
         this.cancellationToken = Preconditions.checkNotNull(cancellationToken);
         return getThis();
@@ -188,6 +201,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Insp
                 jvmArguments(getJvmArguments()).
                 arguments(getArguments()).
                 progressListeners(getProgressListeners()).
+                testProgressListeners(getTestProgressListeners()).
                 cancellationToken(getCancellationToken());
     }
 

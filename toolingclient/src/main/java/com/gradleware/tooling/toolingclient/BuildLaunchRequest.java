@@ -2,6 +2,7 @@ package com.gradleware.tooling.toolingclient;
 
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.TestProgressListener;
 
 import java.io.File;
 import java.io.InputStream;
@@ -80,6 +81,12 @@ public interface BuildLaunchRequest extends Request<Void> {
      */
     @Override
     BuildLaunchRequest progressListeners(ProgressListener... listeners);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    BuildLaunchRequest testProgressListeners(TestProgressListener... listeners);
 
     /**
      * {@inheritDoc}

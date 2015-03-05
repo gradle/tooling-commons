@@ -18,6 +18,7 @@ import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.ProjectConnection;
+import org.gradle.tooling.TestProgressListener;
 import org.gradle.tooling.internal.consumer.ConnectorServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -166,6 +167,9 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
                 withCancellationToken(request.getCancellationToken());
         for (ProgressListener progressListener : request.getProgressListeners()) {
             operation.addProgressListener(progressListener);
+        }
+        for (TestProgressListener testProgressListener : request.getTestProgressListeners()) {
+            operation.addTestProgressListener(testProgressListener);
         }
         return operation;
     }

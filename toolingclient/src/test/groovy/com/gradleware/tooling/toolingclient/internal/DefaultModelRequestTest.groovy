@@ -23,6 +23,9 @@ class DefaultModelRequestTest extends Specification {
 
     def progressListeners = modelRequest.getProgressListeners()
     assert progressListeners.length == 0
+
+    def testProgressListeners = modelRequest.getTestProgressListeners()
+    assert testProgressListeners.length == 0
   }
 
   def "deriveForModel"() {

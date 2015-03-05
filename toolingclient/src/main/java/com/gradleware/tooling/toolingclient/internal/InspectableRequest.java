@@ -4,6 +4,7 @@ import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.Request;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.TestProgressListener;
 
 import java.io.File;
 import java.io.InputStream;
@@ -51,6 +52,12 @@ interface InspectableRequest<T> extends Request<T> {
      * @see org.gradle.tooling.internal.consumer.AbstractLongRunningOperation#addProgressListener(org.gradle.tooling.ProgressListener)
      */
     ProgressListener[] getProgressListeners();
+
+    /**
+     * @return never null, facilitates iteration when adding the listeners to AbstractLongRunningOperation
+     * @see org.gradle.tooling.internal.consumer.AbstractLongRunningOperation#addTestProgressListener(org.gradle.tooling.TestProgressListener)
+     */
+    TestProgressListener[] getTestProgressListeners();
 
     /**
      * @return never null, AbstractLongRunningOperation does not accept null token

@@ -2,6 +2,7 @@ package com.gradleware.tooling.toolingclient;
 
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.TestProgressListener;
 
 import java.io.File;
 import java.io.InputStream;
@@ -99,6 +100,14 @@ public interface Request<T> {
      * @return this
      */
     Request<T> progressListeners(ProgressListener... listeners);
+
+    /**
+     * Specifies the test progress listeners which will receive test progress events as the request is executed.
+     *
+     * @param listeners the test progress listeners to register
+     * @return this
+     */
+    Request<T> testProgressListeners(TestProgressListener... listeners);
 
     /**
      * Specifies the cancellation token to use to cancel the request if required.

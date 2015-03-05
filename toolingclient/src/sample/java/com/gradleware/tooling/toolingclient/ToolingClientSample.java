@@ -5,6 +5,8 @@ import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressEvent;
 import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.TestProgressEvent;
+import org.gradle.tooling.TestProgressListener;
 import org.gradle.tooling.model.build.BuildEnvironment;
 
 import java.io.File;
@@ -38,7 +40,13 @@ public final class ToolingClientSample {
                     progressListeners(new ProgressListener() {
                         @Override
                         public void statusChanged(ProgressEvent event) {
-                            System.out.println(event.getDescription());
+                            System.out.println("Progress: " + event.getDescription());
+                        }
+                    }).
+                    testProgressListeners(new TestProgressListener() {
+                        @Override
+                        public void statusChanged(TestProgressEvent event) {
+                            System.out.println("Test progress: " + event.getDescriptor().getName());
                         }
                     });
             LongRunningOperationPromise<BuildEnvironment> operation = modelRequest.execute();
