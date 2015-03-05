@@ -7,7 +7,7 @@ description = "Root project of the Commons project of the Gradle Tooling Platfor
 group = 'com.gradleware.tooling'
 version = getVersion('0.1.0.DEV')
 
-wrapper.gradleVersion = '2.4-20150305170322+0000'
+wrapper.gradleVersion = '2.3'
 
 subprojects {
 
