@@ -165,6 +165,9 @@ public final class TestDirectoryProvider implements TestRule {
         return dir;
     }
 
+    /**
+     * Contains file operation utilities.
+     */
     private static final class FileUtils {
 
         @SuppressWarnings("ConstantConditions")
