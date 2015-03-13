@@ -21,13 +21,13 @@ import com.gradleware.tooling.toolingclient.internal.ResultHandlerPromise;
 import org.gradle.tooling.BuildActionExecuter;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnectionException;
-import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ModelBuilder;
 
 /**
  * Promise in the context of long running operations, i.e. getting a model, launching a build, executing an action.
  *
- * @see LongRunningOperation
+ * @param <T> the result type
+ * @see org.gradle.tooling.LongRunningOperation
  */
 public abstract class LongRunningOperationPromise<T> {
 

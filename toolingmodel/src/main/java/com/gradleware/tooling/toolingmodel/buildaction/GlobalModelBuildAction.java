@@ -21,6 +21,8 @@ import org.gradle.tooling.BuildController;
 
 /**
  * Build action to get a specific global model of a build.
+ *
+ * @param <T> the type of model to fetch
  */
 public final class GlobalModelBuildAction<T> implements BuildAction<T> {
 

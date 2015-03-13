@@ -26,6 +26,8 @@ import java.io.OutputStream;
 
 /**
  * Describes the state and actions common to all requests issued through the tooling client.
+ *
+ * @param <T> the result type
  */
 public interface Request<T> {
 

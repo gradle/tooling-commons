@@ -20,6 +20,8 @@ import com.gradleware.tooling.toolingclient.ModelRequest;
 
 /**
  * Internal interface that describes the configurable attributes of the model request.
+ *
+ * @param <T> the result type
  */
 interface InspectableModelRequest<T> extends InspectableRequest<T>, ModelRequest<T> {
 

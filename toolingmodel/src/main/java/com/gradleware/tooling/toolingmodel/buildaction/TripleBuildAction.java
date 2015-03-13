@@ -22,6 +22,10 @@ import org.gradle.tooling.BuildController;
 
 /**
  * Composite build action to execute three actions at once.
+ *
+ * @param <S> the type of the first value
+ * @param <T> the type of the second value
+ * @param <U> the type of the third value
  */
 public final class TripleBuildAction<S, T, U> implements BuildAction<Triple<S, T, U>> {
 

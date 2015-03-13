@@ -168,6 +168,9 @@ public final class DefaultOmniBuildInvocationsContainerBuilder {
         }
     }
 
+    /**
+     * Singleton comparator to compare {@code OmniProjectTask} instances.
+     */
     private static final class TaskComparator implements Comparator<OmniProjectTask> {
 
         private static final TaskComparator INSTANCE = new TaskComparator();
@@ -179,6 +182,9 @@ public final class DefaultOmniBuildInvocationsContainerBuilder {
 
     }
 
+    /**
+     * Singleton comparator to compare {@code OmniTaskSelector} instances.
+     */
     private static final class TaskSelectorComparator implements Comparator<OmniTaskSelector> {
 
         private static final TaskSelectorComparator INSTANCE = new TaskSelectorComparator();

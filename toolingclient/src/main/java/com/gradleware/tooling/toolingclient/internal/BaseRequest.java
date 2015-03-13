@@ -30,6 +30,9 @@ import java.io.OutputStream;
 
 /**
  * Internal base class for all tooling client request objects.
+ *
+ * @param <T> the result type
+ * @param <SELF> self reference
  */
 abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements InspectableRequest<T> {
 

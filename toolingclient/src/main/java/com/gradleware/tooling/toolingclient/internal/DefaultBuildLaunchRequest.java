@@ -17,12 +17,11 @@
 package com.gradleware.tooling.toolingclient.internal;
 
 import com.google.common.base.Preconditions;
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
 
 /**
- * Internal implementation of the {@link BuildLaunchRequest} API.
+ * Internal implementation of the {@link com.gradleware.tooling.toolingclient.BuildLaunchRequest} API.
  */
 final class DefaultBuildLaunchRequest extends BaseRequest<Void, DefaultBuildLaunchRequest> implements InspectableBuildLaunchRequest {
 

@@ -21,6 +21,8 @@ import org.gradle.tooling.BuildAction;
 
 /**
  * Internal interface that describes the configurable attributes of the build action request.
+ *
+ * @param <T> the result type
  */
 interface InspectableBuildActionRequest<T> extends InspectableRequest<T>, BuildActionRequest<T> {
 

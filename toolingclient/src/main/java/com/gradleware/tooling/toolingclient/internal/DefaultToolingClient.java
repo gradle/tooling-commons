@@ -221,6 +221,9 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         ConnectorServices.reset();
     }
 
+    /**
+     * Singleton factory to create {@code GradleConnector} instances.
+     */
     enum DefaultGradleConnectorFactory implements Factory<GradleConnector> {
 
         INSTANCE;

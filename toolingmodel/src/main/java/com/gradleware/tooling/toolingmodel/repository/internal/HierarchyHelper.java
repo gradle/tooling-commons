@@ -32,6 +32,8 @@ import java.util.List;
 
 /**
  * Helper class to manage hierarchies.
+ *
+ * @param <T> the model type
  */
 final class HierarchyHelper<T extends HierarchicalModel<T>> {
 

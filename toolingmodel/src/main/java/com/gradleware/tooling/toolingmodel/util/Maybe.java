@@ -23,6 +23,8 @@ import com.google.common.base.Optional;
  * Optional} implementations but differs in that it allows to store a {@code null} value. The motivation for this class is that there are scenarios where {@code null} is a valid,
  * present value and it should not be treated as an absent value. This is often the case, for example, in the Gradle Tooling API, where some APIs return {@code null} as a valid,
  * present value while under certain circumstances the same APIs do not have a value available at all. This class allows to express that distinction.
+ *
+ * @param <T> the type of the contained reference
  */
 public final class Maybe<T> {
 

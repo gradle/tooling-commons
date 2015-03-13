@@ -30,6 +30,9 @@ import java.net.URISyntaxException;
 
 import static com.gradleware.tooling.toolingclient.ToolingClient.CleanUpStrategy;
 
+/**
+ * Sample class to configure and run the {@code ToolingClient}.
+ */
 public final class ToolingClientSample {
 
     public static void main(String[] args) throws URISyntaxException {

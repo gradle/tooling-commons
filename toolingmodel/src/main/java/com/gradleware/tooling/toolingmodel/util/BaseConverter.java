@@ -21,6 +21,9 @@ import com.google.common.base.Converter;
 /**
  * Implementation of the abstract {@link Converter} class that throws a {@code UnsupportedOperationException} for each implemented method. Useful when only one direction of the
  * conversion needs to be implemented.
+ *
+ * @param <A> the type to convert forward to
+ * @param <B> the type to convert back from
  */
 public abstract class BaseConverter<A, B> extends Converter<A, B> {
 

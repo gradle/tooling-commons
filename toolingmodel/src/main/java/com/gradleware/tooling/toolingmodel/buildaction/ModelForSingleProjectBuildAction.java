@@ -23,6 +23,8 @@ import org.gradle.tooling.model.gradle.GradleBuild;
 
 /**
  * Build action to get a specific model for a given project.
+ *
+ * @param <T> the type of model to fetch
  */
 public final class ModelForSingleProjectBuildAction<T> implements BuildAction<T> {
 

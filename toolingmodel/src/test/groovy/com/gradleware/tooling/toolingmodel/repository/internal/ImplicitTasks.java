@@ -20,6 +20,9 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
+/**
+ * Enumerates all the implicit tasks added by Gradle.
+ */
 public final class ImplicitTasks {
 
     public static final List<String> ALL = ImmutableList.of(

@@ -64,6 +64,9 @@ public final class Path implements Comparable<Path> {
         return new Path(path);
     }
 
+    /**
+     * Singleton comparator to compare {@code Path} instances.
+     */
     public static final class Comparator implements java.util.Comparator<Path> {
 
         public static final Comparator INSTANCE = new Comparator();

@@ -99,9 +99,13 @@ subprojects {
   // apply Checkstyle plugin, mainly to ensure copyright and javadoc is present
   apply plugin: 'checkstyle'
 
+  // share checkstyle config across all sub-projects
   def checkstyleConfigDir = "$rootDir/gradle/config/checkstyle"
-  checkstyleMain.configFile = "$checkstyleConfigDir/checkstyle.xml" as File
-  checkstyleMain.configProperties = ['checkstyleConfigDir' : checkstyleConfigDir ]
+  tasks.withType(Checkstyle).all {
+    configFile = "$checkstyleConfigDir/checkstyle.xml" as File
+    configProperties = ['checkstyleConfigDir': checkstyleConfigDir]
+  }
+
 }
 
 def getVersion(def baseVersion) {

@@ -17,12 +17,13 @@
 package com.gradleware.tooling.toolingclient.internal;
 
 import com.google.common.base.Preconditions;
-import com.gradleware.tooling.toolingclient.BuildActionRequest;
 import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
 import org.gradle.tooling.BuildAction;
 
 /**
- * Internal implementation of the {@link BuildActionRequest} API.
+ * Internal implementation of the {@link com.gradleware.tooling.toolingclient.BuildActionRequest} API.
+ *
+ * @param <T> the result type
  */
 final class DefaultBuildActionRequest<T> extends BaseRequest<T, DefaultBuildActionRequest<T>> implements InspectableBuildActionRequest<T> {
 

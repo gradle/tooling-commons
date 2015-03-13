@@ -25,6 +25,8 @@ import org.gradle.tooling.ResultHandler;
 
 /**
  * Internal implementation of the {@link LongRunningOperationPromise} API.
+ *
+ * @param <T> the result type
  */
 public final class ResultHandlerPromise<T> extends LongRunningOperationPromise<T> {
 
@@ -52,6 +54,11 @@ public final class ResultHandlerPromise<T> extends LongRunningOperationPromise<T
         return this;
     }
 
+    /**
+     * Result handler that behaves like a promise.
+     *
+     * @param <T> the result type
+     */
     private static final class PromiseCompatibleResultHandler<T> implements ResultHandler<T> {
 
         private final Object LOCK = new Object();

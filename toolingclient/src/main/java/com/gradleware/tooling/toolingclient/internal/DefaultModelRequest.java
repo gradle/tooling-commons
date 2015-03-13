@@ -25,6 +25,8 @@ import org.gradle.tooling.model.gradle.ProjectPublications;
 
 /**
  * Internal implementation of the {@link ModelRequest} API.
+ *
+ * @param <T> the result type
  */
 final class DefaultModelRequest<T> extends BaseRequest<T, DefaultModelRequest<T>> implements InspectableModelRequest<T> {
 

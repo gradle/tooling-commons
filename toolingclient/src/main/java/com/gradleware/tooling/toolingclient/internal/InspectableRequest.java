@@ -28,6 +28,8 @@ import java.io.OutputStream;
 
 /**
  * Internal interface that describes the configurable attributes of a request.
+ *
+ * @param <T> the result type
  */
 interface InspectableRequest<T> extends Request<T> {
 

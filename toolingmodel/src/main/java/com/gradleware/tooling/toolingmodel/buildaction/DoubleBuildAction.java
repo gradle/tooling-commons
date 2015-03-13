@@ -22,6 +22,9 @@ import org.gradle.tooling.BuildController;
 
 /**
  * Composite build action to execute two actions at once.
+ *
+ * @param <S> the type of the first value
+ * @param <T> the type of the second value
  */
 public final class DoubleBuildAction<S, T> implements BuildAction<Pair<S, T>> {
 
