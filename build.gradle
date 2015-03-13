@@ -96,6 +96,12 @@ subprojects {
     }
   }
 
+  // apply Checkstyle plugin, mainly to ensure copyright and javadoc is present
+  apply plugin: 'checkstyle'
+
+  def checkstyleConfigDir = "$rootDir/gradle/config/checkstyle"
+  checkstyleMain.configFile = "$checkstyleConfigDir/checkstyle.xml" as File
+  checkstyleMain.configProperties = ['checkstyleConfigDir' : checkstyleConfigDir ]
 }
 
 def getVersion(def baseVersion) {
