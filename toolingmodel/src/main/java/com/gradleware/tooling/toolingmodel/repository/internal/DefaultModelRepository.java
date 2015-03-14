@@ -61,8 +61,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Repository for Gradle build models. Model updates are broadcast via Google Guava's {@link EventBus}.
- *
+ * <p/>
  * This repository is aware of the different constraints given by the Environment in which the repository is used and given by the target Gradle version.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultModelRepository implements ModelRepository {
 

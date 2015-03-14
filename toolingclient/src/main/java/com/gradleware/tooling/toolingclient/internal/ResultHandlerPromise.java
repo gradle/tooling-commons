@@ -27,6 +27,7 @@ import org.gradle.tooling.ResultHandler;
  * Internal implementation of the {@link LongRunningOperationPromise} API.
  *
  * @param <T> the result type
+ * @author Etienne Studer
  */
 public final class ResultHandlerPromise<T> extends LongRunningOperationPromise<T> {
 

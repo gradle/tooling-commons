@@ -20,6 +20,8 @@ import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
 
 /**
  * Internal interface that describes the request execution part of the tooling client.
+ *
+ * @author Etienne Studer
  */
 interface ExecutableToolingClient {
 

@@ -23,6 +23,7 @@ import java.util.List;
 /**
  * Provides information about the launchables (project tasks, task selectors) that can be used to initiate a Gradle build.
  *
+ * @author Etienne Studer
  * @see org.gradle.tooling.model.gradle.BuildInvocations
  */
 public interface OmniBuildInvocations {

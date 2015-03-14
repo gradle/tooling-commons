@@ -21,6 +21,8 @@ import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
 
 /**
  * Event that is broadcast when {@code OmniGradleBuild} has been updated.
+ *
+ * @author Etienne Studer
  */
 public final class GradleBuildUpdateEvent {
 

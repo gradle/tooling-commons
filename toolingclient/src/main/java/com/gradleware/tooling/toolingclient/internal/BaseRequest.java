@@ -33,6 +33,7 @@ import java.io.OutputStream;
  *
  * @param <T> the result type
  * @param <SELF> self reference
+ * @author Etienne Studer
  */
 abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements InspectableRequest<T> {
 

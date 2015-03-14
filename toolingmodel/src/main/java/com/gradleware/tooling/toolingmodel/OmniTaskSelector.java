@@ -23,6 +23,8 @@ import java.util.SortedSet;
 /**
  * Represents a task selector which is executable by Gradle. A task selector requests to execute all project tasks with a given name in the context of some project and all its
  * subprojects.
+ *
+ * @author Etienne Studer
  */
 public interface OmniTaskSelector {
 

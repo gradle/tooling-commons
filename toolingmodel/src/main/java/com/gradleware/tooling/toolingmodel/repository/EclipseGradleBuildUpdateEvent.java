@@ -21,6 +21,8 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 
 /**
  * Event that is broadcast when {@code OmniEclipseGradleBuild} has been updated.
+ *
+ * @author Etienne Studer
  */
 public final class EclipseGradleBuildUpdateEvent {
 

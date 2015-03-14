@@ -24,6 +24,7 @@ import com.google.common.base.Converter;
  *
  * @param <A> the type to convert forward to
  * @param <B> the type to convert back from
+ * @author Etienne Studer
  */
 public abstract class BaseConverter<A, B> extends Converter<A, B> {
 

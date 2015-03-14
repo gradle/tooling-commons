@@ -18,6 +18,8 @@ package com.gradleware.tooling.spock;
 
 /**
  * Formats an arbitrary value as a {@code String}.
+ *
+ * @author Etienne Studer
  */
 public interface DataValueFormatter {
 

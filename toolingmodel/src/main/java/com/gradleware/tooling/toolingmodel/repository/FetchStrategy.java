@@ -18,6 +18,8 @@ package com.gradleware.tooling.toolingmodel.repository;
 
 /**
  * Enumerates different strategies of how to fetch a given value from a caching data provider.
+ *
+ * @author Etienne Studer
  */
 public enum FetchStrategy {
 

@@ -24,6 +24,8 @@ import java.io.File;
 
 /**
  * Default implementation of the {@link OmniGradleEnvironment} interface.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultOmniGradleEnvironment implements OmniGradleEnvironment {
 

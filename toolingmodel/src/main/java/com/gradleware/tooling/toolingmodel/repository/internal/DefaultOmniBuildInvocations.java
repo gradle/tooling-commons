@@ -32,6 +32,8 @@ import java.util.List;
 
 /**
  * Default implementation of the {@link OmniBuildInvocations} interface.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultOmniBuildInvocations implements OmniBuildInvocations {
 

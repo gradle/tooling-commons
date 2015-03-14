@@ -26,6 +26,7 @@ import java.util.List;
  * A hierarchical model belongs to a parent model, unless it is the root model, and may itself contain child models. All models in the hierarchy are of the same type.
  *
  * @param <T> the model type
+ * @author Etienne Studer
  */
 public interface HierarchicalModel<T extends HierarchicalModel<T>> {
 

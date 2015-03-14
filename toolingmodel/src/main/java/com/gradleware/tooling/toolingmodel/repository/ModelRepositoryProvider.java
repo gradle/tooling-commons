@@ -18,6 +18,8 @@ package com.gradleware.tooling.toolingmodel.repository;
 
 /**
  * Provider of {@code ModelRepository} instances for given sets of {@code FixedRequestAttributes}.
+ *
+ * @author Etienne Studer
  */
 public interface ModelRepositoryProvider {
 

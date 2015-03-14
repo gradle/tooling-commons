@@ -30,6 +30,8 @@ import java.util.SortedMap;
 
 /**
  * Default implementation of the {@link OmniBuildInvocationsContainer} interface.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultOmniBuildInvocationsContainer implements OmniBuildInvocationsContainer {
 

@@ -25,6 +25,7 @@ import org.gradle.tooling.BuildController;
  *
  * @param <S> the type of the first value
  * @param <T> the type of the second value
+ * @author Etienne Studer
  */
 public final class DoubleBuildAction<S, T> implements BuildAction<Pair<S, T>> {
 

@@ -22,6 +22,8 @@ import java.io.File;
 
 /**
  * Informs about the Gradle environment.
+ *
+ * @author Etienne Studer
  */
 public interface OmniGradleEnvironment {
 

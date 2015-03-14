@@ -33,6 +33,8 @@ import java.util.Set;
 
 /**
  * Provides released versions of Gradle. Typically, the list of provided Gradle versions is identical with the set of Gradle versions supported by the application.
+ *
+ * @author Etienne Studer
  */
 public final class ReleasedGradleVersions {
 

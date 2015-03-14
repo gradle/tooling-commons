@@ -21,6 +21,8 @@ import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 
 /**
  * Event that is broadcast when {@code OmniBuildEnvironment} has been updated.
+ *
+ * @author Etienne Studer
  */
 public final class BuildEnvironmentUpdateEvent {
 

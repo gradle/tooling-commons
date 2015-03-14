@@ -18,6 +18,8 @@ package com.gradleware.tooling.toolingmodel.repository;
 
 /**
  * Enumerates the different environments known to the system.
+ *
+ * @author Etienne Studer
  */
 public enum Environment {
 

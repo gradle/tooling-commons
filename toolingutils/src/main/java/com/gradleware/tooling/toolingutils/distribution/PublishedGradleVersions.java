@@ -42,6 +42,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Provides information about the Gradle versions available from services.gradle.org. The version information can optionally be cached on the local file system.
+ *
+ * @author Etienne Studer
  */
 public final class PublishedGradleVersions {
 

@@ -21,6 +21,8 @@ import com.gradleware.tooling.toolingmodel.OmniBuildInvocationsContainer;
 
 /**
  * Event that is broadcast when {@code OmniBuildInvocations} of one or more projects have been updated.
+ *
+ * @author Etienne Studer
  */
 public final class BuildInvocationsUpdateEvent {
 

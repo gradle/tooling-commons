@@ -26,6 +26,8 @@ import java.util.List;
 
 /**
  * Encapsulates the {@link Launchable} instances to execute as part of running a Gradle build.
+ *
+ * @author Etienne Studer
  */
 public final class LaunchableConfig {
 

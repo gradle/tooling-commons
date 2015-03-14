@@ -25,6 +25,8 @@ import java.util.SortedSet;
 
 /**
  * Default implementation of the {@link OmniTaskSelector} interface.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultOmniTaskSelector implements OmniTaskSelector {
 

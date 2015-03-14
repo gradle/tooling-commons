@@ -27,6 +27,8 @@ import java.util.List;
 
 /**
  * Represents a Gradle distribution that can be located locally or remotely, be a fixed version, or be project-specific.
+ *
+ * @author Etienne Studer
  */
 public final class GradleDistribution {
 

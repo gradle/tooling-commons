@@ -30,6 +30,8 @@ import java.util.Comparator;
 
 /**
  * Default implementation of the {@link OmniGradleProjectStructure} interface.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultOmniGradleProjectStructure implements OmniGradleProjectStructure {
 

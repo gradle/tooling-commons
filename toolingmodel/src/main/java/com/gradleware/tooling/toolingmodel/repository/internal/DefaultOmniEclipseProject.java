@@ -42,6 +42,8 @@ import java.util.List;
 
 /**
  * Default implementation of the {@link OmniEclipseProject} interface.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 

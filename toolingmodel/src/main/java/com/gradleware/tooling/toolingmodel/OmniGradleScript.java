@@ -20,6 +20,8 @@ import java.io.File;
 
 /**
  * Represents a Gradle script. A Gradle script may be a build script, a settings script, or an initialization script.
+ *
+ * @author Etienne Studer
  */
 public interface OmniGradleScript {
 

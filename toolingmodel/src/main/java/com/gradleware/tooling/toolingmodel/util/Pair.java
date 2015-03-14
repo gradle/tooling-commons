@@ -23,6 +23,7 @@ import java.io.Serializable;
  *
  * @param <S> the type of the first value
  * @param <T> the type of the second value
+ * @author Etienne Studer
  */
 @SuppressWarnings("NonSerializableFieldInSerializableClass")
 public final class Pair<S, T> implements Serializable {

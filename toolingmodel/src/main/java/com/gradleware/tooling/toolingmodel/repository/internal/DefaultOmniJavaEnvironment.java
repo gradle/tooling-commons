@@ -25,6 +25,8 @@ import java.util.List;
 
 /**
  * Default implementation of the {@link OmniJavaEnvironment} interface.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultOmniJavaEnvironment implements OmniJavaEnvironment {
 

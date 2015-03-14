@@ -20,7 +20,9 @@ import com.google.common.base.Preconditions;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 
 /**
- * Event that is broadcast when {@code OmniGradleBuildStructure} has been updated.
+ * Event that is broadcast when {@code OmniGradleBuildStructure} has been updated. *
+ *
+ * @author Etienne Studer
  */
 public final class GradleBuildStructureUpdateEvent {
 

@@ -19,6 +19,7 @@ package com.gradleware.tooling.toolingmodel;
 /**
  * Provides information about the Gradle build structure.
  *
+ * @author Etienne Studer
  * @see org.gradle.tooling.model.gradle.GradleBuild
  */
 public interface OmniGradleBuildStructure extends BuildScopedModel {

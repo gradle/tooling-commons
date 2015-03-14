@@ -23,6 +23,8 @@ import java.io.File;
 
 /**
  * Default implementation of the {@link OmniEclipseSourceDirectory} interface.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultOmniEclipseSourceDirectory implements OmniEclipseSourceDirectory {
 

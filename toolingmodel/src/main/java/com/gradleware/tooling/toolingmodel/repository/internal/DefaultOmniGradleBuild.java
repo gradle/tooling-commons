@@ -23,6 +23,8 @@ import org.gradle.tooling.model.GradleProject;
 
 /**
  * Default implementation of the {@link OmniGradleBuild} interface.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultOmniGradleBuild implements OmniGradleBuild {
 

@@ -21,6 +21,8 @@ import org.gradle.tooling.BuildAction;
 
 /**
  * Factory for {@link org.gradle.tooling.BuildAction} instances.
+ *
+ * @author Etienne Studer
  */
 public final class BuildActionFactory {
 

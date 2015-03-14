@@ -43,6 +43,8 @@ import java.util.SortedSet;
 
 /**
  * Builds a {@code DefaultOmniBuildInvocationsContainer} from a given Gradle project.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultOmniBuildInvocationsContainerBuilder {
 

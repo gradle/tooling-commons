@@ -22,6 +22,8 @@ import com.gradleware.tooling.toolingmodel.repository.internal.PathComparator;
 
 /**
  * Represents a path in Gradle. The path can point to a project, task, etc.
+ *
+ * @author Etienne Studer
  */
 public final class Path implements Comparable<Path> {
 

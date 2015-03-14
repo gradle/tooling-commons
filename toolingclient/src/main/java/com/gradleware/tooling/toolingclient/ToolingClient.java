@@ -26,6 +26,8 @@ import org.gradle.tooling.GradleConnector;
  * house-keeping of all issued requests and the long-living resources potentially associated with these requests. Once the interactions with Gradle are over, the tooling client
  * must be stopped to clean up all remaining resources. <p> A tooling client instance is thread-safe. Typically, a single tooling client instance is used for the entire life-time
  * of the consumer interacting with the tooling client.
+ *
+ * @author Etienne Studer
  */
 public abstract class ToolingClient {
 

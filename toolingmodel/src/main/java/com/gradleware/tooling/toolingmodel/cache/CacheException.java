@@ -18,6 +18,8 @@ package com.gradleware.tooling.toolingmodel.cache;
 
 /**
  * Exception thrown when attempting to access the cache resulted in an exception.
+ *
+ * @author Etienne Studer
  */
 public final class CacheException extends Exception {
 

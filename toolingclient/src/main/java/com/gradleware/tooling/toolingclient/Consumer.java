@@ -21,6 +21,7 @@ package com.gradleware.tooling.toolingclient;
  * side-effects. The {@code Consumer} interface is similar to the one that ships with Java 8.
  *
  * @param <T> the type of the consumed input
+ * @author Etienne Studer
  */
 public interface Consumer<T> {
 

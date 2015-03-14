@@ -22,6 +22,8 @@ import org.gradle.tooling.model.Task;
 
 /**
  * Default implementation of the {@link OmniProjectTask} interface.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultOmniProjectTask implements OmniProjectTask {
 
@@ -77,7 +79,7 @@ public final class DefaultOmniProjectTask implements OmniProjectTask {
 
     /**
      * GradleTask#isPublic is only available in Gradle versions >= 2.1.
-     *
+     * <p/>
      * For versions 2.1 and 2.2.x, GradleTask#isPublic always returns {@code false} and needs to be corrected to {@code true}.
      *
      * @param projectTask the task to populate

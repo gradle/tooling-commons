@@ -32,8 +32,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A JUnit rule which provides a unique temporary folder for the test.
+ *
+ * @author Etienne Studer
  */
-@SuppressWarnings("deprecation")
 public final class TestDirectoryProvider implements TestRule {
 
     private static File root;

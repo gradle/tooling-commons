@@ -28,6 +28,7 @@ import java.util.Map;
  * Build action to get a specific model for all projects of a build.
  *
  * @param <T> the type of models to fetch
+ * @author Etienne Studer
  */
 public final class ModelForAllProjectsBuildAction<T> implements BuildAction<Map<String, T>> {
 

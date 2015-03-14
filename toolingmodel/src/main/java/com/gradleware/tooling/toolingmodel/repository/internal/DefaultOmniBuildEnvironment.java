@@ -23,6 +23,8 @@ import org.gradle.tooling.model.build.BuildEnvironment;
 
 /**
  * Default implementation of the {@link OmniBuildEnvironment} interface.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultOmniBuildEnvironment implements OmniBuildEnvironment {
 

@@ -37,6 +37,8 @@ import java.util.List;
 
 /**
  * Default implementation of the {@link OmniGradleProject} interface.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultOmniGradleProject implements OmniGradleProject {
 

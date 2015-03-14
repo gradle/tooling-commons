@@ -21,6 +21,8 @@ import org.gradle.tooling.model.GradleModuleVersion;
 
 /**
  * Default implementation of the {@link OmniGradleModuleVersion} interface.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultOmniGradleModuleVersion implements OmniGradleModuleVersion {
 

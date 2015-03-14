@@ -19,6 +19,7 @@ package com.gradleware.tooling.toolingmodel;
 /**
  * Provides information about the build environment.
  *
+ * @author Etienne Studer
  * @see org.gradle.tooling.model.build.BuildEnvironment
  */
 public interface OmniBuildEnvironment extends BuildScopedModel {

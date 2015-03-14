@@ -25,6 +25,7 @@ import com.google.common.base.Optional;
  * present value while under certain circumstances the same APIs do not have a value available at all. This class allows to express that distinction.
  *
  * @param <T> the type of the contained reference
+ * @author Etienne Studer
  */
 public final class Maybe<T> {
 

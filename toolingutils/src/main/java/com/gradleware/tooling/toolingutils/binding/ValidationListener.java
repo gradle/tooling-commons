@@ -20,6 +20,8 @@ import com.google.common.base.Optional;
 
 /**
  * Validation listeners are invoked when a {@link Property} has been validated.
+ *
+ * @author Etienne Studer
  */
 public interface ValidationListener {
 

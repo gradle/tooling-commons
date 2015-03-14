@@ -24,6 +24,7 @@ import org.gradle.tooling.BuildAction;
  * Internal implementation of the {@link com.gradleware.tooling.toolingclient.BuildActionRequest} API.
  *
  * @param <T> the result type
+ * @author Etienne Studer
  */
 final class DefaultBuildActionRequest<T> extends BaseRequest<T, DefaultBuildActionRequest<T>> implements InspectableBuildActionRequest<T> {
 

@@ -21,6 +21,8 @@ import com.gradleware.tooling.toolingclient.LaunchableConfig;
 
 /**
  * Internal interface that describes the configurable attributes of the build launch request.
+ *
+ * @author Etienne Studer
  */
 interface InspectableBuildLaunchRequest extends InspectableRequest<Void>, BuildLaunchRequest {
 

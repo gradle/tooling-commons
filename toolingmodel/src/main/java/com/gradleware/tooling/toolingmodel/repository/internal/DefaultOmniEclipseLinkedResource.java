@@ -21,6 +21,8 @@ import org.gradle.tooling.model.eclipse.EclipseLinkedResource;
 
 /**
  * Default implementation of the {@link OmniEclipseLinkedResource} interface.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultOmniEclipseLinkedResource implements OmniEclipseLinkedResource {
 

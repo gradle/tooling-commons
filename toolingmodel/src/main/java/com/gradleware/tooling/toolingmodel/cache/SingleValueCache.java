@@ -16,21 +16,22 @@
 
 package com.gradleware.tooling.toolingmodel.cache;
 
-import java.util.EnumSet;
-import java.util.concurrent.Callable;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
+import java.util.EnumSet;
+import java.util.concurrent.Callable;
+
 /**
  * Cached mapping of a value.
- * <p>
+ * <p/>
  * todo (etst) implement proper exception handling
- * <p>
+ * <p/>
  * todo (etst) handle corner cases related to invalidate/put calls
  *
  * @param <V> the type of the value
+ * @author Etienne Studer
  */
 public final class SingleValueCache<V> {
 

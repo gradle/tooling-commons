@@ -25,6 +25,8 @@ import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
 
 /**
  * Default implementation of the {@link OmniEclipseProjectDependency} interface.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultOmniEclipseProjectDependency implements OmniEclipseProjectDependency {
 

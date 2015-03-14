@@ -23,6 +23,8 @@ import java.io.File;
 
 /**
  * Default implementation of the {@link OmniGradleScript} interface.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultOmniGradleScript implements OmniGradleScript {
 

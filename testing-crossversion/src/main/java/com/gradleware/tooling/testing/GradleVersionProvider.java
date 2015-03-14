@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Provides {@link org.gradle.util.GradleVersion} instances that match the supplied Gradle version range pattern.
+ *
+ * @author Etienne Studer
  */
 public final class GradleVersionProvider {
 

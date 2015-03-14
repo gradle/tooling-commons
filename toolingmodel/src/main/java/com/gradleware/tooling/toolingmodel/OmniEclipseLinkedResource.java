@@ -19,6 +19,7 @@ package com.gradleware.tooling.toolingmodel;
 /**
  * Describes a linked resource which is a file or folder that is stored in a location in the file system outside of the project's location.
  *
+ * @author Etienne Studer
  * @see org.gradle.tooling.model.eclipse.EclipseLinkedResource
  */
 public interface OmniEclipseLinkedResource {

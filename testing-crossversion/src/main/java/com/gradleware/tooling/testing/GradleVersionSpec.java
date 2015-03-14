@@ -26,6 +26,8 @@ import java.util.List;
 
 /**
  * A specification that matches against Gradle version patterns.
+ *
+ * @author Etienne Studer
  */
 public final class GradleVersionSpec {
 

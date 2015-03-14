@@ -21,6 +21,7 @@ import java.util.Comparator;
 /**
  * Compares two paths first by their depth and in case of equal depth lexicographically by their segments, starting with the left-most segment.
  *
+ * @author Etienne Studer
  * @see org.gradle.tooling.internal.consumer.converters.TaskNameComparator
  */
 public final class PathComparator implements Comparator<String> {

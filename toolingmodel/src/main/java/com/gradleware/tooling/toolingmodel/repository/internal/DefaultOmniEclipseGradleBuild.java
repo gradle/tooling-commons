@@ -24,6 +24,8 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
 
 /**
  * Default implementation of the {@link OmniEclipseGradleBuild} interface.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultOmniEclipseGradleBuild implements OmniEclipseGradleBuild {
 

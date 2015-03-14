@@ -22,6 +22,8 @@ import java.util.List;
 
 /**
  * Enumerates all the implicit tasks added by Gradle.
+ *
+ * @author Etienne Studer
  */
 public final class ImplicitTasks {
 

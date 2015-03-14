@@ -24,9 +24,10 @@ import java.io.Serializable;
  * @param <S> the type of the first value
  * @param <T> the type of the second value
  * @param <U> the type of the third value
+ * @author Etienne Studer
  */
 @SuppressWarnings("NonSerializableFieldInSerializableClass")
-public final class Triple<S , T , U > implements Serializable {
+public final class Triple<S, T, U> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

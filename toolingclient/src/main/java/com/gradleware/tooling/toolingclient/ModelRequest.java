@@ -30,6 +30,7 @@ import java.io.OutputStream;
  * <li>Call either {@link #executeAndWait()} or {@link #execute()} to fetch the model. <li>Optionally, you can reuse the request to fetch the model multiple times. </ul>
  *
  * @param <T> the type of model to fetch
+ * @author Etienne Studer
  */
 public interface ModelRequest<T> extends Request<T> {
 

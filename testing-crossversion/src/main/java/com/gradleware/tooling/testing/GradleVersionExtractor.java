@@ -25,6 +25,8 @@ import java.util.regex.Pattern;
 
 /**
  * Extracts the Gradle version from a given object, typically from a URI string.
+ *
+ * @author Etienne Studer
  */
 public final class GradleVersionExtractor {
 

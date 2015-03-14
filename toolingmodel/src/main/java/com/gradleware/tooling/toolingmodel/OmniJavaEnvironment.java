@@ -21,6 +21,8 @@ import java.util.List;
 
 /**
  * Provides information about the Java environment.
+ *
+ * @author Etienne Studer
  */
 public interface OmniJavaEnvironment {
 

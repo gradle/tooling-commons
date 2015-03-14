@@ -38,6 +38,8 @@ import java.lang.annotation.Target;
  * Note: This extension is inspired and derived from {@link spock.lang.Unroll}.
  *
  * @see spock.lang.Unroll
+ *
+ * @author Etienne Studer
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})

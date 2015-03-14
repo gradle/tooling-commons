@@ -20,6 +20,8 @@ import com.google.common.base.Optional;
 
 /**
  * Contains helper methods related to {@link Validator} instances.
+ *
+ * @author Etienne Studer
  */
 public final class Validators {
 

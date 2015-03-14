@@ -29,6 +29,8 @@ import java.io.OutputStream;
  * BuildLaunchRequest} as follows: <ul> <li>Create an instance of {@code BuildLaunchRequest} by calling {@link ToolingClient#newBuildLaunchRequest(LaunchableConfig)}. <li>Configure
  * the request as appropriate. <li>Call either {@link #executeAndWait()} or {@link #execute()} to execute the Gradle build. <li>Optionally, you can reuse the request to execute the
  * Gradle build multiple times. </ul>
+ *
+ * @author Etienne Studer
  */
 public interface BuildLaunchRequest extends Request<Void> {
 

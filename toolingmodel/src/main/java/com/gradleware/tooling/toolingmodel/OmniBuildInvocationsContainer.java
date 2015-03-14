@@ -23,8 +23,10 @@ import java.util.SortedMap;
 
 /**
  * Holds the {@link OmniBuildInvocations} for a given set of projects. Each project is identified by its unique full path.
- *
+ * <p/>
  * The primary advantage of this container is that it allows to work with a generics-free type compared to <code>Map&lt;String, OmniBuildInvocations&gt;</code>.
+ *
+ * @author Etienne Studer
  */
 public interface OmniBuildInvocationsContainer {
 

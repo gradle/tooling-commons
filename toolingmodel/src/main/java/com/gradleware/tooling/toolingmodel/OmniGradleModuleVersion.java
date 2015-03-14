@@ -18,6 +18,8 @@ package com.gradleware.tooling.toolingmodel;
 
 /**
  * Provides information about a module version, i.e. group, name, version.
+ *
+ * @author Etienne Studer
  */
 public interface OmniGradleModuleVersion {
 

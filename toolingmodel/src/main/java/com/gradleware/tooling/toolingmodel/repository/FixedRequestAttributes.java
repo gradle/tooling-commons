@@ -26,8 +26,10 @@ import java.io.File;
 import java.util.List;
 
 /**
- * Container to hold those attributes of a {@link com.gradleware.tooling.toolingclient.Request} that must not change between request invocations if the semantics of how the build is
- * executed must not changed.
+ * Container to hold those attributes of a {@link com.gradleware.tooling.toolingclient.Request} that must not change between request invocations if the semantics of how the build
+ * is executed must not changed.
+ *
+ * @author Etienne Studer
  */
 public final class FixedRequestAttributes {
 

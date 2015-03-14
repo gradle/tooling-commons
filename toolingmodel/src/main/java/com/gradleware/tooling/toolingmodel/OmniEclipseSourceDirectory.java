@@ -20,6 +20,8 @@ import java.io.File;
 
 /**
  * Describes a source directory in an Eclipse project.
+ *
+ * @author Etienne Studer
  */
 public interface OmniEclipseSourceDirectory {
 

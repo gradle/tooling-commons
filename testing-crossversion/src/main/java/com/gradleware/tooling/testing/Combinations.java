@@ -27,8 +27,10 @@ import java.util.Map;
 
 /**
  * Calculates all the combinations of the elements from different lists.
- * <p>
+ * <p/>
  * Inspired by http://www.megustaulises.com/2012/12/cross-product-using-recursion.html
+ *
+ * @author Etienne Studer
  */
 public final class Combinations {
 

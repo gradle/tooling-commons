@@ -24,7 +24,9 @@
 
     <module name="TreeWalker">
         <!-- ensure class and interface Javadoc is available -->
-        <module name="JavadocType"/>
+        <module name="JavadocType">
+            <property name="authorFormat" value="\w+\s\w+"/>
+        </module>
 
         <!-- ensure consistent style of Javadoc -->
         <module name="JavadocStyle"/>

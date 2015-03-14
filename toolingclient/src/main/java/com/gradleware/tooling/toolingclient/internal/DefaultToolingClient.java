@@ -43,6 +43,8 @@ import java.util.Map;
 
 /**
  * Internal implementation of the {@link ToolingClient} API.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultToolingClient extends ToolingClient implements ExecutableToolingClient {
 

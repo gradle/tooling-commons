@@ -29,6 +29,8 @@ import java.util.List;
 
 /**
  * Container to hold those attributes of a {@link Request} that do change between request invocations.
+ *
+ * @author Etienne Studer
  */
 public final class TransientRequestAttributes {
 

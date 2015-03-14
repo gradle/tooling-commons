@@ -25,6 +25,8 @@ import java.util.List;
 
 /**
  * Provides detailed information about the Eclipse project and its hierarchy.
+ *
+ * @author Etienne Studer
  */
 public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject> {
 

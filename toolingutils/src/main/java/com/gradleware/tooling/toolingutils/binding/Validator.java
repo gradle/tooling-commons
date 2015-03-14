@@ -22,6 +22,7 @@ import com.google.common.base.Optional;
  * Validates a given value and returns a validation error message if and only if the validation fails.
  *
  * @param <T> the type of the validated values
+ * @author Etienne Studer
  */
 public interface Validator<T> {
 

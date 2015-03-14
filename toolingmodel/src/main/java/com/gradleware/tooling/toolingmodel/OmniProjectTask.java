@@ -18,6 +18,8 @@ package com.gradleware.tooling.toolingmodel;
 
 /**
  * Represents a project task which is executable by Gradle.
+ *
+ * @author Etienne Studer
  */
 public interface OmniProjectTask {
 

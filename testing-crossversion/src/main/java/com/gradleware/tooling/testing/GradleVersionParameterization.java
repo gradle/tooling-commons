@@ -32,10 +32,12 @@ import java.util.List;
 
 /**
  * Provides parameterization for Spock that includes one or more Gradle distributions on the first dimension of the data table.
- * <p>
+ * <p/>
  * The provided Gradle version pattern supports '&gt;=nnn', '&lt;=nnn', '&gt;nnn', '&lt;nnn', '=nnn', 'current', '!current', or a space-separated list of these patterns.
- * <p>
+ * <p/>
  * See https://code.google.com/p/spock/wiki/Parameterizations
+ *
+ * @author Etienne Studer
  */
 public final class GradleVersionParameterization {
 
@@ -125,9 +127,10 @@ public final class GradleVersionParameterization {
     }
 
     /**
-     * Provides a default implementation that derives the Gradle version range from the system property <i>com.gradleware.tooling.integtest.versions</i>.
-     * <p>
-     * Implemented as an inner class to defer instantiation until the first time the class is referenced at runtime.
+     * Provides a default implementation that derives the Gradle version range from the system property <i>com.gradleware.tooling.integtest.versions</i>. <p> Implemented as an
+     * inner class to defer instantiation until the first time the class is referenced at runtime.
+     *
+     * @author Etienne Studer
      */
     public static final class Default {
 
@@ -138,8 +141,8 @@ public final class GradleVersionParameterization {
 
         /**
          * A {@code GradleVersionParameterization} instance that reads the applicable version range from a properties file <i>/all-released-versions.properties</i>. If the system
-         * property <i>com.gradleware.tooling.integtest.versions</i> is not set, the default value <i>latest</i> is used, meaning the current Gradle version and the latest Gradle version are
-         * applied.
+         * property <i>com.gradleware.tooling.integtest.versions</i> is not set, the default value <i>latest</i> is used, meaning the current Gradle version and the latest Gradle
+         * version are applied.
          */
         public static final GradleVersionParameterization INSTANCE = new GradleVersionParameterization(new GradleVersionProvider(new Supplier<String>() {
             @Override

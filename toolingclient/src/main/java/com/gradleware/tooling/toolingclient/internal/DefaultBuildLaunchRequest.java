@@ -22,6 +22,8 @@ import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
 
 /**
  * Internal implementation of the {@link com.gradleware.tooling.toolingclient.BuildLaunchRequest} API.
+ *
+ * @author Etienne Studer
  */
 final class DefaultBuildLaunchRequest extends BaseRequest<Void, DefaultBuildLaunchRequest> implements InspectableBuildLaunchRequest {
 

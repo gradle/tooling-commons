@@ -22,14 +22,16 @@ import com.google.common.eventbus.EventBus;
 import com.gradleware.tooling.toolingclient.ToolingClient;
 import com.gradleware.tooling.toolingmodel.repository.Environment;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import org.gradle.internal.Factory;
 
 import java.util.Map;
 
 /**
  * Internal implementation of the {@code ModelRepositoryProvider} API.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultModelRepositoryProvider implements ModelRepositoryProvider {
 

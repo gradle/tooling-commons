@@ -18,6 +18,8 @@ package com.gradleware.tooling.toolingmodel;
 
 /**
  * Describes a dependency on another Eclipse project.
+ *
+ * @author Etienne Studer
  */
 public interface OmniEclipseProjectDependency {
 

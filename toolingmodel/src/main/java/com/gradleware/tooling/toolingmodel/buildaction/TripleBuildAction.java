@@ -26,6 +26,7 @@ import org.gradle.tooling.BuildController;
  * @param <S> the type of the first value
  * @param <T> the type of the second value
  * @param <U> the type of the third value
+ * @author Etienne Studer
  */
 public final class TripleBuildAction<S, T, U> implements BuildAction<Triple<S, T, U>> {
 

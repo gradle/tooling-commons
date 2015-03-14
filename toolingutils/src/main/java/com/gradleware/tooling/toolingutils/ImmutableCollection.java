@@ -26,6 +26,8 @@ import java.lang.annotation.Target;
  * Marks a method's return type as being an immutable collection of values (list, set, queue, bag, map, etc.). This annotation is useful for public APIs that return a collection
  * that is of a type defined in the standard JDK and want to express the immutability of the returned collection. By default, the standard JDK does not provide a way to express the
  * immutability of a returned collection. Note that the immutability of a collection does not imply that each element in the collection is immutable as well.
+ *
+ * @author Etienne Studer
  */
 @Documented
 @Target(ElementType.METHOD)

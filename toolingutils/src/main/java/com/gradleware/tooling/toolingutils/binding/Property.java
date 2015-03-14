@@ -27,6 +27,7 @@ import java.util.Set;
  * Describes a property that contains a value of a given type. The value can be validated through the associated {@link Validator}.
  *
  * @param <T> the type of the property value
+ * @author Etienne Studer
  */
 public final class Property<T> {
 

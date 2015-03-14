@@ -19,6 +19,7 @@ package com.gradleware.tooling.toolingmodel;
 /**
  * Provides detailed information about the Gradle build, suited for consumption in Eclipse.
  *
+ * @author Etienne Studer
  * @see org.gradle.tooling.model.eclipse.EclipseProject
  */
 public interface OmniEclipseGradleBuild extends BuildScopedModel {

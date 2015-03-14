@@ -28,6 +28,7 @@ import java.util.concurrent.Callable;
  *
  * @param <K> the type of the keys
  * @param <V> the type of the values
+ * @author Etienne Studer
  */
 public final class MultiValueCache<K, V> {
 

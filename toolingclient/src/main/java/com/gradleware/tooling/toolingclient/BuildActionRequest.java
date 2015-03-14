@@ -32,6 +32,7 @@ import java.io.OutputStream;
  * build action multiple times. </ul>
  *
  * @param <T> the type of result produced by the build action
+ * @author Etienne Studer
  */
 public interface BuildActionRequest<T> extends Request<T> {
 

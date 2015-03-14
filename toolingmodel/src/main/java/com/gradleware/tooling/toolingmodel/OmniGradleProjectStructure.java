@@ -26,6 +26,8 @@ import java.util.List;
 
 /**
  * Provides basic information about the Gradle project and its hierarchy.
+ *
+ * @author Etienne Studer
  */
 public interface OmniGradleProjectStructure extends HierarchicalModel<OmniGradleProjectStructure> {
 

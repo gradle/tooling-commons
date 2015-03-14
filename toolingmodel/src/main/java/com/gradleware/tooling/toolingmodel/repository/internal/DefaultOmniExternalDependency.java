@@ -26,6 +26,8 @@ import java.io.File;
 
 /**
  * Default implementation of the {@link OmniExternalDependency} interface.
+ *
+ * @author Etienne Studer
  */
 public final class DefaultOmniExternalDependency implements OmniExternalDependency {
 

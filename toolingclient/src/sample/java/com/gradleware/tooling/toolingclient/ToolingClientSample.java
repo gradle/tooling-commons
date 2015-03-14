@@ -32,6 +32,8 @@ import static com.gradleware.tooling.toolingclient.ToolingClient.CleanUpStrategy
 
 /**
  * Sample class to configure and run the {@code ToolingClient}.
+ *
+ * @author Etienne Studer
  */
 public final class ToolingClientSample {
 

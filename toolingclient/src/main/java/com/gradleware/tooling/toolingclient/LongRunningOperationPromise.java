@@ -27,6 +27,7 @@ import org.gradle.tooling.ModelBuilder;
  * Promise in the context of long running operations, i.e. getting a model, launching a build, executing an action.
  *
  * @param <T> the result type
+ * @author Etienne Studer
  * @see org.gradle.tooling.LongRunningOperation
  */
 public abstract class LongRunningOperationPromise<T> {

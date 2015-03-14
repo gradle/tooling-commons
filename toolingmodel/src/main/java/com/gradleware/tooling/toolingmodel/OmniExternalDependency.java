@@ -22,6 +22,8 @@ import java.io.File;
 
 /**
  * Describes an external artifact dependency.
+ *
+ * @author Etienne Studer
  */
 public interface OmniExternalDependency {
 

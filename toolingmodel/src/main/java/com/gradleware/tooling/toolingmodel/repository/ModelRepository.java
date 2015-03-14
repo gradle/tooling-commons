@@ -25,6 +25,8 @@ import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 /**
  * Repository for Gradle build models. Listeners can be registered to get notified about model updates. It is left to the implementation through which channel the events are
  * broadcast.
+ *
+ * @author Etienne Studer
  */
 public interface ModelRepository {
 
