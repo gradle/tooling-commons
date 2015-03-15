@@ -67,6 +67,9 @@ subprojects {
 
   // fail for Javadoc errors (there is no way to make it fail on Javadoc warnings)
   javadoc.failOnError = true
+  if (JavaVersion.current().isJava8Compatible()) {
+    javadoc.options.addStringOption('Xdoclint:none', '-quiet')
+  }
 
   // generate javadoc as part of the build once all tests have passed
   build.dependsOn javadoc
