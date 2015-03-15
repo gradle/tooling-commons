@@ -24,12 +24,9 @@ import java.util.Comparator;
  * @author Etienne Studer
  * @see org.gradle.tooling.internal.consumer.converters.TaskNameComparator
  */
-public final class PathComparator implements Comparator<String> {
+public enum PathComparator implements Comparator<String> {
 
-    public static final PathComparator INSTANCE = new PathComparator();
-
-    private PathComparator() {
-    }
+    INSTANCE;
 
     public int compare(String path1, String path2) {
         int depthDiff = getDepth(path1) - getDepth(path2);

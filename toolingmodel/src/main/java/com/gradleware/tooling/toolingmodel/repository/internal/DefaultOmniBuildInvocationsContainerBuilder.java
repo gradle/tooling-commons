@@ -171,11 +171,11 @@ public final class DefaultOmniBuildInvocationsContainerBuilder {
     }
 
     /**
-     * Singleton comparator to compare {@code OmniProjectTask} instances.
+     * Singleton comparator to compare {@code OmniProjectTask} instances by their name.
      */
-    private static final class TaskComparator implements Comparator<OmniProjectTask> {
+    private enum TaskComparator implements Comparator<OmniProjectTask> {
 
-        private static final TaskComparator INSTANCE = new TaskComparator();
+        INSTANCE;
 
         @Override
         public int compare(OmniProjectTask o1, OmniProjectTask o2) {
@@ -185,11 +185,11 @@ public final class DefaultOmniBuildInvocationsContainerBuilder {
     }
 
     /**
-     * Singleton comparator to compare {@code OmniTaskSelector} instances.
+     * Singleton comparator to compare {@code OmniTaskSelector} instances by their name.
      */
-    private static final class TaskSelectorComparator implements Comparator<OmniTaskSelector> {
+    private enum TaskSelectorComparator implements Comparator<OmniTaskSelector> {
 
-        private static final TaskSelectorComparator INSTANCE = new TaskSelectorComparator();
+        INSTANCE;
 
         @Override
         public int compare(OmniTaskSelector o1, OmniTaskSelector o2) {

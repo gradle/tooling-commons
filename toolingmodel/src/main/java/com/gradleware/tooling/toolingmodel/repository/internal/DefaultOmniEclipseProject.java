@@ -235,11 +235,11 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     }
 
     /**
-     * Compares OmniEclipseProjects by their project path.
+     * Singleton comparator to compare {@code OmniEclipseProject} instances by their project path.
      */
-    private static final class OmniEclipseProjectComparator implements Comparator<OmniEclipseProject> {
+    private enum OmniEclipseProjectComparator implements Comparator<OmniEclipseProject> {
 
-        public static final OmniEclipseProjectComparator INSTANCE = new OmniEclipseProjectComparator();
+        INSTANCE;
 
         @Override
         public int compare(OmniEclipseProject o1, OmniEclipseProject o2) {

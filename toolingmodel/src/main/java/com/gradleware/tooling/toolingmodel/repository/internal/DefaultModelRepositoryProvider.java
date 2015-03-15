@@ -78,7 +78,7 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
     /**
      * Singleton factory to create {@code EventBus} instances.
      */
-    enum DefaultEventBusFactory implements Factory<EventBus> {
+    private enum DefaultEventBusFactory implements Factory<EventBus> {
 
         INSTANCE;
 

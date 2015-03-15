@@ -69,12 +69,9 @@ public final class Path implements Comparable<Path> {
     /**
      * Singleton comparator to compare {@code Path} instances.
      */
-    public static final class Comparator implements java.util.Comparator<Path> {
+    public enum Comparator implements java.util.Comparator<Path> {
 
-        public static final Comparator INSTANCE = new Comparator();
-
-        private Comparator() {
-        }
+        INSTANCE;
 
         @Override
         public int compare(Path o1, Path o2) {

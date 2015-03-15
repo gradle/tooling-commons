@@ -238,11 +238,11 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
     }
 
     /**
-     * Compares OmniGradleProjects by their project path.
+     * Singleton comparator to compare {@code OmniGradleProject} instances by their project path.
      */
-    private static final class OmniGradleProjectComparator implements Comparator<OmniGradleProject> {
+    private enum  OmniGradleProjectComparator implements Comparator<OmniGradleProject> {
 
-        public static final OmniGradleProjectComparator INSTANCE = new OmniGradleProjectComparator();
+        INSTANCE;
 
         @Override
         public int compare(OmniGradleProject o1, OmniGradleProject o2) {
