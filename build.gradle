@@ -1,11 +1,21 @@
 import org.gradle.internal.os.OperatingSystem
-
 import java.text.SimpleDateFormat
+
+plugins {
+    id 'ch.netzwerg.release' version '1.0.0'
+}
 
 description = "Root project of the Commons project of the Gradle Tooling Platform."
 
+// define the group of the GAV
 group = 'com.gradleware.tooling'
-version = getVersion('0.1.0.DEV')
+
+// define the version of the GAV
+// do not use the snapshot concept but instead use a timestamp for unique identification
+// do not apply the timestamp by default to ensure incremental updates apply when building locally
+if (project.hasProperty('build.type') && project.property('build.type') == 'release') {
+    version = version + '.' + new SimpleDateFormat("yyyyMMddkkmmssZ").format(new Date())
+}
 
 wrapper.gradleVersion = '2.3'
 
@@ -111,10 +121,11 @@ subprojects {
 
 }
 
-def getVersion(def baseVersion) {
-  if (project.hasProperty('build.type') && project.property('build.type') == 'release') {
-    baseVersion + '.' + new SimpleDateFormat("yyyyMMddkkmmssZ").format(new Date())
-  } else {
-    baseVersion
-  }
+// configure the release task
+task foo
+release {
+    dependsOn foo
+    push = true
+    versionSuffix = '.DEV'
+    tagPrefix = 'v'
 }
