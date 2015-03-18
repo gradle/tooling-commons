@@ -3,7 +3,8 @@ Tooling Commons
 
 # Overview
 
-Tooling Commons is a set of libraries to facilitate building tools on top of [Gradle](http://www.gradle.org).
+Tooling Commons is a set of libraries to facilitate building tools on top of [Gradle](http://www.gradle.org). Its development is driven by the requirements that come
+out of the _Buildship_ project.
 
 
 # Building
@@ -23,8 +24,13 @@ This will compile all the code and run all the tests.
 
 # Compatibility
 
-The Tooling Commons libraries are in an early stage of maturity in terms of their public API. We currently do not make any commitments to providing backward-compatibility.
-Though, we do strive to keep the APIs as stable as possible.
+The Tooling Commons libraries are in an early stage of maturity in terms of their public API. Currently, we do not make
+any commitments to providing backward-compatibility. We do strive to keep the APIs as stable as possible, though.
+
+
+# Support
+
+Ath this point in time, we do not provide official support for the Tooling Commons libraries.
 
 
 # Feedback and Contributions
