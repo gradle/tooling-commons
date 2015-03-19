@@ -16,7 +16,7 @@ if (project.hasProperty('build.type') && project.property('build.type') == 'rele
 // do not use the snapshot concept but instead use a timestamp for unique identification of 'snapshot' versions
 // do not add the version timestamp by default to ensure incremental updates apply when building locally
 else if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
-    version = version + '.' + new SimpleDateFormat("yyyyMMddkkmmssZ").format(new Date())
+    version = version + '-' + new SimpleDateFormat("yyyyMMddkkmmssZ").format(new Date())
 }
 
 wrapper.gradleVersion = '2.3'
