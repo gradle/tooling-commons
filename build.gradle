@@ -1,19 +1,21 @@
 import org.gradle.internal.os.OperatingSystem
 import java.text.SimpleDateFormat
 
-plugins {
-    id 'ch.netzwerg.release' version '1.0.0'
-}
-
 description = "Root project of the Commons project of the Gradle Tooling Platform."
 
 // define the group of the GAV
 group = 'com.gradleware.tooling'
 
 // define the version of the GAV
-// do not use the snapshot concept but instead use a timestamp for unique identification
-// do not apply the timestamp by default to ensure incremental updates apply when building locally
-if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
+version = file('version.txt').text
+
+// remove the .DEV suffix from the version in case of a final release
+if (project.hasProperty('build.type') && project.property('build.type') == 'release') {
+    version = version.substring(0, version.indexOf('.DEV'))
+}
+// do not use the snapshot concept but instead use a timestamp for unique identification of 'snapshot' versions
+// do not add the version timestamp by default to ensure incremental updates apply when building locally
+else if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
     version = version + '.' + new SimpleDateFormat("yyyyMMddkkmmssZ").format(new Date())
 }
 
@@ -119,13 +121,4 @@ subprojects {
     configProperties = ['checkstyleConfigDir': checkstyleConfigDir]
   }
 
-}
-
-// configure the release task
-task foo // required as a workaround
-release {
-    dependsOn foo
-    push = true
-    versionSuffix = '.DEV'
-    tagPrefix = 'v'
 }
