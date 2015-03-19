@@ -9,14 +9,15 @@ group = 'com.gradleware.tooling'
 // define the version of the GAV
 version = file('version.txt').text.trim()
 
-// remove the .DEV suffix from the version in case of a final release
-if (project.hasProperty('build.type') && project.property('build.type') == 'release') {
-    version = version.substring(0, version.indexOf('.DEV'))
-}
-// do not use the snapshot concept but instead use a timestamp for unique identification of 'snapshot' versions
-// do not add the version timestamp by default to ensure incremental updates apply when building locally
-else if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
+// in case this is not a final release, add a timestamp to the version for unique identification of 'snapshot' versions
+if (!project.hasProperty('build.type') || project.property('build.type') != 'release') {
+  if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
+    // in case of CI builds, add the full date and time to the version timestamp
     version = version + '-' + new SimpleDateFormat("yyyyMMddkkmmssZ").format(new Date())
+  } else {
+    // in case of local builds, do not add the time to the version timestamp to ensure incremental updates apply when building locally
+    version = version + '-' + new SimpleDateFormat("yyyyMMdd").format(new Date())
+  }
 }
 
 wrapper.gradleVersion = '2.3'
@@ -123,7 +124,7 @@ subprojects {
 
 }
 
-// tag the HEAD of the current branch
+// tag the HEAD of the current branch and push the new tag
 task tag {
   doLast {
     // create tag
@@ -133,7 +134,7 @@ task tag {
   }
 }
 
-// bump of the minor version in the version file
+// bump up the minor version in the version file and commit/push the change
 task minorRelease {
   dependsOn tag
   doLast {
