@@ -7,3 +7,8 @@ build
 *.iml
 *.ipr
 *.iws
+
+bin
+.settings
+.classpath
+.project
