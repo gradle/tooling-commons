@@ -7,7 +7,7 @@ description = "Root project of the Commons project of the Gradle Tooling Platfor
 group = 'com.gradleware.tooling'
 
 // define the version of the GAV
-version = file('version.txt').text
+version = file('version.txt').text.trim()
 
 // remove the .DEV suffix from the version in case of a final release
 if (project.hasProperty('build.type') && project.property('build.type') == 'release') {
@@ -121,4 +121,38 @@ subprojects {
     configProperties = ['checkstyleConfigDir': checkstyleConfigDir]
   }
 
+}
+
+// tag the HEAD of the current branch
+task tag {
+  doLast {
+    // create tag
+    execCommand "git", "tag", "-a", "v$version", "-m", "Create tag v$version"
+    // push tag
+    execCommand "git", "push", "origin", "v$version"
+  }
+}
+
+// bump of the minor version in the version file
+task minorRelease {
+  dependsOn tag
+  doLast {
+    // update version file
+    def matcher = version =~ "^(\\d+)\\.(\\d+)(.*)"
+    if (matcher.find()) {
+      def nextMinorVersion = Integer.parseInt(matcher.group(2)) + 1
+      def nextVersion = matcher.group(1) + "." + nextMinorVersion + matcher.group(3)
+      file('version.txt').text = "$nextVersion${System.getProperty('line.separator')}"
+    } else {
+      throw new IllegalStateException("Unparseable version: $version.")
+    }
+    // push change
+    execCommand "git", "push", "origin", "v$version"
+  }
+}
+
+private ExecResult execCommand(Object... args) {
+  exec {
+    commandLine args
+  }
 }
