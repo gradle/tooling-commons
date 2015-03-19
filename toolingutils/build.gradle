@@ -5,7 +5,7 @@ publishing {
   repositories {
     maven {
       name = 'privateGradle'
-      url gradlePrivateRepositoryUrl
+      url GRADLE_REPO_URL
       credentials {
         username GRADLE_REPO_USER
         password GRADLE_REPO_PASSWORD
