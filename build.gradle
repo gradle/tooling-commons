@@ -139,14 +139,17 @@ task minorRelease {
   dependsOn tag
   doLast {
     // update version file
+    def nextVersion
     def matcher = version =~ "^(\\d+)\\.(\\d+)(.*)"
     if (matcher.find()) {
       def nextMinorVersion = Integer.parseInt(matcher.group(2)) + 1
-      def nextVersion = matcher.group(1) + "." + nextMinorVersion + matcher.group(3)
+      nextVersion = matcher.group(1) + "." + nextMinorVersion + matcher.group(3)
       file('version.txt').text = "$nextVersion${System.getProperty('line.separator')}"
     } else {
       throw new IllegalStateException("Unparseable version: $version.")
     }
+    // add/commit change
+    execCommand "git", "commit", "-a", "-m", "Increase minor version to $nextVersion"
     // push change
     execCommand "git", "push", "origin", "v$version"
   }
