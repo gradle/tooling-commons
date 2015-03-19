@@ -13,7 +13,7 @@ group = 'com.gradleware.tooling'
 // define the version of the GAV
 // do not use the snapshot concept but instead use a timestamp for unique identification
 // do not apply the timestamp by default to ensure incremental updates apply when building locally
-if (project.hasProperty('build.type') && project.property('build.type') == 'release') {
+if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
     version = version + '.' + new SimpleDateFormat("yyyyMMddkkmmssZ").format(new Date())
 }
 
