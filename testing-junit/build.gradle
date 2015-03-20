@@ -1,32 +1,34 @@
-apply plugin: 'maven-publish'
-
 // publish to private Gradleware repository
-publishing {
+if (hasProperty('GRADLE_REPO_URL')) {
+  apply plugin: 'maven-publish'
+
+  publishing {
     repositories {
-        maven {
-            name = 'privateGradle'
-            url GRADLE_REPO_URL
-            credentials {
-                username GRADLE_REPO_USER
-                password GRADLE_REPO_PASSWORD
-            }
+      maven {
+        name = 'privateGradle'
+        url GRADLE_REPO_URL
+        credentials {
+          username GRADLE_REPO_USER
+          password GRADLE_REPO_PASSWORD
         }
+      }
     }
     publications {
-        mavenJava(MavenPublication) {
-            from components.java
-            artifact sourcesJar {
-                classifier "sources"
-            }
+      mavenJava(MavenPublication) {
+        from components.java
+        artifact sourcesJar {
+          classifier "sources"
         }
+      }
     }
+  }
 }
 
 dependencies {
-    compile "org.codehaus.groovy:groovy-all:$groovyVersion"
-    compile "junit:junit-dep:$junitVersion"
-    compile "com.google.guava:guava:$guavaVersion"
-    compile "org.slf4j:slf4j-api:$slf4jVersion"
+  compile "org.codehaus.groovy:groovy-all:$groovyVersion"
+  compile "junit:junit-dep:$junitVersion"
+  compile "com.google.guava:guava:$guavaVersion"
+  compile "org.slf4j:slf4j-api:$slf4jVersion"
 }
 
 description = "IDE-agnostic Junit Testing component of the Commons project of the Gradle Tooling Platform."

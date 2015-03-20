@@ -1,22 +1,24 @@
-apply plugin: 'maven-publish'
-
 // publish to private Gradleware repository
-publishing {
-  repositories {
-    maven {
-      name = 'privateGradle'
-      url GRADLE_REPO_URL
-      credentials {
-        username GRADLE_REPO_USER
-        password GRADLE_REPO_PASSWORD
+if (hasProperty('GRADLE_REPO_URL')) {
+  apply plugin: 'maven-publish'
+
+  publishing {
+    repositories {
+      maven {
+        name = 'privateGradle'
+        url GRADLE_REPO_URL
+        credentials {
+          username GRADLE_REPO_USER
+          password GRADLE_REPO_PASSWORD
+        }
       }
     }
-  }
-  publications {
-    mavenJava(MavenPublication) {
-      from components.java
-      artifact sourcesJar {
-        classifier "sources"
+    publications {
+      mavenJava(MavenPublication) {
+        from components.java
+        artifact sourcesJar {
+          classifier "sources"
+        }
       }
     }
   }
