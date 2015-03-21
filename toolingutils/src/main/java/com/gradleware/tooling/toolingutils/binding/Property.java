@@ -117,6 +117,7 @@ public final class Property<T> {
      * Creates a new instance.
      *
      * @param validator the validator through which the the property value can be validated
+     * @param <T> the type of the validated values
      * @return the new instance
      */
     public static <T> Property<T> create(Validator<T> validator) {

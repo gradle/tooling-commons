@@ -190,6 +190,7 @@ public final class PublishedGradleVersions {
     /**
      * Creates a new instance based on the provided version information.
      *
+     * @param json the json string containing the version information
      * @return the new instance
      */
     public static PublishedGradleVersions create(String json) {
