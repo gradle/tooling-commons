@@ -19,10 +19,10 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 import java.util.Comparator;
 
 /**
- * Compares two paths first by their depth and in case of equal depth lexicographically by their segments, starting with the left-most segment.
+ * Compares two paths first by their depth and in case of equal depth lexicographically by their segments, starting with the left-most segment. See also {@code
+ * org.gradle.tooling.internal.consumer.converters.TaskNameComparator}.
  *
  * @author Etienne Studer
- * @see org.gradle.tooling.internal.consumer.converters.TaskNameComparator
  */
 public enum PathComparator implements Comparator<String> {
 
