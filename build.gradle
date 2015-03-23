@@ -120,6 +120,7 @@ subprojects {
   tasks.withType(Checkstyle).all {
     configFile = "$checkstyleConfigDir/checkstyle.xml" as File
     configProperties = ['checkstyleConfigDir': checkstyleConfigDir]
+    inputs.file "$checkstyleConfigDir/suppressions.xml" as File
   }
 
 }
