@@ -28,16 +28,16 @@ To build the entire project including running all cross-version tests, run the f
 Include the Gradle releases repository:
 
     maven {
-        name = 'gradle-releases'
+        name 'gradle-releases'
         url 'https://repo.gradle.org/gradle/libs-releases'
     }
 
 Include the Tooling Commons dependencies:
 
     dependencies {
-        compile "com.gradleware.tooling:toolingclient:<version>"
-        compile "com.gradleware.tooling:toolingmodel:<version>"
-        compile "com.gradleware.tooling:toolingutils:<version>"
+        compile 'com.gradleware.tooling:toolingclient:<version>'
+        compile 'com.gradleware.tooling:toolingmodel:<version>'
+        compile 'com.gradleware.tooling:toolingutils:<version>'
     }
 
 Including the `toolingmodel` dependency will include the `toolingclient` and `toolingutils` dependencies transitively.
