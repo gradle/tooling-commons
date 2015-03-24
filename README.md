@@ -29,7 +29,7 @@ Include the Gradle releases repository:
 
     maven {
         name = 'gradle-releases'
-        url https://repo.gradle.org/gradle/libs-releases
+        url 'https://repo.gradle.org/gradle/libs-releases'
     }
 
 Include the Tooling Commons dependencies:
