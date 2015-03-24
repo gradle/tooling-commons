@@ -31,7 +31,7 @@ subprojects {
   repositories {
     jcenter()
     maven {
-      name = 'gradle-public-snapshots'
+      name 'gradle-public-snapshots'
       url gradlePublicSnapshotsRepositoryUrl
     }
   }
