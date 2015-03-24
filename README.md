@@ -35,8 +35,8 @@ Include the Gradle releases repository:
 Include the Tooling Commons dependencies:
 
     dependencies {
-        compile 'com.gradleware.tooling:toolingclient:<version>'
         compile 'com.gradleware.tooling:toolingmodel:<version>'
+        compile 'com.gradleware.tooling:toolingclient:<version>'
         compile 'com.gradleware.tooling:toolingutils:<version>'
     }
 
