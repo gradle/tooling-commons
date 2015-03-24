@@ -15,12 +15,32 @@ you to work with a Gradle build without having to manually install Gradle. The w
 You should use the wrapper to build the Tooling Commons libraries. Generally, you should use the wrapper for any wrapper-enabled project because it guarantees building with the
 Gradle version that the build was intended to use.
 
-To build the entire project, you should run the following in the root of the checkout.
+To build the entire project including running all tests, run the following in the root of the checkout.
 
     ./gradlew build
 
-This will compile all the code and run all the tests.
+To build the entire project including running all cross-version tests, run the following in the root of the checkout.
 
+    ./gradlew build -Pcom.gradleware.tooling.integtest.versions=all
+
+# Applying
+
+Include the Gradle releases repository:
+
+    maven {
+        name = 'gradle-releases'
+        url https://repo.gradle.org/gradle/libs-releases
+    }
+
+Include the Tooling Commons dependencies:
+
+    dependencies {
+        compile "com.gradleware.tooling:toolingclient:<version>"
+        compile "com.gradleware.tooling:toolingmodel:<version>"
+        compile "com.gradleware.tooling:toolingutils:<version>"
+    }
+
+Including the `toolingmodel` dependency will include the `toolingclient` and `toolingutils` dependencies transitively.
 
 # Compatibility
 
