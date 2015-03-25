@@ -42,6 +42,10 @@ Include the Tooling Commons dependencies:
 
 Including the `toolingmodel` dependency will include the `toolingclient` and `toolingutils` dependencies transitively.
 
+# Continuos Integration
+
+The Tooling Commons libraries are continuously built on our [Continuous Integration Server](https://builds.gradle.org/project.html?projectId=Tooling_Commons&tab=projectOverview).
+
 # Compatibility
 
 The Tooling Commons libraries are in an early stage of maturity in terms of their public API. Currently, we do not make
