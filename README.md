@@ -7,22 +7,6 @@ Tooling Commons is a set of libraries to facilitate building tools on top of [Gr
 out of the _Buildship_ project.
 
 
-# Building
-
-Naturally, the Tooling Commons libraries are built with Gradle. Gradle provides an innovative [wrapper](http://gradle.org/docs/current/userguide/gradle_wrapper.html) that allows
-you to work with a Gradle build without having to manually install Gradle. The wrapper is a batch script on Windows and a shell script on other operating systems.
-
-You should use the wrapper to build the Tooling Commons libraries. Generally, you should use the wrapper for any wrapper-enabled project because it guarantees building with the
-Gradle version that the build was intended to use.
-
-To build the entire project including running all tests, run the following in the root of the checkout.
-
-    ./gradlew build
-
-To build the entire project including running all cross-version tests, run the following in the root of the checkout.
-
-    ./gradlew build -Pcom.gradleware.tooling.integtest.versions=all
-
 # Applying
 
 Include the Gradle releases repository:
@@ -42,9 +26,28 @@ Include the Tooling Commons dependencies:
 
 Including the `toolingmodel` dependency will include the `toolingclient` and `toolingutils` dependencies transitively.
 
-# Continuos Integration
+
+# Building
+
+Naturally, the Tooling Commons libraries are built with Gradle. Gradle provides an innovative [wrapper](http://gradle.org/docs/current/userguide/gradle_wrapper.html) that allows
+you to work with a Gradle build without having to manually install Gradle. The wrapper is a batch script on Windows and a shell script on other operating systems.
+
+You should use the wrapper to build the Tooling Commons libraries. Generally, you should use the wrapper for any wrapper-enabled project because it guarantees building with the
+Gradle version that the build was intended to use.
+
+To build the entire project including running all tests, run the following in the root of the checkout.
+
+    ./gradlew build
+
+To build the entire project including running all cross-version tests, run the following in the root of the checkout.
+
+    ./gradlew build -Pcom.gradleware.tooling.integtest.versions=all
+
+
+# Continuous Integration
 
 The Tooling Commons libraries are continuously built on our [Continuous Integration Server](https://builds.gradle.org/project.html?projectId=Tooling_Commons&tab=projectOverview).
+
 
 # Compatibility
 
