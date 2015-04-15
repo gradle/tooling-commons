@@ -67,7 +67,7 @@ public final class ToolingClientSample {
                     testProgressListeners(new TestProgressListener() {
                         @Override
                         public void statusChanged(TestProgressEvent event) {
-                            System.out.println("Test progress: " + event.getDescriptor().getName());
+                            System.out.println("Test progress: " + event.getTestDescriptor().getName());
                         }
                     });
             LongRunningOperationPromise<BuildEnvironment> operation = modelRequest.execute();

@@ -345,6 +345,12 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     myFirstTaskOfSub1.description == '1st task of sub1'
     myFirstTaskOfSub1.path.path == ':sub1:myFirstTaskOfSub1'
     myFirstTaskOfSub1.isPublic()
+    if (higherOrEqual('2.5', distribution)) {
+      assert myFirstTaskOfSub1.group.present
+      assert myFirstTaskOfSub1.group.get() == 'build'
+    } else {
+      assert !myFirstTaskOfSub1.group.present
+    }
 
     def mySecondTaskOfSub1 = projectSub1.projectTasks.findAll { !ImplicitTasks.ALL.contains(it.name) }[1]
     mySecondTaskOfSub1.name == 'mySecondTaskOfSub1'
