@@ -18,6 +18,7 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.gradleware.tooling.toolingmodel.OmniProjectTask;
 import com.gradleware.tooling.toolingmodel.Path;
+import com.gradleware.tooling.toolingmodel.util.Maybe;
 import org.gradle.tooling.model.Task;
 
 /**
@@ -31,6 +32,7 @@ public final class DefaultOmniProjectTask implements OmniProjectTask {
     private String description;
     private Path path;
     private boolean isPublic;
+    private Maybe<String> group;
 
     @Override
     public String getName() {
@@ -64,8 +66,17 @@ public final class DefaultOmniProjectTask implements OmniProjectTask {
         return this.isPublic;
     }
 
+    @Override
+    public Maybe<String> getGroup() {
+        return this.group;
+    }
+
     public void setPublic(boolean isPublic) {
         this.isPublic = isPublic;
+    }
+
+    public void setGroup(final Maybe<String> group) {
+        this.group = group;
     }
 
     public static DefaultOmniProjectTask from(Task task, boolean enforceAllTasksPublic) {
@@ -74,6 +85,7 @@ public final class DefaultOmniProjectTask implements OmniProjectTask {
         projectTask.setDescription(task.getDescription());
         projectTask.setPath(Path.from(task.getPath()));
         setIsPublic(projectTask, task, enforceAllTasksPublic);
+        setGroup(projectTask, task);
         return projectTask;
     }
 
@@ -92,6 +104,20 @@ public final class DefaultOmniProjectTask implements OmniProjectTask {
             projectTask.setPublic(enforceAllTasksPublic || isPublic);
         } catch (Exception ignore) {
             projectTask.setPublic(true);
+        }
+    }
+
+   /**
+     * GradleTask#getGroup is only available in Gradle versions >= 2.4.
+     *
+     * @param projectTask the task to populate
+     * @param task the task model
+     */
+    private static void setGroup(DefaultOmniProjectTask projectTask, Task task) {
+        try {
+            projectTask.setGroup((Maybe.of(task.getGroup())));
+        } catch (Exception ignore) {
+            projectTask.setGroup(Maybe.absent());
         }
     }
 
