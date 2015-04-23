@@ -16,13 +16,13 @@
 
 package com.gradleware.tooling.toolingclient;
 
-import org.gradle.tooling.CancellationToken;
-import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.TestProgressListener;
-
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import org.gradle.tooling.CancellationToken;
+import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.events.test.TestProgressListener;
 
 /**
  * Describes the state and actions common to all requests issued through the tooling client.

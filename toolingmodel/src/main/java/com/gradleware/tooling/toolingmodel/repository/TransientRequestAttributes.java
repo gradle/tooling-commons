@@ -21,7 +21,7 @@ import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingutils.ImmutableCollection;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.TestProgressListener;
+import org.gradle.tooling.events.test.TestProgressListener;
 
 import java.io.InputStream;
 import java.io.OutputStream;

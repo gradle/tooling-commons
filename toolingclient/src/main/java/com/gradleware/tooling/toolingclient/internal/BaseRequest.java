@@ -16,17 +16,18 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-import org.gradle.tooling.CancellationToken;
-import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.TestProgressListener;
-
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import org.gradle.tooling.CancellationToken;
+import org.gradle.tooling.GradleConnector;
+import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.events.test.TestProgressListener;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.gradleware.tooling.toolingclient.GradleDistribution;
 
 /**
  * Internal base class for all tooling client request objects.

@@ -20,7 +20,7 @@ import com.google.common.collect.ImmutableList
 import com.gradleware.tooling.toolingclient.BuildActionRequest
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
-import org.gradle.tooling.TestProgressListener
+import org.gradle.tooling.events.test.TestProgressListener
 import spock.lang.Specification
 
 class TransientRequestAttributesTest extends Specification {

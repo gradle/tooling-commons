@@ -28,7 +28,7 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
-import org.gradle.tooling.TestProgressListener
+import org.gradle.tooling.events.test.TestProgressListener
 import org.junit.Rule
 
 class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecification {

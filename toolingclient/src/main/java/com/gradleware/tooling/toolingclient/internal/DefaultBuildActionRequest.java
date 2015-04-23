@@ -16,9 +16,10 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
+import org.gradle.tooling.BuildAction;
+
 import com.google.common.base.Preconditions;
 import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
-import org.gradle.tooling.BuildAction;
 
 /**
  * Internal implementation of the {@link com.gradleware.tooling.toolingclient.BuildActionRequest} API.

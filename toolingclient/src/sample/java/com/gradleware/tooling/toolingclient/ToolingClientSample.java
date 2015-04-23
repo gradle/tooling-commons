@@ -16,19 +16,19 @@
 
 package com.gradleware.tooling.toolingclient;
 
+import java.io.File;
+import java.net.URISyntaxException;
+
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressEvent;
 import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.TestProgressEvent;
-import org.gradle.tooling.TestProgressListener;
+import org.gradle.tooling.events.test.TestProgressEvent;
+import org.gradle.tooling.events.test.TestProgressListener;
 import org.gradle.tooling.model.build.BuildEnvironment;
 
-import java.io.File;
-import java.net.URISyntaxException;
-
-import static com.gradleware.tooling.toolingclient.ToolingClient.CleanUpStrategy;
+import com.gradleware.tooling.toolingclient.ToolingClient.CleanUpStrategy;
 
 /**
  * Sample class to configure and run the {@code ToolingClient}.

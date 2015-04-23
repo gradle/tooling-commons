@@ -16,13 +16,13 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
+import org.gradle.tooling.model.gradle.BuildInvocations;
+import org.gradle.tooling.model.gradle.ProjectPublications;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
 import com.gradleware.tooling.toolingclient.ModelRequest;
-import org.gradle.tooling.model.gradle.BuildInvocations;
-import org.gradle.tooling.model.gradle.ProjectPublications;
-
 /**
  * Internal implementation of the {@link ModelRequest} API.
  *

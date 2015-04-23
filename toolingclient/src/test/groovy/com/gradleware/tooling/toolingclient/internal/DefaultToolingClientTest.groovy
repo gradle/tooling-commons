@@ -25,7 +25,7 @@ import org.gradle.tooling.BuildAction
 import org.gradle.tooling.BuildController
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
-import org.gradle.tooling.TestProgressListener
+import org.gradle.tooling.events.test.TestProgressListener
 import org.gradle.tooling.internal.consumer.DefaultGradleConnector
 import org.gradle.tooling.model.build.BuildEnvironment
 import org.junit.Rule

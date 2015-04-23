@@ -16,15 +16,8 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import com.gradleware.tooling.toolingclient.BuildActionRequest;
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-import com.gradleware.tooling.toolingclient.LaunchableConfig;
-import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
-import com.gradleware.tooling.toolingclient.ModelRequest;
-import com.gradleware.tooling.toolingclient.ToolingClient;
+import java.util.Map;
+
 import org.gradle.internal.Factory;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildActionExecuter;
@@ -34,12 +27,20 @@ import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.ProjectConnection;
-import org.gradle.tooling.TestProgressListener;
+import org.gradle.tooling.events.test.TestProgressListener;
 import org.gradle.tooling.internal.consumer.ConnectorServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import com.gradleware.tooling.toolingclient.BuildActionRequest;
+import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
+import com.gradleware.tooling.toolingclient.LaunchableConfig;
+import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
+import com.gradleware.tooling.toolingclient.ModelRequest;
+import com.gradleware.tooling.toolingclient.ToolingClient;
 
 /**
  * Internal implementation of the {@link ToolingClient} API.

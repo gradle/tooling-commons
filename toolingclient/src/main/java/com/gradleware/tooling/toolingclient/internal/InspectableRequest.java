@@ -16,15 +16,16 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingclient.Request;
-import org.gradle.tooling.CancellationToken;
-import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.TestProgressListener;
-
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import org.gradle.tooling.CancellationToken;
+import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.events.test.TestProgressListener;
+
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+import com.gradleware.tooling.toolingclient.Request;
 
 /**
  * Internal interface that describes the configurable attributes of a request.
@@ -74,7 +75,7 @@ interface InspectableRequest<T> extends Request<T> {
 
     /**
      * @return never null, facilitates iteration when adding the listeners to AbstractLongRunningOperation
-     * @see org.gradle.tooling.internal.consumer.AbstractLongRunningOperation#addTestProgressListener(org.gradle.tooling.TestProgressListener)
+     * @see org.gradle.tooling.internal.consumer.AbstractLongRunningOperation#addTestProgressListener(org.gradle.tooling.events.test.TestProgressListener)
      */
     TestProgressListener[] getTestProgressListeners();
 
