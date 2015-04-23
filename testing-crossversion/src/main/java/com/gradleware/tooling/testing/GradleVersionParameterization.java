@@ -100,7 +100,7 @@ public final class GradleVersionParameterization {
                     URI distributionLocation = new DistributionLocator().getDistributionFor(input);
                     return GradleDistribution.forRemoteDistribution(distributionLocation);
                 } else {
-                    return GradleDistribution.forVersion(input.getBaseVersion().getVersion());
+                    return GradleDistribution.forVersion(input.getVersion());
                 }
             }
         }).toList();

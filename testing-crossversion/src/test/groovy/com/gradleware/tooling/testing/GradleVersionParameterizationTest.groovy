@@ -30,7 +30,7 @@ class GradleVersionParameterizationTest extends Specification {
 
   def setupSpec() {
     def releasedVersions = ReleasedGradleVersions.createFrom(['2.2.1', '2.2', '2.1', '2.0', '1.12', '1.11'] as Set)
-    def versionProvider = new GradleVersionProvider(releasedVersions, { "all" } as Supplier)
+    def versionProvider = new GradleVersionProvider(releasedVersions, { 'all' } as Supplier)
     gradleVersionParameterization = new GradleVersionParameterization(versionProvider)
   }
 
@@ -69,11 +69,13 @@ class GradleVersionParameterizationTest extends Specification {
   }
 
   private static GradleDistribution getDistributionForCurrentGradleVersion() {
-    def pattern = GradleVersion.current().isSnapshot() ?
-            "https://services.gradle.org/distributions-snapshots/gradle-%s-bin.zip" :
-            "https://services.gradle.org/distributions/gradle-%s-bin.zip"
-    def uriToCurrentGradleVersion = String.format(pattern, GradleVersion.current().version)
-    GradleDistribution.forRemoteDistribution(new URI(uriToCurrentGradleVersion))
+    if (GradleVersion.current().isSnapshot()) {
+      def pattern = "https://services.gradle.org/distributions-snapshots/gradle-%s-bin.zip"
+      def uriToCurrentGradleVersion = String.format(pattern, GradleVersion.current().version)
+      GradleDistribution.forRemoteDistribution(new URI(uriToCurrentGradleVersion))
+    } else {
+      GradleDistribution.forVersion(GradleVersion.current().getVersion())
+    }
   }
 
 }
