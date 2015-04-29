@@ -24,10 +24,15 @@ import org.spockframework.runtime.model.NameProvider;
 import org.spockframework.runtime.model.SpecInfo;
 
 /**
- * Implementation of the {@link VerboseUnroll} extension. The code of this class is very similar to the code of {@link org.spockframework.runtime.extension.builtin.UnrollExtension}
- * but differs in the {@link #chooseNameProvider} logic.
+ * Implementation of the {@link VerboseUnroll} extension. The code of this class is very similar
+ * to the code of {@link org.spockframework.runtime.extension.builtin.UnrollExtension} but differs
+ * in the {@link #chooseNameProvider} logic.
+ * <p/>
+ * Note: this class has been derived from {@code org.spockframework.runtime.extension.builtin.UnrollExtension}
+ * which is available in library {@code spock-core-0.7-groovy-2.0.jar} under the Apache License 2.0.
  *
  * @author Etienne Studer
+ * @see org.spockframework.runtime.extension.builtin.UnrollExtension
  */
 public final class VerboseUnrollExtension extends AbstractAnnotationDrivenExtension<VerboseUnroll> {
 

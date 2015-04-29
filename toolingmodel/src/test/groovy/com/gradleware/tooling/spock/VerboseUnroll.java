@@ -24,22 +24,25 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicates that iterations of a data-driven feature should be made visible as separate features to the outside world (IDEs, reports, etc.). By default, the name of an iteration
- * is the feature's name followed by the data values of the current iteration. Example of the output for a given iteration:
+ * Indicates that iterations of a data-driven feature should be made visible as separate features to the outside
+ * world (IDEs, reports, etc.). By default, the name of an iteration is the feature's name followed by the data
+ * values of the current iteration. Example of the output for a given iteration:
  * <pre>
  * calculateTimeSpan [14:55, 15:05, 600, SECONDS]
  * calculateTimeSpan [14:55, 15:05, 10, MINUTES]</pre>
  *
- * The feature's name can be replaced by providing a naming pattern after {@code VerboseUnroll}. A naming pattern may refer to data variables by prepending their names with #.
+ * The feature's name can be replaced by providing a naming pattern after {@code VerboseUnroll}. A naming pattern
+ * may refer to data variables by prepending their names with #.
  *
- * The {@code VerboseUnroll} annotation can also be put on a spec class. This has the same effect as putting it on every data-driven feature method that is not already annotated
- * with {@code VerboseUnroll}. By embedding the naming pattern in the method names, each method can still have its own pattern.
+ * The {@code VerboseUnroll} annotation can also be put on a spec class. This has the same effect as putting it on
+ * every data-driven feature method that is not already annotated with {@code VerboseUnroll}. By embedding the naming
+ * pattern in the method names, each method can still have its own pattern.
  *
- * Note: This extension is inspired and derived from {@link spock.lang.Unroll}.
- *
- * @see spock.lang.Unroll
+ * Note: this class has been derived from {@code spock.lang.Unroll} which is available in library
+ * {@code spock-core-0.7-groovy-2.0.jar} under the Apache License 2.0.
  *
  * @author Etienne Studer
+ * @see spock.lang.Unroll
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
