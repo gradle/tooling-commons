@@ -104,7 +104,19 @@ public interface ModelRequest<T> extends Request<T> {
      * {@inheritDoc}
      */
     @Override
+    ModelRequest<T> addProgressListeners(ProgressListener... listeners);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     ModelRequest<T> testProgressListeners(TestProgressListener... listeners);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    ModelRequest<T> addTestProgressListeners(TestProgressListener... listeners);
 
     /**
      * {@inheritDoc}

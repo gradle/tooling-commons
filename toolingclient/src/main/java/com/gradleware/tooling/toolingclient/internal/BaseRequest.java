@@ -16,18 +16,17 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.gradleware.tooling.toolingclient.GradleDistribution;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.events.test.TestProgressListener;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingclient.GradleDistribution;
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Internal base class for all tooling client request objects.
@@ -185,6 +184,12 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Insp
     }
 
     @Override
+    public SELF addProgressListeners(ProgressListener... listeners) {
+        this.progressListeners = ImmutableList.<ProgressListener>builder().addAll(this.progressListeners).addAll(ImmutableList.copyOf(listeners)).build();
+        return getThis();
+    }
+
+    @Override
     public ProgressListener[] getProgressListeners() {
         return this.progressListeners.toArray(new ProgressListener[this.progressListeners.size()]);
     }
@@ -195,6 +200,13 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Insp
         return getThis();
     }
 
+    @Override
+    public SELF addTestProgressListeners(TestProgressListener... listeners) {
+        this.testProgressListeners = ImmutableList.<TestProgressListener>builder().addAll(this.testProgressListeners).addAll(ImmutableList.copyOf(listeners)).build();
+        return getThis();
+    }
+
+    @Override
     public TestProgressListener[] getTestProgressListeners() {
         return this.testProgressListeners.toArray(new TestProgressListener[this.testProgressListeners.size()]);
     }

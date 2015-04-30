@@ -106,7 +106,19 @@ public interface BuildActionRequest<T> extends Request<T> {
      * {@inheritDoc}
      */
     @Override
+    BuildActionRequest<T> addProgressListeners(ProgressListener... listeners);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     BuildActionRequest<T> testProgressListeners(TestProgressListener... listeners);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    BuildActionRequest<T> addTestProgressListeners(TestProgressListener... listeners);
 
     /**
      * {@inheritDoc}

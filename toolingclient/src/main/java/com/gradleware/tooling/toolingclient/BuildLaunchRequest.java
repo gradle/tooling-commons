@@ -104,7 +104,19 @@ public interface BuildLaunchRequest extends Request<Void> {
      * {@inheritDoc}
      */
     @Override
+    BuildLaunchRequest addProgressListeners(ProgressListener... listeners);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     BuildLaunchRequest testProgressListeners(TestProgressListener... listeners);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    BuildLaunchRequest addTestProgressListeners(TestProgressListener... listeners);
 
     /**
      * {@inheritDoc}
