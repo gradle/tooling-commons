@@ -22,6 +22,7 @@ import com.gradleware.tooling.toolingclient.GradleDistribution;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.events.task.TaskProgressListener;
 import org.gradle.tooling.events.test.TestProgressListener;
 
 import java.io.File;
@@ -50,6 +51,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Insp
     private ImmutableList<String> jvmArguments;
     private ImmutableList<String> arguments;
     private ImmutableList<ProgressListener> progressListeners;
+    private ImmutableList<TaskProgressListener> taskProgressListeners;
     private ImmutableList<TestProgressListener> testProgressListeners;
     private CancellationToken cancellationToken;
 
@@ -59,6 +61,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Insp
         this.jvmArguments = ImmutableList.of();
         this.arguments = ImmutableList.of();
         this.progressListeners = ImmutableList.of();
+        this.taskProgressListeners = ImmutableList.of();
         this.testProgressListeners = ImmutableList.of();
         this.cancellationToken = GradleConnector.newCancellationTokenSource().token();
     }
@@ -195,6 +198,23 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Insp
     }
 
     @Override
+    public SELF taskProgressListeners(TaskProgressListener... listeners) {
+        this.taskProgressListeners = ImmutableList.copyOf(listeners);
+        return getThis();
+    }
+
+    @Override
+    public SELF addTaskProgressListeners(TaskProgressListener... listeners) {
+        this.taskProgressListeners = ImmutableList.<TaskProgressListener>builder().addAll(this.taskProgressListeners).addAll(ImmutableList.copyOf(listeners)).build();
+        return getThis();
+    }
+
+    @Override
+    public TaskProgressListener[] getTaskProgressListeners() {
+        return this.taskProgressListeners.toArray(new TaskProgressListener[this.taskProgressListeners.size()]);
+    }
+
+    @Override
     public SELF testProgressListeners(TestProgressListener... listeners) {
         this.testProgressListeners = ImmutableList.copyOf(listeners);
         return getThis();
@@ -234,6 +254,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Insp
                 jvmArguments(getJvmArguments()).
                 arguments(getArguments()).
                 progressListeners(getProgressListeners()).
+                taskProgressListeners(getTaskProgressListeners()).
                 testProgressListeners(getTestProgressListeners()).
                 cancellationToken(getCancellationToken());
     }

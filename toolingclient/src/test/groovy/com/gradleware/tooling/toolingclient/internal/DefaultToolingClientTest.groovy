@@ -25,6 +25,7 @@ import org.gradle.tooling.BuildAction
 import org.gradle.tooling.BuildController
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
+import org.gradle.tooling.events.task.TaskProgressListener
 import org.gradle.tooling.events.test.TestProgressListener
 import org.gradle.tooling.internal.consumer.DefaultGradleConnector
 import org.gradle.tooling.model.build.BuildEnvironment
@@ -160,27 +161,29 @@ class DefaultToolingClientTest extends Specification {
     toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
   }
 
+  def "taskProgressListenersInvoked"() {
+    setup:
+    createGradleProject()
+
+    AtomicBoolean invoked = new AtomicBoolean(false)
+    DefaultToolingClient toolingClient = new DefaultToolingClient()
+    def launchRequest = toolingClient.newBuildLaunchRequest(LaunchableConfig.forTasks('build'))
+    launchRequest.projectDir(directoryProvider.testDirectory)
+    launchRequest.taskProgressListeners({ invoked.set(true) } as TaskProgressListener)
+
+    when:
+    launchRequest.executeAndWait()
+
+    then:
+    assert invoked.get()
+
+    cleanup:
+    toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
+  }
+
   def "testProgressListenersInvoked"() {
     setup:
-    // settings.gradle file to ensure test does not pick up Gradle version defined in the wrapper of the commons build itself
-    directoryProvider.createFile('settings.gradle')
-    directoryProvider.file('build.gradle') << """
-            apply plugin: 'java'
-            repositories { mavenCentral() }
-            dependencies { testCompile 'junit:junit:4.12' }
-            compileTestJava.options.fork = true
-"""
-
-    directoryProvider.createDir('src/test/java/example')
-    directoryProvider.file('src/test/java/example/MyTest.java') << """
-            package example;
-            import org.junit.Test;
-            public class MyTest {
-                @org.junit.Test public void foo() {
-                    org.junit.Assert.assertEquals(1, 1);
-                }
-            }
-"""
+    createGradleProject()
 
     AtomicBoolean invoked = new AtomicBoolean(false)
     DefaultToolingClient toolingClient = new DefaultToolingClient()
@@ -210,6 +213,28 @@ class DefaultToolingClientTest extends Specification {
 
     cleanup:
     toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
+  }
+
+  def createGradleProject() {
+    // settings.gradle file to ensure test does not pick up Gradle version defined in the wrapper of the commons build itself
+    directoryProvider.createFile('settings.gradle')
+    directoryProvider.file('build.gradle') << """
+            apply plugin: 'java'
+            repositories { mavenCentral() }
+            dependencies { testCompile 'junit:junit:4.12' }
+            compileTestJava.options.fork = true
+"""
+
+    directoryProvider.createDir('src/test/java/example')
+    directoryProvider.file('src/test/java/example/MyTest.java') << """
+            package example;
+            import org.junit.Test;
+            public class MyTest {
+                @org.junit.Test public void foo() {
+                    org.junit.Assert.assertEquals(1, 1);
+                }
+            }
+"""
   }
 
   private static final class EmptyBuildAction<String> implements BuildAction<String> {

@@ -46,6 +46,7 @@ import org.gradle.api.specs.Spec
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
+import org.gradle.tooling.events.task.TaskProgressListener
 import org.gradle.tooling.events.test.TestProgressListener
 import org.gradle.util.GradleVersion
 import org.junit.Rule
@@ -156,7 +157,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
   def "fetchBuildEnvironment - send event after cache update"(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TaskProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
     def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
     AtomicReference<BuildEnvironmentUpdateEvent> publishedEvent = new AtomicReference<>();
@@ -201,7 +202,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
   def "fetchGradleBuildStructure - send event after cache update"(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TaskProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
     def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
     AtomicReference<GradleBuildStructureUpdateEvent> publishedEvent = new AtomicReference<>();
@@ -256,7 +257,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
   def "fetchGradleBuildStructure - when exception is thrown"(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildStructure.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TaskProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
     def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
     AtomicReference<GradleBuildStructureUpdateEvent> publishedEvent = new AtomicReference<>();
@@ -284,7 +285,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
   def "fetchGradleBuild - send event after cache update"(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TaskProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
     def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
     AtomicReference<GradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
@@ -378,7 +379,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
   def "fetchGradleBuild - when exception is thrown"(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TaskProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
     def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
     AtomicReference<GradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
@@ -406,7 +407,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
   def "fetchEclipseGradleBuild - send event after cache update"(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TaskProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
     def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
     AtomicReference<EclipseGradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
@@ -485,7 +486,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
   def "fetchEclipseGradleBuild - sources and project/external dependencies "(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderMultiProjectBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TaskProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
     def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
     def apiProjectDir = new TestFile(this.directoryProviderMultiProjectBuild.testDirectory, 'api')
@@ -550,7 +551,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
   def "fetchEclipseGradleBuild - when exception is thrown"(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TaskProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
     def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
     AtomicReference<EclipseGradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
@@ -578,7 +579,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
   def "fetchBuildInvocations - send event after cache update"(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TaskProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
     def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
     AtomicReference<BuildInvocationsUpdateEvent> publishedEvent = new AtomicReference<>();
@@ -645,7 +646,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
   def "fetchBuildInvocations - when exception is thrown"(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TaskProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
     def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
     AtomicReference<BuildInvocationsUpdateEvent> publishedEvent = new AtomicReference<>();
@@ -673,7 +674,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
   def "registerUnregister - no more events are sent to receiver once he is unregistered"() {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
-    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TaskProgressListener)), ImmutableList.of(Mock(TestProgressListener)), GradleConnector.newCancellationTokenSource().token())
     def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
 
     AtomicReference<BuildEnvironmentUpdateEvent> publishedEvent = new AtomicReference<>();

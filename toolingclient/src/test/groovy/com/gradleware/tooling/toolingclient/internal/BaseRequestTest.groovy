@@ -18,6 +18,7 @@ package com.gradleware.tooling.toolingclient.internal
 
 import com.gradleware.tooling.toolingclient.LongRunningOperationPromise
 import org.gradle.tooling.ProgressListener
+import org.gradle.tooling.events.task.TaskProgressListener
 import org.gradle.tooling.events.test.TestProgressListener
 import spock.lang.Specification
 
@@ -37,6 +38,22 @@ class BaseRequestTest extends Specification {
 
     then:
     request.progressListeners == [someListener, someOtherListener]
+  }
+
+  def "addingAdditionalTaskProgressListeners"() {
+    given:
+    ExecutableToolingClient toolingClient = Mock(ExecutableToolingClient)
+    def request = new MyBaseRequest(toolingClient)
+
+    def someListener = Mock(TaskProgressListener)
+    def someOtherListener = Mock(TaskProgressListener)
+
+    when:
+    request.taskProgressListeners(someListener)
+    request.addTaskProgressListeners(someOtherListener)
+
+    then:
+    request.taskProgressListeners == [someListener, someOtherListener]
   }
 
   def "addingAdditionalTestProgressListeners"() {

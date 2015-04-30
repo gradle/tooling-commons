@@ -18,6 +18,7 @@ package com.gradleware.tooling.toolingclient;
 
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.events.task.TaskProgressListener;
 import org.gradle.tooling.events.test.TestProgressListener;
 
 import java.io.File;
@@ -105,6 +106,18 @@ public interface BuildLaunchRequest extends Request<Void> {
      */
     @Override
     BuildLaunchRequest addProgressListeners(ProgressListener... listeners);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    BuildLaunchRequest taskProgressListeners(TaskProgressListener... listeners);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    BuildLaunchRequest addTaskProgressListeners(TaskProgressListener... listeners);
 
     /**
      * {@inheritDoc}
