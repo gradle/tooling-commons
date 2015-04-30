@@ -25,6 +25,7 @@ import org.gradle.tooling.BuildAction
 import org.gradle.tooling.BuildController
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
+import org.gradle.tooling.events.build.BuildProgressListener
 import org.gradle.tooling.events.task.TaskProgressListener
 import org.gradle.tooling.events.test.TestProgressListener
 import org.gradle.tooling.internal.consumer.DefaultGradleConnector
@@ -153,6 +154,26 @@ class DefaultToolingClientTest extends Specification {
 
     when:
     modelRequest.executeAndWait()
+
+    then:
+    assert invoked.get()
+
+    cleanup:
+    toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
+  }
+
+  def "buildProgressListenersInvoked"() {
+    setup:
+    createGradleProject()
+
+    AtomicBoolean invoked = new AtomicBoolean(false)
+    DefaultToolingClient toolingClient = new DefaultToolingClient()
+    def launchRequest = toolingClient.newBuildLaunchRequest(LaunchableConfig.forTasks('build'))
+    launchRequest.projectDir(directoryProvider.testDirectory)
+    launchRequest.buildProgressListeners({ invoked.set(true) } as BuildProgressListener)
+
+    when:
+    launchRequest.executeAndWait()
 
     then:
     assert invoked.get()

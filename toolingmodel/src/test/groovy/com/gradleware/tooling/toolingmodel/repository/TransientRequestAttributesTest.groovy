@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList
 import com.gradleware.tooling.toolingclient.BuildActionRequest
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
+import org.gradle.tooling.events.build.BuildProgressListener
 import org.gradle.tooling.events.task.TaskProgressListener
 import org.gradle.tooling.events.test.TestProgressListener
 import spock.lang.Specification
@@ -34,10 +35,11 @@ class TransientRequestAttributesTest extends Specification {
     def error = Mock(OutputStream)
     def input = Mock(InputStream)
     def progressListeners = ImmutableList.of(Mock(ProgressListener))
+    def buildProgressListeners = ImmutableList.of(Mock(BuildProgressListener))
     def taskProgressListeners = ImmutableList.of(Mock(TaskProgressListener))
     def testProgressListeners = ImmutableList.of(Mock(TestProgressListener))
     def cancellationToken = GradleConnector.newCancellationTokenSource().token()
-    def requestAttributes = new TransientRequestAttributes(colorOutput, output, error, input, progressListeners, taskProgressListeners, testProgressListeners, cancellationToken)
+    def requestAttributes = new TransientRequestAttributes(colorOutput, output, error, input, progressListeners, buildProgressListeners, taskProgressListeners, testProgressListeners, cancellationToken)
 
     when:
     requestAttributes.apply(buildActionRequest)
@@ -48,6 +50,7 @@ class TransientRequestAttributesTest extends Specification {
     1 * buildActionRequest.standardError(error)
     1 * buildActionRequest.standardInput(input)
     1 * buildActionRequest.progressListeners(progressListeners.toArray(new ProgressListener[0]))
+    1 * buildActionRequest.buildProgressListeners(buildProgressListeners.toArray(new BuildProgressListener[0]))
     1 * buildActionRequest.taskProgressListeners(taskProgressListeners.toArray(new TaskProgressListener[0]))
     1 * buildActionRequest.testProgressListeners(testProgressListeners.toArray(new TestProgressListener[0]))
     1 * buildActionRequest.cancellationToken(cancellationToken)
@@ -56,7 +59,7 @@ class TransientRequestAttributesTest extends Specification {
   def "equalsAndHashCode"() {
     setup:
     def requestAttributes = new TransientRequestAttributes(true, Mock(OutputStream), Mock(OutputStream), Mock(InputStream),
-        ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(TaskProgressListener)), ImmutableList.of(Mock(TestProgressListener)),
+        ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(BuildProgressListener)), ImmutableList.of(Mock(TaskProgressListener)), ImmutableList.of(Mock(TestProgressListener)),
         GradleConnector.newCancellationTokenSource().token())
     assert requestAttributes == requestAttributes
     assert requestAttributes.hashCode() == requestAttributes.hashCode()

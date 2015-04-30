@@ -22,6 +22,7 @@ import java.io.OutputStream;
 
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.events.build.BuildProgressListener;
 import org.gradle.tooling.events.task.TaskProgressListener;
 import org.gradle.tooling.events.test.TestProgressListener;
 
@@ -73,6 +74,12 @@ interface InspectableRequest<T> extends Request<T> {
      * @see org.gradle.tooling.internal.consumer.AbstractLongRunningOperation#addProgressListener(org.gradle.tooling.ProgressListener)
      */
     ProgressListener[] getProgressListeners();
+
+    /**
+     * @return never null, facilitates iteration when adding the listeners to AbstractLongRunningOperation
+     * @see org.gradle.tooling.internal.consumer.AbstractLongRunningOperation#addBuildProgressListener(org.gradle.tooling.events.build.BuildProgressListener)
+     */
+    BuildProgressListener[] getBuildProgressListeners();
 
     /**
      * @return never null, facilitates iteration when adding the listeners to AbstractLongRunningOperation

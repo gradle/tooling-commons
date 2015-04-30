@@ -18,6 +18,7 @@ package com.gradleware.tooling.toolingclient;
 
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.events.build.BuildProgressListener;
 import org.gradle.tooling.events.task.TaskProgressListener;
 import org.gradle.tooling.events.test.TestProgressListener;
 
@@ -129,6 +130,21 @@ public interface Request<T> {
     Request<T> addProgressListeners(ProgressListener... listeners);
 
     /**
+     * Specifies the build progress listeners which will receive build progress events as the request is executed.
+     *
+     * @param listeners the build progress listeners to register
+     * @return this
+     */
+    Request<T> buildProgressListeners(BuildProgressListener... listeners);
+
+    /**
+     * Specifies additional build progress listeners that will receive build progress events as the request is executed.
+     *
+     * @param listeners the build progress listeners to register in addition to the already registered build progress listeners
+     */
+    Request<T> addBuildProgressListeners(BuildProgressListener... listeners);
+
+   /**
      * Specifies the task progress listeners which will receive task progress events as the request is executed.
      *
      * @param listeners the task progress listeners to register
