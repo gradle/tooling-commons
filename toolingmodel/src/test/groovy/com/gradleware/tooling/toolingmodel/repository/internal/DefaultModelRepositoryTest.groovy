@@ -347,12 +347,22 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     myFirstTaskOfSub1.description == '1st task of sub1'
     myFirstTaskOfSub1.path.path == ':sub1:myFirstTaskOfSub1'
     myFirstTaskOfSub1.isPublic()
+    if (higherOrEqual('2.5', distribution)) {
+      assert myFirstTaskOfSub1.group.get() == 'build'
+    } else {
+      assert !myFirstTaskOfSub1.group.present
+    }
 
     def mySecondTaskOfSub1 = projectSub1.projectTasks.findAll { !ImplicitTasks.ALL.contains(it.name) }[1]
     mySecondTaskOfSub1.name == 'mySecondTaskOfSub1'
     mySecondTaskOfSub1.description == '2nd task of sub1'
     mySecondTaskOfSub1.path.path == ':sub1:mySecondTaskOfSub1'
     mySecondTaskOfSub1.isPublic() == !higherOrEqual('2.3', distribution) // all versions < 2.3 are corrected to or default to 'true'
+    if (higherOrEqual('2.5', distribution)) {
+      assert mySecondTaskOfSub1.group.get() == null
+    } else {
+      assert !mySecondTaskOfSub1.group.present
+    }
 
     def projectSub2 = gradleBuild.rootProject.tryFind({ OmniGradleProject input ->
       input.path.path == ':sub2'
@@ -454,12 +464,22 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     myFirstTaskOfSub1.description == '1st task of sub1'
     myFirstTaskOfSub1.path.path == ':sub1:myFirstTaskOfSub1'
     myFirstTaskOfSub1.isPublic()
+    if (higherOrEqual('2.5', distribution)) {
+      assert myFirstTaskOfSub1.group.get() == 'build'
+    } else {
+      assert !myFirstTaskOfSub1.group.present
+    }
 
     def mySecondTaskOfSub1 = projectSub1.projectTasks.findAll { !ImplicitTasks.ALL.contains(it.name) }[1]
     mySecondTaskOfSub1.name == 'mySecondTaskOfSub1'
     mySecondTaskOfSub1.description == '2nd task of sub1'
     mySecondTaskOfSub1.path.path == ':sub1:mySecondTaskOfSub1'
     mySecondTaskOfSub1.isPublic() == !higherOrEqual('2.3', distribution) // all versions < 2.3 are corrected to or default to 'true'
+    if (higherOrEqual('2.5', distribution)) {
+      assert mySecondTaskOfSub1.group.get() == null
+    } else {
+      assert !mySecondTaskOfSub1.group.present
+    }
 
     def projectSub2 = eclipseGradleBuild.rootProject.tryFind({ OmniGradleProject input ->
       return input.path.path == ':sub2'

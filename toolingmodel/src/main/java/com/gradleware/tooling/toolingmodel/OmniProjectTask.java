@@ -16,6 +16,8 @@
 
 package com.gradleware.tooling.toolingmodel;
 
+import com.gradleware.tooling.toolingmodel.util.Maybe;
+
 /**
  * Represents a project task which is executable by Gradle.
  *
@@ -50,5 +52,12 @@ public interface OmniProjectTask {
      * @return {@code true} if this task is public, {@code false} otherwise
      */
     boolean isPublic();
+
+    /**
+     * Returns the group this task belongs to.
+     *
+     * @return the group this task belongs to
+     */
+    Maybe<String> getGroup();
 
 }

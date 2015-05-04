@@ -18,6 +18,7 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.gradleware.tooling.toolingmodel.OmniProjectTask;
 import com.gradleware.tooling.toolingmodel.Path;
+import com.gradleware.tooling.toolingmodel.util.Maybe;
 import org.gradle.tooling.model.Task;
 
 /**
@@ -31,6 +32,7 @@ public final class DefaultOmniProjectTask implements OmniProjectTask {
     private String description;
     private Path path;
     private boolean isPublic;
+    private Maybe<String> group;
 
     @Override
     public String getName() {
@@ -68,12 +70,22 @@ public final class DefaultOmniProjectTask implements OmniProjectTask {
         this.isPublic = isPublic;
     }
 
+    @Override
+    public Maybe<String> getGroup() {
+        return this.group;
+    }
+
+    public void setGroup(Maybe<String> group) {
+        this.group = group;
+    }
+
     public static DefaultOmniProjectTask from(Task task, boolean enforceAllTasksPublic) {
         DefaultOmniProjectTask projectTask = new DefaultOmniProjectTask();
         projectTask.setName(task.getName());
         projectTask.setDescription(task.getDescription());
         projectTask.setPath(Path.from(task.getPath()));
         setIsPublic(projectTask, task, enforceAllTasksPublic);
+        setGroup(projectTask, task);
         return projectTask;
     }
 
@@ -92,6 +104,21 @@ public final class DefaultOmniProjectTask implements OmniProjectTask {
             projectTask.setPublic(enforceAllTasksPublic || isPublic);
         } catch (Exception ignore) {
             projectTask.setPublic(true);
+        }
+    }
+
+   /**
+     * GradleTask#getGroup is only available in Gradle versions >= 2.5.
+     *
+     * @param projectTask the task to populate
+     * @param task the task model
+     */
+    private static void setGroup(DefaultOmniProjectTask projectTask, Task task) {
+        try {
+            String group = task.getGroup();
+            projectTask.setGroup(Maybe.of(group));
+        } catch (Exception ignore) {
+            projectTask.setGroup(Maybe.<String>absent());
         }
     }
 
