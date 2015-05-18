@@ -16,19 +16,16 @@
 
 package com.gradleware.tooling.toolingclient;
 
-import java.io.File;
-import java.net.URISyntaxException;
-
+import com.gradleware.tooling.toolingclient.ToolingClient.CleanUpStrategy;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressEvent;
 import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.events.test.TestProgressEvent;
-import org.gradle.tooling.events.test.TestProgressListener;
 import org.gradle.tooling.model.build.BuildEnvironment;
 
-import com.gradleware.tooling.toolingclient.ToolingClient.CleanUpStrategy;
+import java.io.File;
+import java.net.URISyntaxException;
 
 /**
  * Sample class to configure and run the {@code ToolingClient}.
@@ -64,10 +61,10 @@ public final class ToolingClientSample {
                             System.out.println("Progress: " + event.getDescription());
                         }
                     }).
-                    testProgressListeners(new TestProgressListener() {
+                    typedProgressListeners(new org.gradle.tooling.events.ProgressListener() {
                         @Override
-                        public void statusChanged(TestProgressEvent event) {
-                            System.out.println("Test progress: " + event.getDescriptor().getName());
+                        public void statusChanged(org.gradle.tooling.events.ProgressEvent event) {
+                            System.out.println("Typed progress: " + event.getDescriptor());
                         }
                     });
             LongRunningOperationPromise<BuildEnvironment> operation = modelRequest.execute();

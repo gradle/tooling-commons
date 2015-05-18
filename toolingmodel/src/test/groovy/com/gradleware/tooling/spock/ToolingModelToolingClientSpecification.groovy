@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory
 import spock.lang.Shared
 import spock.lang.Specification
 
-class ToolingModelToolingClientSpecification extends Specification {
+abstract class ToolingModelToolingClientSpecification extends Specification {
 
   public static final String EMBEDDED_MODE_SYSTEM_PROPERTY_NAME = 'com.gradleware.tooling.integtest.embedded';
 

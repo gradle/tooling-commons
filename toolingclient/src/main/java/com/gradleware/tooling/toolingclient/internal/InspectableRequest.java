@@ -16,18 +16,14 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+import com.gradleware.tooling.toolingclient.Request;
+import org.gradle.tooling.CancellationToken;
+import org.gradle.tooling.ProgressListener;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import org.gradle.tooling.CancellationToken;
-import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.events.build.BuildProgressListener;
-import org.gradle.tooling.events.task.TaskProgressListener;
-import org.gradle.tooling.events.test.TestProgressListener;
-
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingclient.Request;
 
 /**
  * Internal interface that describes the configurable attributes of a request.
@@ -77,21 +73,9 @@ interface InspectableRequest<T> extends Request<T> {
 
     /**
      * @return never null, facilitates iteration when adding the listeners to AbstractLongRunningOperation
-     * @see org.gradle.tooling.internal.consumer.AbstractLongRunningOperation#addBuildProgressListener(org.gradle.tooling.events.build.BuildProgressListener)
+     * @see org.gradle.tooling.internal.consumer.AbstractLongRunningOperation#addProgressListener(org.gradle.tooling.events.ProgressListener)
      */
-    BuildProgressListener[] getBuildProgressListeners();
-
-    /**
-     * @return never null, facilitates iteration when adding the listeners to AbstractLongRunningOperation
-     * @see org.gradle.tooling.internal.consumer.AbstractLongRunningOperation#addTaskProgressListener(org.gradle.tooling.events.task.TaskProgressListener)
-     */
-    TaskProgressListener[] getTaskProgressListeners();
-
-    /**
-     * @return never null, facilitates iteration when adding the listeners to AbstractLongRunningOperation
-     * @see org.gradle.tooling.internal.consumer.AbstractLongRunningOperation#addTestProgressListener(org.gradle.tooling.events.test.TestProgressListener)
-     */
-    TestProgressListener[] getTestProgressListeners();
+    org.gradle.tooling.events.ProgressListener[] getTypedProgressListeners();
 
     /**
      * @return never null, AbstractLongRunningOperation does not accept null token

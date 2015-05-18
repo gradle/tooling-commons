@@ -25,12 +25,12 @@ import org.gradle.tooling.BuildAction
 import org.gradle.tooling.BuildController
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
-import org.gradle.tooling.events.build.BuildProgressListener
-import org.gradle.tooling.events.task.TaskProgressListener
-import org.gradle.tooling.events.test.TestProgressListener
 import org.gradle.tooling.internal.consumer.DefaultGradleConnector
+import org.gradle.tooling.model.GradleProject
 import org.gradle.tooling.model.build.BuildEnvironment
+import org.gradle.tooling.model.gradle.BuildInvocations
 import org.junit.Rule
+import spock.lang.Ignore
 import spock.lang.Specification
 
 import java.util.concurrent.atomic.AtomicBoolean
@@ -55,7 +55,7 @@ class DefaultToolingClientTest extends Specification {
   def "newBuildActionRequestSetsBuildSpecificGradleDistributionByDefault"() {
     setup:
     DefaultToolingClient toolingClient = new DefaultToolingClient()
-    InspectableBuildActionRequest<String> buildActionRequest = (InspectableBuildActionRequest) toolingClient.newBuildActionRequest(new EmptyBuildAction())
+    InspectableBuildActionRequest<String> buildActionRequest = (InspectableBuildActionRequest) toolingClient.newBuildActionRequest(new TaskCountBuildAction())
     buildActionRequest.getGradleDistribution() == GradleDistribution.fromBuild()
 
     cleanup:
@@ -144,79 +144,70 @@ class DefaultToolingClientTest extends Specification {
     toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
   }
 
-  def "progressListenersInvoked"() {
+  def "progressListenersInvokedForModelRequest"() {
     setup:
-    AtomicBoolean invoked = new AtomicBoolean(false)
+    AtomicBoolean progressListenerInvoked = new AtomicBoolean(false)
+    AtomicBoolean typedProgressListenerInvoked = new AtomicBoolean(false)
+
     DefaultToolingClient toolingClient = new DefaultToolingClient()
-    def modelRequest = toolingClient.newModelRequest(BuildEnvironment.class)
+    def modelRequest = toolingClient.newModelRequest(GradleProject.class)
     modelRequest.projectDir(directoryProvider.testDirectory)
-    modelRequest.progressListeners({ invoked.set(true) } as ProgressListener)
+    modelRequest.progressListeners({ progressListenerInvoked.set(true) } as ProgressListener)
+    modelRequest.typedProgressListeners({ typedProgressListenerInvoked.set(true) } as org.gradle.tooling.events.ProgressListener)
 
     when:
     modelRequest.executeAndWait()
 
     then:
-    assert invoked.get()
+    assert progressListenerInvoked.get()
+    assert typedProgressListenerInvoked.get()
 
     cleanup:
     toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
   }
 
-  def "buildProgressListenersInvoked"() {
+  def "progressListenersInvokedForBuildLaunchRequest"() {
     setup:
     createGradleProject()
 
-    AtomicBoolean invoked = new AtomicBoolean(false)
+    AtomicBoolean progressListenerInvoked = new AtomicBoolean(false)
+    AtomicBoolean typedProgressListenerInvoked = new AtomicBoolean(false)
+
     DefaultToolingClient toolingClient = new DefaultToolingClient()
     def launchRequest = toolingClient.newBuildLaunchRequest(LaunchableConfig.forTasks('build'))
     launchRequest.projectDir(directoryProvider.testDirectory)
-    launchRequest.buildProgressListeners({ invoked.set(true) } as BuildProgressListener)
+    launchRequest.progressListeners({ progressListenerInvoked.set(true) } as ProgressListener)
+    launchRequest.typedProgressListeners({ typedProgressListenerInvoked.set(true) } as org.gradle.tooling.events.ProgressListener)
 
     when:
     launchRequest.executeAndWait()
 
     then:
-    assert invoked.get()
+    assert progressListenerInvoked.get()
+    assert typedProgressListenerInvoked.get()
 
     cleanup:
     toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
   }
 
-  def "taskProgressListenersInvoked"() {
+  @Ignore
+  def "progressListenersInvokedForBuildActionRequest"() {
     setup:
-    createGradleProject()
+    AtomicBoolean progressListenerInvoked = new AtomicBoolean(false)
+    AtomicBoolean typedProgressListenerInvoked = new AtomicBoolean(false)
 
-    AtomicBoolean invoked = new AtomicBoolean(false)
     DefaultToolingClient toolingClient = new DefaultToolingClient()
-    def launchRequest = toolingClient.newBuildLaunchRequest(LaunchableConfig.forTasks('build'))
-    launchRequest.projectDir(directoryProvider.testDirectory)
-    launchRequest.taskProgressListeners({ invoked.set(true) } as TaskProgressListener)
+    def modelRequest = toolingClient.newBuildActionRequest(new TaskCountBuildAction())
+    modelRequest.projectDir(directoryProvider.testDirectory)
+    modelRequest.progressListeners({ progressListenerInvoked.set(true) } as ProgressListener)
+    modelRequest.typedProgressListeners({ typedProgressListenerInvoked.set(true) } as org.gradle.tooling.events.ProgressListener)
 
     when:
-    launchRequest.executeAndWait()
+    modelRequest.executeAndWait()
 
     then:
-    assert invoked.get()
-
-    cleanup:
-    toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
-  }
-
-  def "testProgressListenersInvoked"() {
-    setup:
-    createGradleProject()
-
-    AtomicBoolean invoked = new AtomicBoolean(false)
-    DefaultToolingClient toolingClient = new DefaultToolingClient()
-    def launchRequest = toolingClient.newBuildLaunchRequest(LaunchableConfig.forTasks('build'))
-    launchRequest.projectDir(directoryProvider.testDirectory)
-    launchRequest.testProgressListeners({ invoked.set(true) } as TestProgressListener)
-
-    when:
-    launchRequest.executeAndWait()
-
-    then:
-    assert invoked.get()
+    assert progressListenerInvoked.get()
+    assert typedProgressListenerInvoked.get()
 
     cleanup:
     toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
@@ -258,11 +249,13 @@ class DefaultToolingClientTest extends Specification {
 """
   }
 
-  private static final class EmptyBuildAction<String> implements BuildAction<String> {
+  private static final class TaskCountBuildAction implements BuildAction<Integer> {
 
     @Override
-    String execute(BuildController controller) {
-      return null
+    Integer execute(BuildController controller) {
+      def rootProject = controller.getBuildModel().getRootProject()
+      BuildInvocations buildInvocations = controller.findModel(rootProject, BuildInvocations.class)
+      return buildInvocations.getTasks().size()
     }
 
   }
