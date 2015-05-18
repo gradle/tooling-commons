@@ -22,6 +22,9 @@ import org.gradle.tooling.ProgressListener;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.EnumSet;
+
+import org.gradle.tooling.events.ProgressEventType;
 
 /**
  * A {@code ModelRequest} allows you to fetch a snapshot of some model for a project or a build. Instances of {@code ModelRequest} are not thread-safe. <p> You use a {@code
@@ -104,6 +107,30 @@ public interface ModelRequest<T> extends Request<T> {
      */
     @Override
     ModelRequest<T> addProgressListeners(ProgressListener... listeners);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    ModelRequest<T> typedProgressListeners(org.gradle.tooling.events.ProgressListener... listeners);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    ModelRequest<T> typedProgressListeners(EnumSet<ProgressEventType> progressEventTypes, org.gradle.tooling.events.ProgressListener... listeners);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    ModelRequest<T> addTypedProgressListeners(org.gradle.tooling.events.ProgressListener... listeners);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    ModelRequest<T> addTypedProgressListeners(EnumSet<ProgressEventType> progressEventTypes, org.gradle.tooling.events.ProgressListener... listeners);
 
     /**
      * {@inheritDoc}

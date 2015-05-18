@@ -22,6 +22,9 @@ import org.gradle.tooling.ProgressListener;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.EnumSet;
+
+import org.gradle.tooling.events.ProgressEventType;
 
 /**
  * Describes the state and actions common to all requests issued through the tooling client.
@@ -126,6 +129,44 @@ public interface Request<T> {
      * @return this
      */
     Request<T> addProgressListeners(ProgressListener... listeners);
+
+    /**
+     * Specifies the test progress listeners which will receive progress events when operations running as
+     * a part of the running build make progress.
+     *
+     * @param listeners the progress listeners to register
+     * @return this
+     */
+    Request<T> typedProgressListeners(org.gradle.tooling.events.ProgressListener... listeners);
+
+    /**
+     * Specifies the test progress listeners which will receive progress events when operations running as
+     * a part of the running build make progress.
+     *
+     * @param progressEventTypes the event types the listeners are subscribed to
+     * @param listeners the progress listeners to register
+     * @return this
+     */
+    Request<T> typedProgressListeners(EnumSet<ProgressEventType> progressEventTypes, org.gradle.tooling.events.ProgressListener... listeners);
+
+    /**
+     * Additional  test progress listeners which will receive progress events when operations running as
+     * a part of the running build make progress.
+     *
+     * @param listeners the progress listeners to register in addition to the already registered listeners
+     * @return this
+     */
+    Request<T> addTypedProgressListeners(org.gradle.tooling.events.ProgressListener... listeners);
+
+    /**
+     * Additional test progress listeners which will receive progress events when operations running as
+     * a part of the running build make progress.
+     *
+     * @param progressEventTypes the event types the listeners are subscribed to
+     * @param listeners the progress listeners to register in addition to the already registered listeners
+     * @return this
+     */
+    Request<T> addTypedProgressListeners(EnumSet<ProgressEventType> progressEventTypes, org.gradle.tooling.events.ProgressListener... listeners);
 
     /**
      * Specifies the cancellation token to use to cancel the request if required.

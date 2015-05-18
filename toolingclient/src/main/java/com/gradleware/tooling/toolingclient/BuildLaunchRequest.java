@@ -22,6 +22,9 @@ import org.gradle.tooling.ProgressListener;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.EnumSet;
+
+import org.gradle.tooling.events.ProgressEventType;
 
 /**
  * A {@code BuildLaunchRequest} allows you to configure and execute a Gradle build. Instances of {@code BuildLaunchRequest} are not thread-safe. <p> You use a {@code
@@ -104,6 +107,30 @@ public interface BuildLaunchRequest extends Request<Void> {
      */
     @Override
     BuildLaunchRequest addProgressListeners(ProgressListener... listeners);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    BuildLaunchRequest typedProgressListeners(org.gradle.tooling.events.ProgressListener... listeners);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    BuildLaunchRequest typedProgressListeners(EnumSet<ProgressEventType> progressEventTypes, org.gradle.tooling.events.ProgressListener... listeners);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    BuildLaunchRequest addTypedProgressListeners(org.gradle.tooling.events.ProgressListener... listeners);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    BuildLaunchRequest addTypedProgressListeners(EnumSet<ProgressEventType> progressEventTypes, org.gradle.tooling.events.ProgressListener... listeners);
 
     /**
      * {@inheritDoc}

@@ -16,8 +16,10 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
+import java.util.EnumSet;
 import java.util.Map;
 
+import org.gradle.tooling.events.ProgressEventType;
 import org.gradle.internal.Factory;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildActionExecuter;
@@ -33,7 +35,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+
 import com.gradleware.tooling.toolingclient.BuildActionRequest;
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
@@ -186,6 +190,16 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         for (ProgressListener progressListener : request.getProgressListeners()) {
             operation.addProgressListener(progressListener);
         }
+        for (org.gradle.tooling.events.ProgressListener progressListener : request.getTypedProgressListeners()) {
+            operation.addProgressListener(progressListener);
+        }
+        Map<EnumSet<ProgressEventType>, ImmutableList<org.gradle.tooling.events.ProgressListener>> typedProgressListenersMap = request.getTypedProgressListenersMap();
+        for (EnumSet<ProgressEventType> progressEventType : typedProgressListenersMap.keySet()) {
+            for (org.gradle.tooling.events.ProgressListener progressListener : typedProgressListenersMap.get(progressEventType)) {
+                operation.addProgressListener(progressListener, progressEventType);
+            }
+        }
+
         return operation;
     }
 

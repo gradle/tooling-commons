@@ -61,6 +61,12 @@ public final class ToolingClientSample {
                         public void statusChanged(ProgressEvent event) {
                             System.out.println("Progress: " + event.getDescription());
                         }
+                    }).
+                    typedProgressListeners(new org.gradle.tooling.events.ProgressListener() {
+                        @Override
+                        public void statusChanged(org.gradle.tooling.events.ProgressEvent event) {
+                            System.out.println("Progress: " + event.getDescriptor());
+                        };
                     });
             LongRunningOperationPromise<BuildEnvironment> operation = modelRequest.execute();
             operation.onComplete(new Consumer<BuildEnvironment>() {

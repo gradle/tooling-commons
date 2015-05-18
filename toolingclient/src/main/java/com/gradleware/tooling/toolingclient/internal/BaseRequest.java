@@ -18,14 +18,20 @@ package com.gradleware.tooling.toolingclient.internal;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+
 import com.gradleware.tooling.toolingclient.GradleDistribution;
+
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.events.ProgressEventType;
 
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.EnumSet;
+import java.util.Map;
 
 /**
  * Internal base class for all tooling client request objects.
@@ -49,6 +55,8 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Insp
     private ImmutableList<String> jvmArguments;
     private ImmutableList<String> arguments;
     private ImmutableList<ProgressListener> progressListeners;
+    private ImmutableList<org.gradle.tooling.events.ProgressListener> typedProgressListeners;
+    private ImmutableMap<EnumSet<ProgressEventType>, ImmutableList<org.gradle.tooling.events.ProgressListener>> typedProgressListenersMap;
     private CancellationToken cancellationToken;
 
     BaseRequest(ExecutableToolingClient toolingClient) {
@@ -57,6 +65,8 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Insp
         this.jvmArguments = ImmutableList.of();
         this.arguments = ImmutableList.of();
         this.progressListeners = ImmutableList.of();
+        this.typedProgressListeners = ImmutableList.of();
+        this.typedProgressListenersMap = ImmutableMap.of();
         this.cancellationToken = GradleConnector.newCancellationTokenSource().token();
     }
 
@@ -189,6 +199,41 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Insp
     @Override
     public ProgressListener[] getProgressListeners() {
         return this.progressListeners.toArray(new ProgressListener[this.progressListeners.size()]);
+    }
+
+    @Override
+    public SELF typedProgressListeners(org.gradle.tooling.events.ProgressListener... listeners) {
+        this.typedProgressListeners = ImmutableList.copyOf(listeners);
+        return getThis();
+    }
+
+    @Override
+    public SELF typedProgressListeners(EnumSet<ProgressEventType> progressEventTypes, org.gradle.tooling.events.ProgressListener... listeners) {
+        this.typedProgressListenersMap = ImmutableMap.of(progressEventTypes, ImmutableList.copyOf(listeners));
+        return getThis();
+    }
+
+    @Override
+    public SELF addTypedProgressListeners(org.gradle.tooling.events.ProgressListener... listeners) {
+        this.typedProgressListeners = ImmutableList.<org.gradle.tooling.events.ProgressListener>builder().addAll(this.typedProgressListeners).addAll(ImmutableList.copyOf(listeners)).build();
+        return getThis();
+    }
+
+    @Override
+    public SELF addTypedProgressListeners(EnumSet<ProgressEventType> progressEventTypes, org.gradle.tooling.events.ProgressListener... listeners) {
+        this.typedProgressListenersMap = ImmutableMap.<EnumSet<ProgressEventType>, ImmutableList<org.gradle.tooling.events.ProgressListener>>builder()
+                .putAll(this.typedProgressListenersMap).put(progressEventTypes, ImmutableList.copyOf(listeners)).build();
+        return getThis();
+    }
+
+    @Override
+    public org.gradle.tooling.events.ProgressListener[] getTypedProgressListeners() {
+        return this.typedProgressListeners.toArray(new org.gradle.tooling.events.ProgressListener[this.typedProgressListeners.size()]);
+    }
+
+    @Override
+    public Map<EnumSet<ProgressEventType>, ImmutableList<org.gradle.tooling.events.ProgressListener>> getTypedProgressListenersMap() {
+        return ImmutableMap.copyOf(this.typedProgressListenersMap);
     }
 
     @Override

@@ -16,8 +16,11 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal
 
+import org.gradle.jarjar.com.google.common.collect.ImmutableMap;
+
 import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
+
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
 import com.gradleware.tooling.toolingclient.GradleDistribution
@@ -26,6 +29,7 @@ import com.gradleware.tooling.toolingmodel.repository.Environment
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
+
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
 import org.junit.Rule
@@ -46,7 +50,7 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
 
     // request attributes and model repository for testing
     fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
-    transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableMap.of(), GradleConnector.newCancellationTokenSource().token())
     repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
   }
 
@@ -185,7 +189,7 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
   def "fetchBuildInvocations - fallback scenarios"() {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, GradleDistribution.forVersion('2.2'), null, ImmutableList.of(), ImmutableList.of())
-    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableMap.of(), GradleConnector.newCancellationTokenSource().token())
     def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), Environment.ECLIPSE)
 
     when:

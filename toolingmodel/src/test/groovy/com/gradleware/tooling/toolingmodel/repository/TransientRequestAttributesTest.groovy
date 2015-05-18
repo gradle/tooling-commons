@@ -16,8 +16,13 @@
 
 package com.gradleware.tooling.toolingmodel.repository
 
+import org.gradle.tooling.events.ProgressEventType;
+
 import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableMap;
+
 import com.gradleware.tooling.toolingclient.BuildActionRequest
+
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
 import spock.lang.Specification
@@ -32,8 +37,9 @@ class TransientRequestAttributesTest extends Specification {
     def error = Mock(OutputStream)
     def input = Mock(InputStream)
     def progressListeners = ImmutableList.of(Mock(ProgressListener))
+    def typedProgressListeners = ImmutableMap.of()
     def cancellationToken = GradleConnector.newCancellationTokenSource().token()
-    def requestAttributes = new TransientRequestAttributes(colorOutput, output, error, input, progressListeners, cancellationToken)
+    def requestAttributes = new TransientRequestAttributes(colorOutput, output, error, input, progressListeners, typedProgressListeners, cancellationToken)
 
     when:
     requestAttributes.apply(buildActionRequest)
@@ -50,7 +56,7 @@ class TransientRequestAttributesTest extends Specification {
   def "equalsAndHashCode"() {
     setup:
     def requestAttributes = new TransientRequestAttributes(true, Mock(OutputStream), Mock(OutputStream), Mock(InputStream),
-        ImmutableList.of(Mock(ProgressListener)),
+        ImmutableList.of(Mock(ProgressListener)), ImmutableMap.of(),
         GradleConnector.newCancellationTokenSource().token())
     assert requestAttributes == requestAttributes
     assert requestAttributes.hashCode() == requestAttributes.hashCode()

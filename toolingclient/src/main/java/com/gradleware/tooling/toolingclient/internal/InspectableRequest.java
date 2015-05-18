@@ -19,7 +19,12 @@ package com.gradleware.tooling.toolingclient.internal;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.EnumSet;
+import java.util.Map;
 
+import com.google.common.collect.ImmutableList;
+
+import org.gradle.tooling.events.ProgressEventType;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
 
@@ -71,6 +76,18 @@ interface InspectableRequest<T> extends Request<T> {
      * @see org.gradle.tooling.internal.consumer.AbstractLongRunningOperation#addProgressListener(org.gradle.tooling.ProgressListener)
      */
     ProgressListener[] getProgressListeners();
+
+    /**
+     * @return never null, facilitates iteration when adding the listeners to AbstractLongRunningOperation
+     * @see org.gradle.tooling.internal.consumer.AbstractLongRunningOperation#addProgressListener(org.gradle.tooling.events.ProgressListener)
+     */
+    org.gradle.tooling.events.ProgressListener[] getTypedProgressListeners();
+
+    /**
+     * @return never null, facilitates iteration when adding the listeners to AbstractLongRunningOperation
+     * @see org.gradle.tooling.internal.consumer.AbstractLongRunningOperation#addProgressListener(org.gradle.tooling.events.ProgressListener,EnumSet)
+     */
+    Map<EnumSet<ProgressEventType>, ImmutableList<org.gradle.tooling.events.ProgressListener>> getTypedProgressListenersMap();
 
     /**
      * @return never null, AbstractLongRunningOperation does not accept null token

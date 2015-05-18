@@ -23,6 +23,9 @@ import org.gradle.tooling.ProgressListener;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.EnumSet;
+
+import org.gradle.tooling.events.ProgressEventType;
 
 /**
  * A {@code BuildActionRequest} allows to execute logic in the build process. Instances of {@code BuildActionRequest} are not thread-safe. <p> You use a {@code BuildActionRequest}
@@ -106,6 +109,30 @@ public interface BuildActionRequest<T> extends Request<T> {
      */
     @Override
     BuildActionRequest<T> addProgressListeners(ProgressListener... listeners);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    BuildActionRequest<T> typedProgressListeners(org.gradle.tooling.events.ProgressListener... listeners);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    BuildActionRequest<T> typedProgressListeners(EnumSet<ProgressEventType> progressEventTypes, org.gradle.tooling.events.ProgressListener... listeners);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    BuildActionRequest<T> addTypedProgressListeners(org.gradle.tooling.events.ProgressListener... listeners);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    BuildActionRequest<T> addTypedProgressListeners(EnumSet<ProgressEventType> progressEventTypes, org.gradle.tooling.events.ProgressListener... listeners);
 
     /**
      * {@inheritDoc}

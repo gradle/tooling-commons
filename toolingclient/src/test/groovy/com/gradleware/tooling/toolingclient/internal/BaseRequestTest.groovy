@@ -38,6 +38,22 @@ class BaseRequestTest extends Specification {
     request.progressListeners == [someListener, someOtherListener]
 }
 
+  def "addingAdditionalTypedProgressListeners"() {
+    given:
+    ExecutableToolingClient toolingClient = Mock(ExecutableToolingClient)
+    def request = new MyBaseRequest(toolingClient)
+
+    def someListener = Mock(org.gradle.tooling.events.ProgressListener)
+    def someOtherListener = Mock(org.gradle.tooling.events.ProgressListener)
+
+    when:
+    request.typedProgressListeners(someListener)
+    request.addTypedProgressListeners(someOtherListener)
+
+    then:
+    request.typedProgressListeners == [someListener, someOtherListener]
+  }
+
   private static class MyBaseRequest<T> extends BaseRequest<T, MyBaseRequest<T>> {
 
     MyBaseRequest(ExecutableToolingClient toolingClient) {
