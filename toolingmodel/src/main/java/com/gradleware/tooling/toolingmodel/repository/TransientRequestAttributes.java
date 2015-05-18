@@ -17,17 +17,21 @@
 package com.gradleware.tooling.toolingmodel.repository;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+
 import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingutils.ImmutableCollection;
+
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.events.build.BuildProgressListener;
-import org.gradle.tooling.events.task.TaskProgressListener;
-import org.gradle.tooling.events.test.TestProgressListener;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
+
+import org.gradle.tooling.events.ProgressEventType;
 
 /**
  * Container to hold those attributes of a {@link Request} that do change between request invocations.
@@ -41,22 +45,17 @@ public final class TransientRequestAttributes {
     private final OutputStream standardError;
     private final InputStream standardInput;
     private final ImmutableList<ProgressListener> progressListeners;
-    private final ImmutableList<BuildProgressListener> buildProgressListeners;
-    private final ImmutableList<TaskProgressListener> taskProgressListeners;
-    private final ImmutableList<TestProgressListener> testProgressListeners;
+    private final ImmutableMap<EnumSet<ProgressEventType>, List<org.gradle.tooling.events.ProgressListener>> typedProgressListeners;
     private final CancellationToken cancellationToken;
 
     public TransientRequestAttributes(boolean colorOutput, OutputStream standardOutput, OutputStream standardError, InputStream standardInput, List<ProgressListener> progressListeners,
-                                      List<BuildProgressListener> buildProgressListeners, List<TaskProgressListener> taskProgressListeners, List<TestProgressListener> testProgressListeners,
-                                      CancellationToken cancellationToken) {
+            Map<EnumSet<ProgressEventType>, List<org.gradle.tooling.events.ProgressListener>> typedProgressListeners, CancellationToken cancellationToken) {
         this.colorOutput = colorOutput;
         this.standardOutput = standardOutput;
         this.standardError = standardError;
         this.standardInput = standardInput;
         this.progressListeners = ImmutableList.copyOf(progressListeners);
-        this.buildProgressListeners = ImmutableList.copyOf(buildProgressListeners);
-        this.taskProgressListeners = ImmutableList.copyOf(taskProgressListeners);
-        this.testProgressListeners = ImmutableList.copyOf(testProgressListeners);
+        this.typedProgressListeners = ImmutableMap.copyOf(typedProgressListeners);
         this.cancellationToken = cancellationToken;
     }
 
@@ -86,24 +85,6 @@ public final class TransientRequestAttributes {
         return this.progressListeners;
     }
 
-    @ImmutableCollection
-    @SuppressWarnings("UnusedDeclaration")
-    public List<BuildProgressListener> getBuildProgressListeners() {
-        return this.buildProgressListeners;
-    }
-
-    @ImmutableCollection
-    @SuppressWarnings("UnusedDeclaration")
-    public List<TaskProgressListener> getTaskProgressListeners() {
-        return this.taskProgressListeners;
-    }
-
-    @ImmutableCollection
-    @SuppressWarnings("UnusedDeclaration")
-    public List<TestProgressListener> getTestProgressListeners() {
-        return this.testProgressListeners;
-    }
-
     @SuppressWarnings("UnusedDeclaration")
     public CancellationToken getCancellationToken() {
         return this.cancellationToken;
@@ -115,10 +96,11 @@ public final class TransientRequestAttributes {
         request.standardError(this.standardError);
         request.standardInput(this.standardInput);
         request.progressListeners(this.progressListeners.toArray(new ProgressListener[this.progressListeners.size()]));
-        request.buildProgressListeners(this.buildProgressListeners.toArray(new BuildProgressListener[this.buildProgressListeners.size()]));
-        request.taskProgressListeners(this.taskProgressListeners.toArray(new TaskProgressListener[this.taskProgressListeners.size()]));
-        request.testProgressListeners(this.testProgressListeners.toArray(new TestProgressListener[this.testProgressListeners.size()]));
         request.cancellationToken(this.cancellationToken);
+        for (EnumSet<ProgressEventType> progressEventTypes : this.typedProgressListeners.keySet()) {
+            List<org.gradle.tooling.events.ProgressListener> listeners = this.typedProgressListeners.get(progressEventTypes);
+            request.addTypedProgressListeners(progressEventTypes, listeners.toArray(new org.gradle.tooling.events.ProgressListener[listeners.size()]));
+        }
     }
 
 }

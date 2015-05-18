@@ -18,13 +18,13 @@ package com.gradleware.tooling.toolingclient;
 
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.events.build.BuildProgressListener;
-import org.gradle.tooling.events.task.TaskProgressListener;
-import org.gradle.tooling.events.test.TestProgressListener;
 
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.EnumSet;
+
+import org.gradle.tooling.events.ProgressEventType;
 
 /**
  * A {@code BuildLaunchRequest} allows you to configure and execute a Gradle build. Instances of {@code BuildLaunchRequest} are not thread-safe. <p> You use a {@code
@@ -112,37 +112,25 @@ public interface BuildLaunchRequest extends Request<Void> {
      * {@inheritDoc}
      */
     @Override
-    BuildLaunchRequest buildProgressListeners(BuildProgressListener... listeners);
+    BuildLaunchRequest typedProgressListeners(org.gradle.tooling.events.ProgressListener... listeners);
 
     /**
      * {@inheritDoc}
      */
     @Override
-    BuildLaunchRequest addBuildProgressListeners(BuildProgressListener... listeners);
+    BuildLaunchRequest typedProgressListeners(EnumSet<ProgressEventType> progressEventTypes, org.gradle.tooling.events.ProgressListener... listeners);
 
     /**
      * {@inheritDoc}
      */
     @Override
-    BuildLaunchRequest taskProgressListeners(TaskProgressListener... listeners);
+    BuildLaunchRequest addTypedProgressListeners(org.gradle.tooling.events.ProgressListener... listeners);
 
     /**
      * {@inheritDoc}
      */
     @Override
-    BuildLaunchRequest addTaskProgressListeners(TaskProgressListener... listeners);
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    BuildLaunchRequest testProgressListeners(TestProgressListener... listeners);
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    BuildLaunchRequest addTestProgressListeners(TestProgressListener... listeners);
+    BuildLaunchRequest addTypedProgressListeners(EnumSet<ProgressEventType> progressEventTypes, org.gradle.tooling.events.ProgressListener... listeners);
 
     /**
      * {@inheritDoc}

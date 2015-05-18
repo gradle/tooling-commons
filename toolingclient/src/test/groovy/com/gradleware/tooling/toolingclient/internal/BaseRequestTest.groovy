@@ -18,9 +18,6 @@ package com.gradleware.tooling.toolingclient.internal
 
 import com.gradleware.tooling.toolingclient.LongRunningOperationPromise
 import org.gradle.tooling.ProgressListener
-import org.gradle.tooling.events.build.BuildProgressListener
-import org.gradle.tooling.events.task.TaskProgressListener
-import org.gradle.tooling.events.test.TestProgressListener
 import spock.lang.Specification
 
 class BaseRequestTest extends Specification {
@@ -39,54 +36,22 @@ class BaseRequestTest extends Specification {
 
     then:
     request.progressListeners == [someListener, someOtherListener]
-  }
+}
 
-  def "addingAdditionalBuildProgressListeners"() {
+  def "addingAdditionalTypedProgressListeners"() {
     given:
     ExecutableToolingClient toolingClient = Mock(ExecutableToolingClient)
     def request = new MyBaseRequest(toolingClient)
 
-    def someListener = Mock(BuildProgressListener)
-    def someOtherListener = Mock(BuildProgressListener)
+    def someListener = Mock(org.gradle.tooling.events.ProgressListener)
+    def someOtherListener = Mock(org.gradle.tooling.events.ProgressListener)
 
     when:
-    request.buildProgressListeners(someListener)
-    request.addBuildProgressListeners(someOtherListener)
+    request.typedProgressListeners(someListener)
+    request.addTypedProgressListeners(someOtherListener)
 
     then:
-    request.buildProgressListeners == [someListener, someOtherListener]
-  }
-
-  def "addingAdditionalTaskProgressListeners"() {
-    given:
-    ExecutableToolingClient toolingClient = Mock(ExecutableToolingClient)
-    def request = new MyBaseRequest(toolingClient)
-
-    def someListener = Mock(TaskProgressListener)
-    def someOtherListener = Mock(TaskProgressListener)
-
-    when:
-    request.taskProgressListeners(someListener)
-    request.addTaskProgressListeners(someOtherListener)
-
-    then:
-    request.taskProgressListeners == [someListener, someOtherListener]
-  }
-
-  def "addingAdditionalTestProgressListeners"() {
-    given:
-    ExecutableToolingClient toolingClient = Mock(ExecutableToolingClient)
-    def request = new MyBaseRequest(toolingClient)
-
-    def someListener = Mock(TestProgressListener)
-    def someOtherListener = Mock(TestProgressListener)
-
-    when:
-    request.testProgressListeners(someListener)
-    request.addTestProgressListeners(someOtherListener)
-
-    then:
-    request.testProgressListeners == [someListener, someOtherListener]
+    request.typedProgressListeners == [someListener, someOtherListener]
   }
 
   private static class MyBaseRequest<T> extends BaseRequest<T, MyBaseRequest<T>> {

@@ -19,12 +19,14 @@ package com.gradleware.tooling.toolingclient.internal;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.EnumSet;
+import java.util.Map;
 
+import com.google.common.collect.ImmutableList;
+
+import org.gradle.tooling.events.ProgressEventType;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.events.build.BuildProgressListener;
-import org.gradle.tooling.events.task.TaskProgressListener;
-import org.gradle.tooling.events.test.TestProgressListener;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.Request;
@@ -77,21 +79,15 @@ interface InspectableRequest<T> extends Request<T> {
 
     /**
      * @return never null, facilitates iteration when adding the listeners to AbstractLongRunningOperation
-     * @see org.gradle.tooling.internal.consumer.AbstractLongRunningOperation#addBuildProgressListener(org.gradle.tooling.events.build.BuildProgressListener)
+     * @see org.gradle.tooling.internal.consumer.AbstractLongRunningOperation#addProgressListener(org.gradle.tooling.events.ProgressListener)
      */
-    BuildProgressListener[] getBuildProgressListeners();
+    org.gradle.tooling.events.ProgressListener[] getTypedProgressListeners();
 
     /**
      * @return never null, facilitates iteration when adding the listeners to AbstractLongRunningOperation
-     * @see org.gradle.tooling.internal.consumer.AbstractLongRunningOperation#addTaskProgressListener(org.gradle.tooling.events.task.TaskProgressListener)
+     * @see org.gradle.tooling.internal.consumer.AbstractLongRunningOperation#addProgressListener(org.gradle.tooling.events.ProgressListener,EnumSet)
      */
-    TaskProgressListener[] getTaskProgressListeners();
-
-    /**
-     * @return never null, facilitates iteration when adding the listeners to AbstractLongRunningOperation
-     * @see org.gradle.tooling.internal.consumer.AbstractLongRunningOperation#addTestProgressListener(org.gradle.tooling.events.test.TestProgressListener)
-     */
-    TestProgressListener[] getTestProgressListeners();
+    Map<EnumSet<ProgressEventType>, ImmutableList<org.gradle.tooling.events.ProgressListener>> getTypedProgressListenersMap();
 
     /**
      * @return never null, AbstractLongRunningOperation does not accept null token

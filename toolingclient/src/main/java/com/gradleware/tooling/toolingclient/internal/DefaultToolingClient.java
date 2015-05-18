@@ -16,8 +16,10 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
+import java.util.EnumSet;
 import java.util.Map;
 
+import org.gradle.tooling.events.ProgressEventType;
 import org.gradle.internal.Factory;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildActionExecuter;
@@ -27,16 +29,15 @@ import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.ProjectConnection;
-import org.gradle.tooling.events.build.BuildProgressListener;
-import org.gradle.tooling.events.task.TaskProgressListener;
-import org.gradle.tooling.events.test.TestProgressListener;
 import org.gradle.tooling.internal.consumer.ConnectorServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+
 import com.gradleware.tooling.toolingclient.BuildActionRequest;
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
@@ -189,15 +190,16 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         for (ProgressListener progressListener : request.getProgressListeners()) {
             operation.addProgressListener(progressListener);
         }
-        for (BuildProgressListener buildProgressListener : request.getBuildProgressListeners()) {
-            operation.addBuildProgressListener(buildProgressListener);
+        for (org.gradle.tooling.events.ProgressListener progressListener : request.getTypedProgressListeners()) {
+            operation.addProgressListener(progressListener);
         }
-        for (TaskProgressListener taskProgressListener : request.getTaskProgressListeners()) {
-            operation.addTaskProgressListener(taskProgressListener);
+        Map<EnumSet<ProgressEventType>, ImmutableList<org.gradle.tooling.events.ProgressListener>> typedProgressListenersMap = request.getTypedProgressListenersMap();
+        for (EnumSet<ProgressEventType> progressEventType : typedProgressListenersMap.keySet()) {
+            for (org.gradle.tooling.events.ProgressListener progressListener : typedProgressListenersMap.get(progressEventType)) {
+                operation.addProgressListener(progressListener, progressEventType);
+            }
         }
-        for (TestProgressListener testProgressListener : request.getTestProgressListeners()) {
-            operation.addTestProgressListener(testProgressListener);
-        }
+
         return operation;
     }
 
