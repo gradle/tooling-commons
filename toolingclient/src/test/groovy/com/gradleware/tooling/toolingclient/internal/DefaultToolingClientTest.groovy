@@ -190,7 +190,6 @@ class DefaultToolingClientTest extends Specification {
     toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
   }
 
-  @Ignore
   def "progressListenersInvokedForBuildActionRequest"() {
     setup:
     AtomicBoolean progressListenerInvoked = new AtomicBoolean(false)
