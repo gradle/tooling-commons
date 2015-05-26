@@ -501,6 +501,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
+  @SuppressWarnings("GroovyTrivialConditional")
   def "fetchEclipseGradleBuild - sources and project/external dependencies "(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderMultiProjectBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
@@ -553,6 +554,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     guavaDependency.file != null
     guavaDependency.source != null
     guavaDependency.javadoc == null
+    guavaDependency.exported == higherOrEqual('2.5', distribution) ? false : true
     if (higherOrEqual('1.1', distribution)) {
       assert guavaDependency.gradleModuleVersion.get().group == 'com.google.guava'
       assert guavaDependency.gradleModuleVersion.get().name == 'guava'

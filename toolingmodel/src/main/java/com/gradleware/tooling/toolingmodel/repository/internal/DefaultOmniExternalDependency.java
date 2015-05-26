@@ -35,12 +35,14 @@ public final class DefaultOmniExternalDependency implements OmniExternalDependen
     private final File source;
     private final File javadoc;
     private final Maybe<OmniGradleModuleVersion> gradleModuleVersion;
+    private final boolean exported;
 
-    private DefaultOmniExternalDependency(File file, File source, File javadoc, Maybe<OmniGradleModuleVersion> gradleModuleVersion) {
+    private DefaultOmniExternalDependency(File file, File source, File javadoc, Maybe<OmniGradleModuleVersion> gradleModuleVersion, boolean exported) {
         this.file = file;
         this.source = source;
         this.javadoc = javadoc;
         this.gradleModuleVersion = gradleModuleVersion;
+        this.exported = exported;
     }
 
     @Override
@@ -63,12 +65,18 @@ public final class DefaultOmniExternalDependency implements OmniExternalDependen
         return this.gradleModuleVersion;
     }
 
+    @Override
+    public boolean isExported() {
+        return this.exported;
+    }
+
     public static DefaultOmniExternalDependency from(ExternalDependency externalDependency) {
         return new DefaultOmniExternalDependency(
                 externalDependency.getFile(),
                 externalDependency.getSource(),
                 externalDependency.getJavadoc(),
-                getGradleModuleVersion(externalDependency));
+                getGradleModuleVersion(externalDependency),
+                getIsExported(externalDependency));
     }
 
     /**
@@ -82,6 +90,19 @@ public final class DefaultOmniExternalDependency implements OmniExternalDependen
             return Maybe.of((OmniGradleModuleVersion) DefaultOmniGradleModuleVersion.from(gav));
         } catch (Exception ignore) {
             return Maybe.absent();
+        }
+    }
+
+    /**
+     * ExternalDependency#isExported is only available in Gradle versions >= 2.5.
+     *
+     * @param externalDependency the external dependency model
+     */
+    private static boolean getIsExported(ExternalDependency externalDependency) {
+        try {
+            return externalDependency.isExported();
+        } catch (Exception ignore) {
+            return true;
         }
     }
 

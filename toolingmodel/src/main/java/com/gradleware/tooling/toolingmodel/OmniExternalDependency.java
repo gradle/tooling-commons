@@ -55,4 +55,11 @@ public interface OmniExternalDependency {
      */
     Maybe<OmniGradleModuleVersion> getGradleModuleVersion();
 
+    /**
+     * Returns whether this dependency should be exported.
+     *
+     * @return {@code true} if this dependency should to be exported
+     */
+    boolean isExported();
+
 }
