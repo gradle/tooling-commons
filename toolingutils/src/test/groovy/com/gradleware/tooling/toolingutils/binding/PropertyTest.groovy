@@ -52,7 +52,7 @@ class PropertyTest extends Specification {
     assert property.getValue() == null
   }
 
-  def "validator is invoked when calling setValue()"() {
+  def "validator is invoked when calling setValue"() {
     given:
     def validator = Mock(Validator)
     1 * validator.validate('alpha') >> { Optional.absent() }
@@ -65,7 +65,7 @@ class PropertyTest extends Specification {
     errorMessage == Optional.absent()
   }
 
-  def "validator is invoked when calling validate()"() {
+  def "validator is invoked when calling validate"() {
     given:
     def validator = Mock(Validator)
     1 * validator.validate(null) >> { Optional.absent() }
@@ -78,7 +78,7 @@ class PropertyTest extends Specification {
     errorMessage == Optional.absent()
   }
 
-  def "validator is invoked when calling isValid()"() {
+  def "validator is invoked when calling isValid"() {
     given:
     def validator = Mock(Validator)
     1 * validator.validate(null) >> { Optional.absent() }
@@ -91,7 +91,7 @@ class PropertyTest extends Specification {
     isValid
   }
 
-  def "validation listeners are invoked when calling setValue()"() {
+  def "validation listeners are invoked when calling setValue"() {
     given:
     def validator = Mock(Validator)
     1 * validator.validate('alpha') >> { Optional.absent() }
@@ -108,7 +108,7 @@ class PropertyTest extends Specification {
     validate == Optional.absent()
   }
 
-  def "validation listeners are not invoked when calling validate()"() {
+  def "validation listeners are not invoked when calling validate"() {
     given:
     def validator = Mock(Validator)
     1 * validator.validate(null) >> { Optional.absent() }
@@ -125,7 +125,7 @@ class PropertyTest extends Specification {
     validate == Optional.absent()
   }
 
-  def "validation listeners are not invoked when calling isValid()"() {
+  def "validation listeners are not invoked when calling isValid"() {
     given:
     def validator = Mock(Validator)
     1 * validator.validate(null) >> { Optional.absent() }
