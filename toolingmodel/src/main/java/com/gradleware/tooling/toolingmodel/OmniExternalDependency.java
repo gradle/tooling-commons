@@ -58,7 +58,7 @@ public interface OmniExternalDependency {
     /**
      * Returns whether this dependency should be exported.
      *
-     * @return {@code true} if this dependency should to be exported
+     * @return {@code true} if this dependency should be exported
      */
     boolean isExported();
 
