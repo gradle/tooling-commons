@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package com.gradleware.tooling.toolingutils.binding;
+package com.gradleware.tooling.toolingutils;
 
 import com.google.common.base.Optional;
+import com.gradleware.tooling.toolingutils.binding.Property;
+import com.gradleware.tooling.toolingutils.binding.Validator;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
