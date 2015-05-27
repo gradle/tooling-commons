@@ -545,7 +545,11 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
 
     // verify project dependencies
     eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Spec).get().projectDependencies == []
-    eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Spec).get().projectDependencies*.targetProjectPath.path == [':api']
+    def implProjectDependencies = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Spec).get().projectDependencies
+    implProjectDependencies.size() == 1
+    def apiProjectDependency = implProjectDependencies[0]
+    apiProjectDependency.targetProjectPath.path == ':api'
+    apiProjectDependency.exported == higherOrEqual('2.5', distribution) ? false : true
 
     // verify external dependencies
     def apiExternalDependencies = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Spec).get().externalDependencies

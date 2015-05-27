@@ -32,10 +32,12 @@ public final class DefaultOmniEclipseProjectDependency implements OmniEclipsePro
 
     private final Path targetProjectPath;
     private final String path;
+    private final boolean exported;
 
-    private DefaultOmniEclipseProjectDependency(Path targetProjectPath, String path) {
+    private DefaultOmniEclipseProjectDependency(Path targetProjectPath, String path, boolean exported) {
         this.targetProjectPath = targetProjectPath;
         this.path = path;
+        this.exported = exported;
     }
 
     @Override
@@ -48,11 +50,17 @@ public final class DefaultOmniEclipseProjectDependency implements OmniEclipsePro
         return this.path;
     }
 
+    @Override
+    public boolean isExported() {
+        return this.exported;
+    }
+
     public static DefaultOmniEclipseProjectDependency from(EclipseProjectDependency projectDependency) {
         String targetEclipseProjectPath = inspectTargetEclipseProjectPath(projectDependency);
         return new DefaultOmniEclipseProjectDependency(
                 Path.from(targetEclipseProjectPath),
-                projectDependency.getPath());
+                projectDependency.getPath(),
+                getIsExported(projectDependency));
     }
 
     @SuppressWarnings("unchecked")
@@ -61,6 +69,19 @@ public final class DefaultOmniEclipseProjectDependency implements OmniEclipsePro
         Object targetEclipseProject = new ProtocolToModelAdapter().unpack(projectDependency.getTargetProject());
         PropertyAccessor<Object, String> pathProperty = (PropertyAccessor<Object, String>) JavaReflectionUtil.readableProperty(targetEclipseProject.getClass(), String.class, "path");
         return pathProperty.getValue(targetEclipseProject);
+    }
+
+    /**
+     * EclipseProjectDependency#isExported is only available in Gradle versions >= 2.5.
+     *
+     * @param projectDependency the project dependency model
+     */
+    private static boolean getIsExported(EclipseProjectDependency projectDependency) {
+        try {
+            return projectDependency.isExported();
+        } catch (Exception ignore) {
+            return true;
+        }
     }
 
 }

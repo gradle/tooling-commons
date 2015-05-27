@@ -37,4 +37,11 @@ public interface OmniEclipseProjectDependency {
      */
     String getPath();
 
+    /**
+     * Returns whether this project dependency should be exported.
+     *
+     * @return {@code true} if this project dependency should be exported
+     */
+    boolean isExported();
+
 }
