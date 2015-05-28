@@ -70,7 +70,10 @@ subprojects {
   }
 
   // make sure the main resources folder is always generated in the build directory, otherwise 'compileTestGroovy' issues a warning
-  task mainResourcesDir << { sourceSets.main.output.resourcesDir.mkdirs() }
+  task mainResourcesDir() {
+    outputs.dir sourceSets.main.output.resourcesDir
+    doLast { sourceSets.main.output.resourcesDir.mkdirs() }
+  }
   processResources.dependsOn mainResourcesDir
 
   // bundle sources
