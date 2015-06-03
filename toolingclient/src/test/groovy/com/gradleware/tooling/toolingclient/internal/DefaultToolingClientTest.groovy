@@ -25,12 +25,14 @@ import org.gradle.tooling.BuildAction
 import org.gradle.tooling.BuildController
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
+import org.gradle.tooling.events.ProgressEvent
+import org.gradle.tooling.events.test.JvmTestOperationDescriptor
+import org.gradle.tooling.events.test.TestProgressEvent
 import org.gradle.tooling.internal.consumer.DefaultGradleConnector
 import org.gradle.tooling.model.GradleProject
 import org.gradle.tooling.model.build.BuildEnvironment
 import org.gradle.tooling.model.gradle.BuildInvocations
 import org.junit.Rule
-import spock.lang.Ignore
 import spock.lang.Specification
 
 import java.util.concurrent.atomic.AtomicBoolean
@@ -226,6 +228,39 @@ class DefaultToolingClientTest extends Specification {
     toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
   }
 
+  def "running tasks with task-specific arguments"() {
+    setup:
+    createGradleProject()
+
+    List<TestProgressEvent> result = new ArrayList<TestProgressEvent>()
+
+    DefaultToolingClient toolingClient = new DefaultToolingClient()
+    def launchRequest = toolingClient.newBuildLaunchRequest(LaunchableConfig.forTasks())
+    launchRequest.projectDir(directoryProvider.testDirectory)
+    launchRequest.arguments('test', '--tests', 'example.MyTest1')
+    launchRequest.typedProgressListeners(new org.gradle.tooling.events.ProgressListener() {
+
+      @Override
+      void statusChanged(ProgressEvent event) {
+        if (event instanceof TestProgressEvent) {
+          result << event as TestProgressEvent
+        }
+      }
+    })
+
+    when:
+    launchRequest.executeAndWait()
+
+    then:
+    noExceptionThrown()
+
+    result.find { ((JvmTestOperationDescriptor) it.descriptor).className == 'example.MyTest1' } != null
+    result.find { ((JvmTestOperationDescriptor) it.descriptor).className == 'example.MyTest2' } != null
+
+    result.find { ((JvmTestOperationDescriptor) it.descriptor).displayName == 'Test foo(example.MyTest1)' } != null
+    result.find { ((JvmTestOperationDescriptor) it.descriptor).displayName == 'Test bar(example.MyTest2)' } == null
+  }
+
   def createGradleProject() {
     // settings.gradle file to ensure test does not pick up Gradle version defined in the wrapper of the commons build itself
     directoryProvider.createFile('settings.gradle')
@@ -237,12 +272,21 @@ class DefaultToolingClientTest extends Specification {
 """
 
     directoryProvider.createDir('src/test/java/example')
-    directoryProvider.file('src/test/java/example/MyTest.java') << """
+    directoryProvider.file('src/test/java/example/MyTest1.java') << """
             package example;
             import org.junit.Test;
-            public class MyTest {
+            public class MyTest1 {
                 @org.junit.Test public void foo() {
                     org.junit.Assert.assertEquals(1, 1);
+                }
+            }
+"""
+    directoryProvider.file('src/test/java/example/MyTest2.java') << """
+            package example;
+            import org.junit.Test;
+            public class MyTest2 {
+                @org.junit.Test public void bar() {
+                    throw new RuntimeException();
                 }
             }
 """
