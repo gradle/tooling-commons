@@ -148,6 +148,8 @@ class DefaultToolingClientTest extends Specification {
 
   def "progressListenersInvokedForModelRequest"() {
     setup:
+    directoryProvider.createFile('settings.gradle')
+
     AtomicBoolean progressListenerInvoked = new AtomicBoolean(false)
     AtomicBoolean typedProgressListenerInvoked = new AtomicBoolean(false)
 
@@ -194,6 +196,8 @@ class DefaultToolingClientTest extends Specification {
 
   def "progressListenersInvokedForBuildActionRequest"() {
     setup:
+    directoryProvider.createFile('settings.gradle')
+
     AtomicBoolean progressListenerInvoked = new AtomicBoolean(false)
     AtomicBoolean typedProgressListenerInvoked = new AtomicBoolean(false)
 
