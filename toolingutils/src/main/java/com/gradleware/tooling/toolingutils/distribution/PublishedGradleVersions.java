@@ -107,7 +107,7 @@ public final class PublishedGradleVersions {
     public static PublishedGradleVersions create(boolean enableCaching) {
         if (enableCaching) {
             // allow to read from and write to cache file
-            if (CACHE_FILE.isFile()) {
+            if (CACHE_FILE.isFile() && CACHE_FILE.exists()) {
                 // if cache file exists, try to make use of it
                 Optional<String> cachedVersions = readCacheVersionsFile();
                 if (CACHE_FILE.lastModified() > System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1)) {
