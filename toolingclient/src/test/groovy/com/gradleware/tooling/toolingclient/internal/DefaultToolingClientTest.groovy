@@ -148,6 +148,7 @@ class DefaultToolingClientTest extends Specification {
 
   def "progressListenersInvokedForModelRequest"() {
     setup:
+    // settings.gradle file to ensure test does not pick up Gradle version defined in the wrapper of the commons build itself
     directoryProvider.createFile('settings.gradle')
 
     AtomicBoolean progressListenerInvoked = new AtomicBoolean(false)
@@ -172,6 +173,9 @@ class DefaultToolingClientTest extends Specification {
 
   def "progressListenersInvokedForBuildLaunchRequest"() {
     setup:
+    // settings.gradle file to ensure test does not pick up Gradle version defined in the wrapper of the commons build itself
+    directoryProvider.createFile('settings.gradle')
+
     createGradleProject()
 
     AtomicBoolean progressListenerInvoked = new AtomicBoolean(false)
@@ -196,6 +200,7 @@ class DefaultToolingClientTest extends Specification {
 
   def "progressListenersInvokedForBuildActionRequest"() {
     setup:
+    // settings.gradle file to ensure test does not pick up Gradle version defined in the wrapper of the commons build itself
     directoryProvider.createFile('settings.gradle')
 
     AtomicBoolean progressListenerInvoked = new AtomicBoolean(false)
@@ -234,7 +239,7 @@ class DefaultToolingClientTest extends Specification {
 
   def "running tasks with task-specific arguments"() {
     setup:
-    createGradleProject()
+    createGradleProjectWithFailingTest()
 
     List<TestProgressEvent> result = new ArrayList<TestProgressEvent>()
 
@@ -266,8 +271,6 @@ class DefaultToolingClientTest extends Specification {
   }
 
   def createGradleProject() {
-    // settings.gradle file to ensure test does not pick up Gradle version defined in the wrapper of the commons build itself
-    directoryProvider.createFile('settings.gradle')
     directoryProvider.file('build.gradle') << """
             apply plugin: 'java'
             repositories { mavenCentral() }
@@ -285,6 +288,11 @@ class DefaultToolingClientTest extends Specification {
                 }
             }
 """
+  }
+
+  def createGradleProjectWithFailingTest() {
+    createGradleProject()
+
     directoryProvider.file('src/test/java/example/MyTest2.java') << """
             package example;
             import org.junit.Test;
