@@ -252,7 +252,7 @@ class DefaultToolingClientTest extends Specification {
       @Override
       void statusChanged(ProgressEvent event) {
         if (event instanceof TestProgressEvent) {
-          result << event as TestProgressEvent
+          result << (event as TestProgressEvent)
         }
       }
     })
