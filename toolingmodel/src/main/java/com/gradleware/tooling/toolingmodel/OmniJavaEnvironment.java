@@ -16,6 +16,8 @@
 
 package com.gradleware.tooling.toolingmodel;
 
+import com.gradleware.tooling.toolingutils.ImmutableCollection;
+
 import java.io.File;
 import java.util.List;
 
@@ -39,6 +41,7 @@ public interface OmniJavaEnvironment {
      *
      * @return the JVM arguments
      */
+    @ImmutableCollection
     List<String> getJvmArguments();
 
 }

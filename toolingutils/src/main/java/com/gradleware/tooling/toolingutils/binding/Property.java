@@ -19,6 +19,7 @@ package com.gradleware.tooling.toolingutils.binding;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import org.gradle.api.Nullable;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -48,6 +49,7 @@ public final class Property<T> {
      *
      * @return the current property value, can be null
      */
+    @Nullable
     public T getValue() {
         return this.value;
     }

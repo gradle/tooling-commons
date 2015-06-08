@@ -16,6 +16,8 @@
 
 package com.gradleware.tooling.toolingmodel;
 
+import org.gradle.api.Nullable;
+
 import java.io.File;
 
 /**
@@ -31,6 +33,7 @@ public interface OmniGradleScript {
      *
      * @return the source file, null if the script has no associated source file
      */
+    @Nullable
     File getSourceFile();
 
 }

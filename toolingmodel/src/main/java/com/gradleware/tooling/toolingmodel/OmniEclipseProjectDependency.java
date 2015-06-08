@@ -26,7 +26,7 @@ public interface OmniEclipseProjectDependency {
     /**
      * Returns the path of the target project of this dependency.
      *
-     * @return the path of the target project of this dependency, never null
+     * @return the path of the target project of this dependency
      */
     Path getTargetProjectPath();
 

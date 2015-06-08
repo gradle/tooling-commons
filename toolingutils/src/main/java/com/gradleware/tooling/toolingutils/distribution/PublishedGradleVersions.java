@@ -28,6 +28,7 @@ import com.google.common.io.Resources;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.gradleware.tooling.toolingutils.ImmutableCollection;
 import org.gradle.util.GradleVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,6 +77,7 @@ public final class PublishedGradleVersions {
      *
      * @return the matching versions
      */
+    @ImmutableCollection
     public List<GradleVersion> getVersions() {
         return FluentIterable.from(this.versions).filter(new Predicate<Map<String, String>>() {
             @Override

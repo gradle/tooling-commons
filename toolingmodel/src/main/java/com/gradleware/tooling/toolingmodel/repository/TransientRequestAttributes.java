@@ -16,9 +16,11 @@
 
 package com.gradleware.tooling.toolingmodel.repository;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingutils.ImmutableCollection;
+import org.gradle.api.Nullable;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
 
@@ -49,7 +51,7 @@ public final class TransientRequestAttributes {
         this.standardInput = standardInput;
         this.progressListeners = ImmutableList.copyOf(progressListeners);
         this.typedProgressListeners = ImmutableList.copyOf(typedProgressListeners);
-        this.cancellationToken = cancellationToken;
+        this.cancellationToken = Preconditions.checkNotNull(cancellationToken);
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -57,16 +59,19 @@ public final class TransientRequestAttributes {
         return this.colorOutput;
     }
 
+    @Nullable
     @SuppressWarnings("UnusedDeclaration")
     public OutputStream getStandardOutput() {
         return this.standardOutput;
     }
 
+    @Nullable
     @SuppressWarnings("UnusedDeclaration")
     public OutputStream getStandardError() {
         return this.standardError;
     }
 
+    @Nullable
     @SuppressWarnings("UnusedDeclaration")
     public InputStream getStandardInput() {
         return this.standardInput;

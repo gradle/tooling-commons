@@ -17,10 +17,12 @@
 package com.gradleware.tooling.toolingmodel.repository;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingutils.ImmutableCollection;
+import org.gradle.api.Nullable;
 
 import java.io.File;
 import java.util.List;
@@ -41,9 +43,9 @@ public final class FixedRequestAttributes {
     private final ImmutableList<String> arguments;
 
     public FixedRequestAttributes(File projectDir, File gradleUserHome, GradleDistribution gradleDistribution, File javaHome, List<String> jvmArguments, List<String> arguments) {
-        this.projectDir = projectDir;
+        this.projectDir = Preconditions.checkNotNull(projectDir);
         this.gradleUserHome = gradleUserHome;
-        this.gradleDistribution = gradleDistribution;
+        this.gradleDistribution = Preconditions.checkNotNull(gradleDistribution);
         this.javaHome = javaHome;
         this.jvmArguments = ImmutableList.copyOf(jvmArguments);
         this.arguments = ImmutableList.copyOf(arguments);
@@ -54,6 +56,7 @@ public final class FixedRequestAttributes {
         return this.projectDir;
     }
 
+    @Nullable
     @SuppressWarnings("UnusedDeclaration")
     public File getGradleUserHome() {
         return this.gradleUserHome;
@@ -64,6 +67,7 @@ public final class FixedRequestAttributes {
         return this.gradleDistribution;
     }
 
+    @Nullable
     @SuppressWarnings("UnusedDeclaration")
     public File getJavaHome() {
         return this.javaHome;

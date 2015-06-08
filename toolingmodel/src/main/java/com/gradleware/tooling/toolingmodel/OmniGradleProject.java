@@ -19,6 +19,7 @@ package com.gradleware.tooling.toolingmodel;
 import com.google.common.base.Optional;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
 import com.gradleware.tooling.toolingutils.ImmutableCollection;
+import org.gradle.api.Nullable;
 import org.gradle.api.specs.Spec;
 
 import java.io.File;
@@ -44,6 +45,7 @@ public interface OmniGradleProject extends HierarchicalModel<OmniGradleProject> 
      *
      * @return the parent project, can be null
      */
+    @Nullable
     @Override
     OmniGradleProject getParent();
 
@@ -96,6 +98,7 @@ public interface OmniGradleProject extends HierarchicalModel<OmniGradleProject> 
      *
      * @return the description of this project
      */
+    @Nullable
     String getDescription();
 
     /**

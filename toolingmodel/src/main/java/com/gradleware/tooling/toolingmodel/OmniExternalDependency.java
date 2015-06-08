@@ -17,6 +17,7 @@
 package com.gradleware.tooling.toolingmodel;
 
 import com.gradleware.tooling.toolingmodel.util.Maybe;
+import org.gradle.api.Nullable;
 
 import java.io.File;
 
@@ -39,6 +40,7 @@ public interface OmniExternalDependency {
      *
      * @return the source directory or archive for this dependency, or {@code null} if no source is available
      */
+    @Nullable
     File getSource();
 
     /**
@@ -46,12 +48,13 @@ public interface OmniExternalDependency {
      *
      * @return the Javadoc directory or archive for this dependency, or {@code null} if no Javadoc is available
      */
+    @Nullable
     File getJavadoc();
 
     /**
      * Returns the Gradle module information for this dependency, or {@code null} if the dependency does not originate from a remote repository.
      *
-     * @return the Gradle module information for this dependency, or {@code null} if the dependency does not originate from a remote repository
+     * @return the Gradle module information for this dependency
      */
     Maybe<OmniGradleModuleVersion> getGradleModuleVersion();
 
