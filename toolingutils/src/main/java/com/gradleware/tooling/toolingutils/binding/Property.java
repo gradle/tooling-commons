@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -107,7 +108,7 @@ public final class Property<T> {
         }
     }
 
-    private ImmutableList<ValidationListener> getListeners() {
+    private List<ValidationListener> getListeners() {
         synchronized (this.LOCK) {
             return ImmutableList.copyOf(this.listeners);
         }
