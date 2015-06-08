@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.gradleware.tooling.toolingmodel.util;
+package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.google.common.base.Converter;
 

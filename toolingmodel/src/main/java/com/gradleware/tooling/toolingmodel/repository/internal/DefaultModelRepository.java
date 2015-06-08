@@ -45,7 +45,6 @@ import com.gradleware.tooling.toolingmodel.repository.GradleBuildStructureUpdate
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildUpdateEvent;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
-import com.gradleware.tooling.toolingmodel.util.BaseConverter;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.build.BuildEnvironment;
