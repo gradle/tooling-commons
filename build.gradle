@@ -20,7 +20,7 @@ if (!project.hasProperty('build.type') || project.property('build.type') != 'rel
   }
 }
 
-wrapper.gradleVersion = '2.5-rc-1'
+wrapper.gradleVersion = '2.5-rc-2'
 
 subprojects {
 
