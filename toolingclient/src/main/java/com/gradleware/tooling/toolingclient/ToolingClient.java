@@ -79,6 +79,15 @@ public abstract class ToolingClient {
      */
     public abstract BuildLaunchRequest newBuildLaunchRequest(LaunchableConfig launchables);
 
+
+    /**
+     * Creates a new test launch request. A test launch request is used to execute a Gradle test build.
+     *
+     * @param testOperations the tests to execute
+     * @return a new instance
+     */
+    public abstract TestLaunchRequest newTestLaunchRequest(TestOperationConfig testOperations);
+
     /**
      * Stops the tooling client and applies the specified clean-up strategy to any associated resources and processes. May block or may not block, depending on the specified
      * cleanup strategy.

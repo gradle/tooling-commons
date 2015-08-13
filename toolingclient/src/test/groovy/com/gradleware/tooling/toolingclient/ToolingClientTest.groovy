@@ -70,6 +70,14 @@ class ToolingClientTest extends ToolingClientSpecification {
     buildLaunchRequest.executeAndWait()
   }
 
+  def "executeTest"() {
+      setup:
+      TestOperationConfig tests = TestOperationConfig.forJvmTestClasses("MyTest")
+      TestLaunchRequest testLaunchRequest = toolingClient.newTestLaunchRequest(tests)
+      testLaunchRequest.projectDir(directoryProvider.testDirectory)
+      testLaunchRequest.executeAndWait()
+  }
+
   def "fetchModelAsynchronously"() throws Exception {
     setup:
     Class<GradleBuild> modelClass = GradleBuild.class
@@ -171,6 +179,40 @@ class ToolingClientTest extends ToolingClientSpecification {
     Void result = resultRef.get()
     result == null
   }
+
+  def "executeTestAsynchronously"() {
+      setup:
+      TestOperationConfig tests = TestOperationConfig.forJvmTestClasses("MyTest")
+      TestLaunchRequest testLaunchRequest = toolingClient.newTestLaunchRequest(tests)
+      testLaunchRequest.projectDir(directoryProvider.testDirectory)
+
+      final AtomicReference<Void> resultRef = new AtomicReference<Void>();
+
+      when:
+      CountDownLatch latch = new CountDownLatch(1);
+      LongRunningOperationPromise<Void> promise = testLaunchRequest.execute();
+      promise.onFailure(new Consumer<GradleConnectionException>() {
+
+        @Override
+        public void accept(GradleConnectionException input) {
+          latch.countDown();
+        }
+      });
+      promise.onComplete(new Consumer<Void>() {
+
+        @Override
+        public void accept(Void input) {
+          resultRef.set(input);
+          latch.countDown();
+        }
+      });
+      latch.await();
+
+
+      then:
+      Void result = resultRef.get()
+      result == null
+    }
 
   private static final class TaskCountBuildAction implements BuildAction<Integer> {
 

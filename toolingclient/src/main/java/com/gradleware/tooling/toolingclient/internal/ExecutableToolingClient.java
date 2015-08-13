@@ -37,4 +37,8 @@ interface ExecutableToolingClient {
 
     LongRunningOperationPromise<Void> execute(InspectableBuildLaunchRequest buildLaunchRequest);
 
+    Void executeAndWait(InspectableTestLaunchRequest testLaunchRequest);
+
+    LongRunningOperationPromise<Void> execute(InspectableTestLaunchRequest testLaunchRequest);
+
 }

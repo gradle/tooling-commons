@@ -22,6 +22,7 @@ import org.gradle.tooling.BuildActionExecuter;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.ModelBuilder;
+import org.gradle.tooling.TestLauncher;
 
 /**
  * Promise in the context of long running operations, i.e. getting a model, launching a build, executing an action.
@@ -56,6 +57,13 @@ public abstract class LongRunningOperationPromise<T> {
         Preconditions.checkNotNull(buildLauncher);
         ResultHandlerPromise<Void> promise = new ResultHandlerPromise<Void>();
         buildLauncher.run(promise.getResultHandler());
+        return promise;
+    }
+
+    public static LongRunningOperationPromise<Void> forTestLauncher(TestLauncher testLauncher) {
+        Preconditions.checkNotNull(testLauncher);
+        ResultHandlerPromise<Void> promise = new ResultHandlerPromise<Void>();
+        testLauncher.run(promise.getResultHandler());
         return promise;
     }
 
