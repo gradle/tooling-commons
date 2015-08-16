@@ -20,6 +20,7 @@ import org.gradle.tooling.BuildActionExecuter
 import org.gradle.tooling.BuildLauncher
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.ModelBuilder
+import org.gradle.tooling.TestLauncher
 import spock.lang.Specification
 
 class LongRunningOperationPromiseTest extends Specification {
@@ -54,6 +55,30 @@ class LongRunningOperationPromiseTest extends Specification {
     Consumer<Void> resultConsumer = Mock(Consumer)
     Consumer<GradleConnectionException> exceptionConsumer = Mock(Consumer)
     LongRunningOperationPromise<Void> promise = LongRunningOperationPromise.forBuildLauncher(buildLauncher)
+    def result = null
+    def exception = new GradleConnectionException("error")
+
+    when:
+    promise.onComplete(resultConsumer)
+    promise.getResultHandler().onComplete(result)
+
+    then:
+    1 * resultConsumer.accept(result)
+
+    when:
+    promise.onFailure(exceptionConsumer)
+    promise.getResultHandler().onFailure(exception)
+
+    then:
+    1 * exceptionConsumer.accept(exception)
+  }
+
+  def "forTestLauncher"() {
+    setup:
+    TestLauncher testLauncher = Mock(TestLauncher)
+    Consumer<Void> resultConsumer = Mock(Consumer)
+    Consumer<GradleConnectionException> exceptionConsumer = Mock(Consumer)
+    LongRunningOperationPromise<Void> promise = LongRunningOperationPromise.forTestLauncher(testLauncher)
     def result = null
     def exception = new GradleConnectionException("error")
 

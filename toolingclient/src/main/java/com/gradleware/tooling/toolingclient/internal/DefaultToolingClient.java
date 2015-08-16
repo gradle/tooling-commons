@@ -24,6 +24,8 @@ import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
 import com.gradleware.tooling.toolingclient.ModelRequest;
+import com.gradleware.tooling.toolingclient.TestLaunchRequest;
+import com.gradleware.tooling.toolingclient.TestConfig;
 import com.gradleware.tooling.toolingclient.ToolingClient;
 import org.gradle.internal.Factory;
 import org.gradle.tooling.BuildAction;
@@ -34,6 +36,7 @@ import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.ProjectConnection;
+import org.gradle.tooling.TestLauncher;
 import org.gradle.tooling.internal.consumer.ConnectorServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,6 +83,12 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     }
 
     @Override
+    public TestLaunchRequest newTestLaunchRequest(TestConfig tests) {
+        Preconditions.checkNotNull(tests);
+        return new DefaultTestLaunchRequest(this, tests);
+    }
+
+    @Override
     public <T> T executeAndWait(InspectableModelRequest<T> modelRequest) {
         ProjectConnection connection = getProjectConnection(modelRequest);
         ModelBuilder<T> operation = mapToModelBuilder(modelRequest, connection);
@@ -120,6 +129,21 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         ProjectConnection connection = getProjectConnection(buildLaunchRequest);
         BuildLauncher operation = mapToBuildLauncher(buildLaunchRequest, connection);
         return LongRunningOperationPromise.forBuildLauncher(operation);
+    }
+
+    @Override
+    public Void executeAndWait(InspectableTestLaunchRequest testLaunchRequest) {
+        ProjectConnection connection = getProjectConnection(testLaunchRequest);
+        TestLauncher operation = mapToTestLauncher(testLaunchRequest, connection);
+        operation.run();
+        return null;
+    }
+
+    @Override
+    public LongRunningOperationPromise<Void> execute(InspectableTestLaunchRequest testLaunchRequest) {
+        ProjectConnection connection = getProjectConnection(testLaunchRequest);
+        TestLauncher operation = mapToTestLauncher(testLaunchRequest, connection);
+        return LongRunningOperationPromise.forTestLauncher(operation);
     }
 
     private ProjectConnection getProjectConnection(InspectableRequest<?> request) {
@@ -171,6 +195,12 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         BuildLauncher buildLauncher = connection.newBuild();
         buildLaunchRequest.getLaunchables().apply(buildLauncher);
         return mapToLongRunningOperation(buildLaunchRequest, buildLauncher);
+    }
+
+    private TestLauncher mapToTestLauncher(InspectableTestLaunchRequest testLaunchRequest, ProjectConnection connection) {
+        TestLauncher testLauncher = connection.newTestLauncher();
+        testLaunchRequest.getTests().apply(testLauncher);
+        return mapToLongRunningOperation(testLaunchRequest, testLauncher);
     }
 
     private <T extends LongRunningOperation> T mapToLongRunningOperation(InspectableRequest<?> request, T operation) {
