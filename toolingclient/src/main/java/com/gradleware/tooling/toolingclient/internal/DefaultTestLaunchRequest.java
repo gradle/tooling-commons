@@ -22,8 +22,7 @@ import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
 import com.gradleware.tooling.toolingclient.TestConfig;
 
 /**
- * Default implementation of the {@link com.gradleware.tooling.toolingclient.TestLaunchRequest}
- * interface.
+ * Default implementation of the {@link com.gradleware.tooling.toolingclient.TestLaunchRequest} API.
  *
  * @author Donát Csikós
  */
