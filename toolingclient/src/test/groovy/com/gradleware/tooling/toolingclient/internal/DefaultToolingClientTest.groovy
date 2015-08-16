@@ -19,6 +19,7 @@ package com.gradleware.tooling.toolingclient.internal
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingclient.LaunchableConfig
+import com.gradleware.tooling.toolingclient.TestConfig
 import com.gradleware.tooling.toolingclient.ToolingClient
 import org.gradle.internal.Factory
 import org.gradle.tooling.BuildAction
@@ -69,6 +70,16 @@ class DefaultToolingClientTest extends Specification {
     DefaultToolingClient toolingClient = new DefaultToolingClient()
     InspectableBuildLaunchRequest buildLaunchRequest = (InspectableBuildLaunchRequest) toolingClient.newBuildLaunchRequest(LaunchableConfig.forTasks())
     buildLaunchRequest.getGradleDistribution() == GradleDistribution.fromBuild()
+
+    cleanup:
+    toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
+  }
+
+  def "newTestLaunchRequestSetsBuildSpecificGradleDistributionByDefault"() {
+    setup:
+    DefaultToolingClient toolingClient = new DefaultToolingClient()
+    InspectableTestLaunchRequest testLaunchRequest = (InspectableTestLaunchRequest) toolingClient.newTestLaunchRequest(TestConfig.forJvmTestClasses())
+    testLaunchRequest.getGradleDistribution() == GradleDistribution.fromBuild()
 
     cleanup:
     toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
@@ -182,13 +193,40 @@ class DefaultToolingClientTest extends Specification {
     AtomicBoolean typedProgressListenerInvoked = new AtomicBoolean(false)
 
     DefaultToolingClient toolingClient = new DefaultToolingClient()
-    def launchRequest = toolingClient.newBuildLaunchRequest(LaunchableConfig.forTasks('build'))
-    launchRequest.projectDir(directoryProvider.testDirectory)
-    launchRequest.progressListeners({ progressListenerInvoked.set(true) } as ProgressListener)
-    launchRequest.typedProgressListeners({ typedProgressListenerInvoked.set(true) } as org.gradle.tooling.events.ProgressListener)
+    def buildLaunchRequest = toolingClient.newBuildLaunchRequest(LaunchableConfig.forTasks('build'))
+    buildLaunchRequest.projectDir(directoryProvider.testDirectory)
+    buildLaunchRequest.progressListeners({ progressListenerInvoked.set(true) } as ProgressListener)
+    buildLaunchRequest.typedProgressListeners({ typedProgressListenerInvoked.set(true) } as org.gradle.tooling.events.ProgressListener)
 
     when:
-    launchRequest.executeAndWait()
+    buildLaunchRequest.executeAndWait()
+
+    then:
+    assert progressListenerInvoked.get()
+    assert typedProgressListenerInvoked.get()
+
+    cleanup:
+    toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
+  }
+
+  def "progressListenersInvokedForTestLaunchRequest"() {
+    setup:
+    // settings.gradle file to ensure test does not pick up Gradle version defined in the wrapper of the commons build itself
+    directoryProvider.createFile('settings.gradle')
+
+    createGradleProject()
+
+    AtomicBoolean progressListenerInvoked = new AtomicBoolean(false)
+    AtomicBoolean typedProgressListenerInvoked = new AtomicBoolean(false)
+
+    DefaultToolingClient toolingClient = new DefaultToolingClient()
+    def testLaunchRequest = toolingClient.newTestLaunchRequest(TestConfig.forJvmTestClasses('example.MyTest1'))
+    testLaunchRequest.projectDir(directoryProvider.testDirectory)
+    testLaunchRequest.progressListeners({ progressListenerInvoked.set(true) } as ProgressListener)
+    testLaunchRequest.typedProgressListeners({ typedProgressListenerInvoked.set(true) } as org.gradle.tooling.events.ProgressListener)
+
+    when:
+    testLaunchRequest.executeAndWait()
 
     then:
     assert progressListenerInvoked.get()
