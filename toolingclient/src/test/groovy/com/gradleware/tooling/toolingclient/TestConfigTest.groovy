@@ -26,55 +26,55 @@ class TestConfigTest extends Specification {
   def "forJvmTestClassesVarArgs"() {
     setup:
     TestLauncher testLauncher = Mock(TestLauncher.class)
-    def tests = TestConfig.forJvmTestClasses("alpha")
+    def tests = new TestConfig.Builder().jvmTestClasses("alpha").build()
 
     when:
     tests.apply(testLauncher)
 
     then:
     1 * testLauncher.withJvmTestClasses(["alpha"])
-    0 * testLauncher.withTests(_)
+    1 * testLauncher.withTests([])
   }
 
   def "forJvmTestClassesIterable"() {
     setup:
     TestLauncher testLauncher = Mock(TestLauncher.class)
-    def tests = TestConfig.forJvmTestClasses(Arrays.asList("alpha"))
+    def tests = new TestConfig.Builder().jvmTestClasses(Arrays.asList("alpha")).build()
 
     when:
     tests.apply(testLauncher)
 
     then:
     1 * testLauncher.withJvmTestClasses(["alpha"])
-    0 * testLauncher.withTests(_)
+    1 * testLauncher.withTests([])
   }
 
   def "forTestsVarArgs"() {
     setup:
     TestLauncher testLauncher = Mock(TestLauncher.class)
     def testDescriptor = Mock(TestOperationDescriptor.class)
-    def tests = TestConfig.forTests(testDescriptor)
+    def tests = new TestConfig.Builder().tests(testDescriptor).build()
 
     when:
     tests.apply(testLauncher)
 
     then:
     1 * testLauncher.withTests([testDescriptor])
-    0 * testLauncher.withJvmTestClasses(_)
+    1 * testLauncher.withJvmTestClasses([])
   }
 
   def "forTestsIterable"() {
     setup:
     TestLauncher testLauncher = Mock(TestLauncher.class)
     def testDescriptor = Mock(TestOperationDescriptor.class)
-    def tests = TestConfig.forTests(Arrays.asList(testDescriptor))
+    def tests = new TestConfig.Builder().tests(Arrays.asList(testDescriptor)).build()
 
     when:
     tests.apply(testLauncher)
 
     then:
     1 * testLauncher.withTests([testDescriptor])
-    0 * testLauncher.withJvmTestClasses(_)
+    1 * testLauncher.withJvmTestClasses([])
   }
 
 }

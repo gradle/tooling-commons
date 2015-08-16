@@ -16,14 +16,13 @@
 
 package com.gradleware.tooling.toolingclient;
 
-import java.util.Arrays;
-import java.util.List;
-
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import org.gradle.tooling.TestLauncher;
 import org.gradle.tooling.events.test.TestOperationDescriptor;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Encapsulates the {@link TestOperationDescriptor} instances to execute through a Gradle build.
@@ -39,12 +38,11 @@ public final class TestConfig {
         this.jvmTestClasses = ImmutableList.copyOf(jvmTestClasses);
         this.tests = ImmutableList.copyOf(tests);
 
-        checkNoMoreThanOneListNotEmpty(jvmTestClasses, tests);
+        checkNotAllListsEmpty(jvmTestClasses, tests);
     }
 
-    // todo (etst) is this check really needed/correct?
-    private void checkNoMoreThanOneListNotEmpty(List<String> jvmTestClasses, List<TestOperationDescriptor> tests) {
-        Preconditions.checkArgument(jvmTestClasses.isEmpty() || tests.isEmpty(), "Both test classes and test descriptors specified.");
+    private void checkNotAllListsEmpty(List<String> jvmTestClasses, List<TestOperationDescriptor> tests) {
+        Preconditions.checkArgument(!jvmTestClasses.isEmpty() || !tests.isEmpty(), "Either JVM test classes or test operations, or both, must be specified.");
     }
 
     /**
@@ -54,11 +52,8 @@ public final class TestConfig {
      */
     public void apply(TestLauncher testLauncher) {
         Preconditions.checkNotNull(testLauncher);
-        if (!this.jvmTestClasses.isEmpty()) {
-            testLauncher.withJvmTestClasses(this.jvmTestClasses);
-        } else if (!this.tests.isEmpty()) {
-            testLauncher.withTests(this.tests);
-        }
+        testLauncher.withJvmTestClasses(this.jvmTestClasses);
+        testLauncher.withTests(this.tests);
     }
 
     /**
@@ -68,37 +63,67 @@ public final class TestConfig {
      * @return a new instance
      */
     public static TestConfig forJvmTestClasses(String... jvmTestClasses) {
-        return forJvmTestClasses(Arrays.asList(jvmTestClasses));
+        return new TestConfig.Builder().jvmTestClasses(jvmTestClasses).build();
     }
 
-    /**
-     * Specifies the tests to be executed.
-     *
-     * @param jvmTestClasses the names of the test classes to be executed
-     * @return a new instance
-     */
-    public static TestConfig forJvmTestClasses(Iterable<String> jvmTestClasses) {
-        return new TestConfig(ImmutableList.copyOf(jvmTestClasses), ImmutableList.<TestOperationDescriptor>of());
-    }
+    public static final class Builder {
 
-    /**
-     * Specifies the tests to be executed.
-     *
-     * @param tests the tests to be executed
-     * @return a new instance
-     */
-    public static TestConfig forTests(TestOperationDescriptor... tests) {
-        return forTests(Arrays.asList(tests));
-    }
+        private ImmutableList.Builder<String> jvmTestClasses;
+        private ImmutableList.Builder<TestOperationDescriptor> tests;
 
-    /**
-     * Specifies the tests to be executed.
-     *
-     * @param tests the tests to be executed
-     * @return a new instance
-     */
-    public static TestConfig forTests(Iterable<? extends TestOperationDescriptor> tests) {
-        return new TestConfig(ImmutableList.<String>of(), ImmutableList.copyOf(tests));
+        public Builder() {
+            this.jvmTestClasses = ImmutableList.builder();
+            this.tests = ImmutableList.builder();
+        }
+
+        /**
+         * Specifies the test classes to be executed.
+         *
+         * @param jvmTestClasses the names of the test classes to be executed
+         * @return a new instance
+         */
+        public Builder jvmTestClasses(String... jvmTestClasses) {
+            this.jvmTestClasses.addAll(Arrays.asList(jvmTestClasses));
+            return this;
+        }
+
+        /**
+         * Specifies the test classes to be executed.
+         *
+         * @param jvmTestClasses the names of the test classes to be executed
+         * @return a new instance
+         */
+        public Builder jvmTestClasses(Iterable<String> jvmTestClasses) {
+            this.jvmTestClasses.addAll(jvmTestClasses);
+            return this;
+        }
+
+        /**
+         * Specifies the tests to be executed.
+         *
+         * @param tests the tests to be executed
+         * @return a new instance
+         */
+        public Builder tests(TestOperationDescriptor... tests) {
+            this.tests.addAll(Arrays.asList(tests));
+            return this;
+        }
+
+        /**
+         * Specifies the tests to be executed.
+         *
+         * @param tests the tests to be executed
+         * @return a new instance
+         */
+        public Builder tests(Iterable<? extends TestOperationDescriptor> tests) {
+            this.tests.addAll(tests);
+            return this;
+        }
+
+        public TestConfig build() {
+            return new TestConfig(this.jvmTestClasses.build(), this.tests.build());
+        }
+
     }
 
 }
