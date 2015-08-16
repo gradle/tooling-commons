@@ -20,15 +20,16 @@ import com.gradleware.tooling.toolingclient.TestLaunchRequest;
 import com.gradleware.tooling.toolingclient.TestConfig;
 
 /**
- * Internal interface that describes the configurable attributes of the build test request.
+ * Internal interface that describes the configurable attributes of the test launch request.
  *
  * @author Donát Csikós
  */
 public interface InspectableTestLaunchRequest extends InspectableRequest<Void>, TestLaunchRequest {
 
     /**
-     * @return The {@link TestConfig} associated to the current request
-     * @see DefaultToolingClient#mapToTestLauncher(InspectableTestLaunchRequest,ProjectConnection)
+     * @return never null, DefaultToolingClient requires a test configuration to execute the request
+     * @see DefaultToolingClient#mapToTestLauncher(InspectableTestLaunchRequest, org.gradle.tooling.ProjectConnection)
      */
     TestConfig getTests();
+
 }
