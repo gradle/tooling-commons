@@ -55,13 +55,13 @@ interface InspectableRequest<T> extends Request<T> {
 
     /**
      * @return never null, ConsumerOperationParameters builder takes care of converting null and empty arrays to null
-     * @see org.gradle.tooling.internal.consumer.parameters.ConsumerOperationParameters.Builder#setJvmArguments(List)
+     * @see org.gradle.tooling.internal.consumer.parameters.ConsumerOperationParameters.Builder#setJvmArguments(java.util.List)
      */
     String[] getJvmArguments();
 
     /**
      * @return never null, ConsumerOperationParameters builder takes care of converting null and empty arrays to null
-     * @see org.gradle.tooling.internal.consumer.parameters.ConsumerOperationParameters.Builder#setArguments(List)
+     * @see org.gradle.tooling.internal.consumer.parameters.ConsumerOperationParameters.Builder#setJvmArguments(java.util.List)
      */
     String[] getArguments();
 
