@@ -83,9 +83,9 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     }
 
     @Override
-    public TestLaunchRequest newTestLaunchRequest(TestOperationConfig testOperations) {
-        Preconditions.checkNotNull(testOperations);
-        return new DefaultTestLaunchRequest(this, testOperations);
+    public TestLaunchRequest newTestLaunchRequest(TestOperationConfig tests) {
+        Preconditions.checkNotNull(tests);
+        return new DefaultTestLaunchRequest(this, tests);
     }
 
     @Override

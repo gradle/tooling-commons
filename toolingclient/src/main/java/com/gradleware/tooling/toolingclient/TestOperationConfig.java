@@ -26,8 +26,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 /**
- * Encapsulates the {@link TestOperationDescriptor} instances to execute as part of running a Gradle
- * test build.
+ * Encapsulates the {@link TestOperationDescriptor} instances to execute through a Gradle build.
  *
  * @author Donát Csikós
  */
@@ -43,6 +42,7 @@ public final class TestOperationConfig {
         checkNoMoreThanOneListNotEmpty(jvmTestClasses, tests);
     }
 
+    // todo (etst) is this check really needed/correct?
     private void checkNoMoreThanOneListNotEmpty(List<String> jvmTestClasses, List<TestOperationDescriptor> tests) {
         Preconditions.checkArgument(jvmTestClasses.isEmpty() || tests.isEmpty(), "Both test classes and test descriptors specified.");
     }
