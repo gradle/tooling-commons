@@ -48,23 +48,23 @@ public final class TestConfig {
     }
 
     /**
-     * Configures the target test launcher to run the contained tests.
+     * Configures the specified test launcher with this test config.
      *
-     * @param testLauncher the launcher to be configured
+     * @param testLauncher the test launcher to configure
      */
     public void apply(TestLauncher testLauncher) {
         Preconditions.checkNotNull(testLauncher);
         if (!this.jvmTestClasses.isEmpty()) {
-            testLauncher.withJvmTestClasses(this.jvmTestClasses.toArray(new String[this.jvmTestClasses.size()]));
+            testLauncher.withJvmTestClasses(this.jvmTestClasses);
         } else if (!this.tests.isEmpty()) {
             testLauncher.withTests(this.tests);
         }
     }
 
     /**
-     * Creates a new {@link TestConfig} instance defining target array of test classes.
+     * Specifies the tests to be executed.
      *
-     * @param jvmTestClasses the name of the test classes to be executed in the test build
+     * @param jvmTestClasses the names of the test classes to be executed
      * @return a new instance
      */
     public static TestConfig forJvmTestClasses(String... jvmTestClasses) {
@@ -72,10 +72,9 @@ public final class TestConfig {
     }
 
     /**
-     * Creates a new {@link TestConfig} instance defining the target collection of test
-     * classes.
+     * Specifies the tests to be executed.
      *
-     * @param jvmTestClasses the name of the test classes to be executed in the test build
+     * @param jvmTestClasses the names of the test classes to be executed
      * @return a new instance
      */
     public static TestConfig forJvmTestClasses(Iterable<String> jvmTestClasses) {
@@ -83,9 +82,9 @@ public final class TestConfig {
     }
 
     /**
-     * Creates a new {@link TestConfig} instance defining the target array of tests.
+     * Specifies the tests to be executed.
      *
-     * @param tests the tests to be executed in the test build
+     * @param tests the tests to be executed
      * @return a new instance
      */
     public static TestConfig forTests(TestOperationDescriptor... tests) {
@@ -93,9 +92,9 @@ public final class TestConfig {
     }
 
     /**
-     * Creates a new {@link TestConfig} instance defining the target collection of tests.
+     * Specifies the tests to be executed.
      *
-     * @param tests the tests to be executed in the test build
+     * @param tests the tests to be executed
      * @return a new instance
      */
     public static TestConfig forTests(Iterable<? extends TestOperationDescriptor> tests) {

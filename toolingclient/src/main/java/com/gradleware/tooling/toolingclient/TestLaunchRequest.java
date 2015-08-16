@@ -24,17 +24,11 @@ import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
 
 /**
- * A {@code TestLaunchRequest} allows you to configure and execute a Gradle test launches. Instances
- * of {@code TestLaunchRequest} are not thread-safe.
+ * A {@code TestLaunchRequest} allows you to configure and execute tests through Gradle. Instances of {@code TestLaunchRequest} are not thread-safe.
  * <p/>
- * You use a {@code TestLaunchRequest} as follows:
- * <ul>
- * <li>Create an instance of {@code BuildLaunchRequest} by calling
- * {@link ToolingClient#newTestLaunchRequest(TestConfig)}.</li>
- * <li>Configure the request as appropriate.
- * <li>Call either {@link #executeAndWait()} or {@link #execute()} to execute the Gradle tests.
- * <li>Optionally, you can reuse the request to execute the Gradle test build multiple times.
- * </ul>
+ * You use a {@code TestLaunchRequest} as follows: <ul> <li>Create an instance of {@code TestLaunchRequest} by calling {@link ToolingClient#newTestLaunchRequest(TestConfig)}.</li>
+ * <li>Configure the request as appropriate. <li>Call either {@link #executeAndWait()} or {@link #execute()} to execute the tests through Gradle. <li>Optionally, you can reuse the
+ * request to execute the tests through Gradle multiple times. </ul>
  *
  * @author Donát Csikós
  */
