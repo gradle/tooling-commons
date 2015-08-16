@@ -52,20 +52,17 @@ class TestExecutionTest extends ToolingClientSpecification {
     '''
   }
 
-  def "canRunIndividualTests"() {
+  def "forJvmTestClasses"() {
     setup:
     TestConfig tests = TestConfig.forJvmTestClasses("TestA")
     TestLaunchRequest testLaunchRequest = toolingClient.newTestLaunchRequest(tests)
     testLaunchRequest.projectDir(directoryProvider.testDirectory)
     List finishedTests = []
-    ProgressListener testLister = new ProgressListener() {
-      void statusChanged(ProgressEvent event) {
-        if (event instanceof TestFinishEvent) {
-          finishedTests += event.descriptor.name
-        }
-      };
-    }
-    testLaunchRequest.typedProgressListeners(testLister)
+    testLaunchRequest.typedProgressListeners({ ProgressEvent event ->
+      if (event instanceof TestFinishEvent) {
+        finishedTests << event.descriptor.name
+      }
+    } as ProgressListener)
 
     when:
     testLaunchRequest.executeAndWait()
