@@ -42,6 +42,11 @@ public final class DefaultTestLaunchRequest extends BaseRequest<Void, DefaultTes
     }
 
     @Override
+    public DefaultTestLaunchRequest deriveForTests(TestConfig tests) {
+        return copy(new DefaultTestLaunchRequest(getToolingClient(), tests));
+    }
+
+    @Override
     public Void executeAndWait() {
         return getToolingClient().executeAndWait(this);
     }

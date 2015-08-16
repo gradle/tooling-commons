@@ -125,14 +125,23 @@ public interface TestLaunchRequest extends Request<Void> {
     TestLaunchRequest cancellationToken(CancellationToken cancellationToken);
 
     /**
-     * Executes the configured Gradle test build synchronously. Calling this method will block until
+     * Derive a new test launch request from this request and apply the given tests. This request and the
+     * new request do not share any state except the cancellation token.
+     *
+     * @param tests the tests to execute
+     * @return the new test launch request instance
+     */
+    TestLaunchRequest deriveForTests(TestConfig tests);
+
+    /**
+     * Executes the configured tests through Gradle synchronously. Calling this method will block until
      * the Gradle build has been executed or a failure has occurred.
      */
     @Override
     Void executeAndWait();
 
     /**
-     * Executes the configured Gradle test build asynchronously. Calling this method will return
+     * Executes the configured tests through Gradle asynchronously. Calling this method will return
      * immediately. The returned promise is used to configure the success and failure behavior.
      *
      * @return the promise of the void result of executing the build
@@ -140,4 +149,5 @@ public interface TestLaunchRequest extends Request<Void> {
      */
     @Override
     LongRunningOperationPromise<Void> execute();
+
 }
