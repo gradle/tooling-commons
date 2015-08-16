@@ -85,7 +85,7 @@ public abstract class ToolingClient {
      * @param tests the tests to execute
      * @return a new instance
      */
-    public abstract TestLaunchRequest newTestLaunchRequest(TestOperationConfig tests);
+    public abstract TestLaunchRequest newTestLaunchRequest(TestConfig tests);
 
     /**
      * Stops the tooling client and applies the specified clean-up strategy to any associated resources and processes. May block or may not block, depending on the specified

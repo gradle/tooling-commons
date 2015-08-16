@@ -54,7 +54,7 @@ class TestExecutionTest extends ToolingClientSpecification {
 
   def "canRunIndividualTests"() {
     setup:
-    TestOperationConfig tests = TestOperationConfig.forJvmTestClasses("TestA")
+    TestConfig tests = TestConfig.forJvmTestClasses("TestA")
     TestLaunchRequest testLaunchRequest = toolingClient.newTestLaunchRequest(tests)
     testLaunchRequest.projectDir(directoryProvider.testDirectory)
     List finishedTests = []

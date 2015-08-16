@@ -30,12 +30,12 @@ import com.google.common.collect.ImmutableList;
  *
  * @author Donát Csikós
  */
-public final class TestOperationConfig {
+public final class TestConfig {
 
     private final ImmutableList<String> jvmTestClasses;
     private final ImmutableList<TestOperationDescriptor> tests;
 
-    private TestOperationConfig(List<String> jvmTestClasses, List<TestOperationDescriptor> tests) {
+    private TestConfig(List<String> jvmTestClasses, List<TestOperationDescriptor> tests) {
         this.jvmTestClasses = ImmutableList.copyOf(jvmTestClasses);
         this.tests = ImmutableList.copyOf(tests);
 
@@ -62,44 +62,44 @@ public final class TestOperationConfig {
     }
 
     /**
-     * Creates a new {@link TestOperationConfig} instance defining target array of test classes.
+     * Creates a new {@link TestConfig} instance defining target array of test classes.
      *
      * @param jvmTestClasses the name of the test classes to be executed in the test build
      * @return a new instance
      */
-    public static TestOperationConfig forJvmTestClasses(String... jvmTestClasses) {
+    public static TestConfig forJvmTestClasses(String... jvmTestClasses) {
         return forJvmTestClasses(Arrays.asList(jvmTestClasses));
     }
 
     /**
-     * Creates a new {@link TestOperationConfig} instance defining the target collection of test
+     * Creates a new {@link TestConfig} instance defining the target collection of test
      * classes.
      *
      * @param jvmTestClasses the name of the test classes to be executed in the test build
      * @return a new instance
      */
-    public static TestOperationConfig forJvmTestClasses(Iterable<String> jvmTestClasses) {
-        return new TestOperationConfig(ImmutableList.copyOf(jvmTestClasses), ImmutableList.<TestOperationDescriptor>of());
+    public static TestConfig forJvmTestClasses(Iterable<String> jvmTestClasses) {
+        return new TestConfig(ImmutableList.copyOf(jvmTestClasses), ImmutableList.<TestOperationDescriptor>of());
     }
 
     /**
-     * Creates a new {@link TestOperationConfig} instance defining the target array of tests.
+     * Creates a new {@link TestConfig} instance defining the target array of tests.
      *
      * @param tests the tests to be executed in the test build
      * @return a new instance
      */
-    public static TestOperationConfig forTests(TestOperationDescriptor... tests) {
+    public static TestConfig forTests(TestOperationDescriptor... tests) {
         return forTests(Arrays.asList(tests));
     }
 
     /**
-     * Creates a new {@link TestOperationConfig} instance defining the target collection of tests.
+     * Creates a new {@link TestConfig} instance defining the target collection of tests.
      *
      * @param tests the tests to be executed in the test build
      * @return a new instance
      */
-    public static TestOperationConfig forTests(Iterable<? extends TestOperationDescriptor> tests) {
-        return new TestOperationConfig(ImmutableList.<String>of(), ImmutableList.copyOf(tests));
+    public static TestConfig forTests(Iterable<? extends TestOperationDescriptor> tests) {
+        return new TestConfig(ImmutableList.<String>of(), ImmutableList.copyOf(tests));
     }
 
 }

@@ -17,7 +17,7 @@
 package com.gradleware.tooling.toolingclient.internal;
 
 import com.gradleware.tooling.toolingclient.TestLaunchRequest;
-import com.gradleware.tooling.toolingclient.TestOperationConfig;
+import com.gradleware.tooling.toolingclient.TestConfig;
 
 /**
  * Internal interface that describes the configurable attributes of the build test request.
@@ -27,8 +27,8 @@ import com.gradleware.tooling.toolingclient.TestOperationConfig;
 public interface InspectableTestLaunchRequest extends InspectableRequest<Void>, TestLaunchRequest {
 
     /**
-     * @return The {@link TestOperationConfig} associated to the current request
+     * @return The {@link TestConfig} associated to the current request
      * @see DefaultToolingClient#mapToTestLauncher(InspectableTestLaunchRequest,ProjectConnection)
      */
-    TestOperationConfig getTestOperations();
+    TestConfig getTests();
 }

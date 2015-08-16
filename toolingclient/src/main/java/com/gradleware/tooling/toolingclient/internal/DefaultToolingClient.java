@@ -25,7 +25,7 @@ import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
 import com.gradleware.tooling.toolingclient.ModelRequest;
 import com.gradleware.tooling.toolingclient.TestLaunchRequest;
-import com.gradleware.tooling.toolingclient.TestOperationConfig;
+import com.gradleware.tooling.toolingclient.TestConfig;
 import com.gradleware.tooling.toolingclient.ToolingClient;
 import org.gradle.internal.Factory;
 import org.gradle.tooling.BuildAction;
@@ -83,7 +83,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     }
 
     @Override
-    public TestLaunchRequest newTestLaunchRequest(TestOperationConfig tests) {
+    public TestLaunchRequest newTestLaunchRequest(TestConfig tests) {
         Preconditions.checkNotNull(tests);
         return new DefaultTestLaunchRequest(this, tests);
     }
@@ -199,7 +199,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
 
     private TestLauncher mapToTestLauncher(InspectableTestLaunchRequest testLaunchRequest, ProjectConnection connection) {
         TestLauncher buildLauncher = connection.newTestLauncher();
-        testLaunchRequest.getTestOperations().apply(buildLauncher);
+        testLaunchRequest.getTests().apply(buildLauncher);
         return mapToLongRunningOperation(testLaunchRequest, buildLauncher);
     }
 

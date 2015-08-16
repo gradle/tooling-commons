@@ -19,7 +19,7 @@ package com.gradleware.tooling.toolingclient.internal;
 import com.google.common.base.Preconditions;
 
 import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
-import com.gradleware.tooling.toolingclient.TestOperationConfig;
+import com.gradleware.tooling.toolingclient.TestConfig;
 
 /**
  * Default implementation of the {@link com.gradleware.tooling.toolingclient.TestLaunchRequest}
@@ -29,16 +29,16 @@ import com.gradleware.tooling.toolingclient.TestOperationConfig;
  */
 public final class DefaultTestLaunchRequest extends BaseRequest<Void, DefaultTestLaunchRequest>implements InspectableTestLaunchRequest {
 
-    private final TestOperationConfig testOperations;
+    private final TestConfig tests;
 
-    DefaultTestLaunchRequest(ExecutableToolingClient toolingClient, TestOperationConfig testOperations) {
+    DefaultTestLaunchRequest(ExecutableToolingClient toolingClient, TestConfig tests) {
         super(toolingClient);
-        this.testOperations = Preconditions.checkNotNull(testOperations);
+        this.tests = Preconditions.checkNotNull(tests);
     }
 
     @Override
-    public TestOperationConfig getTestOperations() {
-        return this.testOperations;
+    public TestConfig getTests() {
+        return this.tests;
     }
 
     @Override

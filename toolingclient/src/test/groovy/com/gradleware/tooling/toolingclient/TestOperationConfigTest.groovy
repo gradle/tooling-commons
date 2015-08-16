@@ -18,7 +18,6 @@ package com.gradleware.tooling.toolingclient
 
 import org.gradle.tooling.TestLauncher
 import org.gradle.tooling.events.test.TestOperationDescriptor
-import org.gradle.tooling.model.Launchable
 import spock.lang.Specification
 
 @SuppressWarnings("GroovyAssignabilityCheck")
@@ -27,7 +26,7 @@ class TestOperationConfigTest extends Specification {
   def "forJvmTestClassesVarArgs"() {
     setup:
     TestLauncher testLauncher = Mock(TestLauncher.class)
-    def tests = TestOperationConfig.forJvmTestClasses("alpha")
+    def tests = TestConfig.forJvmTestClasses("alpha")
 
     when:
     tests.apply(testLauncher)
@@ -40,7 +39,7 @@ class TestOperationConfigTest extends Specification {
   def "forJvmTestClassesIterable"() {
     setup:
     TestLauncher testLauncher = Mock(TestLauncher.class)
-    def tests = TestOperationConfig.forJvmTestClasses(Arrays.asList("alpha"))
+    def tests = TestConfig.forJvmTestClasses(Arrays.asList("alpha"))
 
     when:
     tests.apply(testLauncher)
@@ -54,7 +53,7 @@ class TestOperationConfigTest extends Specification {
     setup:
     TestLauncher testLauncher = Mock(TestLauncher.class)
     def testDescriptor = Mock(TestOperationDescriptor.class)
-    def tests = TestOperationConfig.forTests(testDescriptor)
+    def tests = TestConfig.forTests(testDescriptor)
 
     when:
     tests.apply(testLauncher)
@@ -68,7 +67,7 @@ class TestOperationConfigTest extends Specification {
     setup:
     TestLauncher testLauncher = Mock(TestLauncher.class)
     def testDescriptor = Mock(TestOperationDescriptor.class)
-    def tests = TestOperationConfig.forTests(Arrays.asList(testDescriptor))
+    def tests = TestConfig.forTests(Arrays.asList(testDescriptor))
 
     when:
     tests.apply(testLauncher)

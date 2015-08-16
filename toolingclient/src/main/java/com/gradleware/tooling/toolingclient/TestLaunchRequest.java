@@ -30,7 +30,7 @@ import org.gradle.tooling.ProgressListener;
  * You use a {@code TestLaunchRequest} as follows:
  * <ul>
  * <li>Create an instance of {@code BuildLaunchRequest} by calling
- * {@link ToolingClient#newTestLaunchRequest(TestOperationConfig)}.</li>
+ * {@link ToolingClient#newTestLaunchRequest(TestConfig)}.</li>
  * <li>Configure the request as appropriate.
  * <li>Call either {@link #executeAndWait()} or {@link #execute()} to execute the Gradle tests.
  * <li>Optionally, you can reuse the request to execute the Gradle test build multiple times.

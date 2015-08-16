@@ -72,7 +72,7 @@ class ToolingClientTest extends ToolingClientSpecification {
 
   def "executeTest"() {
       setup:
-      TestOperationConfig tests = TestOperationConfig.forJvmTestClasses("MyTest")
+      TestConfig tests = TestConfig.forJvmTestClasses("MyTest")
       TestLaunchRequest testLaunchRequest = toolingClient.newTestLaunchRequest(tests)
       testLaunchRequest.projectDir(directoryProvider.testDirectory)
       testLaunchRequest.executeAndWait()
@@ -182,7 +182,7 @@ class ToolingClientTest extends ToolingClientSpecification {
 
   def "executeTestAsynchronously"() {
       setup:
-      TestOperationConfig tests = TestOperationConfig.forJvmTestClasses("MyTest")
+      TestConfig tests = TestConfig.forJvmTestClasses("MyTest")
       TestLaunchRequest testLaunchRequest = toolingClient.newTestLaunchRequest(tests)
       testLaunchRequest.projectDir(directoryProvider.testDirectory)
 
