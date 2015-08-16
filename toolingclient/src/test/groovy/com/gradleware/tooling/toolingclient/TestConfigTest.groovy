@@ -21,7 +21,7 @@ import org.gradle.tooling.events.test.TestOperationDescriptor
 import spock.lang.Specification
 
 @SuppressWarnings("GroovyAssignabilityCheck")
-class TestOperationConfigTest extends Specification {
+class TestConfigTest extends Specification {
 
   def "forJvmTestClassesVarArgs"() {
     setup:
