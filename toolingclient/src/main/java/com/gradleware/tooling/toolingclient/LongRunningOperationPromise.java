@@ -60,6 +60,12 @@ public abstract class LongRunningOperationPromise<T> {
         return promise;
     }
 
+    /**
+     * Asynchronously runs the test launcher and returns its promise.
+     *
+     * @param testLauncher the test launcher to run
+     * @return the promise of the long running operation
+     */
     public static LongRunningOperationPromise<Void> forTestLauncher(TestLauncher testLauncher) {
         Preconditions.checkNotNull(testLauncher);
         ResultHandlerPromise<Void> promise = new ResultHandlerPromise<Void>();
