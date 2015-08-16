@@ -182,6 +182,31 @@ class DefaultToolingClientTest extends Specification {
     toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
   }
 
+  def "progressListenersInvokedForBuildActionRequest"() {
+    setup:
+    // settings.gradle file to ensure test does not pick up Gradle version defined in the wrapper of the commons build itself
+    directoryProvider.createFile('settings.gradle')
+
+    AtomicBoolean progressListenerInvoked = new AtomicBoolean(false)
+    AtomicBoolean typedProgressListenerInvoked = new AtomicBoolean(false)
+
+    DefaultToolingClient toolingClient = new DefaultToolingClient()
+    def modelRequest = toolingClient.newBuildActionRequest(new TaskCountBuildAction())
+    modelRequest.projectDir(directoryProvider.testDirectory)
+    modelRequest.progressListeners({ progressListenerInvoked.set(true) } as ProgressListener)
+    modelRequest.typedProgressListeners({ typedProgressListenerInvoked.set(true) } as org.gradle.tooling.events.ProgressListener)
+
+    when:
+    modelRequest.executeAndWait()
+
+    then:
+    assert progressListenerInvoked.get()
+    assert typedProgressListenerInvoked.get()
+
+    cleanup:
+    toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
+  }
+
   def "progressListenersInvokedForBuildLaunchRequest"() {
     setup:
     // settings.gradle file to ensure test does not pick up Gradle version defined in the wrapper of the commons build itself
@@ -227,31 +252,6 @@ class DefaultToolingClientTest extends Specification {
 
     when:
     testLaunchRequest.executeAndWait()
-
-    then:
-    assert progressListenerInvoked.get()
-    assert typedProgressListenerInvoked.get()
-
-    cleanup:
-    toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
-  }
-
-  def "progressListenersInvokedForBuildActionRequest"() {
-    setup:
-    // settings.gradle file to ensure test does not pick up Gradle version defined in the wrapper of the commons build itself
-    directoryProvider.createFile('settings.gradle')
-
-    AtomicBoolean progressListenerInvoked = new AtomicBoolean(false)
-    AtomicBoolean typedProgressListenerInvoked = new AtomicBoolean(false)
-
-    DefaultToolingClient toolingClient = new DefaultToolingClient()
-    def modelRequest = toolingClient.newBuildActionRequest(new TaskCountBuildAction())
-    modelRequest.projectDir(directoryProvider.testDirectory)
-    modelRequest.progressListeners({ progressListenerInvoked.set(true) } as ProgressListener)
-    modelRequest.typedProgressListeners({ typedProgressListenerInvoked.set(true) } as org.gradle.tooling.events.ProgressListener)
-
-    when:
-    modelRequest.executeAndWait()
 
     then:
     assert progressListenerInvoked.get()
