@@ -57,7 +57,7 @@ public final class TestConfig {
     }
 
     /**
-     * Specifies the tests to be executed.
+     * Specifies the test classes to be executed.
      *
      * @param jvmTestClasses the names of the test classes to be executed
      * @return a new instance
@@ -66,6 +66,39 @@ public final class TestConfig {
         return new TestConfig.Builder().jvmTestClasses(jvmTestClasses).build();
     }
 
+    /**
+     * Specifies the test classes to be executed.
+     *
+     * @param jvmTestClasses the names of the test classes to be executed
+     * @return a new instance
+     */
+    public static TestConfig forJvmTestClasses(Iterable<String> jvmTestClasses) {
+        return new TestConfig.Builder().jvmTestClasses(jvmTestClasses).build();
+    }
+
+    /**
+     * Specifies the tests to be executed.
+     *
+     * @param tests the tests to be executed
+     * @return a new instance
+     */
+    public static TestConfig forTests(TestOperationDescriptor... tests) {
+        return new Builder().tests(tests).build();
+    }
+
+    /**
+     * Specifies the tests to be executed.
+     *
+     * @param tests the tests to be executed
+     * @return a new instance
+     */
+    public static TestConfig forTests(Iterable<? extends TestOperationDescriptor> tests) {
+        return new Builder().tests(tests).build();
+    }
+
+    /**
+     * Builder to build {@code TestConfig} instances that accumulate multiple types of tests to execute.
+     */
     public static final class Builder {
 
         private ImmutableList.Builder<String> jvmTestClasses;
@@ -77,10 +110,10 @@ public final class TestConfig {
         }
 
         /**
-         * Specifies the test classes to be executed.
+         * Adds the test classes to be executed.
          *
          * @param jvmTestClasses the names of the test classes to be executed
-         * @return a new instance
+         * @return this builder
          */
         public Builder jvmTestClasses(String... jvmTestClasses) {
             this.jvmTestClasses.addAll(Arrays.asList(jvmTestClasses));
@@ -88,10 +121,10 @@ public final class TestConfig {
         }
 
         /**
-         * Specifies the test classes to be executed.
+         * Adds the test classes to be executed.
          *
          * @param jvmTestClasses the names of the test classes to be executed
-         * @return a new instance
+         * @return this builder
          */
         public Builder jvmTestClasses(Iterable<String> jvmTestClasses) {
             this.jvmTestClasses.addAll(jvmTestClasses);
@@ -99,10 +132,10 @@ public final class TestConfig {
         }
 
         /**
-         * Specifies the tests to be executed.
+         * Adds the tests to be executed.
          *
          * @param tests the tests to be executed
-         * @return a new instance
+         * @return this builder
          */
         public Builder tests(TestOperationDescriptor... tests) {
             this.tests.addAll(Arrays.asList(tests));
@@ -110,16 +143,21 @@ public final class TestConfig {
         }
 
         /**
-         * Specifies the tests to be executed.
+         * Adds the tests to be executed.
          *
          * @param tests the tests to be executed
-         * @return a new instance
+         * @return this builder
          */
         public Builder tests(Iterable<? extends TestOperationDescriptor> tests) {
             this.tests.addAll(tests);
             return this;
         }
 
+        /**
+         * Builds a new {@code TestConfig} instance.
+         *
+         * @return a new {@code TestConfig} instance
+         */
         public TestConfig build() {
             return new TestConfig(this.jvmTestClasses.build(), this.tests.build());
         }

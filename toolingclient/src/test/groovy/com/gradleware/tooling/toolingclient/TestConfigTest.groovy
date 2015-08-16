@@ -26,7 +26,7 @@ class TestConfigTest extends Specification {
   def "forJvmTestClassesVarArgs"() {
     setup:
     TestLauncher testLauncher = Mock(TestLauncher.class)
-    def tests = new TestConfig.Builder().jvmTestClasses("alpha").build()
+    def tests = TestConfig.forJvmTestClasses("alpha")
 
     when:
     tests.apply(testLauncher)
@@ -39,7 +39,7 @@ class TestConfigTest extends Specification {
   def "forJvmTestClassesIterable"() {
     setup:
     TestLauncher testLauncher = Mock(TestLauncher.class)
-    def tests = new TestConfig.Builder().jvmTestClasses(Arrays.asList("alpha")).build()
+    def tests = TestConfig.forJvmTestClasses(Arrays.asList("alpha"))
 
     when:
     tests.apply(testLauncher)
@@ -53,7 +53,7 @@ class TestConfigTest extends Specification {
     setup:
     TestLauncher testLauncher = Mock(TestLauncher.class)
     def testDescriptor = Mock(TestOperationDescriptor.class)
-    def tests = new TestConfig.Builder().tests(testDescriptor).build()
+    def tests = TestConfig.forTests(testDescriptor)
 
     when:
     tests.apply(testLauncher)
@@ -67,7 +67,7 @@ class TestConfigTest extends Specification {
     setup:
     TestLauncher testLauncher = Mock(TestLauncher.class)
     def testDescriptor = Mock(TestOperationDescriptor.class)
-    def tests = new TestConfig.Builder().tests(Arrays.asList(testDescriptor)).build()
+    def tests = TestConfig.forTests(Arrays.asList(testDescriptor))
 
     when:
     tests.apply(testLauncher)
