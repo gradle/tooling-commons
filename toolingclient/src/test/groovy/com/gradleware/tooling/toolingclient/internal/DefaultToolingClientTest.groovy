@@ -78,7 +78,7 @@ class DefaultToolingClientTest extends Specification {
   def "newTestLaunchRequestSetsBuildSpecificGradleDistributionByDefault"() {
     setup:
     DefaultToolingClient toolingClient = new DefaultToolingClient()
-    InspectableTestLaunchRequest testLaunchRequest = (InspectableTestLaunchRequest) toolingClient.newTestLaunchRequest(TestConfig.forJvmTestClasses())
+    InspectableTestLaunchRequest testLaunchRequest = (InspectableTestLaunchRequest) toolingClient.newTestLaunchRequest(TestConfig.forJvmTestClasses('Foo'))
     testLaunchRequest.getGradleDistribution() == GradleDistribution.fromBuild()
 
     cleanup:
