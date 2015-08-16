@@ -70,7 +70,7 @@ class ToolingClientTest extends ToolingClientSpecification {
     buildLaunchRequest.executeAndWait()
   }
 
-  def "executeTest"() {
+  def "executeTests"() {
       setup:
       TestConfig tests = TestConfig.forJvmTestClasses("MyTest")
       TestLaunchRequest testLaunchRequest = toolingClient.newTestLaunchRequest(tests)
