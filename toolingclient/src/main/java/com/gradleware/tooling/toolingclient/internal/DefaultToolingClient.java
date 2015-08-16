@@ -198,9 +198,9 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     }
 
     private TestLauncher mapToTestLauncher(InspectableTestLaunchRequest testLaunchRequest, ProjectConnection connection) {
-        TestLauncher buildLauncher = connection.newTestLauncher();
-        testLaunchRequest.getTests().apply(buildLauncher);
-        return mapToLongRunningOperation(testLaunchRequest, buildLauncher);
+        TestLauncher testLauncher = connection.newTestLauncher();
+        testLaunchRequest.getTests().apply(testLauncher);
+        return mapToLongRunningOperation(testLaunchRequest, testLauncher);
     }
 
     private <T extends LongRunningOperation> T mapToLongRunningOperation(InspectableRequest<?> request, T operation) {
