@@ -23,7 +23,7 @@ import org.gradle.tooling.events.ProgressListener
 import org.gradle.tooling.events.test.TestFinishEvent
 import org.junit.Rule
 
-class TestExecutionTest extends ToolingClientSpecification {
+class TestLaunchRequestTest extends ToolingClientSpecification {
 
   @Rule
   TestDirectoryProvider directoryProvider = new TestDirectoryProvider();
