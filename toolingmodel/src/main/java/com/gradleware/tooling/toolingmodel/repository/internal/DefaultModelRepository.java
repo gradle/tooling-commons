@@ -16,7 +16,6 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import com.google.common.base.Converter;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.cache.Cache;
@@ -130,7 +129,7 @@ public final class DefaultModelRepository implements ModelRepository {
         Converter<BuildEnvironment, OmniBuildEnvironment> converter = new BaseConverter<BuildEnvironment, OmniBuildEnvironment>() {
 
             @Override
-            protected OmniBuildEnvironment doForward(BuildEnvironment buildEnvironment) {
+            public OmniBuildEnvironment apply(BuildEnvironment buildEnvironment) {
                 return DefaultOmniBuildEnvironment.from(buildEnvironment);
             }
 
@@ -160,7 +159,7 @@ public final class DefaultModelRepository implements ModelRepository {
         Converter<GradleBuild, OmniGradleBuildStructure> converter = new BaseConverter<GradleBuild, OmniGradleBuildStructure>() {
 
             @Override
-            protected OmniGradleBuildStructure doForward(GradleBuild gradleBuild) {
+            public OmniGradleBuildStructure apply(GradleBuild gradleBuild) {
                 return DefaultOmniGradleBuildStructure.from(gradleBuild);
             }
 
@@ -190,7 +189,7 @@ public final class DefaultModelRepository implements ModelRepository {
         Converter<GradleProject, OmniGradleBuild> converter = new BaseConverter<GradleProject, OmniGradleBuild>() {
 
             @Override
-            protected OmniGradleBuild doForward(GradleProject gradleProject) {
+            public OmniGradleBuild apply(GradleProject gradleProject) {
                 return DefaultOmniGradleBuild.from(gradleProject, requiresIsPublicFix);
             }
 
@@ -219,7 +218,7 @@ public final class DefaultModelRepository implements ModelRepository {
         Converter<EclipseProject, OmniEclipseGradleBuild> converter = new BaseConverter<EclipseProject, OmniEclipseGradleBuild>() {
 
             @Override
-            protected OmniEclipseGradleBuild doForward(EclipseProject eclipseProject) {
+            public OmniEclipseGradleBuild apply(EclipseProject eclipseProject) {
                 return DefaultOmniEclipseGradleBuild.from(eclipseProject, requiresIsPublicFix);
             }
 
@@ -264,7 +263,7 @@ public final class DefaultModelRepository implements ModelRepository {
         Converter<Map<String, BuildInvocations>, OmniBuildInvocationsContainer> converter = new BaseConverter<Map<String, BuildInvocations>, OmniBuildInvocationsContainer>() {
 
             @Override
-            protected OmniBuildInvocationsContainer doForward(Map<String, BuildInvocations> buildInvocations) {
+            public OmniBuildInvocationsContainer apply(Map<String, BuildInvocations> buildInvocations) {
                 return DefaultOmniBuildInvocationsContainer.from(buildInvocations);
             }
 
@@ -419,7 +418,7 @@ public final class DefaultModelRepository implements ModelRepository {
     private <T, U> U executeAndWait(Supplier<T> operation, Converter<T, U> resultConverter) {
         // invoke the operation and convert the result
         T result = operation.get();
-        return resultConverter.convert(result);
+        return resultConverter.apply(result);
     }
 
 }
