@@ -23,6 +23,11 @@ import com.google.common.base.Function;
  * <p/>
  * This class was introduced because the Guava 15.0 dependency has to be used. When upgrading to
  * Guava 18 this class should be replaced with the {@code com.google.common.base.Converter} type.
+ *
+ * @param <F> the type to convert back from
+ * @param <T> the type to convert forward to
+ *
+ * @author Donát Csikós
  */
 public abstract class Converter<F, T> implements Function<F, T> {
 
