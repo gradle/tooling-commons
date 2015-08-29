@@ -37,14 +37,16 @@ public abstract class Converter<F, T> implements Function<F, T> {
         return new Converter<I, I>() {
 
             @Override
-            public I apply(I argument) {
-                return argument;
+            public I apply(I source) {
+                return source;
             }
 
             @Override
-            public I revert(I argument) {
-                return argument;
+            public I revert(I source) {
+                return source;
             }
+
         };
     }
+
 }
