@@ -24,7 +24,6 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharSource;
 import com.google.common.io.CharStreams;
-import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -37,9 +36,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -161,10 +160,11 @@ public final class PublishedGradleVersions {
     }
 
     private static String downloadVersionInformation() {
+        HttpURLConnection connection = null;
         InputStreamReader reader = null;
         try {
             URL url = createURL(VERSIONS_URL);
-            URLConnection connection = url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             reader = new InputStreamReader(connection.getInputStream(), Charsets.UTF_8);
             return CharStreams.toString(reader);
         } catch (IOException e) {
@@ -172,10 +172,15 @@ public final class PublishedGradleVersions {
             throw new RuntimeException("Cannot download published Gradle versions.", e);
             // throw an exception if version information cannot be downloaded since we need this information
         } finally {
-            try {
-                Closeables.close(reader, false);
-            } catch (IOException e) {
-                LOG.error("Can't close stream after downloading published Gradle versions", e);
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    LOG.error("Can't close stream after downloading published Gradle versions", e);
+                }
+            }
+            if (connection != null) {
+                connection.disconnect();
             }
         }
     }
