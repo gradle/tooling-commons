@@ -24,6 +24,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharSource;
 import com.google.common.io.CharStreams;
+import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -172,12 +173,10 @@ public final class PublishedGradleVersions {
             throw new RuntimeException("Cannot download published Gradle versions.", e);
             // throw an exception if version information cannot be downloaded since we need this information
         } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    LOG.error("Can't close stream after downloading published Gradle versions", e);
-                }
+            try {
+                Closeables.close(reader, false);
+            } catch (IOException e) {
+                LOG.error("Can't close stream after downloading published Gradle versions", e);
             }
             if (connection != null) {
                 connection.disconnect();
