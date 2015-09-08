@@ -64,9 +64,6 @@ public final class PublishedGradleVersions {
     private static final String RC_FOR = "rcFor";
     private static final String BROKEN = "broken";
 
-    // the file to cache the downloaded version information
-    private static final File CACHE_FILE = new File(System.getProperty("user.home"), ".tooling/gradle/versions.json");
-
     private static final Logger LOG = LoggerFactory.getLogger(PublishedGradleVersions.class);
 
     private final List<Map<String, String>> versions;
@@ -111,11 +108,12 @@ public final class PublishedGradleVersions {
      */
     public static PublishedGradleVersions create(boolean enableCaching) {
         if (enableCaching) {
+            File cacheFile = getCacheFile();
             // allow to read from and write to cache file
-            if (CACHE_FILE.isFile() && CACHE_FILE.exists()) {
+            if (cacheFile.isFile() && cacheFile.exists()) {
                 // if cache file exists, try to make use of it
-                Optional<String> cachedVersions = readCacheVersionsFile();
-                if (CACHE_FILE.lastModified() > System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1)) {
+                Optional<String> cachedVersions = readCacheVersionsFile(cacheFile);
+                if (cacheFile.lastModified() > System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1)) {
                     // cache file is current and its version information can be used
                     LOG.info("Gradle version information cache file is not out-of-date. No remote download required.");
                     if (cachedVersions.isPresent()) {
@@ -125,7 +123,7 @@ public final class PublishedGradleVersions {
                         // local cache file is not valid, download latest version information
                         LOG.error("Cannot read found Gradle version information cache file. Remote download required.");
                         String json = downloadVersionInformation();
-                        storeCacheVersionFile(json);
+                        storeCacheVersionsFile(json, cacheFile);
                         return create(json);
                     }
                 } else {
@@ -143,14 +141,14 @@ public final class PublishedGradleVersions {
                             throw new RuntimeException("Cannot collect Gradle version information remotely nor locally.", e);
                         }
                     }
-                    storeCacheVersionFile(json);
+                    storeCacheVersionsFile(json, cacheFile);
                     return create(json);
                 }
             } else {
                 // if no previous cache file exists, download and cache the version information
                 LOG.info("Gradle version information cache file is not available. Remote download required.");
                 String json = downloadVersionInformation();
-                storeCacheVersionFile(json);
+                storeCacheVersionsFile(json, cacheFile);
                 return create(json);
             }
         } else {
@@ -184,21 +182,21 @@ public final class PublishedGradleVersions {
         }
     }
 
-    private static void storeCacheVersionFile(String json) {
+    private static void storeCacheVersionsFile(String json, File cacheFile) {
         //noinspection ResultOfMethodCallIgnored
-        CACHE_FILE.getParentFile().mkdirs();
+        cacheFile.getParentFile().mkdirs();
 
         try {
-            CharSource.wrap(json).copyTo(Files.asCharSink(CACHE_FILE, Charsets.UTF_8));
+            CharSource.wrap(json).copyTo(Files.asCharSink(cacheFile, Charsets.UTF_8));
         } catch (IOException e) {
             LOG.error("Cannot write Gradle version information cache file.", e);
             // do not throw an exception if cache file cannot be written to be more robust against file system problems
         }
     }
 
-    private static Optional<String> readCacheVersionsFile() {
+    private static Optional<String> readCacheVersionsFile(File cacheFile) {
         try {
-            return Optional.of(Files.toString(CACHE_FILE, Charsets.UTF_8));
+            return Optional.of(Files.toString(cacheFile, Charsets.UTF_8));
         } catch (IOException e) {
             LOG.error("Cannot read found Gradle version information cache file.", e);
             // do not throw an exception if cache file cannot be read to be more robust against file system problems
@@ -229,6 +227,10 @@ public final class PublishedGradleVersions {
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Invalid URL: " + url, e);
         }
+    }
+
+    private static File getCacheFile() {
+        return new File(System.getProperty("user.home"), ".tooling/gradle/versions.json");
     }
 
 }
