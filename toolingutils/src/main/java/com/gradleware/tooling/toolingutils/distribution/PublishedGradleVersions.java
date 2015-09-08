@@ -23,8 +23,9 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharSource;
+import com.google.common.io.CharStreams;
+import com.google.common.io.Closeables;
 import com.google.common.io.Files;
-import com.google.common.io.Resources;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -35,8 +36,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -158,12 +161,22 @@ public final class PublishedGradleVersions {
     }
 
     private static String downloadVersionInformation() {
+        InputStreamReader reader = null;
         try {
-            return Resources.asCharSource(createURL(VERSIONS_URL), Charsets.UTF_8).read();
+            URL url = createURL(VERSIONS_URL);
+            URLConnection connection = url.openConnection();
+            reader = new InputStreamReader(connection.getInputStream(), Charsets.UTF_8);
+            return CharStreams.toString(reader);
         } catch (IOException e) {
             LOG.error("Cannot download published Gradle versions.", e);
             throw new RuntimeException("Cannot download published Gradle versions.", e);
             // throw an exception if version information cannot be downloaded since we need this information
+        } finally {
+            try {
+                Closeables.close(reader, false);
+            } catch (IOException e) {
+                LOG.error("Can't close stream after downloading published Gradle versions", e);
+            }
         }
     }
 
