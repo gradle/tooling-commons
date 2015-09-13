@@ -32,16 +32,16 @@ import java.util.List;
 public final class TestConfig {
 
     private final ImmutableList<String> jvmTestClasses;
-    private final ImmutableList<TestOperationDescriptor> tests;
+    private final ImmutableList<? extends TestOperationDescriptor> tests;
 
-    private TestConfig(List<String> jvmTestClasses, List<TestOperationDescriptor> tests) {
+    private TestConfig(List<String> jvmTestClasses, List<? extends TestOperationDescriptor> tests) {
         this.jvmTestClasses = ImmutableList.copyOf(jvmTestClasses);
         this.tests = ImmutableList.copyOf(tests);
 
         checkNotAllListsEmpty(jvmTestClasses, tests);
     }
 
-    private void checkNotAllListsEmpty(List<String> jvmTestClasses, List<TestOperationDescriptor> tests) {
+    private void checkNotAllListsEmpty(List<String> jvmTestClasses, List<? extends TestOperationDescriptor> tests) {
         Preconditions.checkArgument(!jvmTestClasses.isEmpty() || !tests.isEmpty(), "Either JVM test classes or test operations, or both, must be specified.");
     }
 
