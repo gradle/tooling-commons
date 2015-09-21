@@ -76,7 +76,7 @@ class TestLaunchRequestTest extends ToolingClientSpecification {
 
   def "forJvmTestMethods"() {
     setup:
-    TestConfig tests = TestConfig.forJvmTestMethods("TestA", "testA1")
+    TestConfig tests = TestConfig.forJvmTestMethods("TestB", "testB1")
     TestLaunchRequest testLaunchRequest = toolingClient.newTestLaunchRequest(tests)
     testLaunchRequest.projectDir(directoryProvider.testDirectory)
     List finishedTests = []
@@ -90,9 +90,9 @@ class TestLaunchRequestTest extends ToolingClientSpecification {
     testLaunchRequest.executeAndWait()
 
     then:
-    finishedTests.contains("testA1")
+    !finishedTests.contains("testA1")
     !finishedTests.contains("testA2")
-    !finishedTests.contains("testB1")
+    finishedTests.contains("testB1")
     !finishedTests.contains("testB2")
   }
 
