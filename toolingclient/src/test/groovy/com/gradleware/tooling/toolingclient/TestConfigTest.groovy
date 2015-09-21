@@ -33,6 +33,7 @@ class TestConfigTest extends Specification {
 
     then:
     1 * testLauncher.withJvmTestClasses(["alpha"])
+    0 * testLauncher.withJvmTestMethods(*_)
     1 * testLauncher.withTests([])
   }
 
@@ -46,6 +47,35 @@ class TestConfigTest extends Specification {
 
     then:
     1 * testLauncher.withJvmTestClasses(["alpha"])
+    0 * testLauncher.withJvmTestMethods(*_)
+    1 * testLauncher.withTests([])
+  }
+  
+  def "forJvmTestMethodsVarArgs"() {
+    setup:
+    TestLauncher testLauncher = Mock(TestLauncher.class)
+    def tests = TestConfig.forJvmTestMethods("alpha", "beta")
+  
+    when:
+    tests.apply(testLauncher)
+  
+    then:
+    1 * testLauncher.withJvmTestClasses([])
+    1 * testLauncher.withJvmTestMethods("alpha", ["beta"])
+    1 * testLauncher.withTests([])
+  }
+  
+  def "forJvmTestMethodsIterable"() {
+    setup:
+    TestLauncher testLauncher = Mock(TestLauncher.class)
+    def tests = TestConfig.forJvmTestMethods("alpha", Arrays.asList("beta"))
+    
+    when:
+    tests.apply(testLauncher)
+    
+    then:
+    1 * testLauncher.withJvmTestClasses([])
+    1 * testLauncher.withJvmTestMethods("alpha", ["beta"])
     1 * testLauncher.withTests([])
   }
 
@@ -60,6 +90,7 @@ class TestConfigTest extends Specification {
 
     then:
     1 * testLauncher.withTests([testDescriptor])
+    0 * testLauncher.withJvmTestMethods(*_)
     1 * testLauncher.withJvmTestClasses([])
   }
 
@@ -74,6 +105,7 @@ class TestConfigTest extends Specification {
 
     then:
     1 * testLauncher.withTests([testDescriptor])
+    0 * testLauncher.withJvmTestMethods(*_)
     1 * testLauncher.withJvmTestClasses([])
   }
 
