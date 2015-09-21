@@ -40,14 +40,16 @@ class TestLaunchRequestTest extends ToolingClientSpecification {
     '''import static org.junit.Assert.assertTrue;
          import org.junit.Test;
          public class TestA {
-             public @Test void testA() { assertTrue(true); }
+             public @Test void testA1() { assertTrue(true); }
+             public @Test void testA2() { assertTrue(true); }
          }
       '''
     directoryProvider.createFile('src', 'test', 'java', 'TestB.java') <<
     '''import static org.junit.Assert.assertTrue;
          import org.junit.Test;
          public class TestB {
-             public @Test void testB() { assertTrue(true); }
+             public @Test void testB1() { assertTrue(true); }
+             public @Test void testB2() { assertTrue(true); }
          }
     '''
   }
@@ -68,8 +70,30 @@ class TestLaunchRequestTest extends ToolingClientSpecification {
     testLaunchRequest.executeAndWait()
 
     then:
-    finishedTests.contains("testA")
-    !finishedTests.contains("testB")
+    finishedTests.contains("testA1")
+    !finishedTests.contains("testB1")
+  }
+  
+  def "forJvmTestMethods"() {
+    setup:
+    TestConfig tests = TestConfig.forJvmTestMethods("TestA", "testA1")
+    TestLaunchRequest testLaunchRequest = toolingClient.newTestLaunchRequest(tests)
+    testLaunchRequest.projectDir(directoryProvider.testDirectory)
+    List finishedTests = []
+      testLaunchRequest.typedProgressListeners({ ProgressEvent event ->
+      if (event instanceof TestFinishEvent) {
+        finishedTests << event.descriptor.name
+      }
+    } as ProgressListener)
+  
+    when:
+    testLaunchRequest.executeAndWait()
+  
+    then:
+    finishedTests.contains("testA1")
+    !finishedTests.contains("testA2")
+    !finishedTests.contains("testB1")
+    !finishedTests.contains("testB2")
   }
 
 }
