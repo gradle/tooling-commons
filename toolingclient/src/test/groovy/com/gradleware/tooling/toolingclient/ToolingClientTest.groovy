@@ -72,6 +72,19 @@ class ToolingClientTest extends ToolingClientSpecification {
 
   def "executeTests"() {
       setup:
+      new File(directoryProvider.testDirectory, 'build.gradle') << """
+         apply plugin: "java"
+         repositories { jcenter() }
+         dependencies { testCompile "junit:junit:4.10" }
+      """
+      directoryProvider.createDir('src/test/java')
+      directoryProvider.createFile('src/test/java/MyTest.java') << """
+         import org.junit.Test;
+         import static org.junit.Assert.assertTrue;
+         public class MyTest {
+             public @Test void test() { assertTrue(true); } 
+         }
+      """
       TestConfig tests = TestConfig.forJvmTestClasses("MyTest")
       TestLaunchRequest testLaunchRequest = toolingClient.newTestLaunchRequest(tests)
       testLaunchRequest.projectDir(directoryProvider.testDirectory)
