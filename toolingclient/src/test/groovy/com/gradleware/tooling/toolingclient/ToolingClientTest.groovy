@@ -82,7 +82,7 @@ class ToolingClientTest extends ToolingClientSpecification {
          import org.junit.Test;
          import static org.junit.Assert.assertTrue;
          public class MyTest {
-             public @Test void test() { assertTrue(true); } 
+             public @Test void test() { assertTrue(true); }
          }
       """
       TestConfig tests = TestConfig.forJvmTestClasses("MyTest")

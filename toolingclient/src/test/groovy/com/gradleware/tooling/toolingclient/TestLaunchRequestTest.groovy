@@ -73,7 +73,7 @@ class TestLaunchRequestTest extends ToolingClientSpecification {
     finishedTests.contains("testA1")
     !finishedTests.contains("testB1")
   }
-  
+
   def "forJvmTestMethods"() {
     setup:
     TestConfig tests = TestConfig.forJvmTestMethods("TestA", "testA1")
@@ -85,10 +85,10 @@ class TestLaunchRequestTest extends ToolingClientSpecification {
         finishedTests << event.descriptor.name
       }
     } as ProgressListener)
-  
+
     when:
     testLaunchRequest.executeAndWait()
-  
+
     then:
     finishedTests.contains("testA1")
     !finishedTests.contains("testA2")
