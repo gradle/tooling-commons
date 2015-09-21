@@ -75,7 +75,7 @@ class ToolingClientTest extends ToolingClientSpecification {
       new File(directoryProvider.testDirectory, 'build.gradle') << """
          apply plugin: "java"
          repositories { jcenter() }
-         dependencies { testCompile "junit:junit:4.10" }
+         dependencies { testCompile "junit:junit:4.12" }
       """
       directoryProvider.createDir('src/test/java')
       directoryProvider.createFile('src/test/java/MyTest.java') << """
