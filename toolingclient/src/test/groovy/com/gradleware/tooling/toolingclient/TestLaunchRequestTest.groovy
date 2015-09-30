@@ -18,10 +18,14 @@ package com.gradleware.tooling.toolingclient
 
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.ToolingClientSpecification
+import org.gradle.tooling.TestExecutionException
 import org.gradle.tooling.events.ProgressEvent
 import org.gradle.tooling.events.ProgressListener
+import org.gradle.tooling.events.task.TaskFailureResult
+import org.gradle.tooling.events.task.TaskFinishEvent
 import org.gradle.tooling.events.test.TestFinishEvent
 import org.junit.Rule
+import spock.lang.Ignore
 
 class TestLaunchRequestTest extends ToolingClientSpecification {
 
@@ -31,13 +35,13 @@ class TestLaunchRequestTest extends ToolingClientSpecification {
   def setup() {
     directoryProvider.createFile('settings.gradle');
     directoryProvider.createFile('build.gradle') <<
-    '''apply plugin: 'java'
+        '''apply plugin: 'java'
          repositories { mavenCentral() }
          dependencies { testCompile "junit:junit:4.12" }
     '''
     directoryProvider.createDir('src', 'test', 'java')
     directoryProvider.createFile('src', 'test', 'java', 'TestA.java') <<
-    '''import static org.junit.Assert.assertTrue;
+        '''import static org.junit.Assert.assertTrue;
          import org.junit.Test;
          public class TestA {
              public @Test void testA1() { assertTrue(true); }
@@ -45,11 +49,11 @@ class TestLaunchRequestTest extends ToolingClientSpecification {
          }
       '''
     directoryProvider.createFile('src', 'test', 'java', 'TestB.java') <<
-    '''import static org.junit.Assert.assertTrue;
+        '''import static org.junit.Assert.assertTrue;
          import org.junit.Test;
          public class TestB {
-             public @Test void testB1() { assertTrue(true); }
-             public @Test void testB2() { assertTrue(true); }
+             public @Test void testB1() { assertTrue(false); }
+             public @Test void testB2() { assertTrue(false); }
          }
     '''
   }
@@ -71,7 +75,9 @@ class TestLaunchRequestTest extends ToolingClientSpecification {
 
     then:
     finishedTests.contains("testA1")
+    finishedTests.contains("testA2")
     !finishedTests.contains("testB1")
+    !finishedTests.contains("testB2")
   }
 
   def "forJvmTestMethods"() {
@@ -80,7 +86,7 @@ class TestLaunchRequestTest extends ToolingClientSpecification {
     TestLaunchRequest testLaunchRequest = toolingClient.newTestLaunchRequest(tests)
     testLaunchRequest.projectDir(directoryProvider.testDirectory)
     List finishedTests = []
-      testLaunchRequest.typedProgressListeners({ ProgressEvent event ->
+    testLaunchRequest.typedProgressListeners({ ProgressEvent event ->
       if (event instanceof TestFinishEvent) {
         finishedTests << event.descriptor.name
       }
@@ -90,10 +96,36 @@ class TestLaunchRequestTest extends ToolingClientSpecification {
     testLaunchRequest.executeAndWait()
 
     then:
+    thrown(TestExecutionException)
     !finishedTests.contains("testA1")
     !finishedTests.contains("testA2")
     finishedTests.contains("testB1")
     !finishedTests.contains("testB2")
+  }
+
+  @Ignore
+  def "failingTestMethodGeneratesFailEventForMethod"() {
+    setup:
+    TestConfig tests = TestConfig.forJvmTestMethods("TestB", "testB1")
+    TestLaunchRequest testLaunchRequest = toolingClient.newTestLaunchRequest(tests)
+    testLaunchRequest.projectDir(directoryProvider.testDirectory)
+    List<String> finishedTests = []
+    List<TaskFinishEvent> finishedTestTask = []
+    testLaunchRequest.typedProgressListeners({ ProgressEvent event ->
+      if (event instanceof TestFinishEvent) {
+        finishedTests << event.descriptor.name
+      } else if (event instanceof TaskFinishEvent && ((TaskFinishEvent) event).descriptor.name == ':test') {
+        finishedTestTask << event
+      }
+    } as ProgressListener)
+
+    when:
+    testLaunchRequest.executeAndWait()
+
+    then:
+    thrown(TestExecutionException)
+    finishedTests.contains("testB1")
+    finishedTestTask[0].result instanceof TaskFailureResult
   }
 
 }
