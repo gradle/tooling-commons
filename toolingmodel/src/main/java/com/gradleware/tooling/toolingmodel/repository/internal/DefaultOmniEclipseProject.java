@@ -192,7 +192,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         return this.hierarchyHelper.tryFind(predicate);
     }
 
-    public static DefaultOmniEclipseProject from(EclipseProject project) {
+    public static DefaultOmniEclipseProject from(EclipseProject project, boolean buildCommandsAndNaturesAvailable) {
         DefaultOmniEclipseProject eclipseProject = new DefaultOmniEclipseProject(OmniEclipseProjectComparator.INSTANCE);
         eclipseProject.setName(project.getName());
         eclipseProject.setDescription(project.getDescription());
@@ -206,7 +206,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         setBuildCommands(eclipseProject, project);
 
         for (EclipseProject child : project.getChildren()) {
-            DefaultOmniEclipseProject eclipseChildProject = from(child);
+            DefaultOmniEclipseProject eclipseChildProject = from(child, buildCommandsAndNaturesAvailable);
             eclipseProject.addChild(eclipseChildProject);
         }
 
@@ -252,6 +252,25 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
             @Override
             public OmniEclipseSourceDirectory apply(EclipseSourceDirectory input) {
                 return DefaultOmniEclipseSourceDirectory.from(input);
+            }
+        }).toList();
+    }
+
+    private static ImmutableList<OmniEclipseProjectNature> toProjectNatures(DomainObjectSet<? extends EclipseProjectNature> projectNatures) {
+        return FluentIterable.from(projectNatures).transform(new Function<EclipseProjectNature, OmniEclipseProjectNature>() {
+
+            @Override
+            public OmniEclipseProjectNature apply(EclipseProjectNature input) {
+                return DefaultOmniEclipseProjectNature.from(input);
+            }
+        }).toList();
+    }
+
+    private static ImmutableList<OmniEclipseBuildCommand> toBuildCommands(DomainObjectSet<? extends EclipseBuildCommand> buildCommands) {
+        return FluentIterable.from(buildCommands).transform(new Function<EclipseBuildCommand, OmniEclipseBuildCommand>() {
+            @Override
+            public OmniEclipseBuildCommand apply(EclipseBuildCommand input) {
+                return DefaultOmniEclipseBuildCommand.from(input);
             }
         }).toList();
     }
