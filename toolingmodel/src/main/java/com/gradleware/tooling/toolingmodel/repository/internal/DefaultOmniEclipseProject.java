@@ -22,19 +22,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingmodel.OmniEclipseLinkedResource;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
-import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
-import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
-import com.gradleware.tooling.toolingmodel.Path;
+import com.gradleware.tooling.toolingmodel.*;
 import org.gradle.api.specs.Spec;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.ExternalDependency;
-import org.gradle.tooling.model.eclipse.EclipseLinkedResource;
-import org.gradle.tooling.model.eclipse.EclipseProject;
-import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
-import org.gradle.tooling.model.eclipse.EclipseSourceDirectory;
+import org.gradle.tooling.model.eclipse.*;
 
 import java.io.File;
 import java.util.Comparator;
@@ -56,6 +48,8 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     private ImmutableList<OmniExternalDependency> externalDependencies;
     private ImmutableList<OmniEclipseLinkedResource> linkedResources;
     private ImmutableList<OmniEclipseSourceDirectory> sourceDirectories;
+    private Optional<List<OmniEclipseProjectNature>> projectNatures;
+    private Optional<List<OmniEclipseBuildCommand>> buildCommands;
 
     private DefaultOmniEclipseProject(Comparator<? super OmniEclipseProject> comparator) {
         this.hierarchyHelper = new HierarchyHelper<OmniEclipseProject>(this, Preconditions.checkNotNull(comparator));
@@ -134,6 +128,32 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     }
 
     @Override
+    public Optional<List<OmniEclipseProjectNature>> getProjectNatures() {
+        return projectNatures;
+    }
+
+    public void setProjectNatures(Optional<List<OmniEclipseProjectNature>> projectNatures) {
+        if (projectNatures.isPresent()) {
+            this.projectNatures = Optional.<List<OmniEclipseProjectNature>>of(ImmutableList.<OmniEclipseProjectNature>copyOf(projectNatures.get()));
+        } else {
+            this.projectNatures = Optional.absent();
+        }
+    }
+
+    @Override
+    public Optional<List<OmniEclipseBuildCommand>> getBuildCommands() {
+        return buildCommands;
+    }
+
+    public void setBuildCommands(Optional<List<OmniEclipseBuildCommand>> buildCommands) {
+        if (buildCommands.isPresent()) {
+            this.buildCommands = Optional.<List<OmniEclipseBuildCommand>>of(ImmutableList.copyOf(buildCommands.get()));
+        } else {
+            this.buildCommands = Optional.absent();
+        }
+    }
+
+    @Override
     public OmniEclipseProject getRoot() {
         return this.hierarchyHelper.getRoot();
     }
@@ -172,7 +192,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         return this.hierarchyHelper.tryFind(predicate);
     }
 
-    public static DefaultOmniEclipseProject from(EclipseProject project) {
+    public static DefaultOmniEclipseProject from(EclipseProject project, boolean buildCommandsAndNaturesAvailable) {
         DefaultOmniEclipseProject eclipseProject = new DefaultOmniEclipseProject(OmniEclipseProjectComparator.INSTANCE);
         eclipseProject.setName(project.getName());
         eclipseProject.setDescription(project.getDescription());
@@ -182,9 +202,17 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         eclipseProject.setExternalDependencies(toExternalDependencies(project.getClasspath()));
         eclipseProject.setLinkedResources(toLinkedResources(project.getLinkedResources()));
         eclipseProject.setSourceDirectories(toSourceDirectories(project.getSourceDirectories()));
+        if (buildCommandsAndNaturesAvailable) {
+            eclipseProject.setProjectNatures(Optional.<List<OmniEclipseProjectNature>>of(toProjectNatures(project.getProjectNatures())));
+            eclipseProject.setBuildCommands(Optional.<List<OmniEclipseBuildCommand>>of(toBuildCommands(project.getBuildCommands())));
+        } else {
+            eclipseProject.setProjectNatures(Optional.<List<OmniEclipseProjectNature>>absent());
+            eclipseProject.setBuildCommands(Optional.<List<OmniEclipseBuildCommand>>absent());
+        }
+
 
         for (EclipseProject child : project.getChildren()) {
-            DefaultOmniEclipseProject eclipseChildProject = from(child);
+            DefaultOmniEclipseProject eclipseChildProject = from(child, buildCommandsAndNaturesAvailable);
             eclipseProject.addChild(eclipseChildProject);
         }
 
@@ -230,6 +258,25 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
             @Override
             public OmniEclipseSourceDirectory apply(EclipseSourceDirectory input) {
                 return DefaultOmniEclipseSourceDirectory.from(input);
+            }
+        }).toList();
+    }
+
+    private static ImmutableList<OmniEclipseProjectNature> toProjectNatures(DomainObjectSet<? extends EclipseProjectNature> projectNatures) {
+        return FluentIterable.from(projectNatures).transform(new Function<EclipseProjectNature, OmniEclipseProjectNature>() {
+
+            @Override
+            public OmniEclipseProjectNature apply(EclipseProjectNature input) {
+                return DefaultOmniEclipseProjectNature.from(input);
+            }
+        }).toList();
+    }
+
+    private static ImmutableList<OmniEclipseBuildCommand> toBuildCommands(DomainObjectSet<? extends EclipseBuildCommand> buildCommands) {
+        return FluentIterable.from(buildCommands).transform(new Function<EclipseBuildCommand, OmniEclipseBuildCommand>() {
+            @Override
+            public OmniEclipseBuildCommand apply(EclipseBuildCommand input) {
+                return DefaultOmniEclipseBuildCommand.from(input);
             }
         }).toList();
     }

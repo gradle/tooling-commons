@@ -146,4 +146,21 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
     @ImmutableCollection
     List<OmniEclipseSourceDirectory> getSourceDirectories();
 
+    /**
+     * Returns the Eclipse natures of this project.
+     * <p>
+     * If the target Gradle version doesn't support retrieving the natures then the method returns {@code Optional#absent()}
+     *
+     * @return the project natures
+     */
+    Optional<List<OmniEclipseProjectNature>> getProjectNatures();
+
+    /**
+     * Returns the build commands of this project.
+     * <p>
+     * If the target Gradle version doesn't support retrieving the build commands then the method returns {@code Optional#absent()}
+     * @return the build commands
+     */
+    Optional<List<OmniEclipseBuildCommand>> getBuildCommands();
+
 }

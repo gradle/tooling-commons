@@ -572,6 +572,45 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
+  def "fetchEclipseGradleBuild - build commands and natures"(GradleDistribution distribution, Environment environment) {
+    given:
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderMultiProjectBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+
+    new TestFile(this.directoryProviderMultiProjectBuild.testDirectory, 'api/build.gradle') << """
+      apply plugin: 'eclipse'
+      eclipse {
+        project {
+          natures = ['customNature']
+          buildCommand 'buildCommand', argKey: 'argValue'
+        }
+      }
+
+    """
+
+    when:
+    OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+
+    then:
+    def apiEclipseProject = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Spec).get()
+    def projectNatures = apiEclipseProject.projectNatures
+    def buildCommands = apiEclipseProject.buildCommands
+    if (higherOrEqual('2.9', distribution)) {
+      projectNatures.isPresent()
+      projectNatures.get().collect{ it.id } == ['customNature']
+      buildCommands.isPresent()
+      buildCommands.get().collect { it.name } == ['buildCommand']
+      buildCommands.get().collect { it.arguments } == [['argkey' : 'argValue']]
+    } else {
+      !projectNatures.isPresent()
+      !buildCommands.isPresent()
+    }
+
+    where:
+    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+  }
+
   def "fetchEclipseGradleBuild - when exception is thrown"(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
