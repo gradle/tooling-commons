@@ -17,6 +17,7 @@
 package com.gradleware.tooling.toolingmodel;
 
 import com.google.common.base.Optional;
+import com.gradleware.tooling.toolingmodel.util.Maybe;
 import com.gradleware.tooling.toolingutils.ImmutableCollection;
 import org.gradle.api.Nullable;
 import org.gradle.api.specs.Spec;
@@ -163,5 +164,15 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
      * @return the build commands
      */
     Optional<List<OmniEclipseBuildCommand>> getBuildCommands();
+
+    /**
+     * Returns the Java source settings of this project.
+     * <p>
+     * If not a JVM project then the result is {@code Maybe.of(null)}.
+     * If the target Gradle version doesn't support retrieving the source settings then the method returns {@code Maybe#absent()}
+     *
+     * @return the Java source settings
+     */
+    Maybe<OmniJavaSourceSettings> getJavaSourceSettings();
 
 }

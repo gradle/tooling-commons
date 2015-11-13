@@ -32,6 +32,7 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure
 import com.gradleware.tooling.toolingmodel.OmniGradleProject
+import com.gradleware.tooling.toolingmodel.OmniJavaVersion
 import com.gradleware.tooling.toolingmodel.Path
 import com.gradleware.tooling.toolingmodel.repository.BuildEnvironmentUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.BuildInvocationsUpdateEvent
@@ -605,6 +606,61 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     } else {
       !projectNatures.isPresent()
       !buildCommands.isPresent()
+    }
+
+    where:
+    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+  }
+
+  def "fetchEclipseGradleBuild - source version settings for non-JVM projects"(GradleDistribution distribution, Environment environment) {
+    given:
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderMultiProjectBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+
+    when:
+    OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+
+    then:
+    def apiEclipseProject = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Spec).get()
+    def sourceCompatibility = apiEclipseProject.javaSourceSettings
+    if (higherOrEqual('2.10', distribution)) {
+      sourceCompatibility.isPresent()
+      sourceCompatibility.get() == null
+    } else {
+      !sourceCompatibility.isPresent()
+    }
+
+    where:
+    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+  }
+
+  def "fetchEclipseGradleBuild - source version settings for JVM projects"(GradleDistribution distribution, Environment environment) {
+    given:
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderMultiProjectBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+    new TestFile(this.directoryProviderMultiProjectBuild.testDirectory, 'api/build.gradle') << """
+      apply plugin: 'java'
+      apply plugin: 'eclipse'
+      eclipse {
+        project {
+          sourceCompatibility = 1.2
+        }
+      }
+    """
+
+    when:
+    OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+
+    then:
+    def apiEclipseProject = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Spec).get()
+    def sourceCompatibility = apiEclipseProject.javaSourceSettings
+    if (higherOrEqual('2.10', distribution)) {
+      sourceCompatibility.isPresent()
+      sourceCompatibility.get().sourceLanguageLevel.version.name == '1.2'
+    } else {
+      !sourceCompatibility.isPresent()
     }
 
     where:

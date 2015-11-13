@@ -23,10 +23,12 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.*;
+import com.gradleware.tooling.toolingmodel.util.Maybe;
 import org.gradle.api.specs.Spec;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.ExternalDependency;
 import org.gradle.tooling.model.eclipse.*;
+import org.gradle.tooling.model.java.JavaSourceSettings;
 
 import java.io.File;
 import java.util.Comparator;
@@ -50,6 +52,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     private ImmutableList<OmniEclipseSourceDirectory> sourceDirectories;
     private Optional<List<OmniEclipseProjectNature>> projectNatures;
     private Optional<List<OmniEclipseBuildCommand>> buildCommands;
+    private Maybe<OmniJavaSourceSettings> javaSourceSettings;
 
     private DefaultOmniEclipseProject(Comparator<? super OmniEclipseProject> comparator) {
         this.hierarchyHelper = new HierarchyHelper<OmniEclipseProject>(this, Preconditions.checkNotNull(comparator));
@@ -154,6 +157,15 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     }
 
     @Override
+    public Maybe<OmniJavaSourceSettings> getJavaSourceSettings() {
+        return javaSourceSettings;
+    }
+
+    public void setJavaSourceSettings(Maybe<OmniJavaSourceSettings> javaSourceSettings) {
+        this.javaSourceSettings = javaSourceSettings;
+    }
+
+    @Override
     public OmniEclipseProject getRoot() {
         return this.hierarchyHelper.getRoot();
     }
@@ -192,7 +204,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         return this.hierarchyHelper.tryFind(predicate);
     }
 
-    public static DefaultOmniEclipseProject from(EclipseProject project, boolean buildCommandsAndNaturesAvailable) {
+    public static DefaultOmniEclipseProject from(EclipseProject project, boolean buildCommandsAndNaturesAvailable, boolean sourceSettingsAvailable) {
         DefaultOmniEclipseProject eclipseProject = new DefaultOmniEclipseProject(OmniEclipseProjectComparator.INSTANCE);
         eclipseProject.setName(project.getName());
         eclipseProject.setDescription(project.getDescription());
@@ -204,9 +216,14 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         eclipseProject.setSourceDirectories(toSourceDirectories(project.getSourceDirectories()));
         setProjectNatures(eclipseProject, project);
         setBuildCommands(eclipseProject, project);
+        if (sourceSettingsAvailable) {
+            eclipseProject.setJavaSourceSettings(Maybe.of(toOmniJavaSourceSettings(project.getJavaSourceSettings())));
+        } else {
+            eclipseProject.setJavaSourceSettings(Maybe.<OmniJavaSourceSettings>absent());
+        }
 
         for (EclipseProject child : project.getChildren()) {
-            DefaultOmniEclipseProject eclipseChildProject = from(child, buildCommandsAndNaturesAvailable);
+            DefaultOmniEclipseProject eclipseChildProject = from(child, buildCommandsAndNaturesAvailable, sourceSettingsAvailable);
             eclipseProject.addChild(eclipseChildProject);
         }
 
@@ -273,6 +290,18 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
                 return DefaultOmniEclipseBuildCommand.from(input);
             }
         }).toList();
+    }
+
+    private static OmniJavaSourceSettings toOmniJavaSourceSettings(final JavaSourceSettings javaSourceSettings) {
+        if (javaSourceSettings != null) {
+            String version = javaSourceSettings.getSourceLanguageLevel().getVersion().getName();
+            DefaultOmniJavaVersion javaVersion = new DefaultOmniJavaVersion(version);
+            DefaultOmniJavaLanguageLevel sourceLanguageLevel = new DefaultOmniJavaLanguageLevel(javaVersion);
+            DefaultOmniJavaSourceSettings sourceSettings = new DefaultOmniJavaSourceSettings(sourceLanguageLevel);
+            return sourceSettings;
+        } else {
+            return null;
+        }
     }
 
     /**

@@ -199,7 +199,8 @@ public final class DefaultModelRepository implements ModelRepository {
     }
 
     /*
-     * natively supported by all Gradle versions >= 1.0 except for returning the natures and build commands which are available for Gradle versions >= 2.9
+     * natures and build commands supported by Gradle versions >= 2.9
+     * source language level supported by Gradle version >= 2.10
      */
     @Override
     public OmniEclipseGradleBuild fetchEclipseGradleBuild(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
@@ -208,6 +209,7 @@ public final class DefaultModelRepository implements ModelRepository {
 
         final boolean requiresIsPublicFix = targetGradleVersionIsBetween("2.1", "2.2.1", transientRequestAttributes);
         final boolean buildCommandsAndNaturesAvailable = targetGradleVersionIsEqualOrHigherThan("2.9", transientRequestAttributes);
+        final boolean sourceSettingsAvailable = targetGradleVersionIsEqualOrHigherThan("2.10", transientRequestAttributes);
 
         ModelRequest<EclipseProject> request = createModelRequestForBuildModel(EclipseProject.class, transientRequestAttributes);
         Consumer<OmniEclipseGradleBuild> successHandler = new Consumer<OmniEclipseGradleBuild>() {
@@ -220,7 +222,7 @@ public final class DefaultModelRepository implements ModelRepository {
 
             @Override
             public OmniEclipseGradleBuild apply(EclipseProject eclipseProject) {
-                return DefaultOmniEclipseGradleBuild.from(eclipseProject, requiresIsPublicFix, buildCommandsAndNaturesAvailable);
+                return DefaultOmniEclipseGradleBuild.from(eclipseProject, requiresIsPublicFix, buildCommandsAndNaturesAvailable, sourceSettingsAvailable);
             }
 
         };
