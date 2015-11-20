@@ -16,7 +16,7 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import com.gradleware.tooling.toolingmodel.OmniJavaLanguageLevel;
+import com.gradleware.tooling.toolingmodel.OmniJavaVersion;
 import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings;
 
 /**
@@ -26,14 +26,14 @@ import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings;
  */
 public final class DefaultOmniJavaSourceSettings implements OmniJavaSourceSettings {
 
-    private final OmniJavaLanguageLevel languageLevel;
+    private final OmniJavaVersion sourceLanguageLevel;
 
-    public DefaultOmniJavaSourceSettings(OmniJavaLanguageLevel languageLevel) {
-        this.languageLevel = languageLevel;
+    public DefaultOmniJavaSourceSettings(OmniJavaVersion sourceLanguageLevel) {
+        this.sourceLanguageLevel = sourceLanguageLevel;
     }
 
     @Override
-    public OmniJavaLanguageLevel getSourceLanguageLevel() {
-        return languageLevel;
+    public OmniJavaVersion getSourceLanguageLevel() {
+        return sourceLanguageLevel;
     }
 }

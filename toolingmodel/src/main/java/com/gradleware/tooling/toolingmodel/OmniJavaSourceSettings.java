@@ -28,5 +28,5 @@ public interface OmniJavaSourceSettings {
      *
      * @return the Java source language level
      */
-    OmniJavaLanguageLevel getSourceLanguageLevel();
+    OmniJavaVersion getSourceLanguageLevel();
 }

@@ -294,9 +294,8 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 
     private static OmniJavaSourceSettings toOmniJavaSourceSettings(final JavaSourceSettings javaSourceSettings) {
         if (javaSourceSettings != null) {
-            String version = javaSourceSettings.getSourceLanguageLevel().getVersion().getName();
-            DefaultOmniJavaVersion javaVersion = new DefaultOmniJavaVersion(version);
-            DefaultOmniJavaLanguageLevel sourceLanguageLevel = new DefaultOmniJavaLanguageLevel(javaVersion);
+            String sourceVersionName = javaSourceSettings.getSourceLanguageLevel().toString();
+            DefaultOmniJavaVersion sourceLanguageLevel = new DefaultOmniJavaVersion(sourceVersionName);
             DefaultOmniJavaSourceSettings sourceSettings = new DefaultOmniJavaSourceSettings(sourceLanguageLevel);
             return sourceSettings;
         } else {

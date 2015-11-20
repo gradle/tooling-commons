@@ -17,7 +17,7 @@
 package com.gradleware.tooling.toolingmodel;
 
 /**
- * Describes a Java versions.
+ * Describes a Java version.
  *
  * @author Donát Csikós
  */

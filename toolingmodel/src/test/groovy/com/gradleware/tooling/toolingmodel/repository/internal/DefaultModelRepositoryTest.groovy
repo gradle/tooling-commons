@@ -32,7 +32,6 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure
 import com.gradleware.tooling.toolingmodel.OmniGradleProject
-import com.gradleware.tooling.toolingmodel.OmniJavaVersion
 import com.gradleware.tooling.toolingmodel.Path
 import com.gradleware.tooling.toolingmodel.repository.BuildEnvironmentUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.BuildInvocationsUpdateEvent
@@ -658,7 +657,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     def sourceCompatibility = apiEclipseProject.javaSourceSettings
     if (higherOrEqual('2.10', distribution)) {
       sourceCompatibility.isPresent()
-      sourceCompatibility.get().sourceLanguageLevel.version.name == '1.2'
+      sourceCompatibility.get().sourceLanguageLevel.name == '1.2'
     } else {
       !sourceCompatibility.isPresent()
     }
