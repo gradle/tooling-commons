@@ -148,8 +148,6 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
 
     /**
      * Returns the Eclipse natures of this project.
-     * <p>
-     * If the target Gradle version doesn't support retrieving the natures then the method returns {@code Optional#absent()}
      *
      * @return the project natures
      */
@@ -157,8 +155,7 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
 
     /**
      * Returns the build commands of this project.
-     * <p>
-     * If the target Gradle version doesn't support retrieving the build commands then the method returns {@code Optional#absent()}
+     *
      * @return the build commands
      */
     Optional<List<OmniEclipseBuildCommand>> getBuildCommands();
