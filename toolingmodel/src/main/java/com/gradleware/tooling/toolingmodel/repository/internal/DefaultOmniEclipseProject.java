@@ -192,7 +192,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         return this.hierarchyHelper.tryFind(predicate);
     }
 
-    public static DefaultOmniEclipseProject from(EclipseProject project, boolean buildCommandsAndNaturesAvailable) {
+    public static DefaultOmniEclipseProject from(EclipseProject project) {
         DefaultOmniEclipseProject eclipseProject = new DefaultOmniEclipseProject(OmniEclipseProjectComparator.INSTANCE);
         eclipseProject.setName(project.getName());
         eclipseProject.setDescription(project.getDescription());
@@ -202,17 +202,11 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         eclipseProject.setExternalDependencies(toExternalDependencies(project.getClasspath()));
         eclipseProject.setLinkedResources(toLinkedResources(project.getLinkedResources()));
         eclipseProject.setSourceDirectories(toSourceDirectories(project.getSourceDirectories()));
-        if (buildCommandsAndNaturesAvailable) {
-            eclipseProject.setProjectNatures(Optional.<List<OmniEclipseProjectNature>>of(toProjectNatures(project.getProjectNatures())));
-            eclipseProject.setBuildCommands(Optional.<List<OmniEclipseBuildCommand>>of(toBuildCommands(project.getBuildCommands())));
-        } else {
-            eclipseProject.setProjectNatures(Optional.<List<OmniEclipseProjectNature>>absent());
-            eclipseProject.setBuildCommands(Optional.<List<OmniEclipseBuildCommand>>absent());
-        }
-
+        setProjectNatures(eclipseProject, project);
+        setBuildCommands(eclipseProject, project);
 
         for (EclipseProject child : project.getChildren()) {
-            DefaultOmniEclipseProject eclipseChildProject = from(child, buildCommandsAndNaturesAvailable);
+            DefaultOmniEclipseProject eclipseChildProject = from(child);
             eclipseProject.addChild(eclipseChildProject);
         }
 
@@ -262,6 +256,21 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         }).toList();
     }
 
+    /**
+     * EclipseProject#getProjectNatures is only available in Gradle versions >= 2.9.
+     *
+     * @param eclipseProject the project to populate
+     * @param project the project model
+     */
+    private static void setProjectNatures(DefaultOmniEclipseProject eclipseProject, EclipseProject project) {
+        try {
+            List<OmniEclipseProjectNature> projectNatures = toProjectNatures(project.getProjectNatures());
+            eclipseProject.setProjectNatures(Optional.<List<OmniEclipseProjectNature>>of(projectNatures));
+        } catch (Exception ignore) {
+            eclipseProject.setProjectNatures(Optional.<List<OmniEclipseProjectNature>>absent());
+        }
+    }
+
     private static ImmutableList<OmniEclipseProjectNature> toProjectNatures(DomainObjectSet<? extends EclipseProjectNature> projectNatures) {
         return FluentIterable.from(projectNatures).transform(new Function<EclipseProjectNature, OmniEclipseProjectNature>() {
 
@@ -270,6 +279,21 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
                 return DefaultOmniEclipseProjectNature.from(input);
             }
         }).toList();
+    }
+
+    /**
+     * EclipseProject#getBuildCommands is only available in Gradle versions >= 2.9.
+     *
+     * @param eclipseProject the project to populate
+     * @param project the project model
+     */
+    private static void setBuildCommands(DefaultOmniEclipseProject eclipseProject, EclipseProject project) {
+        try {
+            List<OmniEclipseBuildCommand> buildCommands = toBuildCommands(project.getBuildCommands());
+            eclipseProject.setBuildCommands(Optional.<List<OmniEclipseBuildCommand>>of(buildCommands));
+        } catch (Exception ignore) {
+            eclipseProject.setBuildCommands(Optional.<List<OmniEclipseBuildCommand>>absent());
+        }
     }
 
     private static ImmutableList<OmniEclipseBuildCommand> toBuildCommands(DomainObjectSet<? extends EclipseBuildCommand> buildCommands) {
