@@ -273,25 +273,6 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         }).toList();
     }
 
-    private static ImmutableList<OmniEclipseProjectNature> toProjectNatures(DomainObjectSet<? extends EclipseProjectNature> projectNatures) {
-        return FluentIterable.from(projectNatures).transform(new Function<EclipseProjectNature, OmniEclipseProjectNature>() {
-
-            @Override
-            public OmniEclipseProjectNature apply(EclipseProjectNature input) {
-                return DefaultOmniEclipseProjectNature.from(input);
-            }
-        }).toList();
-    }
-
-    private static ImmutableList<OmniEclipseBuildCommand> toBuildCommands(DomainObjectSet<? extends EclipseBuildCommand> buildCommands) {
-        return FluentIterable.from(buildCommands).transform(new Function<EclipseBuildCommand, OmniEclipseBuildCommand>() {
-            @Override
-            public OmniEclipseBuildCommand apply(EclipseBuildCommand input) {
-                return DefaultOmniEclipseBuildCommand.from(input);
-            }
-        }).toList();
-    }
-
     private static OmniJavaSourceSettings toOmniJavaSourceSettings(final JavaSourceSettings javaSourceSettings) {
         if (javaSourceSettings != null) {
             String sourceVersionName = javaSourceSettings.getSourceLanguageLevel().toString();
