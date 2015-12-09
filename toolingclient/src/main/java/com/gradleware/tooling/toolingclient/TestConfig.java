@@ -17,6 +17,7 @@
 package com.gradleware.tooling.toolingclient;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -24,6 +25,7 @@ import org.gradle.tooling.TestLauncher;
 import org.gradle.tooling.events.test.TestOperationDescriptor;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -35,10 +37,10 @@ import java.util.Map;
 public final class TestConfig {
 
     private final ImmutableList<String> jvmTestClasses;
-    private final ImmutableMap<String, List<String>> jvmTestMethods;
+    private final ImmutableMap<String, Collection<String>> jvmTestMethods;
     private final ImmutableList<? extends TestOperationDescriptor> tests;
 
-    private TestConfig(List<String> jvmTestClasses, Map<String, List<String>> jvmTestMethods, List<? extends TestOperationDescriptor> tests) {
+    private TestConfig(List<String> jvmTestClasses, Map<String, Collection<String>> jvmTestMethods, List<? extends TestOperationDescriptor> tests) {
         this.jvmTestClasses = ImmutableList.copyOf(jvmTestClasses);
         this.jvmTestMethods = ImmutableMap.copyOf(jvmTestMethods);
         this.tests = ImmutableList.copyOf(tests);
@@ -46,7 +48,7 @@ public final class TestConfig {
         checkNotAllEmpty(jvmTestClasses, jvmTestMethods, tests);
     }
 
-    private void checkNotAllEmpty(List<String> jvmTestClasses, Map<String, List<String>> jvmTestMethods, List<? extends TestOperationDescriptor> tests) {
+    private void checkNotAllEmpty(List<String> jvmTestClasses, Map<String, Collection<String>> jvmTestMethods, List<? extends TestOperationDescriptor> tests) {
         Preconditions.checkArgument(!jvmTestClasses.isEmpty() || !jvmTestMethods.isEmpty() || !tests.isEmpty(),
                 "Either JVM test classes, JVM test methods, test operations, or any combination of them must be specified.");
     }
@@ -133,12 +135,12 @@ public final class TestConfig {
     public static final class Builder {
 
         private ImmutableList.Builder<String> jvmTestClasses;
-        private ImmutableMap.Builder<String, List<String>> jvmTestMethods;
+        private ArrayListMultimap<String, String> jvmTestMethods;
         private ImmutableList.Builder<TestOperationDescriptor> tests;
 
         public Builder() {
             this.jvmTestClasses = ImmutableList.builder();
-            this.jvmTestMethods = ImmutableMap.builder();
+            this.jvmTestMethods = ArrayListMultimap.create();
             this.tests = ImmutableList.builder();
         }
 
@@ -172,7 +174,9 @@ public final class TestConfig {
          * @return this builder
          */
         public Builder jvmTestMethods(String jvmTestClass, String... jvmTestMethods) {
-            this.jvmTestMethods.put(jvmTestClass, ImmutableList.copyOf(jvmTestMethods));
+            for (String jvmTestMethod : jvmTestMethods) {
+                this.jvmTestMethods.put(jvmTestClass, jvmTestMethod);
+            }
             return this;
         }
 
@@ -184,7 +188,9 @@ public final class TestConfig {
          * @return this builder
          */
         public Builder jvmTestMethods(String jvmTestClass, Iterable<String> jvmTestMethods) {
-            this.jvmTestMethods.put(jvmTestClass, ImmutableList.copyOf(jvmTestMethods));
+            for (String jvmTestMethod : jvmTestMethods) {
+                this.jvmTestMethods.put(jvmTestClass, jvmTestMethod);
+            }
             return this;
         }
 
@@ -216,7 +222,7 @@ public final class TestConfig {
          * @return a new {@code TestConfig} instance
          */
         public TestConfig build() {
-            return new TestConfig(this.jvmTestClasses.build(), this.jvmTestMethods.build(), this.tests.build());
+            return new TestConfig(this.jvmTestClasses.build(), this.jvmTestMethods.asMap(), this.tests.build());
         }
 
     }
