@@ -208,8 +208,6 @@ public final class DefaultModelRepository implements ModelRepository {
         Preconditions.checkNotNull(fetchStrategy);
 
         final boolean requiresIsPublicFix = targetGradleVersionIsBetween("2.1", "2.2.1", transientRequestAttributes);
-        final boolean buildCommandsAndNaturesAvailable = targetGradleVersionIsEqualOrHigherThan("2.9", transientRequestAttributes);
-        final boolean sourceSettingsAvailable = targetGradleVersionIsEqualOrHigherThan("2.10", transientRequestAttributes);
 
         ModelRequest<EclipseProject> request = createModelRequestForBuildModel(EclipseProject.class, transientRequestAttributes);
         Consumer<OmniEclipseGradleBuild> successHandler = new Consumer<OmniEclipseGradleBuild>() {
@@ -222,7 +220,7 @@ public final class DefaultModelRepository implements ModelRepository {
 
             @Override
             public OmniEclipseGradleBuild apply(EclipseProject eclipseProject) {
-                return DefaultOmniEclipseGradleBuild.from(eclipseProject, requiresIsPublicFix, buildCommandsAndNaturesAvailable, sourceSettingsAvailable);
+                return DefaultOmniEclipseGradleBuild.from(eclipseProject, requiresIsPublicFix);
             }
 
         };

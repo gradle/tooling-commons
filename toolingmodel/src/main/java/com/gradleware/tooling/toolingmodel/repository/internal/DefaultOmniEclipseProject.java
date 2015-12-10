@@ -204,7 +204,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         return this.hierarchyHelper.tryFind(predicate);
     }
 
-    public static DefaultOmniEclipseProject from(EclipseProject project, boolean buildCommandsAndNaturesAvailable, boolean sourceSettingsAvailable) {
+    public static DefaultOmniEclipseProject from(EclipseProject project) {
         DefaultOmniEclipseProject eclipseProject = new DefaultOmniEclipseProject(OmniEclipseProjectComparator.INSTANCE);
         eclipseProject.setName(project.getName());
         eclipseProject.setDescription(project.getDescription());
@@ -216,14 +216,10 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         eclipseProject.setSourceDirectories(toSourceDirectories(project.getSourceDirectories()));
         setProjectNatures(eclipseProject, project);
         setBuildCommands(eclipseProject, project);
-        if (sourceSettingsAvailable) {
-            eclipseProject.setJavaSourceSettings(Maybe.of(toOmniJavaSourceSettings(project.getJavaSourceSettings())));
-        } else {
-            eclipseProject.setJavaSourceSettings(Maybe.<OmniJavaSourceSettings>absent());
-        }
+        setJavaSourceSettings(eclipseProject, project);
 
         for (EclipseProject child : project.getChildren()) {
-            DefaultOmniEclipseProject eclipseChildProject = from(child, buildCommandsAndNaturesAvailable, sourceSettingsAvailable);
+            DefaultOmniEclipseProject eclipseChildProject = from(child);
             eclipseProject.addChild(eclipseChildProject);
         }
 
@@ -273,17 +269,6 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         }).toList();
     }
 
-    private static OmniJavaSourceSettings toOmniJavaSourceSettings(final JavaSourceSettings javaSourceSettings) {
-        if (javaSourceSettings != null) {
-            String sourceVersionName = javaSourceSettings.getSourceLanguageLevel().toString();
-            DefaultOmniJavaVersion sourceLanguageLevel = new DefaultOmniJavaVersion(sourceVersionName);
-            DefaultOmniJavaSourceSettings sourceSettings = new DefaultOmniJavaSourceSettings(sourceLanguageLevel);
-            return sourceSettings;
-        } else {
-            return null;
-        }
-    }
-
     /**
      * EclipseProject#getProjectNatures is only available in Gradle versions >= 2.9.
      *
@@ -331,6 +316,32 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
                 return DefaultOmniEclipseBuildCommand.from(input);
             }
         }).toList();
+    }
+
+    /**
+     * EclipseProject#getJavaSourceSettings is only available in Gradle versions >= 2.10.
+     *
+     * @param eclipseProject the project to populate
+     * @param project the project model
+     */
+    private static void setJavaSourceSettings(DefaultOmniEclipseProject eclipseProject, EclipseProject project) {
+        try {
+            OmniJavaSourceSettings sourceSettings = toOmniJavaSourceSettings(project.getJavaSourceSettings());
+            eclipseProject.setJavaSourceSettings(Maybe.of(sourceSettings));
+        } catch (Exception ignore) {
+            eclipseProject.setJavaSourceSettings(Maybe.<OmniJavaSourceSettings>absent());
+        }
+    }
+
+    private static OmniJavaSourceSettings toOmniJavaSourceSettings(final JavaSourceSettings javaSourceSettings) {
+        if (javaSourceSettings != null) {
+            String sourceVersionName = javaSourceSettings.getSourceLanguageLevel().toString();
+            DefaultOmniJavaVersion sourceLanguageLevel = new DefaultOmniJavaVersion(sourceVersionName);
+            DefaultOmniJavaSourceSettings sourceSettings = new DefaultOmniJavaSourceSettings(sourceLanguageLevel);
+            return sourceSettings;
+        } else {
+            return null;
+        }
     }
 
     /**

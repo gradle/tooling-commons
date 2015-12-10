@@ -47,11 +47,10 @@ public final class DefaultOmniEclipseGradleBuild implements OmniEclipseGradleBui
         return this.rootProject;
     }
 
-    public static DefaultOmniEclipseGradleBuild from(EclipseProject eclipseRootProject, boolean enforceAllTasksPublic,
-                                                     boolean buildCommandsAndNaturesAvailable, boolean sourceSettingsAvailable) {
+    public static DefaultOmniEclipseGradleBuild from(EclipseProject eclipseRootProject, boolean enforceAllTasksPublic) {
         Preconditions.checkState(eclipseRootProject.getParent() == null, "Provided Eclipse project is not the root project.");
         return new DefaultOmniEclipseGradleBuild(
-                DefaultOmniEclipseProject.from(eclipseRootProject, buildCommandsAndNaturesAvailable, sourceSettingsAvailable),
+                DefaultOmniEclipseProject.from(eclipseRootProject),
                 DefaultOmniGradleProject.from(eclipseRootProject.getGradleProject(), enforceAllTasksPublic));
     }
 
