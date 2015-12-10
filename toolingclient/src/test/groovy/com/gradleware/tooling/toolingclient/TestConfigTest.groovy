@@ -112,16 +112,17 @@ class TestConfigTest extends Specification {
   def "builderCanBeUsedToConfigureTestLauncher"() {
     setup:
     TestLauncher testLauncher = Mock(TestLauncher.class)
-    def tests = new TestConfig.Builder().jvmTestMethods("alpha", "beta").jvmTestMethods("alpha", "gamma").build()
+    def tests = new TestConfig.Builder().jvmTestClasses("Foo").jvmTestMethods("alpha", "beta").jvmTestMethods("alpha", "gamma").build()
 
     when:
     tests.apply(testLauncher)
 
     then:
+    1 * testLauncher.withJvmTestClasses(["Foo"])
     1 * testLauncher.withJvmTestMethods("alpha", ["beta", "gamma"])
   }
 
-  def "builderPreservesOrderForMethods"() {
+  def "builderPreservesOrderForJvmTestMethods"() {
       setup:
       TestLauncher testLauncher1 = Mock(TestLauncher.class)
       TestLauncher testLauncher2 = Mock(TestLauncher.class)
