@@ -174,9 +174,7 @@ public final class TestConfig {
          * @return this builder
          */
         public Builder jvmTestMethods(String jvmTestClass, String... jvmTestMethods) {
-            for (String jvmTestMethod : jvmTestMethods) {
-                this.jvmTestMethods.put(jvmTestClass, jvmTestMethod);
-            }
+            this.jvmTestMethods.putAll(jvmTestClass, Arrays.asList(jvmTestMethods));
             return this;
         }
 
@@ -188,9 +186,7 @@ public final class TestConfig {
          * @return this builder
          */
         public Builder jvmTestMethods(String jvmTestClass, Iterable<String> jvmTestMethods) {
-            for (String jvmTestMethod : jvmTestMethods) {
-                this.jvmTestMethods.put(jvmTestClass, jvmTestMethod);
-            }
+            this.jvmTestMethods.putAll(jvmTestClass, jvmTestMethods);
             return this;
         }
 
