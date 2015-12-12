@@ -22,12 +22,25 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingmodel.*;
+import com.gradleware.tooling.toolingmodel.OmniEclipseBuildCommand;
+import com.gradleware.tooling.toolingmodel.OmniEclipseLinkedResource;
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
+import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
+import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature;
+import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
+import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
+import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings;
+import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
 import org.gradle.api.specs.Spec;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.ExternalDependency;
-import org.gradle.tooling.model.eclipse.*;
+import org.gradle.tooling.model.eclipse.EclipseBuildCommand;
+import org.gradle.tooling.model.eclipse.EclipseLinkedResource;
+import org.gradle.tooling.model.eclipse.EclipseProject;
+import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
+import org.gradle.tooling.model.eclipse.EclipseProjectNature;
+import org.gradle.tooling.model.eclipse.EclipseSourceDirectory;
 import org.gradle.tooling.model.java.JavaSourceSettings;
 
 import java.io.File;
@@ -72,7 +85,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         return this.description;
     }
 
-    public void setDescription(String description) {
+    private void setDescription(String description) {
         this.description = description;
     }
 
@@ -99,7 +112,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         return this.projectDependencies;
     }
 
-    public void setProjectDependencies(List<OmniEclipseProjectDependency> projectDependencies) {
+    private void setProjectDependencies(List<OmniEclipseProjectDependency> projectDependencies) {
         this.projectDependencies = ImmutableList.copyOf(projectDependencies);
     }
 
@@ -108,7 +121,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         return this.externalDependencies;
     }
 
-    public void setExternalDependencies(List<OmniExternalDependency> externalDependencies) {
+    private void setExternalDependencies(List<OmniExternalDependency> externalDependencies) {
         this.externalDependencies = ImmutableList.copyOf(externalDependencies);
     }
 
@@ -117,7 +130,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         return this.linkedResources;
     }
 
-    public void setLinkedResources(List<OmniEclipseLinkedResource> linkedResources) {
+    private void setLinkedResources(List<OmniEclipseLinkedResource> linkedResources) {
         this.linkedResources = ImmutableList.copyOf(linkedResources);
     }
 
@@ -126,7 +139,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         return this.sourceDirectories;
     }
 
-    public void setSourceDirectories(List<OmniEclipseSourceDirectory> sourceDirectories) {
+    private void setSourceDirectories(List<OmniEclipseSourceDirectory> sourceDirectories) {
         this.sourceDirectories = ImmutableList.copyOf(sourceDirectories);
     }
 
@@ -135,7 +148,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         return projectNatures;
     }
 
-    public void setProjectNatures(Optional<List<OmniEclipseProjectNature>> projectNatures) {
+    private void setProjectNatures(Optional<List<OmniEclipseProjectNature>> projectNatures) {
         if (projectNatures.isPresent()) {
             this.projectNatures = Optional.<List<OmniEclipseProjectNature>>of(ImmutableList.<OmniEclipseProjectNature>copyOf(projectNatures.get()));
         } else {
@@ -148,7 +161,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         return buildCommands;
     }
 
-    public void setBuildCommands(Optional<List<OmniEclipseBuildCommand>> buildCommands) {
+    private void setBuildCommands(Optional<List<OmniEclipseBuildCommand>> buildCommands) {
         if (buildCommands.isPresent()) {
             this.buildCommands = Optional.<List<OmniEclipseBuildCommand>>of(ImmutableList.copyOf(buildCommands.get()));
         } else {
@@ -161,7 +174,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         return javaSourceSettings;
     }
 
-    public void setJavaSourceSettings(Maybe<OmniJavaSourceSettings> javaSourceSettings) {
+    private void setJavaSourceSettings(Maybe<OmniJavaSourceSettings> javaSourceSettings) {
         this.javaSourceSettings = javaSourceSettings;
     }
 
@@ -333,12 +346,11 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         }
     }
 
-    private static OmniJavaSourceSettings toOmniJavaSourceSettings(final JavaSourceSettings javaSourceSettings) {
+    private static OmniJavaSourceSettings toOmniJavaSourceSettings(JavaSourceSettings javaSourceSettings) {
         if (javaSourceSettings != null) {
             String sourceVersionName = javaSourceSettings.getSourceLanguageLevel().toString();
             DefaultOmniJavaVersion sourceLanguageLevel = new DefaultOmniJavaVersion(sourceVersionName);
-            DefaultOmniJavaSourceSettings sourceSettings = new DefaultOmniJavaSourceSettings(sourceLanguageLevel);
-            return sourceSettings;
+            return new DefaultOmniJavaSourceSettings(sourceLanguageLevel);
         } else {
             return null;
         }

@@ -16,8 +16,8 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import com.gradleware.tooling.toolingmodel.OmniJavaVersion;
 import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings;
+import com.gradleware.tooling.toolingmodel.OmniJavaVersion;
 
 /**
  * Default implementation of the {@link OmniJavaSourceSettings} interface.
@@ -36,4 +36,5 @@ public final class DefaultOmniJavaSourceSettings implements OmniJavaSourceSettin
     public OmniJavaVersion getSourceLanguageLevel() {
         return sourceLanguageLevel;
     }
+
 }

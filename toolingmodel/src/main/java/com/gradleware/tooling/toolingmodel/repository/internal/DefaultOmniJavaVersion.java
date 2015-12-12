@@ -35,4 +35,5 @@ public final class DefaultOmniJavaVersion implements OmniJavaVersion {
     public String getName() {
         return name;
     }
+
 }

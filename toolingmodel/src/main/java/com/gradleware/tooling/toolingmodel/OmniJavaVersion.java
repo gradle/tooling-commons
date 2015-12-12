@@ -29,4 +29,5 @@ public interface OmniJavaVersion {
      * @return the name of the Java version
      */
     String getName();
+
 }

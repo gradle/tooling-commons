@@ -199,8 +199,7 @@ public final class DefaultModelRepository implements ModelRepository {
     }
 
     /*
-     * natures and build commands supported by Gradle versions >= 2.9
-     * source language level supported by Gradle version >= 2.10
+     * natively supported by all Gradle versions >= 1.0
      */
     @Override
     public OmniEclipseGradleBuild fetchEclipseGradleBuild(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
