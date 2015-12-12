@@ -150,7 +150,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 
     private void setProjectNatures(Optional<List<OmniEclipseProjectNature>> projectNatures) {
         if (projectNatures.isPresent()) {
-            this.projectNatures = Optional.<List<OmniEclipseProjectNature>>of(ImmutableList.<OmniEclipseProjectNature>copyOf(projectNatures.get()));
+            this.projectNatures = Optional.<List<OmniEclipseProjectNature>>of(ImmutableList.copyOf(projectNatures.get()));
         } else {
             this.projectNatures = Optional.absent();
         }
@@ -291,7 +291,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     private static void setProjectNatures(DefaultOmniEclipseProject eclipseProject, EclipseProject project) {
         try {
             List<OmniEclipseProjectNature> projectNatures = toProjectNatures(project.getProjectNatures());
-            eclipseProject.setProjectNatures(Optional.<List<OmniEclipseProjectNature>>of(projectNatures));
+            eclipseProject.setProjectNatures(Optional.of(projectNatures));
         } catch (Exception ignore) {
             eclipseProject.setProjectNatures(Optional.<List<OmniEclipseProjectNature>>absent());
         }
@@ -316,7 +316,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     private static void setBuildCommands(DefaultOmniEclipseProject eclipseProject, EclipseProject project) {
         try {
             List<OmniEclipseBuildCommand> buildCommands = toBuildCommands(project.getBuildCommands());
-            eclipseProject.setBuildCommands(Optional.<List<OmniEclipseBuildCommand>>of(buildCommands));
+            eclipseProject.setBuildCommands(Optional.of(buildCommands));
         } catch (Exception ignore) {
             eclipseProject.setBuildCommands(Optional.<List<OmniEclipseBuildCommand>>absent());
         }
