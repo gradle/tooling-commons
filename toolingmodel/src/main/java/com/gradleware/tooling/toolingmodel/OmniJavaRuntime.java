@@ -16,31 +16,26 @@
 
 package com.gradleware.tooling.toolingmodel;
 
+import java.io.File;
+
 /**
- * Describes the Java source settings for a project.
+ * Describes the Java Runtime for a Java project.
  *
  * @author Donát Csikós
  */
-public interface OmniJavaSourceSettings {
+public interface OmniJavaRuntime {
 
     /**
-     * Returns the Java source language level.
+     * Returns the Java language level supported by the current runtime.
      *
-     * @return the Java source language level
+     * @return the supported Java language level
      */
-    OmniJavaVersion getSourceLanguageLevel();
+    OmniJavaVersion getJavaVersion();
 
     /**
-     * Returns the Java target language level.
+     * Returns the Java Runtime installation directory.
      *
-     * @return the Java target language level
+     * @return the installation directory
      */
-    OmniJavaVersion getTargetBytecodeLevel();
-
-    /**
-     * Returns the description of the Java Runtime.
-     *
-     * @return the description of the Java Runtime
-     */
-    OmniJavaRuntime getTargetRuntime();
+    File getHomeDirectory();
 }

@@ -42,6 +42,8 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildStructureUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
+
+import org.gradle.api.JavaVersion;
 import org.gradle.api.specs.Spec
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
@@ -49,6 +51,7 @@ import org.gradle.tooling.ProgressListener
 import org.gradle.util.GradleVersion
 import org.junit.Rule
 
+import java.io.File;
 import java.util.concurrent.atomic.AtomicReference
 
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
@@ -623,13 +626,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
 
     then:
     def eclipseProject = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'sub1' } as Spec).get()
-    def sourceCompatibility = eclipseProject.javaSourceSettings
-    if (higherOrEqual('2.10', distribution)) {
-      assert sourceCompatibility.isPresent()
-      assert sourceCompatibility.get() == null
-    } else {
-      assert !sourceCompatibility.isPresent()
-    }
+    !eclipseProject.javaSourceSettings.isPresent()
 
     where:
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
@@ -646,9 +643,11 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
       eclipse {
         project {
           sourceCompatibility = 1.2
+          targetCompatibility = 1.3
         }
       }
     """
+    new TestFile(this.directoryProvider.testDirectory, 'sub1/src/main/java').mkdirs()
 
     when:
     OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
@@ -656,11 +655,22 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     then:
     def eclipseProject = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'sub1' } as Spec).get()
     def sourceCompatibility = eclipseProject.javaSourceSettings
-    if (higherOrEqual('2.10', distribution)) {
-      assert sourceCompatibility.isPresent()
+    sourceCompatibility.isPresent()
+    if (higherOrEqual('2.11', distribution)) {
       assert sourceCompatibility.get().sourceLanguageLevel.name == '1.2'
+      assert sourceCompatibility.get().targetBytecodeLevel.name == '1.3'
+      assert sourceCompatibility.get().targetRuntime.homeDirectory != null
+      assert sourceCompatibility.get().targetRuntime.javaVersion != null
+    } else if (higherOrEqual('2.10', distribution)) {
+      assert sourceCompatibility.get().sourceLanguageLevel.name == '1.2'
+      assert sourceCompatibility.get().targetBytecodeLevel.name == '1.2'
+      assert sourceCompatibility.get().targetRuntime.homeDirectory == new File(System.getProperty("java.home"))
+      assert sourceCompatibility.get().targetRuntime.javaVersion.name == JavaVersion.current().toString()
     } else {
-      assert !sourceCompatibility.isPresent()
+      assert sourceCompatibility.get().sourceLanguageLevel.name == JavaVersion.current().toString()
+      assert sourceCompatibility.get().targetBytecodeLevel.name == JavaVersion.current().toString()
+      assert sourceCompatibility.get().targetRuntime.homeDirectory == new File(System.getProperty("java.home"))
+      assert sourceCompatibility.get().targetRuntime.javaVersion.name == JavaVersion.current().toString()
     }
 
     where:
