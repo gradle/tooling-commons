@@ -614,7 +614,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
 
   def "fetchEclipseGradleBuild - source version settings for non-JVM projects"(GradleDistribution distribution, Environment environment) {
     given:
-    def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderMultiProjectBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
     def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
@@ -622,8 +622,8 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
-    def apiEclipseProject = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Spec).get()
-    def sourceCompatibility = apiEclipseProject.javaSourceSettings
+    def eclipseProject = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'sub1' } as Spec).get()
+    def sourceCompatibility = eclipseProject.javaSourceSettings
     if (higherOrEqual('2.10', distribution)) {
       assert sourceCompatibility.isPresent()
       assert sourceCompatibility.get() == null
@@ -637,10 +637,10 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
 
   def "fetchEclipseGradleBuild - source version settings for JVM projects"(GradleDistribution distribution, Environment environment) {
     given:
-    def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderMultiProjectBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
     def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
-    new TestFile(this.directoryProviderMultiProjectBuild.testDirectory, 'api/build.gradle') << """
+    new TestFile(this.directoryProvider.testDirectory, 'sub1/build.gradle') << """
       apply plugin: 'java'
       apply plugin: 'eclipse'
       eclipse {
@@ -654,8 +654,8 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
-    def apiEclipseProject = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Spec).get()
-    def sourceCompatibility = apiEclipseProject.javaSourceSettings
+    def eclipseProject = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'sub1' } as Spec).get()
+    def sourceCompatibility = eclipseProject.javaSourceSettings
     if (higherOrEqual('2.10', distribution)) {
       assert sourceCompatibility.isPresent()
       assert sourceCompatibility.get().sourceLanguageLevel.name == '1.2'
