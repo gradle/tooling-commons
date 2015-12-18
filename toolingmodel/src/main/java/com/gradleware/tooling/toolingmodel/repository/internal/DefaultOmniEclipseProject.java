@@ -320,11 +320,9 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     }
 
     /**
-     * <ul>
-     *  <li>EclipseProject#getJavaSourceSettings is only available in Gradle versions >= 2.10</li>
-     *  <li>JavaSourceSettings#getTargetBytecodeLevel is is only available in Gradle versions >= 2.11</li>
-     *  <li>JavaSourceSettings#getTargetRuntime is is only available in Gradle versions >= 2.11</li>
-     * </ul>
+     * EclipseProject#getJavaSourceSettings is only available in Gradle versions >= 2.10,
+     * JavaSourceSettings#getTargetBytecodeLevel is is only available in Gradle versions >= 2.11,
+     * JavaSourceSettings#getTargetRuntime is is only available in Gradle versions >= 2.11.
      *
      * @param eclipseProject the project to populate
      * @param project the project model
