@@ -583,7 +583,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
       eclipse {
         project {
           natures = ['customNature']
-          buildCommand 'buildCommand', argKey: 'argValue'
+          buildCommands = [new org.gradle.plugins.ide.eclipse.model.BuildCommand('buildCommand', [argKey: 'argValue'])]
         }
       }
 
@@ -601,7 +601,8 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
       assert projectNatures.get().collect{ it.id } == ['customNature']
       assert buildCommands.isPresent()
       assert buildCommands.get().collect { it.name } == ['buildCommand']
-      assert buildCommands.get().collect { it.arguments } == [['argkey' : 'argValue']]
+      assert buildCommands.get().collect { it.arguments }.size() == 1
+      assert buildCommands.get().collect { it.arguments }[0]['argKey'] == 'argValue'
     } else {
       assert !projectNatures.isPresent()
       assert !buildCommands.isPresent()
