@@ -320,15 +320,16 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     }
 
     /**
-     * EclipseProject#getJavaSourceSettings is only available in Gradle versions >= 2.10.
-     * JavaSourceSettings#getTargetBytecodeLevel is is only available in Gradle versions >= 2.11
-     * JavaSourceSettings#getTargetRuntime is is only available in Gradle versions >= 2.11
+     * <ul>
+     *  <li>EclipseProject#getJavaSourceSettings is only available in Gradle versions >= 2.10</li>
+     *  <li>JavaSourceSettings#getTargetBytecodeLevel is is only available in Gradle versions >= 2.11</li>
+     *  <li>JavaSourceSettings#getTargetRuntime is is only available in Gradle versions >= 2.11</li>
+     * </ul>
      *
      * @param eclipseProject the project to populate
      * @param project the project model
      */
     private static void setJavaSourceSettings(DefaultOmniEclipseProject eclipseProject, EclipseProject project) {
-        // TODO (donat) IMHO the same logic should be used for the project natures/build commands
         try {
             EclipseJavaSourceSettings sourceSettings = project.getJavaSourceSettings();
             setModelJavaSourceSettings(eclipseProject, sourceSettings);

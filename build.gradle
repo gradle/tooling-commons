@@ -94,7 +94,7 @@ subprojects {
   // cannot apply publishing plugin to all sub-projects here due to limitations in that plugin
   // apply plugin: 'maven-publish'
 
-  // allow to run tests in parallel
+  // allow to run tests in parallel and set bigger PermGen for executors
   tasks.withType(Test).all {
       maxParallelForks = 4
       jvmArgs "-XX:MaxPermSize=128m"
