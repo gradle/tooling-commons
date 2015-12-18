@@ -97,6 +97,7 @@ subprojects {
   // allow to run tests in parallel
   tasks.withType(Test).all {
       maxParallelForks = 4
+      jvmArgs "-XX:MaxPermSize=128m"
   }
 
   // allow to
