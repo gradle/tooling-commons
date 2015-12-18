@@ -597,14 +597,14 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     def projectNatures = apiEclipseProject.projectNatures
     def buildCommands = apiEclipseProject.buildCommands
     if (higherOrEqual('2.9', distribution)) {
-      projectNatures.isPresent()
-      projectNatures.get().collect{ it.id } == ['customNature']
-      buildCommands.isPresent()
-      buildCommands.get().collect { it.name } == ['buildCommand']
-      buildCommands.get().collect { it.arguments } == [['argkey' : 'argValue']]
+      assert projectNatures.isPresent()
+      assert projectNatures.get().collect{ it.id } == ['customNature']
+      assert buildCommands.isPresent()
+      assert buildCommands.get().collect { it.name } == ['buildCommand']
+      assert buildCommands.get().collect { it.arguments } == [['argkey' : 'argValue']]
     } else {
-      !projectNatures.isPresent()
-      !buildCommands.isPresent()
+      assert !projectNatures.isPresent()
+      assert !buildCommands.isPresent()
     }
 
     where:
@@ -624,10 +624,10 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     def apiEclipseProject = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Spec).get()
     def sourceCompatibility = apiEclipseProject.javaSourceSettings
     if (higherOrEqual('2.10', distribution)) {
-      sourceCompatibility.isPresent()
-      sourceCompatibility.get() == null
+      assert sourceCompatibility.isPresent()
+      assert sourceCompatibility.get() == null
     } else {
-      !sourceCompatibility.isPresent()
+      assert !sourceCompatibility.isPresent()
     }
 
     where:
@@ -656,10 +656,10 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     def apiEclipseProject = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Spec).get()
     def sourceCompatibility = apiEclipseProject.javaSourceSettings
     if (higherOrEqual('2.10', distribution)) {
-      sourceCompatibility.isPresent()
-      sourceCompatibility.get().sourceLanguageLevel.name == '1.2'
+      assert sourceCompatibility.isPresent()
+      assert sourceCompatibility.get().sourceLanguageLevel.name == '1.2'
     } else {
-      !sourceCompatibility.isPresent()
+      assert !sourceCompatibility.isPresent()
     }
 
     where:
