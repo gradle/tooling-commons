@@ -1,4 +1,5 @@
 import org.gradle.internal.os.OperatingSystem
+
 import java.text.SimpleDateFormat
 
 description = "Root project of the Commons project of the Gradle Tooling Platform."
@@ -42,8 +43,9 @@ subprojects {
       failOnVersionConflict()
 
       forcedModules = [
-              "org.slf4j:slf4j-api:$slf4jVersion",  // logback-classic uses logback 1.7.6
-              "org.hamcrest:hamcrest-core:1.3"      // junit uses hamcrest 1.1
+          "org.slf4j:slf4j-api:$slf4jVersion",            // logback-classic uses logback 1.7.6
+          "org.hamcrest:hamcrest-core:1.3",               // junit uses hamcrest 1.1
+          "org.codehaus.groovy:groovy-all:$groovyVersion" // spock uses groovy 2.4.1
       ]
     }
   }
