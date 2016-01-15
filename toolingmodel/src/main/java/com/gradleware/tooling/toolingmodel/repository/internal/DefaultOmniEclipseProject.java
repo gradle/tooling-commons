@@ -348,19 +348,19 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         // the source language level is always present on the source settings
         OmniJavaVersion sourceLanguageLevel = toOmniJavaVersion(javaSourceSettings.getSourceLanguageLevel());
 
-        // use the source language level as a default for the target bytecode level
         OmniJavaVersion targetBytecodeLevel;
         try {
             targetBytecodeLevel = toOmniJavaVersion(javaSourceSettings.getTargetBytecodeLevel());
         } catch (Exception ignore) {
+            // if the target bytecode level is not available, then fall back to the current source language level
             targetBytecodeLevel = sourceLanguageLevel;
         }
 
-        // use the current JVM as the default target runtime
         OmniJavaRuntime targetRuntime;
         try {
             targetRuntime  = toOmniJavaRuntime(javaSourceSettings.getTargetRuntime());
         } catch (Exception ignore) {
+            // if the target runtime is not available, then fall back to the current JVM settings
             targetRuntime = getCompatibilityJavaRuntime();
         }
         return new DefaultOmniJavaSourceSettings(sourceLanguageLevel, targetBytecodeLevel, targetRuntime);
