@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableSortedSet;
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
 import com.gradleware.tooling.toolingmodel.Path;
 import org.gradle.tooling.model.TaskSelector;
+import org.gradle.tooling.model.UnsupportedMethodException;
 
 import java.util.SortedSet;
 
@@ -111,7 +112,7 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
         try {
             boolean isPublic = taskSelector.isPublic();
             gradleTaskSelector.setPublic(isPublic);
-        } catch (Exception ignore) {
+        } catch (UnsupportedMethodException ignore) {
             gradleTaskSelector.setPublic(true);
         }
     }

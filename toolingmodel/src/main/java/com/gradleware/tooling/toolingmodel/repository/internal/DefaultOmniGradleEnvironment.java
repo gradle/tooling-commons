@@ -18,6 +18,7 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.gradleware.tooling.toolingmodel.OmniGradleEnvironment;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
+import org.gradle.tooling.model.UnsupportedMethodException;
 import org.gradle.tooling.model.build.GradleEnvironment;
 
 import java.io.File;
@@ -60,7 +61,7 @@ public final class DefaultOmniGradleEnvironment implements OmniGradleEnvironment
         try {
             File gradleUserHome = gradleEnvironment.getGradleUserHome();
             return Maybe.of(gradleUserHome);
-        } catch (Exception ignore) {
+        } catch (UnsupportedMethodException ignore) {
             return Maybe.absent();
         }
     }

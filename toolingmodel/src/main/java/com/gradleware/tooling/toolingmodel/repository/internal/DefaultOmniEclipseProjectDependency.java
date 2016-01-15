@@ -21,6 +21,7 @@ import com.gradleware.tooling.toolingmodel.Path;
 import org.gradle.internal.reflect.JavaReflectionUtil;
 import org.gradle.internal.reflect.PropertyAccessor;
 import org.gradle.tooling.internal.adapter.ProtocolToModelAdapter;
+import org.gradle.tooling.model.UnsupportedMethodException;
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
 
 /**
@@ -79,7 +80,7 @@ public final class DefaultOmniEclipseProjectDependency implements OmniEclipsePro
     private static boolean getIsExported(EclipseProjectDependency projectDependency) {
         try {
             return projectDependency.isExported();
-        } catch (Exception ignore) {
+        } catch (UnsupportedMethodException ignore) {
             return true;
         }
     }
