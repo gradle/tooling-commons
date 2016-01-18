@@ -9,15 +9,18 @@ group = 'com.gradleware.tooling'
 
 // define the version of the GAV
 version = file('version.txt').text.trim()
+def bundleVersion = getBundleVersion(version)
 
 // in case this is not a final release, add a timestamp to the version for unique identification of 'snapshot' versions
 if (!project.hasProperty('build.type') || project.property('build.type') != 'release') {
   if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
     // in case of CI builds, add the full date and time to the version timestamp
     version = version + '-' + new SimpleDateFormat("yyyyMMddkkmmssZ").format(new Date())
+    bundleVersion = bundleVersion + '.v' + new SimpleDateFormat("yyyyMMddkkmmssZ").format(new Date())
   } else {
     // in case of local builds, do not add the time to the version timestamp to ensure incremental updates apply when building locally
     version = version + '-' + new SimpleDateFormat("yyyyMMdd").format(new Date())
+    bundleVersion = bundleVersion + '.v' + new SimpleDateFormat("yyyyMMdd").format(new Date())
   }
 }
 
@@ -128,6 +131,19 @@ subprojects {
     inputs.file "$checkstyleConfigDir/suppressions.xml" as File
   }
 
+  // if defined, add OSGi manifest to the jars
+  def osgiManifest = project.file('META-INF/MANIFEST.MF')
+  if (osgiManifest.exists()) {
+    jar.manifest {
+      from(osgiManifest) {
+        eachEntry { entry ->
+          if (entry.key == 'Bundle-Version') {
+              entry.value = bundleVersion
+          }
+        }
+      }
+    }
+  }
 }
 
 // tag the HEAD of the current branch and push the new tag
@@ -164,5 +180,19 @@ task minorRelease {
 private ExecResult execCommand(Object... args) {
   exec {
     commandLine args
+  }
+}
+
+def getBundleVersion(String version) {
+  def matcher = version =~ /(\d+).(\d+)(?:-.*|\.(\d+)(?:-.*)?)?/
+  if (matcher.matches()) {
+    def major = matcher.group(1)
+    def minor = matcher.group(2)
+    def service = matcher.group(3)
+    if (service == null) { service = "0"
+      return "$major.$minor.$service"
+    } else {
+      return "NIL"
+    }
   }
 }
