@@ -20,7 +20,6 @@ import com.gradleware.tooling.toolingmodel.OmniProjectTask;
 import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
 import org.gradle.tooling.model.Task;
-import org.gradle.tooling.model.UnsupportedMethodException;
 
 /**
  * Default implementation of the {@link OmniProjectTask} interface.
@@ -103,7 +102,7 @@ public final class DefaultOmniProjectTask implements OmniProjectTask {
         try {
             boolean isPublic = task.isPublic();
             projectTask.setPublic(enforceAllTasksPublic || isPublic);
-        } catch (UnsupportedMethodException ignore) {
+        } catch (Exception ignore) {
             projectTask.setPublic(true);
         }
     }
@@ -118,7 +117,7 @@ public final class DefaultOmniProjectTask implements OmniProjectTask {
         try {
             String group = task.getGroup();
             projectTask.setGroup(Maybe.of(group));
-        } catch (UnsupportedMethodException ignore) {
+        } catch (Exception ignore) {
             projectTask.setGroup(Maybe.<String>absent());
         }
     }

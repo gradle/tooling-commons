@@ -21,7 +21,6 @@ import com.gradleware.tooling.toolingmodel.OmniGradleModuleVersion;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
 import org.gradle.tooling.model.ExternalDependency;
 import org.gradle.tooling.model.GradleModuleVersion;
-import org.gradle.tooling.model.UnsupportedMethodException;
 
 import java.io.File;
 
@@ -89,7 +88,7 @@ public final class DefaultOmniExternalDependency implements OmniExternalDependen
         try {
             GradleModuleVersion gav = externalDependency.getGradleModuleVersion();
             return Maybe.of((OmniGradleModuleVersion) DefaultOmniGradleModuleVersion.from(gav));
-        } catch (UnsupportedMethodException ignore) {
+        } catch (Exception ignore) {
             return Maybe.absent();
         }
     }
@@ -102,7 +101,7 @@ public final class DefaultOmniExternalDependency implements OmniExternalDependen
     private static boolean getIsExported(ExternalDependency externalDependency) {
         try {
             return externalDependency.isExported();
-        } catch (UnsupportedMethodException ignore) {
+        } catch (Exception ignore) {
             return true;
         }
     }

@@ -29,7 +29,6 @@ import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
 import org.gradle.api.specs.Spec;
 import org.gradle.tooling.model.GradleProject;
-import org.gradle.tooling.model.UnsupportedMethodException;
 import org.gradle.tooling.model.gradle.GradleScript;
 
 import java.io.File;
@@ -203,7 +202,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
         try {
             File projectDirectory = project.getProjectDirectory();
             gradleProject.setProjectDirectory(Maybe.of(projectDirectory));
-        } catch (UnsupportedMethodException ignore) {
+        } catch (Exception ignore) {
             gradleProject.setProjectDirectory(Maybe.<File>absent());
         }
     }
@@ -218,7 +217,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
         try {
             File buildDirectory = project.getBuildDirectory();
             gradleProject.setBuildDirectory(Maybe.of(buildDirectory));
-        } catch (UnsupportedMethodException ignore) {
+        } catch (Exception ignore) {
             gradleProject.setBuildDirectory(Maybe.<File>absent());
         }
     }
@@ -233,7 +232,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
         try {
             GradleScript buildScript = project.getBuildScript();
             gradleProject.setBuildScript(Maybe.<OmniGradleScript>of(DefaultOmniGradleScript.from(buildScript)));
-        } catch (UnsupportedMethodException ignore) {
+        } catch (Exception ignore) {
             gradleProject.setBuildScript(Maybe.<OmniGradleScript>absent());
         }
     }

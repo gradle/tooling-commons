@@ -23,7 +23,6 @@ import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
 import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
 import org.gradle.api.specs.Spec;
-import org.gradle.tooling.model.UnsupportedMethodException;
 import org.gradle.tooling.model.gradle.BasicGradleProject;
 
 import java.io.File;
@@ -135,7 +134,7 @@ public final class DefaultOmniGradleProjectStructure implements OmniGradleProjec
         try {
             File projectDirectory = project.getProjectDirectory();
             projectStructure.setProjectDirectory(Maybe.of(projectDirectory));
-        } catch (UnsupportedMethodException ignore) {
+        } catch (Exception ignore) {
             projectStructure.setProjectDirectory(Maybe.<File>absent());
         }
     }

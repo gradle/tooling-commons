@@ -27,7 +27,6 @@ import org.gradle.api.JavaVersion;
 import org.gradle.api.specs.Spec;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.ExternalDependency;
-import org.gradle.tooling.model.UnsupportedMethodException;
 import org.gradle.tooling.model.eclipse.*;
 import org.gradle.tooling.model.java.JavaRuntime;
 import org.gradle.tooling.model.java.JavaSourceSettings;
@@ -281,7 +280,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         try {
             List<OmniEclipseProjectNature> projectNatures = toProjectNatures(project.getProjectNatures());
             eclipseProject.setProjectNatures(Optional.of(projectNatures));
-        } catch (UnsupportedMethodException ignore) {
+        } catch (Exception ignore) {
             eclipseProject.setProjectNatures(Optional.<List<OmniEclipseProjectNature>>absent());
         }
     }
@@ -306,7 +305,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         try {
             List<OmniEclipseBuildCommand> buildCommands = toBuildCommands(project.getBuildCommands());
             eclipseProject.setBuildCommands(Optional.of(buildCommands));
-        } catch (UnsupportedMethodException ignore) {
+        } catch (Exception ignore) {
             eclipseProject.setBuildCommands(Optional.<List<OmniEclipseBuildCommand>>absent());
         }
     }
@@ -332,7 +331,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         try {
             EclipseJavaSourceSettings sourceSettings = project.getJavaSourceSettings();
             setModelJavaSourceSettings(eclipseProject, sourceSettings);
-        } catch(UnsupportedMethodException ignore) {
+        } catch(Exception ignore) {
             setCompatibilityJavaSourceSettings(eclipseProject);
         }
     }
@@ -352,7 +351,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         OmniJavaVersion targetBytecodeLevel;
         try {
             targetBytecodeLevel = toOmniJavaVersion(javaSourceSettings.getTargetBytecodeLevel());
-        } catch (UnsupportedMethodException ignore) {
+        } catch (Exception ignore) {
             // if the target bytecode level is not available, then fall back to the current source language level
             targetBytecodeLevel = sourceLanguageLevel;
         }
@@ -360,7 +359,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         OmniJavaRuntime targetRuntime;
         try {
             targetRuntime  = toOmniJavaRuntime(javaSourceSettings.getTargetRuntime());
-        } catch (UnsupportedMethodException ignore) {
+        } catch (Exception ignore) {
             // if the target runtime is not available, then fall back to the current JVM settings
             targetRuntime = getCompatibilityJavaRuntime();
         }
