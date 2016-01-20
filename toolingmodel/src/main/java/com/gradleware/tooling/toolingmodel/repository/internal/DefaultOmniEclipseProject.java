@@ -36,12 +36,12 @@ import org.gradle.api.specs.Spec;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.ExternalDependency;
 import org.gradle.tooling.model.eclipse.EclipseBuildCommand;
+import org.gradle.tooling.model.eclipse.EclipseJavaSourceSettings;
 import org.gradle.tooling.model.eclipse.EclipseLinkedResource;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
 import org.gradle.tooling.model.eclipse.EclipseProjectNature;
 import org.gradle.tooling.model.eclipse.EclipseSourceDirectory;
-import org.gradle.tooling.model.java.JavaSourceSettings;
 
 import java.io.File;
 import java.util.Comparator;
@@ -346,9 +346,9 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         }
     }
 
-    private static OmniJavaSourceSettings toOmniJavaSourceSettings(JavaSourceSettings javaSourceSettings) {
-        if (javaSourceSettings != null) {
-            String sourceVersionName = javaSourceSettings.getSourceLanguageLevel().toString();
+    private static OmniJavaSourceSettings toOmniJavaSourceSettings(EclipseJavaSourceSettings sourceSettings) {
+        if (sourceSettings != null) {
+            String sourceVersionName = sourceSettings.getSourceLanguageLevel().toString();
             DefaultOmniJavaVersion sourceLanguageLevel = new DefaultOmniJavaVersion(sourceVersionName);
             return new DefaultOmniJavaSourceSettings(sourceLanguageLevel);
         } else {
