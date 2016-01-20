@@ -28,8 +28,7 @@ import org.gradle.api.specs.Spec;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.ExternalDependency;
 import org.gradle.tooling.model.eclipse.*;
-import org.gradle.tooling.model.java.JavaRuntime;
-import org.gradle.tooling.model.java.JavaSourceSettings;
+import org.gradle.tooling.model.java.InstalledJdk;
 
 import java.io.File;
 import java.util.Comparator;
@@ -344,13 +343,13 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         }
     }
 
-    private static OmniJavaSourceSettings toOmniJavaSourceSettings(final JavaSourceSettings javaSourceSettings) {
+    private static OmniJavaSourceSettings toOmniJavaSourceSettings(final EclipseJavaSourceSettings javaSourceSettings) {
         // the source language level is always present on the source settings
         OmniJavaVersion sourceLanguageLevel = toOmniJavaVersion(javaSourceSettings.getSourceLanguageLevel());
 
         OmniJavaVersion targetBytecodeLevel;
         try {
-            targetBytecodeLevel = toOmniJavaVersion(javaSourceSettings.getTargetBytecodeLevel());
+            targetBytecodeLevel = toOmniJavaVersion(javaSourceSettings.getTargetBytecodeVersion());
         } catch (Exception ignore) {
             // if the target bytecode level is not available, then fall back to the current source language level
             targetBytecodeLevel = sourceLanguageLevel;
@@ -358,7 +357,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 
         OmniJavaRuntime targetRuntime;
         try {
-            targetRuntime  = toOmniJavaRuntime(javaSourceSettings.getTargetRuntime());
+            targetRuntime  = toOmniJavaRuntime(javaSourceSettings.getJdk());
         } catch (Exception ignore) {
             // if the target runtime is not available, then fall back to the current JVM settings
             targetRuntime = getCompatibilityJavaRuntime();
@@ -390,9 +389,9 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         return new DefaultOmniJavaVersion(javaVersion.toString());
     }
 
-    private static OmniJavaRuntime toOmniJavaRuntime(JavaRuntime javaRuntime) {
-        OmniJavaVersion javaVersion = toOmniJavaVersion(javaRuntime.getJavaVersion());
-        File homeDirectory = javaRuntime.getHomeDirectory();
+    private static OmniJavaRuntime toOmniJavaRuntime(InstalledJdk installedJdk) {
+        OmniJavaVersion javaVersion = toOmniJavaVersion(installedJdk.getJavaVersion());
+        File homeDirectory = installedJdk.getJavaHome();
         return new DefaultOmniJavaRuntime(javaVersion, homeDirectory);
     }
 
