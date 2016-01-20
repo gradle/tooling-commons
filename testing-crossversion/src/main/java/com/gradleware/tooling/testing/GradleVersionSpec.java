@@ -141,7 +141,7 @@ public final class GradleVersionSpec {
             }
         }
 
-        return Specs.and(specs);
+        return Specs.intersect(specs);
     }
 
 }
