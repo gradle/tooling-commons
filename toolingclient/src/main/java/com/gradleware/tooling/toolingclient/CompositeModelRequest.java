@@ -3,7 +3,7 @@ package com.gradleware.tooling.toolingclient;
 import org.gradle.api.Action;
 
 public interface CompositeModelRequest<T> {
-    CompositeModelRequest<T> addProject(Action<? super ConnectionDescriptor> projectConfiguration);
+    ConnectionDescriptor addProject();
 
     /**
      * Fetches the requested model synchronously. Calling this method will block until the model has been fetched or a failure has occurred.

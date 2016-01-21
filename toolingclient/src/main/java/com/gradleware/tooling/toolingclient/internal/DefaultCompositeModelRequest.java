@@ -14,11 +14,11 @@ public class DefaultCompositeModelRequest<T> implements InspectableCompositeMode
         this.toolingClient = toolingClient;
     }
 
-    @Override
-    public CompositeModelRequest<T> addProject(Action<? super ConnectionDescriptor> projectConfiguration) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+   @Override
+public ConnectionDescriptor addProject() {
+    // TODO Auto-generated method stub
+    return null;
+}
 
     @Override
     public ConnectionDescriptor[] getProjects() {
