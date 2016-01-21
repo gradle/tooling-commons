@@ -16,18 +16,21 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
+import java.util.Arrays;
+import java.util.Map;
+
+import org.gradle.internal.Factory;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
+
 import com.gradleware.tooling.toolingclient.ToolingClient;
 import com.gradleware.tooling.toolingmodel.repository.CompositeModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.Environment;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
-import org.gradle.internal.Factory;
-
-import java.util.Map;
 
 /**
  * Internal implementation of the {@code ModelRepositoryProvider} API.
@@ -65,7 +68,7 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
 
     @Override
     public CompositeModelRepository getCompositeModelRepository(FixedRequestAttributes... fixedRequestAttributes) {
-        throw new UnsupportedOperationException();
+        return new DefaultCompositeModelRepository(Arrays.asList(fixedRequestAttributes), this.toolingClient, this.environment);
     }
 
     private ModelRepository getOrCreateModelRepository(FixedRequestAttributes fixedRequestAttributes) {
