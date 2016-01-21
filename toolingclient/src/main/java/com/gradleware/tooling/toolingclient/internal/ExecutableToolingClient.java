@@ -41,4 +41,9 @@ interface ExecutableToolingClient {
 
     LongRunningOperationPromise<Void> execute(InspectableTestLaunchRequest testLaunchRequest);
 
+    <T> T executeAndWait(InspectableCompositeModelRequest<T> modelRequest);
+
+    <T> LongRunningOperationPromise<T> execute(InspectableCompositeModelRequest<T> modelRequest);
+
+
 }

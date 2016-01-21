@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 import com.gradleware.tooling.toolingclient.ToolingClient;
+import com.gradleware.tooling.toolingmodel.repository.CompositeModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.Environment;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
@@ -60,6 +61,11 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
         Preconditions.checkNotNull(fixedRequestAttributes);
 
         return getOrCreateModelRepository(fixedRequestAttributes);
+    }
+
+    @Override
+    public CompositeModelRepository getCompositeModelRepository(FixedRequestAttributes... fixedRequestAttributes) {
+        throw new UnsupportedOperationException();
     }
 
     private ModelRepository getOrCreateModelRepository(FixedRequestAttributes fixedRequestAttributes) {

@@ -24,12 +24,19 @@ package com.gradleware.tooling.toolingmodel.repository;
 public interface ModelRepositoryProvider {
 
     /**
-     * Returns the {@code ModelRepository} for the given {@code FixedRequestAttributes}. For the same set of request attributes the same model repository instance is returned each
-     * time.
+     * Returns the {@code ModelRepository} for the given {@code FixedRequestAttributes}. For the
+     * same set of request attributes the same model repository instance is returned each time.
      *
      * @param fixedRequestAttributes the request attributes for which to get the model repository
      * @return the model repository
      */
     ModelRepository getModelRepository(FixedRequestAttributes fixedRequestAttributes);
 
+    /**
+     * Returns the {@code CompositeModelReqpository} for the given set
+     * {@code FixedRequestAttributes}. For the same set of request attributes the same model
+     * repository instance is returned each time.
+     *
+     */
+    CompositeModelRepository getCompositeModelRepository(FixedRequestAttributes... fixedRequestAttributes);
 }

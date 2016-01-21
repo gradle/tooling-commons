@@ -88,12 +88,18 @@ public abstract class ToolingClient {
     public abstract TestLaunchRequest newTestLaunchRequest(TestConfig tests);
 
     /**
+     * Creates a new composite model request. A composite model request is used to fetch a given composite model that is available through the Tooling API.
+     */
+    public abstract <T> CompositeModelRequest<T> newCompositeModelRequest(Class<T> modelType);
+
+    /**
      * Stops the tooling client and applies the specified clean-up strategy to any associated resources and processes. May block or may not block, depending on the specified
      * cleanup strategy.
      *
      * @param strategy the clean-up strategy to apply
      */
     public abstract void stop(CleanUpStrategy strategy);
+
 
     /**
      * Enumerates the different clean-up strategies.

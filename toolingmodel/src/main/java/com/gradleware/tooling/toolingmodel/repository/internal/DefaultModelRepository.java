@@ -285,7 +285,7 @@ public final class DefaultModelRepository implements ModelRepository {
         } else {
             OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY);
             if (eclipseGradleBuild != null) {
-                return DefaultOmniBuildInvocationsContainer.from(eclipseGradleBuild.getRootProject());
+                return DefaultOmniBuildInvocationsContainer.from(eclipseGradleBuild.getRootEclipseProject().getGradleProject());
             }
         }
 

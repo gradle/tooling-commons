@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.gradleware.tooling.toolingclient.BuildActionRequest;
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
+import com.gradleware.tooling.toolingclient.CompositeModelRequest;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
 import com.gradleware.tooling.toolingclient.ModelRequest;
@@ -89,6 +90,11 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     }
 
     @Override
+    public <T> CompositeModelRequest<T> newCompositeModelRequest(Class<T> modelType) {
+        return new DefaultCompositeModelRequest<T>(this, modelType);
+    }
+
+    @Override
     public <T> T executeAndWait(InspectableModelRequest<T> modelRequest) {
         ProjectConnection connection = getProjectConnection(modelRequest);
         ModelBuilder<T> operation = mapToModelBuilder(modelRequest, connection);
@@ -144,6 +150,16 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         ProjectConnection connection = getProjectConnection(testLaunchRequest);
         TestLauncher operation = mapToTestLauncher(testLaunchRequest, connection);
         return LongRunningOperationPromise.forTestLauncher(operation);
+    }
+
+    @Override
+    public <T> LongRunningOperationPromise<T> execute(InspectableCompositeModelRequest<T> modelRequest) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <T> T executeAndWait(InspectableCompositeModelRequest<T> modelRequest) {
+        throw new UnsupportedOperationException();
     }
 
     private ProjectConnection getProjectConnection(InspectableRequest<?> request) {

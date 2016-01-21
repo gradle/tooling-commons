@@ -29,6 +29,7 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature;
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
+import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings;
 import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
@@ -66,6 +67,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     private Optional<List<OmniEclipseProjectNature>> projectNatures;
     private Optional<List<OmniEclipseBuildCommand>> buildCommands;
     private Maybe<OmniJavaSourceSettings> javaSourceSettings;
+    private OmniGradleProject gradleProject;
 
     private DefaultOmniEclipseProject(Comparator<? super OmniEclipseProject> comparator) {
         this.hierarchyHelper = new HierarchyHelper<OmniEclipseProject>(this, Preconditions.checkNotNull(comparator));
@@ -145,7 +147,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 
     @Override
     public Optional<List<OmniEclipseProjectNature>> getProjectNatures() {
-        return projectNatures;
+        return this.projectNatures;
     }
 
     private void setProjectNatures(Optional<List<OmniEclipseProjectNature>> projectNatures) {
@@ -158,7 +160,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 
     @Override
     public Optional<List<OmniEclipseBuildCommand>> getBuildCommands() {
-        return buildCommands;
+        return this.buildCommands;
     }
 
     private void setBuildCommands(Optional<List<OmniEclipseBuildCommand>> buildCommands) {
@@ -171,7 +173,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 
     @Override
     public Maybe<OmniJavaSourceSettings> getJavaSourceSettings() {
-        return javaSourceSettings;
+        return this.javaSourceSettings;
     }
 
     private void setJavaSourceSettings(Maybe<OmniJavaSourceSettings> javaSourceSettings) {
@@ -217,7 +219,16 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         return this.hierarchyHelper.tryFind(predicate);
     }
 
-    public static DefaultOmniEclipseProject from(EclipseProject project) {
+    @Override
+    public OmniGradleProject getGradleProject() {
+        return this.gradleProject;
+    }
+
+    private void setGradleProject(OmniGradleProject gradleProject) {
+        this.gradleProject = gradleProject;
+    }
+
+    public static DefaultOmniEclipseProject from(EclipseProject project, boolean enforceAllTasksPublic) {
         DefaultOmniEclipseProject eclipseProject = new DefaultOmniEclipseProject(OmniEclipseProjectComparator.INSTANCE);
         eclipseProject.setName(project.getName());
         eclipseProject.setDescription(project.getDescription());
@@ -227,12 +238,13 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         eclipseProject.setExternalDependencies(toExternalDependencies(project.getClasspath()));
         eclipseProject.setLinkedResources(toLinkedResources(project.getLinkedResources()));
         eclipseProject.setSourceDirectories(toSourceDirectories(project.getSourceDirectories()));
+        eclipseProject.setGradleProject(DefaultOmniGradleProject.from(project.getGradleProject(), enforceAllTasksPublic));
         setProjectNatures(eclipseProject, project);
         setBuildCommands(eclipseProject, project);
         setJavaSourceSettings(eclipseProject, project);
 
         for (EclipseProject child : project.getChildren()) {
-            DefaultOmniEclipseProject eclipseChildProject = from(child);
+            DefaultOmniEclipseProject eclipseChildProject = from(child, enforceAllTasksPublic);
             eclipseProject.addChild(eclipseChildProject);
         }
 

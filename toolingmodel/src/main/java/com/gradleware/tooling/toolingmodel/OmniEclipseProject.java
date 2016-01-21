@@ -175,4 +175,5 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
      */
     Maybe<OmniJavaSourceSettings> getJavaSourceSettings();
 
+    OmniGradleProject getGradleProject();
 }
