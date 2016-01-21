@@ -152,8 +152,8 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
     then:
     thirdLookUp != null
     !thirdLookUp.is(fourthLookUp)
-    thirdLookUp.rootProject.path == fourthLookUp.rootProject.path
-    thirdLookUp.rootProject.all.size() == fourthLookUp.rootProject.all.size()
+    thirdLookUp.rootEclipseProject.gradleProject.path == fourthLookUp.rootEclipseProject.gradleProject.path
+    thirdLookUp.rootEclipseProject.gradleProject.all.size() == fourthLookUp.rootEclipseProject.gradleProject.all.size()
   }
 
   def "fetchBuildInvocations"() {

@@ -440,18 +440,16 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     eclipseGradleBuild.rootEclipseProject.description == 'a sample root project'
     eclipseGradleBuild.rootEclipseProject.path == Path.from(':')
     eclipseGradleBuild.rootEclipseProject.projectDirectory.absolutePath == directoryProvider.testDirectory.absolutePath
-    eclipseGradleBuild.rootProject.root == eclipseGradleBuild.rootProject
     eclipseGradleBuild.rootEclipseProject.parent == null
     eclipseGradleBuild.rootEclipseProject.children.size() == 2
     eclipseGradleBuild.rootEclipseProject.children*.name == ['sub1', 'sub2']
     eclipseGradleBuild.rootEclipseProject.children*.description == ['sub project 1', 'sub project 2']
     eclipseGradleBuild.rootEclipseProject.children*.path.path == [':sub1', ':sub2']
-    eclipseGradleBuild.rootProject.children*.root == [eclipseGradleBuild.rootProject, eclipseGradleBuild.rootProject]
     eclipseGradleBuild.rootEclipseProject.children*.parent == [eclipseGradleBuild.rootEclipseProject, eclipseGradleBuild.rootEclipseProject]
     eclipseGradleBuild.rootEclipseProject.all.size() == 4
     eclipseGradleBuild.rootEclipseProject.all*.name == ['my root project', 'sub1', 'sub2', 'subSub1']
 
-    def projectSub1 = eclipseGradleBuild.rootProject.tryFind({ OmniGradleProject input ->
+    def projectSub1 = eclipseGradleBuild.rootEclipseProject.gradleProject.tryFind({ OmniGradleProject input ->
       return input.path.path == ':sub1'
     } as Spec).get()
     projectSub1.projectTasks.findAll { !ImplicitTasks.ALL.contains(it.name) }.size() == 2
@@ -478,7 +476,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
       assert !mySecondTaskOfSub1.group.present
     }
 
-    def projectSub2 = eclipseGradleBuild.rootProject.tryFind({ OmniGradleProject input ->
+    def projectSub2 = eclipseGradleBuild.rootEclipseProject.gradleProject.tryFind({ OmniGradleProject input ->
       return input.path.path == ':sub2'
     } as Spec).get()
     projectSub2.taskSelectors.findAll { !ImplicitTasks.ALL.contains(it.name) }.size() == 5
