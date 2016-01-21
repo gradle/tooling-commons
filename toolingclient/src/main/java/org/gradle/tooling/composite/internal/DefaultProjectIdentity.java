@@ -13,9 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.tooling.composite;
+package org.gradle.tooling.composite.internal;
 
-public interface ModelResult<T> {
-    ProjectIdentity getProject();
-    T getModel();
+import org.gradle.tooling.composite.ProjectIdentity;
+
+import java.io.File;
+
+public class DefaultProjectIdentity implements ProjectIdentity {
+    private final File projectDirectory;
+
+    public DefaultProjectIdentity(File projectDirectory) {
+        this.projectDirectory = projectDirectory;
+    }
+
+    public File getProjectDirectory() {
+        return projectDirectory;
+    }
 }

@@ -30,9 +30,7 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
 
         then:
         compositeModel.size() == 1
-        EclipseProject eclipseProject = assertProjectInCompositeModel(compositeModel, 'project')
-        assertExternalDependencies(eclipseProject, ExternalDependencies.COMMONS_LANG)
-        assertNoProjectDependencies(eclipseProject)
+        assertModelResult(compositeModel, 'project', projectDir, ExternalDependencies.COMMONS_LANG)
     }
 
     def "can create composite with single, multi-project participating build"() {
@@ -54,19 +52,11 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
 
         then:
         compositeModel.size() == 5
-        assertProjectInCompositeModel(compositeModel, 'project')
-        EclipseProject eclipseProject1 = assertProjectInCompositeModel(compositeModel, 'sub-1')
-        assertExternalDependencies(eclipseProject1, ExternalDependencies.COMMONS_LANG)
-        assertNoProjectDependencies(eclipseProject1)
-        EclipseProject eclipseProject2 = assertProjectInCompositeModel(compositeModel, 'sub-2')
-        assertExternalDependencies(eclipseProject2, ExternalDependencies.LOG4J)
-        assertNoProjectDependencies(eclipseProject2)
-        EclipseProject eclipseProject3 = assertProjectInCompositeModel(compositeModel, 'a-1')
-        assertExternalDependencies(eclipseProject3, ExternalDependencies.COMMONS_MATH)
-        assertNoProjectDependencies(eclipseProject3)
-        EclipseProject eclipseProject4 = assertProjectInCompositeModel(compositeModel, 'b-2')
-        assertExternalDependencies(eclipseProject4, ExternalDependencies.COMMONS_CODEC)
-        assertNoProjectDependencies(eclipseProject4)
+        assertModelResult(compositeModel, 'project', rootProjectDir)
+        assertModelResult(compositeModel, 'sub-1', subProject1, ExternalDependencies.COMMONS_LANG)
+        assertModelResult(compositeModel, 'sub-2', subProject2, ExternalDependencies.LOG4J)
+        assertModelResult(compositeModel, 'a-1', subSubProject1, ExternalDependencies.COMMONS_MATH)
+        assertModelResult(compositeModel, 'b-2', subSubProject2, ExternalDependencies.COMMONS_CODEC)
     }
 
     def "can create composite with multiple, single-project participating builds"() {
@@ -82,24 +72,24 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
 
         then:
         compositeModel.size() == 2
-        EclipseProject eclipseProject1 = assertProjectInCompositeModel(compositeModel, 'project-1')
-        assertExternalDependencies(eclipseProject1, ExternalDependencies.COMMONS_LANG)
-        assertNoProjectDependencies(eclipseProject1)
-        EclipseProject eclipseProject2 = assertProjectInCompositeModel(compositeModel, 'project-2')
-        assertExternalDependencies(eclipseProject2, ExternalDependencies.LOG4J)
-        assertNoProjectDependencies(eclipseProject2)
+        assertModelResult(compositeModel, 'project-1', projectDir1, ExternalDependencies.COMMONS_LANG)
+        assertModelResult(compositeModel, 'project-2', projectDir2, ExternalDependencies.LOG4J)
     }
 
     def "can create composite with multiple, multi-project participating builds"() {
         given:
         File projectDir1 = directoryProvider.createDir('project-1')
-        createBuildFileWithDependency(new File(projectDir1, 'sub-1'), ExternalDependencies.COMMONS_LANG)
-        createBuildFileWithDependency(new File(projectDir1, 'sub-2'), ExternalDependencies.LOG4J)
+        File sub1ProjectDir = new File(projectDir1, 'sub-1')
+        createBuildFileWithDependency(sub1ProjectDir, ExternalDependencies.COMMONS_LANG)
+        File sub2ProjectDir = new File(projectDir1, 'sub-2')
+        createBuildFileWithDependency(sub2ProjectDir, ExternalDependencies.LOG4J)
         createSettingsFile(projectDir1, ['sub-1', 'sub-2'])
 
         File projectDir2 = directoryProvider.createDir('project-2')
-        createBuildFileWithDependency(new File(projectDir2, 'sub-a'), ExternalDependencies.COMMONS_MATH)
-        createBuildFileWithDependency(new File(projectDir2, 'sub-b'), ExternalDependencies.COMMONS_CODEC)
+        File subAProjectDir = new File(projectDir2, 'sub-a')
+        createBuildFileWithDependency(subAProjectDir, ExternalDependencies.COMMONS_MATH)
+        File subBProjectDir = new File(projectDir2, 'sub-b')
+        createBuildFileWithDependency(subBProjectDir, ExternalDependencies.COMMONS_CODEC)
         createSettingsFile(projectDir2, ['sub-a', 'sub-b'])
 
         when:
@@ -108,19 +98,20 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
 
         then:
         compositeModel.size() == 6
-        assertProjectInCompositeModel(compositeModel, 'project-1')
-        assertProjectInCompositeModel(compositeModel, 'project-2')
-        EclipseProject eclipseProject1 = assertProjectInCompositeModel(compositeModel, 'sub-1')
-        assertExternalDependencies(eclipseProject1, ExternalDependencies.COMMONS_LANG)
-        assertNoProjectDependencies(eclipseProject1)
-        EclipseProject eclipseProject2 = assertProjectInCompositeModel(compositeModel, 'sub-2')
-        assertExternalDependencies(eclipseProject2, ExternalDependencies.LOG4J)
-        assertNoProjectDependencies(eclipseProject2)
-        EclipseProject eclipseProject3 = assertProjectInCompositeModel(compositeModel, 'sub-a')
-        assertExternalDependencies(eclipseProject3, ExternalDependencies.COMMONS_MATH)
-        assertNoProjectDependencies(eclipseProject3)
-        EclipseProject eclipseProject4 = assertProjectInCompositeModel(compositeModel, 'sub-b')
-        assertExternalDependencies(eclipseProject4, ExternalDependencies.COMMONS_CODEC)
-        assertNoProjectDependencies(eclipseProject4)
+        assertModelResult(compositeModel, 'project-1', projectDir1)
+        assertModelResult(compositeModel, 'project-2', projectDir2)
+        assertModelResult(compositeModel, 'sub-1', sub1ProjectDir, ExternalDependencies.COMMONS_LANG)
+        assertModelResult(compositeModel, 'sub-2', sub2ProjectDir, ExternalDependencies.LOG4J)
+        assertModelResult(compositeModel, 'sub-a', subAProjectDir, ExternalDependencies.COMMONS_MATH)
+        assertModelResult(compositeModel, 'sub-b', subBProjectDir, ExternalDependencies.COMMONS_CODEC)
+    }
+
+    private void assertModelResult(Set<ModelResult<EclipseProject>> compositeModel, String projectName, File projectDir,
+                                   ExternalDependency... externalDependencies) {
+        ModelResult<EclipseProject> modelResult = assertModelResultInCompositeModel(compositeModel, projectName)
+        EclipseProject eclipseProject = modelResult.model
+        assertExternalDependencies(eclipseProject, externalDependencies)
+        assertNoProjectDependencies(eclipseProject)
+        assert modelResult.project.projectDirectory == projectDir
     }
 }

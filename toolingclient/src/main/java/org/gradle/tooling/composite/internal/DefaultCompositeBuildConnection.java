@@ -20,6 +20,7 @@ import org.gradle.api.Transformer;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.composite.CompositeBuildConnection;
 import org.gradle.tooling.composite.ModelResult;
+import org.gradle.tooling.composite.ProjectIdentity;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.util.CollectionUtils;
 
@@ -54,7 +55,8 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
         return CollectionUtils.collect(eclipseProjects, new Transformer<ModelResult<T>, EclipseProject>() {
             @Override
             public ModelResult<T> transform(EclipseProject eclipseProject) {
-                return new DefaultModelResult<T>((T) eclipseProject);
+                ProjectIdentity projectIdentity = new DefaultProjectIdentity(eclipseProject.getGradleProject().getProjectDirectory());
+                return new DefaultModelResult<T>((T) eclipseProject, projectIdentity);
             }
         });
     }
@@ -99,14 +101,21 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
 
     private static final class DefaultModelResult<T> implements ModelResult<T> {
         private final T model;
+        private final ProjectIdentity projectIdentity;
 
-        private DefaultModelResult(T model) {
+        private DefaultModelResult(T model, ProjectIdentity projectIdentity) {
             this.model = model;
+            this.projectIdentity = projectIdentity;
         }
 
         @Override
         public T getModel() {
             return model;
+        }
+
+        @Override
+        public ProjectIdentity getProject() {
+            return projectIdentity;
         }
     }
 }

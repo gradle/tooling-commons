@@ -83,10 +83,10 @@ abstract class AbstractCompositeBuildConnectorIntegrationTest extends Specificat
         }
     }
 
-    protected EclipseProject assertProjectInCompositeModel(Set<ModelResult<EclipseProject>> compositeModel, String projectName) {
+    protected ModelResult<EclipseProject> assertModelResultInCompositeModel(Set<ModelResult<EclipseProject>> compositeModel, String projectName) {
         ModelResult<EclipseProject> modelResult = compositeModel.find { it.model.name == projectName }
         assert modelResult
-        modelResult.getModel()
+        modelResult
     }
 
     protected void assertExternalDependencies(EclipseProject eclipseProject, ExternalDependency... externalDependencies) {

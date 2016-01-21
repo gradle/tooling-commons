@@ -15,7 +15,8 @@
  */
 package org.gradle.tooling.composite;
 
-public interface ModelResult<T> {
-    ProjectIdentity getProject();
-    T getModel();
+import java.io.File;
+
+public interface ProjectIdentity {
+    File getProjectDirectory();
 }
