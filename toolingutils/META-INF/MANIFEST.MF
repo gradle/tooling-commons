@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: toolingutils
+Bundle-Name: Gradle Tooling Commons - Tooling Utils
 Bundle-SymbolicName: com.gradleware.tooling.utils
 Bundle-Version: 0.10.0.qualifier
 Bundle-ClassPath: .
@@ -12,3 +12,4 @@ Require-Bundle: org.gradle.toolingapi;bundle-version="2.11.0",
  com.google.guava;bundle-version="[15.0.0,16.0.0)",
  com.google.gson;bundle-version="2.2.4",
  org.slf4j.api;bundle-version="1.7.2"
+Bundle-Vendor: Gradle Inc.
