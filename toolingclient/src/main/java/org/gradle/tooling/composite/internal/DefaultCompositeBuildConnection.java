@@ -62,24 +62,24 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
     private Set<EclipseProject> getEclipseProjects() {
         Set<File> processedBuilds = Sets.newLinkedHashSet();
         Set<EclipseProject> eclipseProjects = Sets.newLinkedHashSet();
-        for (ProjectConnection participant : participants) {
-            EclipseProject rootProject = determineRootProject(resolveEclipseProjectModel(participant));
 
-            // Only collect the root project once
-            File rootProjectDirectory = rootProject.getGradleProject().getProjectDirectory();
-            if (processedBuilds.add(rootProjectDirectory)) {
-                addWithChildren(rootProject, eclipseProjects);
+        try {
+            for (ProjectConnection participant : participants) {
+                EclipseProject rootProject = determineRootProject(participant.getModel(EclipseProject.class));
+
+                // Only collect the root project once
+                File rootProjectDirectory = rootProject.getGradleProject().getProjectDirectory();
+                if (processedBuilds.add(rootProjectDirectory)) {
+                    addWithChildren(rootProject, eclipseProjects);
+                }
+            }
+        } finally {
+            for (ProjectConnection participant : participants) {
+                participant.close();
             }
         }
-        return eclipseProjects;
-    }
 
-    private EclipseProject resolveEclipseProjectModel(ProjectConnection participant) {
-        try {
-            return participant.getModel(EclipseProject.class);
-        } finally {
-            participant.close();
-        }
+        return eclipseProjects;
     }
 
     private EclipseProject determineRootProject(EclipseProject eclipseProject) {
