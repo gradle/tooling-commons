@@ -32,30 +32,6 @@ import java.io.OutputStream;
 public interface Request<T> {
 
     /**
-     * Specifies the working directory to use.
-     *
-     * @param projectDir the working directory
-     * @return this
-     */
-    Request<T> projectDir(File projectDir);
-
-    /**
-     * Specifies the user's Gradle home directory to use. Defaults to {@code ~/.gradle}.
-     *
-     * @param gradleUserHomeDir the user's Gradle home directory to use
-     * @return this
-     */
-    Request<T> gradleUserHomeDir(File gradleUserHomeDir);
-
-    /**
-     * Specifies the Gradle distribution to use. Defaults to a project-specific Gradle version.
-     *
-     * @param gradleDistribution the Gradle distribution to use
-     * @return this
-     */
-    Request<T> gradleDistribution(GradleDistribution gradleDistribution);
-
-    /**
      * Specifies whether to generate colored (ANSI encoded) output for logging. The default is to not generate color output.
      *
      * @param colorOutput {@code true} to request color output (using ANSI encoding)

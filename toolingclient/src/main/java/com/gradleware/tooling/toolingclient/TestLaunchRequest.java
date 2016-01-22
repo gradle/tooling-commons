@@ -32,7 +32,7 @@ import org.gradle.tooling.ProgressListener;
  *
  * @author Donát Csikós
  */
-public interface TestLaunchRequest extends Request<Void> {
+public interface TestLaunchRequest extends SimpleRequest<Void> {
 
     /**
      * {@inheritDoc}

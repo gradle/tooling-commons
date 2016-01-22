@@ -53,6 +53,7 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
 
     private <T> Set<ModelResult<T>> toModelResults(Set<EclipseProject> eclipseProjects) {
         return CollectionUtils.collect(eclipseProjects, new Transformer<ModelResult<T>, EclipseProject>() {
+            @SuppressWarnings("unchecked")
             @Override
             public ModelResult<T> transform(EclipseProject eclipseProject) {
                 ProjectIdentity projectIdentity = new DefaultProjectIdentity(eclipseProject.getGradleProject().getProjectDirectory());
@@ -66,7 +67,7 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
         Set<EclipseProject> eclipseProjects = Sets.newLinkedHashSet();
 
         try {
-            for (ProjectConnection participant : participants) {
+            for (ProjectConnection participant : this.participants) {
                 EclipseProject rootProject = determineRootProject(participant.getModel(EclipseProject.class));
 
                 // Only collect the root project once
@@ -76,7 +77,7 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
                 }
             }
         } finally {
-            for (ProjectConnection participant : participants) {
+            for (ProjectConnection participant : this.participants) {
                 participant.close();
             }
         }
@@ -110,12 +111,12 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
 
         @Override
         public T getModel() {
-            return model;
+            return this.model;
         }
 
         @Override
         public ProjectIdentity getProject() {
-            return projectIdentity;
+            return this.projectIdentity;
         }
     }
 }

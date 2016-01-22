@@ -27,7 +27,7 @@ import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
  * @param <T> the result type
  * @author Etienne Studer
  */
-final class DefaultBuildActionRequest<T> extends BaseRequest<T, DefaultBuildActionRequest<T>> implements InspectableBuildActionRequest<T> {
+final class DefaultBuildActionRequest<T> extends BaseSimpleRequest<T, DefaultBuildActionRequest<T>> implements InspectableBuildActionRequest<T> {
 
     private final BuildAction<T> buildAction;
 

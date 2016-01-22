@@ -38,6 +38,7 @@ import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.TestLauncher;
+import org.gradle.tooling.composite.CompositeBuildConnector;
 import org.gradle.tooling.internal.consumer.ConnectorServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,15 +160,17 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
 
     @Override
     public <T> T executeAndWait(InspectableCompositeModelRequest<T> modelRequest) {
+        CompositeBuildConnector builder = CompositeBuildConnector.newComposite();
+
         throw new UnsupportedOperationException();
     }
 
-    private ProjectConnection getProjectConnection(InspectableRequest<?> request) {
+    private ProjectConnection getProjectConnection(InspectableSimpleRequest<?> request) {
         Preconditions.checkNotNull(request);
         return getOrCreateProjectConnection(request);
     }
 
-    private ProjectConnection getOrCreateProjectConnection(InspectableRequest<?> modelRequest) {
+    private ProjectConnection getOrCreateProjectConnection(InspectableSimpleRequest<?> modelRequest) {
         ProjectConnection connection;
         int connectionKey = calculateConnectionKey(modelRequest);
         synchronized (this.connections) {
@@ -181,14 +184,14 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         return connection;
     }
 
-    private int calculateConnectionKey(InspectableRequest<?> modelRequest) {
+    private int calculateConnectionKey(InspectableSimpleRequest<?> modelRequest) {
         return Objects.hashCode(
                 modelRequest.getProjectDir(),
                 modelRequest.getGradleUserHomeDir(),
                 modelRequest.getGradleDistribution());
     }
 
-    private ProjectConnection openConnection(InspectableRequest<?> modelRequest) {
+    private ProjectConnection openConnection(InspectableSimpleRequest<?> modelRequest) {
         GradleConnector connector = this.connectorFactory.create();
         connector.forProjectDirectory(modelRequest.getProjectDir());
         connector.useGradleUserHomeDir(modelRequest.getGradleUserHomeDir());

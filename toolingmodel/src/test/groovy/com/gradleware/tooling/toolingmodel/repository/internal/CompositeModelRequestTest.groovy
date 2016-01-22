@@ -16,6 +16,7 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal
 import com.gradleware.tooling.junit.TestDirectoryProvider
+import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
 import com.gradleware.tooling.toolingclient.ToolingClient
 import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace
 import groovy.transform.NotYetImplemented
@@ -24,6 +25,7 @@ import org.gradle.tooling.model.eclipse.EclipseProject
 import org.junit.Rule
 import spock.lang.Shared
 import spock.lang.Specification
+
 
 class CompositeModelRequestTest extends Specification{
 
@@ -67,7 +69,7 @@ class CompositeModelRequestTest extends Specification{
         def request = toolingClient.newCompositeModelRequest(OmniEclipseWorkspace)
         directoryProvider.createFile("build.gradle")
         directoryProvider.createFile("settings.gradle") << "rootProject.name = 'root'"
-        request.addProject().projectDir(directoryProvider.testDirectory)
+        request.addParticipant(GradleBuildIdentifier.create().projectDir(directoryProvider.testDirectory))
 
         when:
         def eclipseWorkspace = request.executeAndWait()
@@ -88,7 +90,7 @@ class CompositeModelRequestTest extends Specification{
             include 'sub1', 'sub2'
         """
         def request = toolingClient.newCompositeModelRequest(OmniEclipseWorkspace)
-        request.addProject().projectDir(directoryProvider.testDirectory)
+        request.addParticipant(GradleBuildIdentifier.create().projectDir(directoryProvider.testDirectory))
 
         when:
         def eclipseWorkspace = request.executeAndWait()
@@ -106,8 +108,8 @@ class CompositeModelRequestTest extends Specification{
         def projectA = directoryProvider.createDir("a")
         def projectB = directoryProvider.createDir("b")
         def request = toolingClient.newCompositeModelRequest(OmniEclipseWorkspace)
-        request.addProject().projectDir(projectA)
-        request.addProject().projectDir(projectB)
+        request.addParticipant(GradleBuildIdentifier.create().projectDir(projectA))
+        request.addParticipant(GradleBuildIdentifier.create().projectDir(projectB))
 
         when:
         request.executeAndWait()

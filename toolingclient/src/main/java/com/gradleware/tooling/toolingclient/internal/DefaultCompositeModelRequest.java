@@ -16,42 +16,37 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
-import com.gradleware.tooling.toolingclient.ConnectionDescriptor;
+import com.gradleware.tooling.toolingclient.CompositeModelRequest;
 import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
 
 /**
  * Internal implementation of {@link CompositeModelRequest} API.
+ *
  * @author Stefan Oehme
  * @param <T> the result type
  */
-public class DefaultCompositeModelRequest<T> implements InspectableCompositeModelRequest<T> {
+public class DefaultCompositeModelRequest<T> extends BaseCompositeRequest<T, DefaultCompositeModelRequest<T>>implements InspectableCompositeModelRequest<T> {
 
-    private ExecutableToolingClient toolingClient;
+    private Class<T> modelType;
 
-    public DefaultCompositeModelRequest(ExecutableToolingClient toolingClient, Class<T> modelType) {
-        this.toolingClient = toolingClient;
-    }
-
-    @Override
-    public ConnectionDescriptor addProject() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public ConnectionDescriptor[] getProjects() {
-        // TODO Auto-generated method stub
-        return null;
+    DefaultCompositeModelRequest(ExecutableToolingClient toolingClient, Class<T> modelType) {
+        super(toolingClient);
+        this.modelType = modelType;
     }
 
     @Override
     public T executeAndWait() {
-        return this.toolingClient.executeAndWait(this);
+        return getToolingClient().executeAndWait(this);
     }
 
     @Override
     public LongRunningOperationPromise<T> execute() {
-        return this.toolingClient.execute(this);
+        return getToolingClient().execute(this);
+    }
+
+    @Override
+    DefaultCompositeModelRequest<T> getThis() {
+        return this;
     }
 
 }

@@ -13,23 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.gradleware.tooling.toolingclient.internal;
 
-import com.gradleware.tooling.toolingclient.TestLaunchRequest;
-import com.gradleware.tooling.toolingclient.TestConfig;
+import java.io.File;
+
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+import com.gradleware.tooling.toolingclient.SimpleRequest;
 
 /**
- * Internal interface that describes the configurable attributes of the test launch request.
- *
- * @author Donát Csikós
+ * @author Stefan Oehme
+ * @param <T> result type
  */
-public interface InspectableTestLaunchRequest extends InspectableSimpleRequest<Void>, TestLaunchRequest {
+public interface InspectableSimpleRequest<T> extends InspectableRequest<T>, SimpleRequest<T> {
+    File getProjectDir();
+
+    File getGradleUserHomeDir();
 
     /**
-     * @return never null, DefaultToolingClient requires a test configuration to execute the request
-     * @see DefaultToolingClient#mapToTestLauncher(InspectableTestLaunchRequest, org.gradle.tooling.ProjectConnection)
+     * @return never null, DefaultToolingClient requires a distribution to execute the request
+     * @see DefaultToolingClient#openConnection(com.gradleware.tooling.toolingclient.internal.InspectableRequest)
      */
-    TestConfig getTests();
+    GradleDistribution getGradleDistribution();
 
 }

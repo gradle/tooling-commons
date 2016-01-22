@@ -24,7 +24,7 @@ import com.gradleware.tooling.toolingclient.LaunchableConfig;
  *
  * @author Etienne Studer
  */
-interface InspectableBuildLaunchRequest extends InspectableRequest<Void>, BuildLaunchRequest {
+interface InspectableBuildLaunchRequest extends InspectableSimpleRequest<Void>, BuildLaunchRequest {
 
     /**
      * @return never null, DefaultToolingClient requires a launch configuration to execute the request

@@ -13,25 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.gradleware.tooling.toolingclient;
 
 import java.io.File;
 
 /**
- * Encapsulates the information required to connect to a Gradle project.
- *
  * @author Stefan Oehme
+ *
+ * @param <T> the result type
  */
-public interface ConnectionDescriptor {
-
+public interface SimpleRequest<T> extends Request<T> {
     /**
      * Specifies the working directory to use.
      *
      * @param projectDir the working directory
      * @return this
      */
-    ConnectionDescriptor projectDir(File projectDir);
+    Request<T> projectDir(File projectDir);
 
     /**
      * Specifies the user's Gradle home directory to use. Defaults to {@code ~/.gradle}.
@@ -39,7 +37,7 @@ public interface ConnectionDescriptor {
      * @param gradleUserHomeDir the user's Gradle home directory to use
      * @return this
      */
-    ConnectionDescriptor gradleUserHomeDir(File gradleUserHomeDir);
+    Request<T> gradleUserHomeDir(File gradleUserHomeDir);
 
     /**
      * Specifies the Gradle distribution to use. Defaults to a project-specific Gradle version.
@@ -47,5 +45,6 @@ public interface ConnectionDescriptor {
      * @param gradleDistribution the Gradle distribution to use
      * @return this
      */
-    ConnectionDescriptor gradleDistribution(GradleDistribution gradleDistribution);
+    Request<T> gradleDistribution(GradleDistribution gradleDistribution);
+
 }

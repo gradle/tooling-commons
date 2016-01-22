@@ -18,7 +18,6 @@ package com.gradleware.tooling.toolingclient.internal;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingclient.GradleDistribution;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
@@ -38,9 +37,6 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Insp
 
     private final ExecutableToolingClient toolingClient;
 
-    private File projectDir;
-    private File gradleUserHomeDir;
-    private GradleDistribution gradleDistribution;
     private boolean colorOutput;
     private OutputStream standardOutput;
     private OutputStream standardError;
@@ -54,7 +50,6 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Insp
 
     BaseRequest(ExecutableToolingClient toolingClient) {
         this.toolingClient = Preconditions.checkNotNull(toolingClient);
-        this.gradleDistribution = GradleDistribution.fromBuild();
         this.jvmArguments = ImmutableList.of();
         this.arguments = ImmutableList.of();
         this.progressListeners = ImmutableList.of();
@@ -66,38 +61,6 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Insp
         return this.toolingClient;
     }
 
-    @Override
-    public SELF projectDir(File projectDir) {
-        this.projectDir = projectDir;
-        return getThis();
-    }
-
-    @Override
-    public File getProjectDir() {
-        return this.projectDir;
-    }
-
-    @Override
-    public SELF gradleUserHomeDir(File gradleUserHomeDir) {
-        this.gradleUserHomeDir = gradleUserHomeDir;
-        return getThis();
-    }
-
-    @Override
-    public File getGradleUserHomeDir() {
-        return this.gradleUserHomeDir;
-    }
-
-    @Override
-    public SELF gradleDistribution(GradleDistribution gradleDistribution) {
-        this.gradleDistribution = Preconditions.checkNotNull(gradleDistribution);
-        return getThis();
-    }
-
-    @Override
-    public GradleDistribution getGradleDistribution() {
-        return this.gradleDistribution;
-    }
 
     @Override
     public SELF colorOutput(boolean colorOutput) {
@@ -222,9 +185,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Insp
     }
 
     <S, S_SELF extends BaseRequest<S, S_SELF>> S_SELF copy(BaseRequest<S, S_SELF> request) {
-        return request.projectDir(getProjectDir()).
-                gradleUserHomeDir(getGradleUserHomeDir()).
-                gradleDistribution(getGradleDistribution()).
+        return request.
                 colorOutput(isColorOutput()).
                 standardOutput(getStandardOutput()).
                 standardError(getStandardError()).
