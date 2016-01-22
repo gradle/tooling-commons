@@ -18,9 +18,11 @@ package com.gradleware.tooling.toolingclient.internal;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.gradle.internal.Factory;
 import org.gradle.jarjar.com.google.common.collect.Lists;
+import org.gradle.jarjar.com.google.common.collect.Sets;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildActionExecuter;
 import org.gradle.tooling.BuildLauncher;
@@ -33,6 +35,7 @@ import org.gradle.tooling.TestLauncher;
 import org.gradle.tooling.composite.CompositeBuildConnection;
 import org.gradle.tooling.composite.CompositeBuildConnector;
 import org.gradle.tooling.composite.CompositeParticipant;
+import org.gradle.tooling.composite.ModelResult;
 import org.gradle.tooling.internal.consumer.ConnectorServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -163,14 +166,19 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     }
 
     @Override
-    public <T> LongRunningOperationPromise<T> execute(InspectableCompositeModelRequest<T> modelRequest) {
+    public <T> LongRunningOperationPromise<Set<T>> execute(InspectableCompositeModelRequest<T> modelRequest) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> T executeAndWait(InspectableCompositeModelRequest<T> modelRequest) {
-        getOrCreateCompositeConnection(modelRequest);
-        throw new UnsupportedOperationException();
+    public <T> Set<T> executeAndWait(InspectableCompositeModelRequest<T> modelRequest) {
+        CompositeBuildConnection connection = getOrCreateCompositeConnection(modelRequest);
+        Set<ModelResult<T>> models = connection.getModels(modelRequest.getModelType());
+        Set<T> result = Sets.newHashSet();
+        for (ModelResult<T> modelResult : models) {
+            result.add(modelResult.getModel());
+        }
+        return result;
     }
 
     private ProjectConnection getProjectConnection(InspectableSimpleRequest<?> request) {
@@ -233,9 +241,13 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     }
 
     private CompositeBuildConnection openCompositeConnection(InspectableCompositeRequest<?> compositeRequest) {
+        if (compositeRequest.getParticipants().length != 1) {
+            throw new IllegalArgumentException("Only one root project per composite build is allowed at the moment.");
+        }
         CompositeBuildConnector builder = CompositeBuildConnector.newComposite();
         for (GradleBuildIdentifier identifier : compositeRequest.getParticipants()) {
             CompositeParticipant participant = builder.addParticipant(identifier.getProjectDir());
+            //TODO gradle user home
             identifier.getGradleDistribution().apply(participant);
         }
         return builder.connect();

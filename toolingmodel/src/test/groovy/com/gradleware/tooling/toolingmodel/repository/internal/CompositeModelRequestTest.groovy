@@ -16,9 +16,11 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal
 import com.gradleware.tooling.junit.TestDirectoryProvider
+import com.gradleware.tooling.toolingclient.CompositeModelRequest;
 import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
 import com.gradleware.tooling.toolingclient.ToolingClient
 import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace
+
 import groovy.transform.NotYetImplemented
 import org.gradle.tooling.model.GradleProject
 import org.gradle.tooling.model.eclipse.EclipseProject
@@ -36,10 +38,9 @@ class CompositeModelRequestTest extends Specification{
     TestDirectoryProvider directoryProvider = new TestDirectoryProvider("test-project");
 
 
-    @NotYetImplemented
     def "If no project identifier is set then the request throws IllegalArgumentException"() {
         setup:
-        def request = toolingClient.newCompositeModelRequest(OmniEclipseWorkspace)
+        def request = toolingClient.newCompositeModelRequest(EclipseProject)
 
         when:
         request.executeAndWait()
@@ -48,8 +49,7 @@ class CompositeModelRequestTest extends Specification{
         thrown(IllegalArgumentException)
     }
 
-    @NotYetImplemented
-    def "Querying an invalid model throws UnsupportedModelException"(){
+    def "Querying an invalid model throws IllegalArgumentException"(){
         setup:
         def request = toolingClient.newCompositeModelRequest(modelType)
 
@@ -57,29 +57,27 @@ class CompositeModelRequestTest extends Specification{
         request.executeAndWait()
 
         then:
-        thrown UnsupportedModelException
+        thrown IllegalArgumentException
 
         where:
-        modelType << [EclipseProject, GradleProject]
+        modelType << [GradleProject, String]
     }
 
-    @NotYetImplemented
-    def "Can query workspace model for a single-module project"() {
+    def "Can query project models for a single-module project"() {
         setup:
-        def request = toolingClient.newCompositeModelRequest(OmniEclipseWorkspace)
+        def request = toolingClient.newCompositeModelRequest(EclipseProject)
         directoryProvider.createFile("build.gradle")
         directoryProvider.createFile("settings.gradle") << "rootProject.name = 'root'"
-        request.participants(GradleBuildIdentifier.create().projectDir(directoryProvider.testDirectory))
+        request.participants(GradleBuildIdentifier.withProjectDir(directoryProvider.testDirectory))
 
         when:
-        def eclipseWorkspace = request.executeAndWait()
+        def projects = request.executeAndWait()
 
         then:
-        eclipseWorkspace.openEclipseProjects.size() == 1
-        eclipseWorkspace.openEclipseProjects[0].name == 'root'
+        projects.size() == 1
+        projects[0].name == 'root'
     }
 
-    @NotYetImplemented
     def "Can query workspace model for a multi-module project"() {
         setup:
         directoryProvider.createFile("build.gradle") << """
@@ -89,27 +87,26 @@ class CompositeModelRequestTest extends Specification{
             rootProject.name = 'root'
             include 'sub1', 'sub2'
         """
-        def request = toolingClient.newCompositeModelRequest(OmniEclipseWorkspace)
-        request.participants(GradleBuildIdentifier.create().projectDir(directoryProvider.testDirectory))
+        def request = toolingClient.newCompositeModelRequest(EclipseProject)
+        request.participants(GradleBuildIdentifier.withProjectDir(directoryProvider.testDirectory))
 
         when:
-        def eclipseWorkspace = request.executeAndWait()
+        def projects = request.executeAndWait()
 
         then:
-        eclipseWorkspace.openEclipseProjects.size() == 3
-        eclipseWorkspace.openEclipseProjects.find { it.name == 'root'}
-        eclipseWorkspace.openEclipseProjects.find { it.name == 'sub1'}
-        eclipseWorkspace.openEclipseProjects.find { it.name == 'sub2'}
+        projects.size() == 3
+        projects.find { it.name == 'root'}
+        projects.find { it.name == 'sub1'}
+        projects.find { it.name == 'sub2'}
     }
 
-    @NotYetImplemented
     def "Can't query workspace model if more than one root is specified"() {
         setup:
         def projectA = directoryProvider.createDir("a")
         def projectB = directoryProvider.createDir("b")
-        def request = toolingClient.newCompositeModelRequest(OmniEclipseWorkspace)
-        request.participants(GradleBuildIdentifier.create().projectDir(projectA))
-        request.participants(GradleBuildIdentifier.create().projectDir(projectB))
+        def request = toolingClient.newCompositeModelRequest(EclipseProject)
+        request.addParticipants(GradleBuildIdentifier.withProjectDir(projectA))
+        request.addParticipants(GradleBuildIdentifier.withProjectDir(projectB))
 
         when:
         request.executeAndWait()
@@ -117,7 +114,4 @@ class CompositeModelRequestTest extends Specification{
         then:
         thrown IllegalArgumentException
     }
-
-    // TODO (donat) this should be replaced with the real exception class
-    private class UnsupportedModelException extends Exception {}
 }

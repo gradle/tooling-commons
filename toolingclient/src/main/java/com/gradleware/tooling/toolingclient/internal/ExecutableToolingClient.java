@@ -16,6 +16,8 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
+import java.util.Set;
+
 import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
 
 /**
@@ -41,9 +43,9 @@ interface ExecutableToolingClient {
 
     LongRunningOperationPromise<Void> execute(InspectableTestLaunchRequest testLaunchRequest);
 
-    <T> T executeAndWait(InspectableCompositeModelRequest<T> modelRequest);
+    <T> Set<T> executeAndWait(InspectableCompositeModelRequest<T> modelRequest);
 
-    <T> LongRunningOperationPromise<T> execute(InspectableCompositeModelRequest<T> modelRequest);
+    <T> LongRunningOperationPromise<Set<T>> execute(InspectableCompositeModelRequest<T> modelRequest);
 
 
 }

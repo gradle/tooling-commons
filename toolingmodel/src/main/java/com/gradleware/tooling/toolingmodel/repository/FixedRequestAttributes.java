@@ -101,6 +101,7 @@ public final class FixedRequestAttributes {
         GradleBuildIdentifier participant = GradleBuildIdentifier.withProjectDir(this.projectDir)
                 .gradleUserHomeDir(this.gradleUserHome)
                 .gradleDistribution(this.gradleDistribution);
+        //TODO what about the other attributes? We may need to refactor this in the light of composite builds
         request.addParticipants(participant);
     }
 

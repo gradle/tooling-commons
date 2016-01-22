@@ -35,6 +35,7 @@ public final class GradleBuildIdentifier {
 
     private GradleBuildIdentifier(File projectDir) {
         this.projectDir = projectDir;
+        this.gradleDistribution = GradleDistribution.fromBuild();
     }
 
     public File getProjectDir() {

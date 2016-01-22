@@ -16,6 +16,8 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
+import java.util.Set;
+
 import com.gradleware.tooling.toolingclient.CompositeModelRequest;
 
 /**
@@ -26,7 +28,7 @@ import com.gradleware.tooling.toolingclient.CompositeModelRequest;
  *
  * @param <T> the result type
  */
-public interface InspectableCompositeModelRequest<T> extends CompositeModelRequest<T>, InspectableCompositeRequest<T> {
+public interface InspectableCompositeModelRequest<T> extends CompositeModelRequest<T>, InspectableCompositeRequest<Set<T>> {
 
     /**
      * @return never null, DefaultToolingClient requires a model type to execute the request

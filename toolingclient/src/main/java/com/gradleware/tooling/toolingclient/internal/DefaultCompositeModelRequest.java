@@ -16,6 +16,8 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
+import java.util.Set;
+
 import com.gradleware.tooling.toolingclient.CompositeModelRequest;
 import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
 
@@ -25,7 +27,7 @@ import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
  * @author Stefan Oehme
  * @param <T> the result type
  */
-public class DefaultCompositeModelRequest<T> extends BaseCompositeRequest<T, DefaultCompositeModelRequest<T>>implements InspectableCompositeModelRequest<T> {
+public class DefaultCompositeModelRequest<T> extends BaseCompositeRequest<Set<T>, DefaultCompositeModelRequest<T>>implements InspectableCompositeModelRequest<T> {
 
     private Class<T> modelType;
 
@@ -40,12 +42,12 @@ public class DefaultCompositeModelRequest<T> extends BaseCompositeRequest<T, Def
     }
 
     @Override
-    public T executeAndWait() {
+    public Set<T> executeAndWait() {
         return getToolingClient().executeAndWait(this);
     }
 
     @Override
-    public LongRunningOperationPromise<T> execute() {
+    public LongRunningOperationPromise<Set<T>> execute() {
         return getToolingClient().execute(this);
     }
 
