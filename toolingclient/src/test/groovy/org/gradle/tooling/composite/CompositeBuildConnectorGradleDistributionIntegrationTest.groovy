@@ -49,6 +49,9 @@ class CompositeBuildConnectorGradleDistributionIntegrationTest extends AbstractC
         assertNoProjectDependencies(modelResult.model)
         modelResult.project.projectDirectory == projectDir
 
+        cleanup:
+        compositeBuildConnection.close()
+
         where:
         version | configurer
         VERSION | { it.useDistribution(locator.getDistributionFor(GradleVersion.version(VERSION))) }

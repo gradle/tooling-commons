@@ -31,6 +31,9 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         then:
         compositeModel.size() == 1
         assertModelResult(compositeModel, 'project', projectDir, ExternalDependencies.COMMONS_LANG)
+
+        cleanup:
+        compositeBuildConnection.close()
     }
 
     def "can create composite with single, multi-project participating build"() {
@@ -57,6 +60,9 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         assertModelResult(compositeModel, 'sub-2', subProject2, ExternalDependencies.LOG4J)
         assertModelResult(compositeModel, 'a-1', subSubProject1, ExternalDependencies.COMMONS_MATH)
         assertModelResult(compositeModel, 'b-2', subSubProject2, ExternalDependencies.COMMONS_CODEC)
+
+        cleanup:
+        compositeBuildConnection.close()
     }
 
     def "can create composite with multiple, single-project participating builds"() {
@@ -74,6 +80,9 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         compositeModel.size() == 2
         assertModelResult(compositeModel, 'project-1', projectDir1, ExternalDependencies.COMMONS_LANG)
         assertModelResult(compositeModel, 'project-2', projectDir2, ExternalDependencies.LOG4J)
+
+        cleanup:
+        compositeBuildConnection.close()
     }
 
     def "can create composite with multiple, multi-project participating builds"() {
@@ -104,6 +113,9 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         assertModelResult(compositeModel, 'sub-2', sub2ProjectDir, ExternalDependencies.LOG4J)
         assertModelResult(compositeModel, 'sub-a', subAProjectDir, ExternalDependencies.COMMONS_MATH)
         assertModelResult(compositeModel, 'sub-b', subBProjectDir, ExternalDependencies.COMMONS_CODEC)
+
+        cleanup:
+        compositeBuildConnection.close()
     }
 
     private void assertModelResult(Set<ModelResult<EclipseProject>> compositeModel, String projectName, File projectDir,
