@@ -34,6 +34,11 @@ import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
+/**
+ * TODO add javadoc.
+ * 
+ * @author Stefan Oehme
+ */
 public class DefaultCompositeModelRepository extends BaseCachingSimpleModelRepository implements CompositeModelRepository {
 
     private ImmutableList<FixedRequestAttributes> requestAttributes;

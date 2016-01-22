@@ -13,12 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.gradle.tooling.composite.internal;
 
 import org.gradle.tooling.composite.ProjectIdentity;
 
 import java.io.File;
 
+/**
+ * TODO add javadoc.
+ * 
+ * @author Benjamin Muschko
+ */
 public class DefaultProjectIdentity implements ProjectIdentity {
     private final File projectDirectory;
 

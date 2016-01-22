@@ -18,11 +18,9 @@ package com.gradleware.tooling.toolingclient.internal;
 
 import java.util.Set;
 
-import com.gradleware.tooling.toolingclient.CompositeModelRequest;
 import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
 
 /**
- * Internal implementation of {@link CompositeModelRequest} API.
  *
  * @author Stefan Oehme
  * @param <T> the result type

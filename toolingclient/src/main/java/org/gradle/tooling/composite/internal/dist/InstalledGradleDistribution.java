@@ -13,11 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.gradle.tooling.composite.internal.dist;
 
 import java.io.File;
 
+/**
+ * TODO add javadoc.
+ * 
+ * @author Benjamin Muschko
+ */
 public class InstalledGradleDistribution implements GradleDistribution {
+
     private final File gradleHome;
 
     public InstalledGradleDistribution(File gradleHome) {

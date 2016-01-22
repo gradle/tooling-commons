@@ -36,7 +36,8 @@ public interface ModelRepositoryProvider {
      * Returns the {@code CompositeModelReqpository} for the given set
      * {@code FixedRequestAttributes}. For the same set of request attributes the same model
      * repository instance is returned each time.
-     *
+     * @param fixedRequestAttributes TODO add javadoc
+     * @return TODO add javadoc
      */
     CompositeModelRepository getCompositeModelRepository(FixedRequestAttributes... fixedRequestAttributes);
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.gradle.tooling.composite.internal;
 
 import org.gradle.tooling.composite.CompositeParticipant;
@@ -24,6 +25,11 @@ import org.gradle.tooling.composite.internal.dist.VersionBasedGradleDistribution
 import java.io.File;
 import java.net.URI;
 
+/**
+ * TODO add javadoc.
+ * 
+ * @author Benjamin Muschko
+ */
 public class DefaultCompositeParticipant implements CompositeParticipant {
     private final File rootProjectDirectory;
     private GradleDistribution gradleDistribution;

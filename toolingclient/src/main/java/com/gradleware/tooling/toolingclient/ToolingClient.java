@@ -89,6 +89,9 @@ public abstract class ToolingClient {
 
     /**
      * Creates a new composite model request. A composite model request is used to fetch a given composite model that is available through the Tooling API.
+     * @param <T> TODO add javadoc
+     * @param modelType TODO add javadoc
+     * @return TODO add javadoc
      */
     public abstract <T> CompositeModelRequest<T> newCompositeModelRequest(Class<T> modelType);
 

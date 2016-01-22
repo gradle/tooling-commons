@@ -13,10 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.gradle.tooling.composite;
 
 import java.io.File;
 
+/**
+ * TODO add javadoc.
+ * 
+ * @author Benjamin Muschko
+ */
 public interface CompositeParticipant extends GradleDistributionAware {
     File getRootProjectDirectory();
 }

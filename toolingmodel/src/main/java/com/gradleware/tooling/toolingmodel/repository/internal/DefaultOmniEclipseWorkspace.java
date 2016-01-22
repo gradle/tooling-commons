@@ -25,6 +25,11 @@ import com.google.common.base.Optional;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
 
+/**
+ * TODO add javadoc.
+ * 
+ * @author Stefan Oehme
+ */
 public class DefaultOmniEclipseWorkspace implements OmniEclipseWorkspace {
 
     private OmniEclipseProject rootProject;

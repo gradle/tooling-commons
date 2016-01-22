@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.gradle.tooling.composite.internal;
 
 import com.google.common.collect.Sets;
@@ -28,6 +29,11 @@ import org.gradle.util.CollectionUtils;
 import java.io.File;
 import java.util.Set;
 
+/**
+ * TODO add javadoc.
+ * 
+ * @author Benjamin Muschko
+ */
 public class DefaultCompositeBuildConnection implements CompositeBuildConnection {
     private final Set<ProjectConnection> participants;
 
@@ -112,6 +118,12 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
         }
     }
 
+    /**
+     * TODO add javadoc.
+     *  
+     * @author Benjamin Muschko
+     * @param <T> TODO add javadoc
+     */
     private static final class DefaultModelResult<T> implements ModelResult<T> {
         private final T model;
         private final ProjectIdentity projectIdentity;

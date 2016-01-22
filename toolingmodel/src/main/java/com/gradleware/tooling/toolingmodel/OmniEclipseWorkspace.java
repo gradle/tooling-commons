@@ -22,6 +22,11 @@ import org.gradle.api.specs.Spec;
 
 import com.google.common.base.Optional;
 
+/**
+ * TODO add javadoc.
+ * 
+ * @author Stefan Oehme
+ */
 public interface OmniEclipseWorkspace {
     List<OmniEclipseProject> getOpenEclipseProjects();
 

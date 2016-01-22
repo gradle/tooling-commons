@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.gradleware.tooling.toolingclient.internal;
 
 import java.io.File;
@@ -21,17 +22,19 @@ import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.SimpleRequest;
 
 /**
+ * TODO (donat) add javadoc.
+ * 
  * @author Stefan Oehme
  * @param <T> result type
  */
 public interface InspectableSimpleRequest<T> extends InspectableRequest<T>, SimpleRequest<T> {
+
     File getProjectDir();
 
     File getGradleUserHomeDir();
 
     /**
      * @return never null, DefaultToolingClient requires a distribution to execute the request
-     * @see DefaultToolingClient#openConnection(com.gradleware.tooling.toolingclient.internal.InspectableRequest)
      */
     GradleDistribution getGradleDistribution();
 

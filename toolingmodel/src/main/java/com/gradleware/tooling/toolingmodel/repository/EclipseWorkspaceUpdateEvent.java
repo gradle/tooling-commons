@@ -19,7 +19,9 @@ package com.gradleware.tooling.toolingmodel.repository;
 import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
 
 /**
- * Event that is broadcast when {@link OmniEclipseWorkspace} has been updated
+ * Event that is broadcast when {@link OmniEclipseWorkspace} has been updated.
+ * 
+ * @author Stefan Oehme
  */
 public final class EclipseWorkspaceUpdateEvent {
 

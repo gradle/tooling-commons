@@ -13,10 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.gradle.tooling.composite;
 
 import java.util.Set;
 
+/**
+ * TODO add javadoc.
+ * 
+ * @author Benjamin Muschko
+ */
 public interface CompositeBuildConnection {
     // Model methods to get model for all projects
     <T> Set<ModelResult<T>> getModels(Class<T> modelType);
