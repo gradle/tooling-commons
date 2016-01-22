@@ -31,7 +31,13 @@ abstract class BaseCompositeRequest<T, SELF extends BaseCompositeRequest<T, SELF
     }
 
     @Override
-    public CompositeRequest<T> addParticipant(GradleBuildIdentifier buildIdentifier) {
+    public CompositeRequest<T> participants(GradleBuildIdentifier... buildIdentifier) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public CompositeRequest<T> addParticipants(GradleBuildIdentifier... buildIdentifier) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -48,9 +54,7 @@ abstract class BaseCompositeRequest<T, SELF extends BaseCompositeRequest<T, SELF
         if (copy instanceof BaseSimpleRequest) {
             @SuppressWarnings("rawtypes")
             BaseCompositeRequest compositeRequest = (BaseCompositeRequest) request;
-            for (GradleBuildIdentifier buildIdentifier : getParticipants()) {
-                compositeRequest.addParticipant(buildIdentifier);
-            }
+            compositeRequest.participants(getParticipants());
         }
         return copy;
     }

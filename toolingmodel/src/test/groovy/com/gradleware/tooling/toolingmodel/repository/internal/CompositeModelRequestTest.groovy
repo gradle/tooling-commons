@@ -69,7 +69,7 @@ class CompositeModelRequestTest extends Specification{
         def request = toolingClient.newCompositeModelRequest(OmniEclipseWorkspace)
         directoryProvider.createFile("build.gradle")
         directoryProvider.createFile("settings.gradle") << "rootProject.name = 'root'"
-        request.addParticipant(GradleBuildIdentifier.create().projectDir(directoryProvider.testDirectory))
+        request.participants(GradleBuildIdentifier.create().projectDir(directoryProvider.testDirectory))
 
         when:
         def eclipseWorkspace = request.executeAndWait()
@@ -90,7 +90,7 @@ class CompositeModelRequestTest extends Specification{
             include 'sub1', 'sub2'
         """
         def request = toolingClient.newCompositeModelRequest(OmniEclipseWorkspace)
-        request.addParticipant(GradleBuildIdentifier.create().projectDir(directoryProvider.testDirectory))
+        request.participants(GradleBuildIdentifier.create().projectDir(directoryProvider.testDirectory))
 
         when:
         def eclipseWorkspace = request.executeAndWait()
@@ -108,8 +108,8 @@ class CompositeModelRequestTest extends Specification{
         def projectA = directoryProvider.createDir("a")
         def projectB = directoryProvider.createDir("b")
         def request = toolingClient.newCompositeModelRequest(OmniEclipseWorkspace)
-        request.addParticipant(GradleBuildIdentifier.create().projectDir(projectA))
-        request.addParticipant(GradleBuildIdentifier.create().projectDir(projectB))
+        request.participants(GradleBuildIdentifier.create().projectDir(projectA))
+        request.participants(GradleBuildIdentifier.create().projectDir(projectB))
 
         when:
         request.executeAndWait()

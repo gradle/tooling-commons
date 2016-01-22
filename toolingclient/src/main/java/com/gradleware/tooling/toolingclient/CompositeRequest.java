@@ -21,5 +21,6 @@ package com.gradleware.tooling.toolingclient;
  * @param <T> the result type
  */
 public interface CompositeRequest<T> extends Request<T> {
-    CompositeRequest<T> addParticipant(GradleBuildIdentifier buildIdentifier);
+    CompositeRequest<T> participants(GradleBuildIdentifier... buildIdentifier);
+    CompositeRequest<T> addParticipants(GradleBuildIdentifier... buildIdentifier);
 }
