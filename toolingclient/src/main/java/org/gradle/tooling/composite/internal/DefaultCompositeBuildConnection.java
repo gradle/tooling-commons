@@ -16,9 +16,9 @@
 
 package org.gradle.tooling.composite.internal;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.Sets;
 import org.gradle.api.Transformer;
-import org.gradle.jarjar.com.google.common.base.Throwables;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.composite.CompositeBuildConnection;
 import org.gradle.tooling.composite.ModelResult;
@@ -29,11 +29,6 @@ import org.gradle.util.CollectionUtils;
 import java.io.File;
 import java.util.Set;
 
-/**
- * TODO add javadoc.
- * 
- * @author Benjamin Muschko
- */
 public class DefaultCompositeBuildConnection implements CompositeBuildConnection {
     private final Set<ProjectConnection> participants;
 
@@ -61,7 +56,7 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
     @Override
     public void close() {
         Throwable failure = null;
-        for (ProjectConnection projectConnection : this.participants) {
+        for (ProjectConnection projectConnection : participants) {
             try {
                 projectConnection.close();
             } catch (Exception e) {
@@ -118,12 +113,6 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
         }
     }
 
-    /**
-     * TODO add javadoc.
-     *  
-     * @author Benjamin Muschko
-     * @param <T> TODO add javadoc
-     */
     private static final class DefaultModelResult<T> implements ModelResult<T> {
         private final T model;
         private final ProjectIdentity projectIdentity;
@@ -135,12 +124,12 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
 
         @Override
         public T getModel() {
-            return this.model;
+            return model;
         }
 
         @Override
         public ProjectIdentity getProject() {
-            return this.projectIdentity;
+            return projectIdentity;
         }
     }
 }
