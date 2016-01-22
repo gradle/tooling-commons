@@ -17,6 +17,7 @@ package org.gradle.tooling.composite.internal;
 
 import com.google.common.collect.Sets;
 import org.gradle.api.Transformer;
+import org.gradle.jarjar.com.google.common.base.Throwables;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.composite.CompositeBuildConnection;
 import org.gradle.tooling.composite.ModelResult;
@@ -51,6 +52,23 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
         return toModelResults(getEclipseProjects());
     }
 
+    @Override
+    public void close() {
+        Throwable failure = null;
+        for (ProjectConnection projectConnection : this.participants) {
+            try {
+                projectConnection.close();
+            } catch (Exception e) {
+                if (failure == null) {
+                    failure = e;
+                }
+            }
+        }
+        if (failure != null) {
+            Throwables.propagate(failure);
+        }
+    }
+
     private <T> Set<ModelResult<T>> toModelResults(Set<EclipseProject> eclipseProjects) {
         return CollectionUtils.collect(eclipseProjects, new Transformer<ModelResult<T>, EclipseProject>() {
             @SuppressWarnings("unchecked")
@@ -66,19 +84,13 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
         Set<File> processedBuilds = Sets.newLinkedHashSet();
         Set<EclipseProject> eclipseProjects = Sets.newLinkedHashSet();
 
-        try {
-            for (ProjectConnection participant : this.participants) {
-                EclipseProject rootProject = determineRootProject(participant.getModel(EclipseProject.class));
+        for (ProjectConnection participant : this.participants) {
+            EclipseProject rootProject = determineRootProject(participant.getModel(EclipseProject.class));
 
-                // Only collect the root project once
-                File rootProjectDirectory = rootProject.getGradleProject().getProjectDirectory();
-                if (processedBuilds.add(rootProjectDirectory)) {
-                    addWithChildren(rootProject, eclipseProjects);
-                }
-            }
-        } finally {
-            for (ProjectConnection participant : this.participants) {
-                participant.close();
+            // Only collect the root project once
+            File rootProjectDirectory = rootProject.getGradleProject().getProjectDirectory();
+            if (processedBuilds.add(rootProjectDirectory)) {
+                addWithChildren(rootProject, eclipseProjects);
             }
         }
 

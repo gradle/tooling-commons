@@ -16,9 +16,11 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
+import java.util.List;
 import java.util.Map;
 
 import org.gradle.internal.Factory;
+import org.gradle.jarjar.com.google.common.collect.Lists;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildActionExecuter;
 import org.gradle.tooling.BuildLauncher;
@@ -28,6 +30,7 @@ import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.TestLauncher;
+import org.gradle.tooling.composite.CompositeBuildConnection;
 import org.gradle.tooling.composite.CompositeBuildConnector;
 import org.gradle.tooling.composite.CompositeParticipant;
 import org.gradle.tooling.internal.consumer.ConnectorServices;
@@ -60,6 +63,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
 
     private final Factory<GradleConnector> connectorFactory;
     private final Map<Integer, ProjectConnection> connections;
+    private final Map<Integer, CompositeBuildConnection> compositeConnections;
 
     public DefaultToolingClient() {
         this(DefaultGradleConnectorFactory.INSTANCE);
@@ -68,6 +72,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     public DefaultToolingClient(Factory<GradleConnector> connectorFactory) {
         this.connectorFactory = connectorFactory;
         this.connections = Maps.newHashMap();
+        this.compositeConnections = Maps.newHashMap();
     }
 
     @Override
@@ -164,12 +169,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
 
     @Override
     public <T> T executeAndWait(InspectableCompositeModelRequest<T> modelRequest) {
-        CompositeBuildConnector builder = CompositeBuildConnector.newComposite();
-        for (GradleBuildIdentifier identifier : modelRequest.getParticipants()) {
-            CompositeParticipant participant = builder.addParticipant(identifier.getProjectDir());
-            identifier.getGradleDistribution().apply(participant);
-        }
-        builder.connect();
+        getOrCreateCompositeConnection(modelRequest);
         throw new UnsupportedOperationException();
     }
 
@@ -192,11 +192,36 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         return connection;
     }
 
+
+    private CompositeBuildConnection getOrCreateCompositeConnection(InspectableCompositeRequest<?> compositeRequest) {
+        CompositeBuildConnection connection;
+        int connectionKey = calculateCompositeConnectionKey(compositeRequest);
+        synchronized (this.compositeConnections) {
+            if (!this.compositeConnections.containsKey(connectionKey)) {
+                connection = openCompositeConnection(compositeRequest);
+                this.compositeConnections.put(connectionKey, connection);
+            } else {
+                connection = this.compositeConnections.get(connectionKey);
+            }
+        }
+        return connection;
+    }
+
     private int calculateConnectionKey(InspectableSimpleRequest<?> modelRequest) {
         return Objects.hashCode(
                 modelRequest.getProjectDir(),
                 modelRequest.getGradleUserHomeDir(),
                 modelRequest.getGradleDistribution());
+    }
+
+    private int calculateCompositeConnectionKey(InspectableCompositeRequest<?> compositeRequest) {
+        List<Object> connectionProperties = Lists.newArrayList();
+        for (GradleBuildIdentifier identifier : compositeRequest.getParticipants()) {
+            connectionProperties.add(identifier.getProjectDir());
+            connectionProperties.add(identifier.getGradleUserHomeDir());
+            connectionProperties.add(identifier.getGradleDistribution());
+        }
+        return connectionProperties.hashCode();
     }
 
     private ProjectConnection openConnection(InspectableSimpleRequest<?> modelRequest) {
@@ -205,6 +230,15 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         connector.useGradleUserHomeDir(modelRequest.getGradleUserHomeDir());
         modelRequest.getGradleDistribution().apply(connector);
         return connector.connect();
+    }
+
+    private CompositeBuildConnection openCompositeConnection(InspectableCompositeRequest<?> compositeRequest) {
+        CompositeBuildConnector builder = CompositeBuildConnector.newComposite();
+        for (GradleBuildIdentifier identifier : compositeRequest.getParticipants()) {
+            CompositeParticipant participant = builder.addParticipant(identifier.getProjectDir());
+            identifier.getGradleDistribution().apply(participant);
+        }
+        return builder.connect();
     }
 
     private <T> ModelBuilder<T> mapToModelBuilder(InspectableModelRequest<T> modelRequest, ProjectConnection connection) {
@@ -265,6 +299,15 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         // todo (etst) do not allow new connections once shutdown is in process
         synchronized (this.connections) {
             for (ProjectConnection connection : this.connections.values()) {
+                try {
+                    connection.close();
+                } catch (Exception e) {
+                    LOG.error("Error closing the connection: " + e.getMessage(), e);
+                }
+            }
+        }
+        synchronized (this.compositeConnections) {
+            for (CompositeBuildConnection connection : this.compositeConnections.values()) {
                 try {
                     connection.close();
                 } catch (Exception e) {

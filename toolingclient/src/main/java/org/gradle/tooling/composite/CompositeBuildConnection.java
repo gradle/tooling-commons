@@ -20,4 +20,6 @@ import java.util.Set;
 public interface CompositeBuildConnection {
     // Model methods to get model for all projects
     <T> Set<ModelResult<T>> getModels(Class<T> modelType);
+
+    void close();
 }
