@@ -29,6 +29,21 @@ class CompositeBuildConnectorGradleDistributionIntegrationTest extends AbstractC
     @Shared
     DistributionLocator locator = new DistributionLocator()
 
+    def "cannot set Gradle distribution and Gradle user home for composite"(Action<CompositeParticipant> configurer) {
+        when:
+        CompositeBuildConnector compositeBuildConnector = CompositeBuildConnector.newComposite()
+        configurer.execute(compositeBuildConnector)
+
+        then:
+        thrown(UnsupportedOperationException)
+
+        where:
+        configurer << [{ it.useInstallation(new File('.')) },
+                       { it.useGradleVersion(VERSION) },
+                       { it.useDistribution(new URI('http://www.google.com')) },
+                       { it.useGradleUserHomeDir(new File('.')) }]
+    }
+
     def "can create composite with participating project using different distribution types"(String version, Action<CompositeParticipant> configurer) {
         given:
         File projectDir = directoryProvider.createDir('project')
