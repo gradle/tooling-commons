@@ -16,7 +16,7 @@ if (!project.hasProperty('build.type') || project.property('build.type') != 'rel
   if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
     // in case of CI builds, add the full date and time to the version timestamp
     version = version + '-' + new SimpleDateFormat("yyyyMMddkkmmssZ").format(new Date())
-    bundleVersion = bundleVersion + '.v' + new SimpleDateFormat("yyyyMMddkkmmssZ").format(new Date())
+    bundleVersion = bundleVersion + '.v' + new SimpleDateFormat("yyyyMMddkkmm").format(new Date())
   } else {
     // in case of local builds, do not add the time to the version timestamp to ensure incremental updates apply when building locally
     version = version + '-' + new SimpleDateFormat("yyyyMMdd").format(new Date())
