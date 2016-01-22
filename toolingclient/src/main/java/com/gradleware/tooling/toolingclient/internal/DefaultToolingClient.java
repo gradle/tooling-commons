@@ -29,6 +29,7 @@ import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.TestLauncher;
 import org.gradle.tooling.composite.CompositeBuildConnector;
+import org.gradle.tooling.composite.CompositeParticipant;
 import org.gradle.tooling.internal.consumer.ConnectorServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,8 +165,9 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     @Override
     public <T> T executeAndWait(InspectableCompositeModelRequest<T> modelRequest) {
         CompositeBuildConnector builder = CompositeBuildConnector.newComposite();
-        for (GradleBuildIdentifier participant : modelRequest.getParticipants()) {
-            builder.addParticipant(participant.getProjectDir());
+        for (GradleBuildIdentifier identifier : modelRequest.getParticipants()) {
+            CompositeParticipant participant = builder.addParticipant(identifier.getProjectDir());
+            identifier.getGradleDistribution().apply(participant);
         }
         builder.connect();
         throw new UnsupportedOperationException();

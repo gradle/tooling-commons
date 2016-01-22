@@ -19,6 +19,7 @@ package com.gradleware.tooling.toolingclient;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import org.gradle.tooling.GradleConnector;
+import org.gradle.tooling.composite.GradleDistributionAware;
 
 import java.io.File;
 import java.net.URI;
@@ -70,6 +71,22 @@ public final class GradleDistribution {
             connector.useGradleVersion(this.version);
         } else {
             connector.useBuildDistribution();
+        }
+    }
+
+    /**
+     * Configures the specified connector with this distribution.
+     *
+     * @param connector the connector to configure
+     */
+    public void apply(GradleDistributionAware connector) {
+        Preconditions.checkNotNull(connector);
+        if (this.localInstallationDir != null) {
+            connector.useInstallation(this.localInstallationDir);
+        } else if (this.remoteDistributionUri != null) {
+            connector.useDistribution(this.remoteDistributionUri);
+        } else if (this.version != null) {
+            connector.useGradleVersion(this.version);
         }
     }
 
