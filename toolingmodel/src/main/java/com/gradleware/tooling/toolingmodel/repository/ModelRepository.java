@@ -23,26 +23,11 @@ import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 
 /**
- * Repository for Gradle build models. Listeners can be registered to get notified about model updates. It is left to the implementation through which channel the events are
- * broadcast.
+ * Repository for Gradle build models.
  *
  * @author Etienne Studer
  */
-public interface ModelRepository {
-
-    /**
-     * Registers the given {@code listener} to receive model change events.
-     *
-     * @param listener listener to subscribe to receiving events
-     */
-    void register(Object listener);
-
-    /**
-     * Unregisters the given {@code listener} from receiving model change events.
-     *
-     * @param listener listener to unsubscribe from receiving events
-     */
-    void unregister(Object listener);
+public interface ModelRepository extends SimpleModelRepository {
 
     /**
      * Fetches the {@link OmniBuildEnvironment} synchronously and broadcasts it through a {@link BuildEnvironmentUpdateEvent}.

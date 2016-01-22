@@ -37,7 +37,7 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
 
   FixedRequestAttributes fixedRequestAttributes
   TransientRequestAttributes transientRequestAttributes
-  DefaultModelRepository repository
+  BaseCachingSimpleModelRepository repository
 
   def setup() {
     // Gradle projects for testing

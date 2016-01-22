@@ -18,14 +18,10 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.google.common.eventbus.EventBus;
-import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.gradleware.tooling.toolingclient.BuildActionRequest;
 import com.gradleware.tooling.toolingclient.Consumer;
 import com.gradleware.tooling.toolingclient.ModelRequest;
-import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingclient.ToolingClient;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniBuildInvocationsContainer;
@@ -53,9 +49,6 @@ import org.gradle.tooling.model.gradle.GradleBuild;
 import org.gradle.util.GradleVersion;
 
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Repository for Gradle build models. Model updates are broadcast via Google Guava's {@link EventBus}.
@@ -64,12 +57,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @author Etienne Studer
  */
-public final class DefaultModelRepository implements ModelRepository {
+public final class DefaultModelRepository extends BaseCachingSimpleModelRepository implements ModelRepository {
 
     private final FixedRequestAttributes fixedRequestAttributes;
-    private final ToolingClient toolingClient;
-    private final EventBus eventBus;
-    private final Cache<Class<?>, Object> cache;
     private final Environment environment;
 
     public DefaultModelRepository(FixedRequestAttributes fixedRequestAttributes, ToolingClient toolingClient, EventBus eventBus) {
@@ -77,37 +67,9 @@ public final class DefaultModelRepository implements ModelRepository {
     }
 
     public DefaultModelRepository(FixedRequestAttributes fixedRequestAttributes, ToolingClient toolingClient, EventBus eventBus, Environment environment) {
+        super(toolingClient, eventBus);
         this.fixedRequestAttributes = Preconditions.checkNotNull(fixedRequestAttributes);
-        this.toolingClient = Preconditions.checkNotNull(toolingClient);
-        this.eventBus = Preconditions.checkNotNull(eventBus);
-        this.cache = CacheBuilder.newBuilder().build();
         this.environment = environment;
-    }
-
-    /**
-     * Registers all subscriber methods on {@code listener} to receive model change events.
-     *
-     * @param listener object whose subscriber methods should be registered
-     * @see com.google.common.eventbus.EventBus#register(Object)
-     */
-    @Override
-    public void register(Object listener) {
-        Preconditions.checkNotNull(listener);
-
-        this.eventBus.register(listener);
-    }
-
-    /**
-     * Unregisters all subscriber methods on a registered {@code listener} from receiving model change events.
-     *
-     * @param listener object whose subscriber methods should be unregistered
-     * @see com.google.common.eventbus.EventBus#unregister(Object)
-     */
-    @Override
-    public void unregister(Object listener) {
-        Preconditions.checkNotNull(listener);
-
-        this.eventBus.unregister(listener);
     }
 
     /*
@@ -123,7 +85,7 @@ public final class DefaultModelRepository implements ModelRepository {
 
             @Override
             public void accept(OmniBuildEnvironment result) {
-                DefaultModelRepository.this.eventBus.post(new BuildEnvironmentUpdateEvent(result));
+                postEvent(new BuildEnvironmentUpdateEvent(result));
             }
         };
         Converter<BuildEnvironment, OmniBuildEnvironment> converter = new BaseConverter<BuildEnvironment, OmniBuildEnvironment>() {
@@ -153,7 +115,7 @@ public final class DefaultModelRepository implements ModelRepository {
         Consumer<OmniGradleBuildStructure> successHandler = new Consumer<OmniGradleBuildStructure>() {
             @Override
             public void accept(OmniGradleBuildStructure result) {
-                DefaultModelRepository.this.eventBus.post(new GradleBuildStructureUpdateEvent(result));
+                postEvent(new GradleBuildStructureUpdateEvent(result));
             }
         };
         Converter<GradleBuild, OmniGradleBuildStructure> converter = new BaseConverter<GradleBuild, OmniGradleBuildStructure>() {
@@ -183,7 +145,7 @@ public final class DefaultModelRepository implements ModelRepository {
         Consumer<OmniGradleBuild> successHandler = new Consumer<OmniGradleBuild>() {
             @Override
             public void accept(OmniGradleBuild result) {
-                DefaultModelRepository.this.eventBus.post(new GradleBuildUpdateEvent(result));
+                postEvent(new GradleBuildUpdateEvent(result));
             }
         };
         Converter<GradleProject, OmniGradleBuild> converter = new BaseConverter<GradleProject, OmniGradleBuild>() {
@@ -212,7 +174,7 @@ public final class DefaultModelRepository implements ModelRepository {
         Consumer<OmniEclipseGradleBuild> successHandler = new Consumer<OmniEclipseGradleBuild>() {
             @Override
             public void accept(OmniEclipseGradleBuild result) {
-                DefaultModelRepository.this.eventBus.post(new EclipseGradleBuildUpdateEvent(result));
+                postEvent(new EclipseGradleBuildUpdateEvent(result));
             }
         };
         Converter<EclipseProject, OmniEclipseGradleBuild> converter = new BaseConverter<EclipseProject, OmniEclipseGradleBuild>() {
@@ -246,7 +208,7 @@ public final class DefaultModelRepository implements ModelRepository {
             Consumer<OmniBuildInvocationsContainer> successHandler = new Consumer<OmniBuildInvocationsContainer>() {
                 @Override
                 public void accept(OmniBuildInvocationsContainer result) {
-                    DefaultModelRepository.this.eventBus.post(new BuildInvocationsUpdateEvent(result));
+                    postEvent(new BuildInvocationsUpdateEvent(result));
                 }
             };
             Converter<OmniBuildInvocationsContainer, OmniBuildInvocationsContainer> converter = Converter.identity();
@@ -257,7 +219,7 @@ public final class DefaultModelRepository implements ModelRepository {
         Consumer<OmniBuildInvocationsContainer> successHandler = new Consumer<OmniBuildInvocationsContainer>() {
             @Override
             public void accept(OmniBuildInvocationsContainer result) {
-                DefaultModelRepository.this.eventBus.post(new BuildInvocationsUpdateEvent(result));
+                postEvent(new BuildInvocationsUpdateEvent(result));
             }
         };
         Converter<Map<String, BuildInvocations>, OmniBuildInvocationsContainer> converter = new BaseConverter<Map<String, BuildInvocations>, OmniBuildInvocationsContainer>() {
@@ -322,76 +284,9 @@ public final class DefaultModelRepository implements ModelRepository {
         return gradleVersion.getBaseVersion().compareTo(GradleVersion.version(refVersion)) >= 0;
     }
 
-    private <T, U> U executeRequest(final Request<T> request, final Consumer<U> newCacheEntryHandler, FetchStrategy fetchStrategy, Class<U> cacheKey, final Converter<T, U> resultConverter) {
-        return executeRequest(new Supplier<T>() {
-            @Override
-            public T get() {
-                // issue the request (synchronously)
-                // it is assumed that the result returned by a model request or build action request is never null
-                return request.executeAndWait();
-            }
-        }, newCacheEntryHandler, fetchStrategy, cacheKey, resultConverter);
-    }
-
-    private <T, U> U executeRequest(final Supplier<T> operation, final Consumer<U> newCacheEntryHandler, FetchStrategy fetchStrategy, Class<U> cacheKey, final Converter<T, U> resultConverter) {
-        // if model is only accessed from the cache, we can return immediately
-        if (FetchStrategy.FROM_CACHE_ONLY == fetchStrategy) {
-            Object result = this.cache.getIfPresent(cacheKey);
-            return cacheKey.cast(result);
-        }
-
-        // if model must be reloaded, we can invalidate the cache entry and then proceed as for FetchStrategy.LOAD_IF_NOT_CACHED
-        if (FetchStrategy.FORCE_RELOAD == fetchStrategy) {
-            this.cache.invalidate(cacheKey);
-        }
-
-        // load the values from the cache iff not already cached
-        final AtomicBoolean modelLoaded = new AtomicBoolean(false);
-        U value = getFromCache(cacheKey, new Callable<U>() {
-            @Override
-            public U call() {
-                U model = executeAndWait(operation, resultConverter);
-                modelLoaded.set(true);
-                return model;
-            }
-        });
-
-        // if the model was not in the cache before, notify the callback about the new cache entry
-        if (modelLoaded.get()) {
-            newCacheEntryHandler.accept(value);
-        }
-
-        return value;
-    }
-
-    private <U> U getFromCache(Class<U> cacheKey, Callable<U> cacheValueLoader) {
-        try {
-            Object result = this.cache.get(cacheKey, cacheValueLoader);
-            return cacheKey.cast(result);
-        } catch (UncheckedExecutionException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof RuntimeException) {
-                throw (RuntimeException) cause;
-            } else {
-                throw new RuntimeException(cause);
-            }
-        } catch (ExecutionException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof RuntimeException) {
-                throw (RuntimeException) cause;
-            } else {
-                throw new RuntimeException(cause);
-            }
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
-        }
-    }
-
     private <T> ModelRequest<T> createModelRequestForBuildModel(Class<T> model, TransientRequestAttributes transientRequestAttributes) {
         // build the request
-        ModelRequest<T> request = this.toolingClient.newModelRequest(model);
+        ModelRequest<T> request = getToolingClient().newModelRequest(model);
         this.fixedRequestAttributes.apply(request);
         transientRequestAttributes.apply(request);
         return request;
@@ -400,25 +295,19 @@ public final class DefaultModelRepository implements ModelRepository {
     private <T> BuildActionRequest<Map<String, T>> createBuildActionRequestForProjectModel(Class<T> model, TransientRequestAttributes transientRequestAttributes) {
         // build the request
         ModelForAllProjectsBuildAction<T> buildAction = BuildActionFactory.getModelForAllProjects(model);
-        BuildActionRequest<Map<String, T>> request = this.toolingClient.newBuildActionRequest(buildAction);
+        BuildActionRequest<Map<String, T>> request = getToolingClient().newBuildActionRequest(buildAction);
         this.fixedRequestAttributes.apply(request);
         transientRequestAttributes.apply(request);
         return request;
     }
 
-    @SuppressWarnings("UnusedDeclaration")
+    @SuppressWarnings({ "UnusedDeclaration", "unused" })
     private <T> BuildActionRequest<T> createBuildActionRequestForBuildAction(BuildAction<T> buildAction, TransientRequestAttributes transientRequestAttributes) {
         // build the request
-        BuildActionRequest<T> request = this.toolingClient.newBuildActionRequest(buildAction);
+        BuildActionRequest<T> request = getToolingClient().newBuildActionRequest(buildAction);
         this.fixedRequestAttributes.apply(request);
         transientRequestAttributes.apply(request);
         return request;
-    }
-
-    private <T, U> U executeAndWait(Supplier<T> operation, Converter<T, U> resultConverter) {
-        // invoke the operation and convert the result
-        T result = operation.get();
-        return resultConverter.apply(result);
     }
 
 }

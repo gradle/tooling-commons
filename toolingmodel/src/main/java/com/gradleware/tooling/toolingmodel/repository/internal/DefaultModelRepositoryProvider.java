@@ -68,7 +68,7 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
 
     @Override
     public CompositeModelRepository getCompositeModelRepository(FixedRequestAttributes... fixedRequestAttributes) {
-        return new DefaultCompositeModelRepository(Arrays.asList(fixedRequestAttributes), this.toolingClient, this.environment);
+        return new DefaultCompositeModelRepository(Arrays.asList(fixedRequestAttributes), this.toolingClient, eventBusFactory.create());
     }
 
     private ModelRepository getOrCreateModelRepository(FixedRequestAttributes fixedRequestAttributes) {
