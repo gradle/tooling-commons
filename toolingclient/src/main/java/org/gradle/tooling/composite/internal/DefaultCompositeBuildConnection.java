@@ -80,7 +80,7 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
             @SuppressWarnings("unchecked")
             @Override
             public ModelResult<T> transform(EclipseProject eclipseProject) {
-                ProjectIdentity projectIdentity = new DefaultProjectIdentity(eclipseProject.getGradleProject().getProjectDirectory());
+                ProjectIdentity projectIdentity = new DefaultProjectIdentity(eclipseProject.getProjectDirectory());
                 return new DefaultModelResult<T>((T) eclipseProject, projectIdentity);
             }
         });
@@ -94,7 +94,7 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
             EclipseProject rootProject = determineRootProject(participant.getModel(EclipseProject.class));
 
             // Only collect the root project once
-            File rootProjectDirectory = rootProject.getGradleProject().getProjectDirectory();
+            File rootProjectDirectory = rootProject.getProjectDirectory();
             if (processedBuilds.add(rootProjectDirectory)) {
                 addWithChildren(rootProject, eclipseProjects);
             }

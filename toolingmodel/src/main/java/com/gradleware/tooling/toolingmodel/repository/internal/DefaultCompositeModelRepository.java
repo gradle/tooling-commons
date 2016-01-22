@@ -17,6 +17,7 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import java.util.List;
+import java.util.Set;
 
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
@@ -24,8 +25,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 
+import com.gradleware.tooling.toolingclient.CompositeModelRequest;
 import com.gradleware.tooling.toolingclient.Consumer;
-import com.gradleware.tooling.toolingclient.ModelRequest;
 import com.gradleware.tooling.toolingclient.ToolingClient;
 import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
 import com.gradleware.tooling.toolingmodel.repository.CompositeModelRepository;
@@ -51,7 +52,7 @@ public class DefaultCompositeModelRepository extends BaseCachingSimpleModelRepos
 
     @Override
     public OmniEclipseWorkspace fetchEclipseWorkspace(TransientRequestAttributes transientAttributes, FetchStrategy fetchStrategy) {
-        ModelRequest<EclipseProject> modelRequest = createModelRequest(EclipseProject.class, this.requestAttributes.get(0), transientAttributes);
+        CompositeModelRequest<EclipseProject> modelRequest = createModelRequest(EclipseProject.class, this.requestAttributes.get(0), transientAttributes);
         Consumer<OmniEclipseWorkspace> successHandler = new Consumer<OmniEclipseWorkspace>() {
 
             @Override
@@ -59,18 +60,18 @@ public class DefaultCompositeModelRepository extends BaseCachingSimpleModelRepos
                 postEvent(new EclipseWorkspaceUpdateEvent(result));
             }
         };
-        Converter<EclipseProject, OmniEclipseWorkspace> converter = new BaseConverter<EclipseProject, OmniEclipseWorkspace>() {
+        Converter<Set<EclipseProject>, OmniEclipseWorkspace> converter = new BaseConverter<Set<EclipseProject>, OmniEclipseWorkspace>() {
 
             @Override
-            public OmniEclipseWorkspace apply(EclipseProject eclipseProject) {
-                return DefaultOmniEclipseWorkspace.from(DefaultOmniEclipseProject.from(eclipseProject, false));
+            public OmniEclipseWorkspace apply(Set<EclipseProject> eclipseProjects) {
+                return DefaultOmniEclipseWorkspace.from(eclipseProjects, false);
             }
         };
         return executeRequest(modelRequest, successHandler, fetchStrategy, OmniEclipseWorkspace.class, converter);
     }
 
-    private <T> ModelRequest<T> createModelRequest(Class<T> model, FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientAttributes) {
-        ModelRequest<T> request = getToolingClient().newModelRequest(model);
+    private <T> CompositeModelRequest<T> createModelRequest(Class<T> model, FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientAttributes) {
+        CompositeModelRequest<T> request = getToolingClient().newCompositeModelRequest(model);
         fixedAttributes.apply(request);
         transientAttributes.apply(request);
         return request;

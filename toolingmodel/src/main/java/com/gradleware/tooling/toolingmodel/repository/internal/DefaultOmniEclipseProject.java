@@ -22,6 +22,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
+
 import com.gradleware.tooling.toolingmodel.OmniEclipseBuildCommand;
 import com.gradleware.tooling.toolingmodel.OmniEclipseLinkedResource;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
@@ -47,6 +49,7 @@ import org.gradle.tooling.model.eclipse.EclipseSourceDirectory;
 import java.io.File;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Default implementation of the {@link OmniEclipseProject} interface.
@@ -229,7 +232,16 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     }
 
     public static DefaultOmniEclipseProject from(EclipseProject project, boolean enforceAllTasksPublic) {
+        return from(project, enforceAllTasksPublic, Maps.<EclipseProject, DefaultOmniEclipseProject>newHashMap());
+    }
+
+    private static DefaultOmniEclipseProject from(EclipseProject project, boolean enforceAllTasksPublic, Map<EclipseProject, DefaultOmniEclipseProject> cache) {
+        if (cache.containsKey(project)) {
+            return cache.get(project);
+        }
         DefaultOmniEclipseProject eclipseProject = new DefaultOmniEclipseProject(OmniEclipseProjectComparator.INSTANCE);
+        cache.put(project, eclipseProject);
+
         eclipseProject.setName(project.getName());
         eclipseProject.setDescription(project.getDescription());
         eclipseProject.setPath(Path.from(project.getGradleProject().getPath()));
@@ -239,12 +251,15 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         eclipseProject.setLinkedResources(toLinkedResources(project.getLinkedResources()));
         eclipseProject.setSourceDirectories(toSourceDirectories(project.getSourceDirectories()));
         eclipseProject.setGradleProject(DefaultOmniGradleProject.from(project.getGradleProject(), enforceAllTasksPublic));
+        if (project.getParent() != null) {
+            eclipseProject.setParent(from(project.getParent(), enforceAllTasksPublic, cache));
+        }
         setProjectNatures(eclipseProject, project);
         setBuildCommands(eclipseProject, project);
         setJavaSourceSettings(eclipseProject, project);
 
         for (EclipseProject child : project.getChildren()) {
-            DefaultOmniEclipseProject eclipseChildProject = from(child, enforceAllTasksPublic);
+            DefaultOmniEclipseProject eclipseChildProject = from(child, enforceAllTasksPublic, cache);
             eclipseProject.addChild(eclipseChildProject);
         }
 

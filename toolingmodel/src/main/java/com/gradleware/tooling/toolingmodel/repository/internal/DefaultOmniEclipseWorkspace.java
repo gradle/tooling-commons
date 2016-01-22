@@ -17,10 +17,17 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import java.util.List;
+import java.util.Set;
 
 import org.gradle.api.specs.Spec;
+import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
@@ -32,28 +39,42 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
  */
 public class DefaultOmniEclipseWorkspace implements OmniEclipseWorkspace {
 
-    private OmniEclipseProject rootProject;
+    private ImmutableList<OmniEclipseProject> eclipseProjects;
 
-    private DefaultOmniEclipseWorkspace(OmniEclipseProject rootProject) {
-        this.rootProject = rootProject;
+    private DefaultOmniEclipseWorkspace(List<OmniEclipseProject> eclipseProjects) {
+        this.eclipseProjects = ImmutableList.copyOf(eclipseProjects);
     }
 
     @Override
     public List<OmniEclipseProject> getOpenEclipseProjects() {
-        return this.rootProject.getAll();
+        return this.eclipseProjects;
     }
 
     @Override
     public Optional<OmniEclipseProject> tryFind(Spec<? super OmniEclipseProject> predicate) {
-        return this.rootProject.tryFind(predicate);
+        return Iterables.tryFind(this.eclipseProjects, toPredicate(predicate));
     }
 
     @Override
     public List<OmniEclipseProject> filter(Spec<? super OmniEclipseProject> predicate) {
-        return this.rootProject.filter(predicate);
+        return FluentIterable.from(this.eclipseProjects).filter(toPredicate(predicate)).toList();
     }
 
-    public static OmniEclipseWorkspace from(OmniEclipseProject rootProject) {
-        return new DefaultOmniEclipseWorkspace(rootProject);
+    private <T> Predicate<? super T> toPredicate(final Spec<? super T> spec) {
+        return new Predicate<T>() {
+            @Override
+            public boolean apply(T input) {
+                return spec.isSatisfiedBy(input);
+            }
+        };
     }
+
+    public static OmniEclipseWorkspace from(Set<EclipseProject> eclipseProjects, boolean enforceAllTasksPublic) {
+        List<OmniEclipseProject> omniEclipseProjects = Lists.newArrayList();
+        for (EclipseProject eclipseProject : eclipseProjects) {
+            omniEclipseProjects.add(DefaultOmniEclipseProject.from(eclipseProject, enforceAllTasksPublic));
+        }
+        return new DefaultOmniEclipseWorkspace(omniEclipseProjects);
+    }
+
 }
