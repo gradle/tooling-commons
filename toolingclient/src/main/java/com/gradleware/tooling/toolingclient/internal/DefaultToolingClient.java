@@ -16,18 +16,8 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import com.gradleware.tooling.toolingclient.BuildActionRequest;
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-import com.gradleware.tooling.toolingclient.CompositeModelRequest;
-import com.gradleware.tooling.toolingclient.LaunchableConfig;
-import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
-import com.gradleware.tooling.toolingclient.ModelRequest;
-import com.gradleware.tooling.toolingclient.TestLaunchRequest;
-import com.gradleware.tooling.toolingclient.TestConfig;
-import com.gradleware.tooling.toolingclient.ToolingClient;
+import java.util.Map;
+
 import org.gradle.internal.Factory;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildActionExecuter;
@@ -43,7 +33,20 @@ import org.gradle.tooling.internal.consumer.ConnectorServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+
+import com.gradleware.tooling.toolingclient.BuildActionRequest;
+import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
+import com.gradleware.tooling.toolingclient.CompositeModelRequest;
+import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
+import com.gradleware.tooling.toolingclient.LaunchableConfig;
+import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
+import com.gradleware.tooling.toolingclient.ModelRequest;
+import com.gradleware.tooling.toolingclient.TestConfig;
+import com.gradleware.tooling.toolingclient.TestLaunchRequest;
+import com.gradleware.tooling.toolingclient.ToolingClient;
 
 /**
  * Internal implementation of the {@link ToolingClient} API.
@@ -161,7 +164,10 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     @Override
     public <T> T executeAndWait(InspectableCompositeModelRequest<T> modelRequest) {
         CompositeBuildConnector builder = CompositeBuildConnector.newComposite();
-
+        for (GradleBuildIdentifier participant : modelRequest.getParticipants()) {
+            builder.addParticipant(participant.getProjectDir());
+        }
+        builder.connect();
         throw new UnsupportedOperationException();
     }
 

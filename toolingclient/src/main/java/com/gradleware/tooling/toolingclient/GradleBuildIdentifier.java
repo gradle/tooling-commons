@@ -18,25 +18,28 @@ package com.gradleware.tooling.toolingclient;
 
 import java.io.File;
 
-import com.gradleware.tooling.toolingclient.internal.DefaultGradleBuildIdentifier;
 /**
  * Encapsulates the information required to connect to a Gradle project.
  *
  * @author Stefan Oehme
  */
-public abstract class GradleBuildIdentifier {
+public final class GradleBuildIdentifier {
 
-    public static GradleBuildIdentifier create() {
-        return new DefaultGradleBuildIdentifier();
+    public static GradleBuildIdentifier withProjectDir(File projectDir) {
+        return new GradleBuildIdentifier(projectDir);
     }
 
-    /**
-     * Specifies the working directory to use.
-     *
-     * @param projectDir the working directory
-     * @return this
-     */
-    public abstract GradleBuildIdentifier projectDir(File projectDir);
+    private final File projectDir;
+    private File gradleUserHomeDir;
+    private GradleDistribution gradleDistribution;
+
+    private GradleBuildIdentifier(File projectDir) {
+        this.projectDir = projectDir;
+    }
+
+    public File getProjectDir() {
+        return this.projectDir;
+    }
 
     /**
      * Specifies the user's Gradle home directory to use. Defaults to {@code ~/.gradle}.
@@ -44,7 +47,14 @@ public abstract class GradleBuildIdentifier {
      * @param gradleUserHomeDir the user's Gradle home directory to use
      * @return this
      */
-    public abstract GradleBuildIdentifier gradleUserHomeDir(File gradleUserHomeDir);
+    public GradleBuildIdentifier gradleUserHomeDir(File gradleUserHomeDir) {
+        this.gradleUserHomeDir = gradleUserHomeDir;
+        return this;
+    }
+
+    public File getGradleUserHomeDir() {
+        return this.gradleUserHomeDir;
+    }
 
     /**
      * Specifies the Gradle distribution to use. Defaults to a project-specific Gradle version.
@@ -52,5 +62,12 @@ public abstract class GradleBuildIdentifier {
      * @param gradleDistribution the Gradle distribution to use
      * @return this
      */
-    public abstract GradleBuildIdentifier gradleDistribution(GradleDistribution gradleDistribution);
+    public GradleBuildIdentifier gradleDistribution(GradleDistribution gradleDistribution) {
+        this.gradleDistribution = gradleDistribution;
+        return this;
+    }
+
+    public GradleDistribution getGradleDistribution() {
+        return this.gradleDistribution;
+    }
 }

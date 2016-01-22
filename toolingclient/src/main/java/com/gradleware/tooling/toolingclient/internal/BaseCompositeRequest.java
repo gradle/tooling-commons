@@ -15,6 +15,10 @@
  */
 package com.gradleware.tooling.toolingclient.internal;
 
+import java.util.Arrays;
+
+import com.google.common.collect.ImmutableList;
+
 import com.gradleware.tooling.toolingclient.CompositeRequest;
 import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
 
@@ -26,26 +30,28 @@ import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
  */
 abstract class BaseCompositeRequest<T, SELF extends BaseCompositeRequest<T, SELF>> extends BaseRequest<T, SELF>implements InspectableCompositeRequest<T> {
 
+    private ImmutableList<GradleBuildIdentifier> participants;
+
     BaseCompositeRequest(ExecutableToolingClient toolingClient) {
         super(toolingClient);
+        this.participants = ImmutableList.of();
     }
 
     @Override
-    public CompositeRequest<T> participants(GradleBuildIdentifier... buildIdentifier) {
-        // TODO Auto-generated method stub
-        return null;
+    public CompositeRequest<T> participants(GradleBuildIdentifier... participants) {
+        this.participants = ImmutableList.copyOf(participants);
+        return getThis();
     }
 
     @Override
-    public CompositeRequest<T> addParticipants(GradleBuildIdentifier... buildIdentifier) {
-        // TODO Auto-generated method stub
-        return null;
+    public CompositeRequest<T> addParticipants(GradleBuildIdentifier... participants) {
+        this.participants = ImmutableList.<GradleBuildIdentifier> builder().addAll(this.participants).addAll(Arrays.asList(participants)).build();
+        return getThis();
     }
 
     @Override
     public GradleBuildIdentifier[] getParticipants() {
-        // TODO Auto-generated method stub
-        return null;
+        return this.participants.toArray(new GradleBuildIdentifier[0]);
     }
 
     @Override

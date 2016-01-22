@@ -35,6 +35,11 @@ public class DefaultCompositeModelRequest<T> extends BaseCompositeRequest<T, Def
     }
 
     @Override
+    public Class<T> getModelType() {
+        return this.modelType;
+    }
+
+    @Override
     public T executeAndWait() {
         return getToolingClient().executeAndWait(this);
     }

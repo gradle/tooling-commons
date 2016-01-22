@@ -22,7 +22,7 @@ import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
  * @author Stefan Oehme
  * @param <T> result type
  */
-public interface InspectableCompositeRequest<T> extends InspectableRequest<T>, CompositeRequest<T> {
+interface InspectableCompositeRequest<T> extends InspectableRequest<T>, CompositeRequest<T> {
 
     GradleBuildIdentifier[] getParticipants();
 
