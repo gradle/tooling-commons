@@ -29,6 +29,11 @@ import org.gradle.util.CollectionUtils;
 import java.io.File;
 import java.util.Set;
 
+/**
+ * TODO add javadoc.
+ *
+ * @author Benjamin Muschko
+ */
 public class DefaultCompositeBuildConnection implements CompositeBuildConnection {
     private final Set<ProjectConnection> participants;
 
@@ -113,6 +118,11 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
         }
     }
 
+    /**
+     * TODO add javadoc.
+     *
+     * @author Benjamin Muschko
+     */
     private static final class DefaultModelResult<T> implements ModelResult<T> {
         private final T model;
         private final ProjectIdentity projectIdentity;
