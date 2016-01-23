@@ -145,7 +145,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 
     @Override
     public Optional<List<OmniEclipseProjectNature>> getProjectNatures() {
-        return projectNatures;
+        return this.projectNatures;
     }
 
     private void setProjectNatures(Optional<List<OmniEclipseProjectNature>> projectNatures) {
@@ -158,7 +158,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 
     @Override
     public Optional<List<OmniEclipseBuildCommand>> getBuildCommands() {
-        return buildCommands;
+        return this.buildCommands;
     }
 
     private void setBuildCommands(Optional<List<OmniEclipseBuildCommand>> buildCommands) {
@@ -171,7 +171,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 
     @Override
     public Maybe<OmniJavaSourceSettings> getJavaSourceSettings() {
-        return javaSourceSettings;
+        return this.javaSourceSettings;
     }
 
     private void setJavaSourceSettings(Maybe<OmniJavaSourceSettings> javaSourceSettings) {
