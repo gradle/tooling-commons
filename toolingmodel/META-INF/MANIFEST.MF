@@ -1,5 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
+Bundle-Vendor: Gradle Inc.
 Bundle-Name: Gradle Tooling Commons - Tooling Model
 Bundle-SymbolicName: com.gradleware.tooling.model
 Bundle-Version: 0.10.0.qualifier
@@ -10,8 +11,7 @@ Export-Package: com.gradleware.tooling.toolingmodel;version="0.10.0",
  com.gradleware.tooling.toolingmodel.repository;version="0.10.0",
  com.gradleware.tooling.toolingmodel.util;version="0.10.0"
 Require-Bundle: org.gradle.toolingapi;bundle-version="2.11.0";visibility:=reexport,
- com.google.guava;bundle-version="[15.0.0,16.0.0)";visibility:=reexport,
- org.slf4j.api;bundle-version="1.7.2",
  com.gradleware.tooling.utils;visibility:=reexport,
- com.gradleware.tooling.client;visibility:=reexport
-Bundle-Vendor: Gradle Inc.
+ com.gradleware.tooling.client;visibility:=reexport,
+ com.google.guava;bundle-version="[15.0.0,16.0.0)";visibility:=reexport,
+ org.slf4j.api;bundle-version="1.7.2"
