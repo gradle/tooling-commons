@@ -43,4 +43,5 @@ public interface OmniJavaSourceSettings {
      * @return the description of the Java Runtime
      */
     OmniJavaRuntime getTargetRuntime();
+
 }

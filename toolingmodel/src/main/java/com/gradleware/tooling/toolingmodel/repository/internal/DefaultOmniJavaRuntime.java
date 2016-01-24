@@ -16,10 +16,10 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import java.io.File;
-
 import com.gradleware.tooling.toolingmodel.OmniJavaRuntime;
 import com.gradleware.tooling.toolingmodel.OmniJavaVersion;
+
+import java.io.File;
 
 /**
  * Default implementation of the {@link OmniJavaRuntime} interface.
@@ -38,11 +38,12 @@ public final class DefaultOmniJavaRuntime implements OmniJavaRuntime {
 
     @Override
     public OmniJavaVersion getJavaVersion() {
-        return javaVersion;
+        return this.javaVersion;
     }
 
     @Override
     public File getHomeDirectory() {
-        return homeDirectory;
+        return this.homeDirectory;
     }
+
 }

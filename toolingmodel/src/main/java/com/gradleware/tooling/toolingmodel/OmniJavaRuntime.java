@@ -38,4 +38,5 @@ public interface OmniJavaRuntime {
      * @return the installation directory
      */
     File getHomeDirectory();
+
 }
