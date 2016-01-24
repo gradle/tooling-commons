@@ -17,6 +17,7 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.gradleware.tooling.toolingmodel.OmniJavaVersion;
+import org.gradle.api.JavaVersion;
 
 /**
  * Default implementation of the {@link OmniJavaVersion} interface.
@@ -27,13 +28,17 @@ public final class DefaultOmniJavaVersion implements OmniJavaVersion {
 
     private final String name;
 
-    public DefaultOmniJavaVersion(String name) {
-        this.name = name;
+    private DefaultOmniJavaVersion(JavaVersion name) {
+        this.name = name.toString();
     }
 
     @Override
     public String getName() {
-        return name;
+        return this.name;
+    }
+
+    public static DefaultOmniJavaVersion from(JavaVersion name) {
+        return new DefaultOmniJavaVersion(name);
     }
 
 }
