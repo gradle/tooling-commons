@@ -17,6 +17,7 @@
 package org.gradle.tooling.composite.internal;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.gradle.api.Transformer;
 import org.gradle.tooling.ProjectConnection;
@@ -27,7 +28,7 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.util.CollectionUtils;
 
 import java.io.File;
-import java.util.Set;
+import java.util.*;
 
 /**
  * TODO add javadoc.
@@ -55,7 +56,9 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
             throw new IllegalArgumentException(String.format("The only supported model for a Gradle composite is %s.class.", EclipseProject.class.getSimpleName()));
         }
 
-        return toModelResults(getEclipseProjects());
+        Map<File, ProjectIdentity> projectIdentityMap = Maps.newHashMap();
+        Set<EclipseProject> eclipseProjects = getEclipseProjects(projectIdentityMap);
+        return toModelResults(eclipseProjects, projectIdentityMap);
     }
 
     @Override
@@ -75,23 +78,40 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
         }
     }
 
-    private <T> Set<ModelResult<T>> toModelResults(Set<EclipseProject> eclipseProjects) {
+    private <T> Set<ModelResult<T>> toModelResults(Set<EclipseProject> eclipseProjects, final Map<File, ProjectIdentity> projectIdentityMap) {
         return CollectionUtils.collect(eclipseProjects, new Transformer<ModelResult<T>, EclipseProject>() {
             @SuppressWarnings("unchecked")
             @Override
             public ModelResult<T> transform(EclipseProject eclipseProject) {
-                ProjectIdentity projectIdentity = new DefaultProjectIdentity(eclipseProject.getProjectDirectory());
-                return new DefaultModelResult<T>((T) eclipseProject, projectIdentity);
+                return new DefaultModelResult<T>((T) eclipseProject, projectIdentityMap.get(eclipseProject.getProjectDirectory()));
             }
         });
     }
 
-    private Set<EclipseProject> getEclipseProjects() {
+    private ProjectIdentity populateProjectIdentityHierarchy(EclipseProject eclipseProject, Map<File, ProjectIdentity> projectIdentityMap) {
+        Set<ProjectIdentity> children = Sets.newLinkedHashSet();
+
+        for (EclipseProject child : eclipseProject.getChildren()) {
+            children.add(populateProjectIdentityHierarchy(child, projectIdentityMap));
+        }
+
+        ProjectIdentity projectIdentity = new DefaultProjectIdentity(eclipseProject.getProjectDirectory(), children);
+        projectIdentityMap.put(eclipseProject.getProjectDirectory(), projectIdentity);
+
+        for (ProjectIdentity child : children) {
+            ((DefaultProjectIdentity) child).setParent(projectIdentity);
+        }
+
+        return projectIdentity;
+    }
+
+    private Set<EclipseProject> getEclipseProjects(Map<File, ProjectIdentity> projectIdentityMap) {
         Set<File> processedBuilds = Sets.newLinkedHashSet();
         Set<EclipseProject> eclipseProjects = Sets.newLinkedHashSet();
 
         for (ProjectConnection participant : this.participants) {
             EclipseProject rootProject = determineRootProject(participant.getModel(EclipseProject.class));
+            populateProjectIdentityHierarchy(rootProject, projectIdentityMap);
 
             // Only collect the root project once
             File rootProjectDirectory = rootProject.getProjectDirectory();

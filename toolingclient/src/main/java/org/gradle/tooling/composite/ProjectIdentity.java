@@ -17,6 +17,7 @@
 package org.gradle.tooling.composite;
 
 import java.io.File;
+import java.util.Set;
 
 /**
  * TODO add javadoc.
@@ -25,4 +26,6 @@ import java.io.File;
  */
 public interface ProjectIdentity {
     File getProjectDirectory();
+    ProjectIdentity getParent();
+    Set<ProjectIdentity> getChildren();
 }

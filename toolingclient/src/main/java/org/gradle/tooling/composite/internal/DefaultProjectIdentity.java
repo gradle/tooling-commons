@@ -19,6 +19,7 @@ package org.gradle.tooling.composite.internal;
 import org.gradle.tooling.composite.ProjectIdentity;
 
 import java.io.File;
+import java.util.Set;
 
 /**
  * TODO add javadoc.
@@ -27,12 +28,56 @@ import java.io.File;
  */
 public class DefaultProjectIdentity implements ProjectIdentity {
     private final File projectDirectory;
+    private final Set<ProjectIdentity> children;
+    private ProjectIdentity parent;
 
-    public DefaultProjectIdentity(File projectDirectory) {
+    public DefaultProjectIdentity(File projectDirectory, Set<ProjectIdentity> children) {
+        assert projectDirectory != null : "project directory cannot be null";
+        assert children != null : "children cannot be null";
         this.projectDirectory = projectDirectory;
+        this.children = children;
     }
 
     public File getProjectDirectory() {
         return projectDirectory;
+    }
+
+    @Override
+    public ProjectIdentity getParent() {
+        return parent;
+    }
+
+    @Override
+    public Set<ProjectIdentity> getChildren() {
+        return children;
+    }
+
+    public void setParent(ProjectIdentity parent) {
+        this.parent = parent;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        DefaultProjectIdentity that = (DefaultProjectIdentity) o;
+
+        return projectDirectory.equals(that.projectDirectory);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return projectDirectory.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("project dir %s", projectDirectory);
     }
 }
