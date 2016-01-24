@@ -18,6 +18,7 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.gradleware.tooling.toolingmodel.OmniJavaRuntime;
 import com.gradleware.tooling.toolingmodel.OmniJavaVersion;
+import org.gradle.api.JavaVersion;
 
 import java.io.File;
 
@@ -46,8 +47,8 @@ public final class DefaultOmniJavaRuntime implements OmniJavaRuntime {
         return this.homeDirectory;
     }
 
-    public static DefaultOmniJavaRuntime from(OmniJavaVersion javaVersion, File homeDirectory) {
-        return new DefaultOmniJavaRuntime(javaVersion, homeDirectory);
+    public static DefaultOmniJavaRuntime from(JavaVersion javaVersion, File homeDirectory) {
+        return new DefaultOmniJavaRuntime(DefaultOmniJavaVersion.from(javaVersion), homeDirectory);
     }
 
 }
