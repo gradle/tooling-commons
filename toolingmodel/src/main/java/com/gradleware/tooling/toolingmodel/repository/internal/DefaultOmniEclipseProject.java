@@ -370,7 +370,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
             // if the target runtime is not available, then fall back to the current JVM settings
             targetRuntime = getCompatibilityJavaRuntime();
         }
-        return new DefaultOmniJavaSourceSettings(sourceLanguageLevel, targetBytecodeLevel, targetRuntime);
+        return DefaultOmniJavaSourceSettings.from(sourceLanguageLevel, targetBytecodeLevel, targetRuntime);
     }
 
     private static void setCompatibilityJavaSourceSettings(DefaultOmniEclipseProject eclipseProject) {
@@ -379,7 +379,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         } else {
             OmniJavaVersion languageLevel = getCompatibilityLanguageLevel();
             OmniJavaRuntime javaRuntime = getCompatibilityJavaRuntime();
-            DefaultOmniJavaSourceSettings defaultSettings = new DefaultOmniJavaSourceSettings(languageLevel, languageLevel, javaRuntime);
+            DefaultOmniJavaSourceSettings defaultSettings = DefaultOmniJavaSourceSettings.from(languageLevel, languageLevel, javaRuntime);
             eclipseProject.setJavaSourceSettings(Optional.<OmniJavaSourceSettings>of(defaultSettings));
         }
     }
@@ -390,13 +390,13 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 
     private static OmniJavaRuntime getCompatibilityJavaRuntime() {
         OmniJavaVersion languageLevel = getCompatibilityLanguageLevel();
-        return new DefaultOmniJavaRuntime(languageLevel, new File(System.getProperty("java.home")).getAbsoluteFile());
+        return DefaultOmniJavaRuntime.from(languageLevel, new File(System.getProperty("java.home")).getAbsoluteFile());
     }
 
     private static OmniJavaRuntime toOmniJavaRuntime(InstalledJdk jdk) {
         OmniJavaVersion javaVersion = toOmniJavaVersion(jdk.getJavaVersion());
         File homeDirectory = jdk.getJavaHome();
-        return new DefaultOmniJavaRuntime(javaVersion, homeDirectory);
+        return DefaultOmniJavaRuntime.from(javaVersion, homeDirectory);
     }
 
     private static OmniJavaVersion toOmniJavaVersion(JavaVersion javaVersion) {

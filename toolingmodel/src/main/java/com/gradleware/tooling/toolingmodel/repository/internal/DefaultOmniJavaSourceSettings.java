@@ -31,7 +31,7 @@ public final class DefaultOmniJavaSourceSettings implements OmniJavaSourceSettin
     private final OmniJavaVersion targetBytecodeLevel;
     private final OmniJavaRuntime targetRuntime;
 
-    public DefaultOmniJavaSourceSettings(OmniJavaVersion sourceLanguageLevel, OmniJavaVersion targetBytecodeLevel, OmniJavaRuntime targeRuntime) {
+    private DefaultOmniJavaSourceSettings(OmniJavaVersion sourceLanguageLevel, OmniJavaVersion targetBytecodeLevel, OmniJavaRuntime targeRuntime) {
         this.sourceLanguageLevel = sourceLanguageLevel;
         this.targetBytecodeLevel = targetBytecodeLevel;
         this.targetRuntime = targeRuntime;
@@ -50,6 +50,10 @@ public final class DefaultOmniJavaSourceSettings implements OmniJavaSourceSettin
     @Override
     public OmniJavaRuntime getTargetRuntime() {
         return this.targetRuntime;
+    }
+
+    public static DefaultOmniJavaSourceSettings from(OmniJavaVersion sourceLanguageLevel, OmniJavaVersion targetBytecodeLevel, OmniJavaRuntime targeRuntime) {
+        return new DefaultOmniJavaSourceSettings(sourceLanguageLevel, targetBytecodeLevel, targeRuntime);
     }
 
 }

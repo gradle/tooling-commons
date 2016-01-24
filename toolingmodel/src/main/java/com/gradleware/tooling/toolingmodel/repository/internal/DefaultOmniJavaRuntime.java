@@ -31,7 +31,7 @@ public final class DefaultOmniJavaRuntime implements OmniJavaRuntime {
     private final OmniJavaVersion javaVersion;
     private final File homeDirectory;
 
-    public DefaultOmniJavaRuntime(OmniJavaVersion javaVersion, File homeDirectory) {
+    private DefaultOmniJavaRuntime(OmniJavaVersion javaVersion, File homeDirectory) {
         this.javaVersion = javaVersion;
         this.homeDirectory = homeDirectory;
     }
@@ -44,6 +44,10 @@ public final class DefaultOmniJavaRuntime implements OmniJavaRuntime {
     @Override
     public File getHomeDirectory() {
         return this.homeDirectory;
+    }
+
+    public static DefaultOmniJavaRuntime from(OmniJavaVersion javaVersion, File homeDirectory) {
+        return new DefaultOmniJavaRuntime(javaVersion, homeDirectory);
     }
 
 }
