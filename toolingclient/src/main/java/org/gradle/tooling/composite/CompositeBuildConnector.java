@@ -25,12 +25,11 @@ import java.io.File;
  * 
  * @author Benjamin Muschko
  */
-public abstract class CompositeBuildConnector implements GradleDistributionAware {
+public abstract class CompositeBuildConnector {
     public static CompositeBuildConnector newComposite() {
         return new DefaultCompositeBuildConnector();
     }
 
-    public abstract void useGradleUserHomeDir(File gradleUserHomeDir);
     public abstract CompositeParticipant addParticipant(File rootProjectDirectory);
     public abstract CompositeBuildConnection connect();
 }

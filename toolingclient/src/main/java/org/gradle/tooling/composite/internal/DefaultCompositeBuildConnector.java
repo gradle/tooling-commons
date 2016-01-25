@@ -30,7 +30,6 @@ import org.gradle.tooling.composite.internal.dist.VersionBasedGradleDistribution
 import org.gradle.util.CollectionUtils;
 
 import java.io.File;
-import java.net.URI;
 import java.util.Set;
 
 /**
@@ -40,26 +39,6 @@ import java.util.Set;
  */
 public class DefaultCompositeBuildConnector extends CompositeBuildConnector {
     private final Set<DefaultCompositeParticipant> participants = Sets.newLinkedHashSet();
-
-    @Override
-    public void useInstallation(File gradleHome) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void useGradleVersion(String gradleVersion) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void useDistribution(URI location) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void useGradleUserHomeDir(File gradleUserHomeDir) {
-        throw new UnsupportedOperationException();
-    }
 
     @Override
     public CompositeParticipant addParticipant(File rootProjectDirectory) {
