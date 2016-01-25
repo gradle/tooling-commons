@@ -29,7 +29,7 @@ import java.io.File;
 import java.util.Set;
 
 /**
- * TODO add javadoc.
+ * The default implementation of a composite build connection.
  *
  * @author Benjamin Muschko
  */
@@ -117,7 +117,7 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
     }
 
     /**
-     * TODO add javadoc.
+     * The default implementation of a model result.
      *
      * @author Benjamin Muschko
      */

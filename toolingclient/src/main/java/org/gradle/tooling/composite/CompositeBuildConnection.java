@@ -19,13 +19,31 @@ package org.gradle.tooling.composite;
 import java.util.Set;
 
 /**
- * TODO add javadoc.
+ * Represents a long-lived connection to a composite of Gradle project(s). You obtain an instance of a
+ * {@code CompositeBuildConnection} by using {@link org.gradle.tooling.composite.CompositeBuildConnector#connect()}.
  * 
  * @author Benjamin Muschko
  */
 public interface CompositeBuildConnection {
-    // Model methods to get model for all projects
+
+    /**
+     * Fetches a snapshot of the models of the given type for this composite. This method blocks until the model is available.
+     * <p>
+     * Any of following models types are available:
+     *
+     * <ul>
+     *     <li>{@link org.gradle.tooling.model.eclipse.EclipseProject}</li>
+     * </ul>
+     *
+     * @param modelType the model type
+     * @param <T> the model type
+     * @return the models
+     * @throws IllegalArgumentException if the provided model type is not supported
+     */
     <T> Set<ModelResult<T>> getModels(Class<T> modelType);
 
+    /**
+     * Closes this connection. Blocks until any pending operations are complete.
+     */
     void close();
 }

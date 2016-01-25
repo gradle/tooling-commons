@@ -18,6 +18,7 @@ package org.gradle.tooling.composite.internal;
 
 import com.google.common.collect.Sets;
 import org.gradle.api.Transformer;
+import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.composite.CompositeBuildConnection;
@@ -33,7 +34,7 @@ import java.io.File;
 import java.util.Set;
 
 /**
- * TODO add javadoc.
+ * The default implementation of a composite build connector.
  * 
  * @author Benjamin Muschko
  */
@@ -48,7 +49,7 @@ public class DefaultCompositeBuildConnector extends CompositeBuildConnector {
     }
 
     @Override
-    public CompositeBuildConnection connect() {
+    public CompositeBuildConnection connect() throws GradleConnectionException {
         Set<ProjectConnection> projectConnections = transformParticipantsToProjectConnections();
         return new DefaultCompositeBuildConnection(projectConnections);
     }

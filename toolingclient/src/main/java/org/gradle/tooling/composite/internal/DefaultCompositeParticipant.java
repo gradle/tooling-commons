@@ -26,7 +26,7 @@ import java.io.File;
 import java.net.URI;
 
 /**
- * TODO add javadoc.
+ * The default implementation of a composite participant.
  * 
  * @author Benjamin Muschko
  */

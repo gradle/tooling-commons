@@ -17,11 +17,17 @@
 package org.gradle.tooling.composite;
 
 /**
- * TODO add javadoc.
- * 
+ * Provides the response for a model request.
+ *
+ * @param <T> type of the model
  * @author Benjamin Muschko
- * @param <T> TODO add javadoc
  */
 public interface ModelResult<T> {
+
+    /**
+     * Returns the model.
+     *
+     * @return Model of the given type
+     */
     T getModel();
 }

@@ -19,10 +19,18 @@ package org.gradle.tooling.composite;
 import java.io.File;
 
 /**
- * TODO add javadoc.
- * 
+ * Represents a participating build for a composite.
+ * <p>
+ * A participating build can consist of a single or multiple Gradle projects.
+ *
  * @author Benjamin Muschko
  */
 public interface CompositeParticipant extends GradleDistributionAware {
+
+    /**
+     * Returns the root project directory of a participating Gradle build.
+     *
+     * @return the root project directory
+     */
     File getRootProjectDirectory();
 }

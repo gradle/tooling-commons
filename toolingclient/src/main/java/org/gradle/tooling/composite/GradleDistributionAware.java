@@ -20,12 +20,47 @@ import java.io.File;
 import java.net.URI;
 
 /**
- * TODO add javadoc.
+ * Indicates that a Gradle distribution can be used for executing the composite operation.
  * 
  * @author Benjamin Muschko
  */
 public interface GradleDistributionAware {
+
+    /**
+     * Configures the consumer to make the composite request using the installation of Gradle specified.
+     * <p>
+     * The given file must be a directory containing a valid Gradle installation.
+     *
+     * @param gradleHome a valid Gradle installation
+     * @see #useGradleVersion(String)
+     * @see #useDistribution(URI)
+     */
     void useInstallation(File gradleHome);
+
+    /**
+     * Configures the consumer to execute the build with the version of Gradle specified.
+     * <p>
+     * Unless previously downloaded, this method will cause the Gradle runtime for the version specified
+     * to be downloaded over the Internet from Gradle's distribution servers.
+     * The download will be cached beneath the Gradle User Home directory.
+     *
+     * @param gradleVersion the version number (e.g. "2.9")
+     * @see #useInstallation(File)
+     * @see #useDistribution(URI)
+     */
     void useGradleVersion(String gradleVersion);
+
+    /**
+     * Configures the consumer to execute the build using the distribution of Gradle specified.
+     * <p>
+     * The given URI must point to a valid Gradle distribution ZIP file.
+     * <p>
+     * Unless previously downloaded, this method will cause the Gradle runtime at the given URI to be downloaded.
+     * The download will be cached beneath the Gradle User Home directory.
+     *
+     * @param location a URI pointing at a valid Gradle distribution zip file
+     * @see #useGradleVersion(String)
+     * @see #useInstallation(File)
+     */
     void useDistribution(URI location);
 }
