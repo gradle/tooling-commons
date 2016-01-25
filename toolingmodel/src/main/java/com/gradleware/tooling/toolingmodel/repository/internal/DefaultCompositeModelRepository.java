@@ -36,8 +36,8 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 /**
- * TODO add javadoc.
- * 
+ * Default implementation for {@link CompositeModelRepository}
+ *
  * @author Stefan Oehme
  */
 public class DefaultCompositeModelRepository extends BaseCachingSimpleModelRepository implements CompositeModelRepository {

@@ -27,9 +27,11 @@ public interface CompositeModelRepository {
 
     /**
      * Fetches the {@link OmniEclipseWorkspace} synchronously and broadcasts it through a {@link EclipseWorkspaceUpdateEvent}.
-     * @param transientRequestAttributes TODO add javadoc
-     * @param fetchStrategy TODO add javadoc
-     * @return TODO add javadoc
+     * 
+     * @param transientRequestAttributes the transient request attributes
+     * @param fetchStrategy the fetch strategy
+     * @return the workspace, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is
+     * not in the cache
      */
     OmniEclipseWorkspace fetchEclipseWorkspace(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 }
