@@ -19,6 +19,7 @@ package org.gradle.tooling.composite.internal;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Sets;
 import org.gradle.api.Transformer;
+import org.gradle.jarjar.com.google.common.collect.Maps;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.composite.CompositeBuildConnection;
 import org.gradle.tooling.composite.ModelResult;
@@ -26,6 +27,7 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.util.CollectionUtils;
 
 import java.io.File;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -86,7 +88,7 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
 
     private Set<EclipseProject> getEclipseProjects() {
         Set<File> processedBuilds = Sets.newLinkedHashSet();
-        Set<EclipseProject> eclipseProjects = Sets.newLinkedHashSet();
+        Map<String, EclipseProject> eclipseProjects = Maps.newLinkedHashMap();
 
         for (ProjectConnection participant : this.participants) {
             EclipseProject rootProject = determineRootProject(participant.getModel(EclipseProject.class));
@@ -98,7 +100,7 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
             }
         }
 
-        return eclipseProjects;
+        return Sets.newLinkedHashSet(eclipseProjects.values());
     }
 
     private EclipseProject determineRootProject(EclipseProject eclipseProject) {
@@ -108,8 +110,13 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
         return determineRootProject(eclipseProject.getParent());
     }
 
-    private void addWithChildren(EclipseProject project, Set<EclipseProject> collectedProjects) {
-        collectedProjects.add(project);
+    private void addWithChildren(EclipseProject project, Map<String, EclipseProject> collectedProjects) {
+        if (collectedProjects.containsKey(project.getName())) {
+            String message = String.format("A composite build does not allow duplicate project names for any of the participating project. Offending project name: '%s'", project.getName());
+            throw new IllegalStateException(message);
+        }
+
+        collectedProjects.put(project.getName(), project);
 
         for (EclipseProject childProject : project.getChildren()) {
             addWithChildren(childProject, collectedProjects);
