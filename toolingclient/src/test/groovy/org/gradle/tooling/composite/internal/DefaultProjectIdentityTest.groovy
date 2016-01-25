@@ -77,6 +77,8 @@ class DefaultProjectIdentityTest extends Specification {
         then:
         root.children == [child1, child2] as Set<ProjectIdentity>
         child1.parent == root
+        child1.children == [] as Set<ProjectIdentity>
         child2.parent == root
+        child2.children == [] as Set<ProjectIdentity>
     }
 }
