@@ -16,8 +16,8 @@
 package org.gradle.tooling.composite
 
 import org.gradle.api.Action
-import org.gradle.tooling.composite.AbstractCompositeBuildConnectorIntegrationTest.ExternalDependency
-import org.gradle.tooling.composite.AbstractCompositeBuildConnectorIntegrationTest.ExternalDependencies
+import org.gradle.tooling.composite.fixtures.ExternalDependencies
+import org.gradle.tooling.composite.fixtures.ExternalDependency
 import org.gradle.tooling.model.eclipse.EclipseProject
 import org.gradle.util.DistributionLocator
 import org.gradle.util.GradleVersion

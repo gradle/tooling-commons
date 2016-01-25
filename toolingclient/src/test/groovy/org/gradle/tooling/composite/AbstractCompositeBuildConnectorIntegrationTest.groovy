@@ -16,7 +16,7 @@
 package org.gradle.tooling.composite
 
 import com.gradleware.tooling.junit.TestDirectoryProvider
-import groovy.transform.TupleConstructor
+import org.gradle.tooling.composite.fixtures.ExternalDependency
 import org.gradle.tooling.model.eclipse.EclipseProject
 import org.junit.Rule
 import spock.lang.Specification
@@ -101,23 +101,5 @@ abstract class AbstractCompositeBuildConnectorIntegrationTest extends Specificat
 
     protected void assertNoProjectDependencies(EclipseProject eclipseProject) {
         assert eclipseProject.projectDependencies.size() == 0
-    }
-
-    @TupleConstructor
-    public static class ExternalDependency {
-        final String group
-        final String name
-        final String version
-
-        String toString() {
-            "$group:$name:$version"
-        }
-    }
-
-    public static class ExternalDependencies {
-        public static final ExternalDependency COMMONS_LANG = new ExternalDependency('commons-lang', 'commons-lang', '2.6')
-        public static final ExternalDependency LOG4J = new ExternalDependency('log4j', 'log4j', '1.2.17')
-        public static final ExternalDependency COMMONS_MATH = new ExternalDependency('commons-math', 'commons-math', '1.2')
-        public static final ExternalDependency COMMONS_CODEC = new ExternalDependency('commons-codec', 'commons-codec', '1.10')
     }
 }

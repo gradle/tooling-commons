@@ -15,6 +15,8 @@
  */
 package org.gradle.tooling.composite
 
+import org.gradle.tooling.composite.fixtures.ExternalDependencies
+
 class CompositeBuildConnectorFailedBuildIntegrationTest extends AbstractCompositeBuildConnectorIntegrationTest {
 
     def "cannot create composite with no participating projects"() {
