@@ -35,6 +35,7 @@ public class DefaultCompositeParticipant implements CompositeParticipant {
     private GradleDistribution gradleDistribution;
 
     public DefaultCompositeParticipant(File rootProjectDirectory) {
+        assert rootProjectDirectory != null : "root project directory cannot be null";
         this.rootProjectDirectory = rootProjectDirectory;
     }
 
@@ -58,7 +59,32 @@ public class DefaultCompositeParticipant implements CompositeParticipant {
         gradleDistribution = new URILocatedGradleDistribution(location);
     }
 
-    public GradleDistribution getDistribution() {
+    GradleDistribution getDistribution() {
         return gradleDistribution;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        DefaultCompositeParticipant that = (DefaultCompositeParticipant) o;
+
+        return rootProjectDirectory != null ? rootProjectDirectory.equals(that.rootProjectDirectory) : that.rootProjectDirectory == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return rootProjectDirectory != null ? rootProjectDirectory.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("root project dir %s", rootProjectDirectory);
     }
 }

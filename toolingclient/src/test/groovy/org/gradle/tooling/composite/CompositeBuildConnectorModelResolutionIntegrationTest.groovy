@@ -40,6 +40,23 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         compositeBuildConnection.close()
     }
 
+    def "creating a composite with second instance of same participating build only adds it once"() {
+        given:
+        File projectDir = directoryProvider.createDir('project')
+        createBuildFileWithDependency(projectDir, ExternalDependencies.COMMONS_LANG)
+
+        when:
+        CompositeBuildConnection compositeBuildConnection = createComposite(projectDir, projectDir)
+        Set<ModelResult<EclipseProject>> compositeModel = compositeBuildConnection.getModels(EclipseProject)
+
+        then:
+        compositeModel.size() == 1
+        assertModelResult(compositeModel, 'project', ExternalDependencies.COMMONS_LANG)
+
+        cleanup:
+        compositeBuildConnection.close()
+    }
+
     def "can create composite with single-project participating build"() {
         given:
         File projectDir = directoryProvider.createDir('project')

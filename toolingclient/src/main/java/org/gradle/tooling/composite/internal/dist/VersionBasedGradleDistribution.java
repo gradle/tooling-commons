@@ -17,7 +17,7 @@
 package org.gradle.tooling.composite.internal.dist;
 
 /**
- * TODO add javadoc.
+ * Represents a Gradle distribution identified by version.
  * 
  * @author Benjamin Muschko
  */
@@ -30,5 +30,25 @@ public class VersionBasedGradleDistribution implements GradleDistribution {
 
     public String getGradleVersion() {
         return gradleVersion;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        VersionBasedGradleDistribution that = (VersionBasedGradleDistribution) o;
+
+        return gradleVersion != null ? gradleVersion.equals(that.gradleVersion) : that.gradleVersion == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return gradleVersion != null ? gradleVersion.hashCode() : 0;
     }
 }

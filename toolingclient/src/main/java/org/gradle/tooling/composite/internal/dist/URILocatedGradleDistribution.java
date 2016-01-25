@@ -19,7 +19,7 @@ package org.gradle.tooling.composite.internal.dist;
 import java.net.URI;
 
 /**
- * TODO add javadoc.
+ * Represents a Gradle distribution locatable by URI.
  * 
  * @author Benjamin Muschko
  */
@@ -33,5 +33,25 @@ public final class URILocatedGradleDistribution implements GradleDistribution {
 
     public URI getLocation() {
         return location;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        URILocatedGradleDistribution that = (URILocatedGradleDistribution) o;
+
+        return location != null ? location.equals(that.location) : that.location == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return location != null ? location.hashCode() : 0;
     }
 }

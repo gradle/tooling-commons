@@ -17,7 +17,7 @@
 package org.gradle.tooling.composite.internal.dist;
 
 /**
- * TODO add javadoc.
+ * Represents a Gradle distribution.
  * 
  * @author Benjamin Muschko
  */

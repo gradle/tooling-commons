@@ -76,4 +76,8 @@ public class DefaultCompositeBuildConnector extends CompositeBuildConnector {
             }
         }
     }
+
+    Set<DefaultCompositeParticipant> getParticipants() {
+        return participants;
+    }
 }

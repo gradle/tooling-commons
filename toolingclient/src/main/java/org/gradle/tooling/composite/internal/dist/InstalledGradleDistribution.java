@@ -19,7 +19,7 @@ package org.gradle.tooling.composite.internal.dist;
 import java.io.File;
 
 /**
- * TODO add javadoc.
+ * Represents a directory containing a valid Gradle installation.
  * 
  * @author Benjamin Muschko
  */
@@ -33,5 +33,25 @@ public class InstalledGradleDistribution implements GradleDistribution {
 
     public File getGradleHome() {
         return gradleHome;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        InstalledGradleDistribution that = (InstalledGradleDistribution) o;
+
+        return gradleHome != null ? gradleHome.equals(that.gradleHome) : that.gradleHome == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return gradleHome != null ? gradleHome.hashCode() : 0;
     }
 }
