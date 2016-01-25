@@ -64,7 +64,6 @@ class CompositeBuildConnectorGradleDistributionIntegrationTest extends AbstractC
         ModelResult<EclipseProject> modelResult = assertModelResultInCompositeModel(compositeModel, 'project')
         assertExternalDependencies(modelResult.model, commonsLangDep)
         assertNoProjectDependencies(modelResult.model)
-        modelResult.project.projectDirectory == projectDir
 
         cleanup:
         compositeBuildConnection.close()

@@ -15,7 +15,6 @@
  */
 package org.gradle.tooling.composite
 
-import org.gradle.tooling.composite.AbstractCompositeBuildConnectorIntegrationTest.ExternalDependency
 import org.gradle.tooling.model.eclipse.EclipseProject
 
 class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractCompositeBuildConnectorIntegrationTest {
@@ -31,10 +30,7 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
 
         then:
         compositeModel.size() == 1
-        ModelResult<EclipseProject> modelResult = assertModelResult(compositeModel, 'project', ExternalDependencies.COMMONS_LANG)
-        assert modelResult.project.projectDirectory == projectDir
-        assert !modelResult.project.parent
-        assert modelResult.project.children.empty
+        assertModelResult(compositeModel, 'project', ExternalDependencies.COMMONS_LANG)
 
         cleanup:
         compositeBuildConnection.close()
@@ -59,26 +55,11 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
 
         then:
         compositeModel.size() == 5
-        ModelResult<EclipseProject> modelResultRoot = assertModelResult(compositeModel, 'project')
-        assert modelResultRoot.project.projectDirectory == rootProjectDir
-        assert !modelResultRoot.project.parent
-        assert modelResultRoot.project.children.collect { it.projectDirectory } == [subProject1, subProject2]
-        ModelResult<EclipseProject> modelResultSub1 = assertModelResult(compositeModel, 'sub-1', ExternalDependencies.COMMONS_LANG)
-        assert modelResultSub1.project.projectDirectory == subProject1
-        assert modelResultSub1.project.parent == modelResultRoot.project
-        assert modelResultSub1.project.children.collect { it.projectDirectory } == [subSubProject1]
-        ModelResult<EclipseProject> modelResultSub2 = assertModelResult(compositeModel, 'sub-2', ExternalDependencies.LOG4J)
-        assert modelResultSub2.project.projectDirectory == subProject2
-        assert modelResultSub2.project.parent == modelResultRoot.project
-        assert modelResultSub2.project.children.collect { it.projectDirectory } == [subSubProject2]
-        ModelResult<EclipseProject> modelResultSubA1 = assertModelResult(compositeModel, 'a-1', ExternalDependencies.COMMONS_MATH)
-        assert modelResultSubA1.project.projectDirectory == subSubProject1
-        assert modelResultSubA1.project.parent == modelResultSub1.project
-        assert modelResultSubA1.project.children.empty
-        ModelResult<EclipseProject> modelResultSubA2 = assertModelResult(compositeModel, 'b-2', ExternalDependencies.COMMONS_CODEC)
-        assert modelResultSubA2.project.projectDirectory == subSubProject2
-        assert modelResultSubA2.project.parent == modelResultSub2.project
-        assert modelResultSubA2.project.children.empty
+        assertModelResult(compositeModel, 'project')
+        assertModelResult(compositeModel, 'sub-1', ExternalDependencies.COMMONS_LANG)
+        assertModelResult(compositeModel, 'sub-2', ExternalDependencies.LOG4J)
+        assertModelResult(compositeModel, 'a-1', ExternalDependencies.COMMONS_MATH)
+        assertModelResult(compositeModel, 'b-2', ExternalDependencies.COMMONS_CODEC)
 
         cleanup:
         compositeBuildConnection.close()
@@ -97,14 +78,8 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
 
         then:
         compositeModel.size() == 2
-        ModelResult<EclipseProject> modelResultRoot1 = assertModelResult(compositeModel, 'project-1', ExternalDependencies.COMMONS_LANG)
-        assert modelResultRoot1.project.projectDirectory == projectDir1
-        assert !modelResultRoot1.project.parent
-        assert modelResultRoot1.project.children.empty
-        ModelResult<EclipseProject> modelResultRoot2 = assertModelResult(compositeModel, 'project-2', ExternalDependencies.LOG4J)
-        assert modelResultRoot2.project.projectDirectory == projectDir2
-        assert !modelResultRoot2.project.parent
-        assert modelResultRoot2.project.children.empty
+        assertModelResult(compositeModel, 'project-1', ExternalDependencies.COMMONS_LANG)
+        assertModelResult(compositeModel, 'project-2', ExternalDependencies.LOG4J)
 
         cleanup:
         compositeBuildConnection.close()
@@ -132,30 +107,12 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
 
         then:
         compositeModel.size() == 6
-        ModelResult<EclipseProject> modelResultRoot1 = assertModelResult(compositeModel, 'project-1')
-        assert modelResultRoot1.project.projectDirectory == projectDir1
-        assert !modelResultRoot1.project.parent
-        assert modelResultRoot1.project.children.collect { it.projectDirectory } == [sub1ProjectDir, sub2ProjectDir]
-        ModelResult<EclipseProject> modelResultRoot2 = assertModelResult(compositeModel, 'project-2')
-        assert modelResultRoot2.project.projectDirectory == projectDir2
-        assert !modelResultRoot2.project.parent
-        assert modelResultRoot2.project.children.collect { it.projectDirectory } == [subAProjectDir, subBProjectDir]
-        ModelResult<EclipseProject> modelResultSub1 = assertModelResult(compositeModel, 'sub-1', ExternalDependencies.COMMONS_LANG)
-        assert modelResultSub1.project.projectDirectory == sub1ProjectDir
-        assert modelResultSub1.project.parent == modelResultRoot1.project
-        assert modelResultSub1.project.children.empty
-        ModelResult<EclipseProject> modelResultSub2 = assertModelResult(compositeModel, 'sub-2', ExternalDependencies.LOG4J)
-        assert modelResultSub2.project.projectDirectory == sub2ProjectDir
-        assert modelResultSub2.project.parent == modelResultRoot1.project
-        assert modelResultSub2.project.children.empty
-        ModelResult<EclipseProject> modelResultSubA = assertModelResult(compositeModel, 'sub-a', ExternalDependencies.COMMONS_MATH)
-        assert modelResultSubA.project.projectDirectory == subAProjectDir
-        assert modelResultSubA.project.parent == modelResultRoot2.project
-        assert modelResultSubA.project.children.empty
-        ModelResult<EclipseProject> modelResultSubB = assertModelResult(compositeModel, 'sub-b', ExternalDependencies.COMMONS_CODEC)
-        assert modelResultSubB.project.projectDirectory == subBProjectDir
-        assert modelResultSubB.project.parent == modelResultRoot2.project
-        assert modelResultSubB.project.children.empty
+        assertModelResult(compositeModel, 'project-1')
+        assertModelResult(compositeModel, 'project-2')
+        assertModelResult(compositeModel, 'sub-1', ExternalDependencies.COMMONS_LANG)
+        assertModelResult(compositeModel, 'sub-2', ExternalDependencies.LOG4J)
+        assertModelResult(compositeModel, 'sub-a', ExternalDependencies.COMMONS_MATH)
+        assertModelResult(compositeModel, 'sub-b', ExternalDependencies.COMMONS_CODEC)
 
         cleanup:
         compositeBuildConnection.close()
@@ -165,6 +122,7 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
                                                           ExternalDependency... externalDependencies) {
         ModelResult<EclipseProject> modelResult = assertModelResultInCompositeModel(compositeModel, projectName)
         EclipseProject eclipseProject = modelResult.model
+        assert eclipseProject
         assertExternalDependencies(eclipseProject, externalDependencies)
         assertNoProjectDependencies(eclipseProject)
         modelResult

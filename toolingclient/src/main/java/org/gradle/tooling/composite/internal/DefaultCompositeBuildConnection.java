@@ -17,18 +17,16 @@
 package org.gradle.tooling.composite.internal;
 
 import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.gradle.api.Transformer;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.composite.CompositeBuildConnection;
 import org.gradle.tooling.composite.ModelResult;
-import org.gradle.tooling.composite.ProjectIdentity;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.util.CollectionUtils;
 
 import java.io.File;
-import java.util.*;
+import java.util.Set;
 
 /**
  * TODO add javadoc.
@@ -56,9 +54,7 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
             throw new IllegalArgumentException(String.format("The only supported model for a Gradle composite is %s.class.", EclipseProject.class.getSimpleName()));
         }
 
-        Map<File, ProjectIdentity> projectIdentityMap = Maps.newHashMap();
-        Set<EclipseProject> eclipseProjects = getEclipseProjects(projectIdentityMap);
-        return toModelResults(eclipseProjects, projectIdentityMap);
+        return toModelResults(getEclipseProjects());
     }
 
     @Override
@@ -78,40 +74,22 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
         }
     }
 
-    private <T> Set<ModelResult<T>> toModelResults(Set<EclipseProject> eclipseProjects, final Map<File, ProjectIdentity> projectIdentityMap) {
+    private <T> Set<ModelResult<T>> toModelResults(Set<EclipseProject> eclipseProjects) {
         return CollectionUtils.collect(eclipseProjects, new Transformer<ModelResult<T>, EclipseProject>() {
             @SuppressWarnings("unchecked")
             @Override
             public ModelResult<T> transform(EclipseProject eclipseProject) {
-                return new DefaultModelResult<T>((T) eclipseProject, projectIdentityMap.get(eclipseProject.getProjectDirectory()));
+                return new DefaultModelResult<T>((T) eclipseProject);
             }
         });
     }
 
-    private ProjectIdentity populateProjectIdentityHierarchy(EclipseProject eclipseProject, Map<File, ProjectIdentity> projectIdentityMap) {
-        Set<ProjectIdentity> children = Sets.newLinkedHashSet();
-
-        for (EclipseProject child : eclipseProject.getChildren()) {
-            children.add(populateProjectIdentityHierarchy(child, projectIdentityMap));
-        }
-
-        ProjectIdentity projectIdentity = new DefaultProjectIdentity(eclipseProject.getProjectDirectory(), children);
-        projectIdentityMap.put(eclipseProject.getProjectDirectory(), projectIdentity);
-
-        for (ProjectIdentity child : children) {
-            ((DefaultProjectIdentity) child).setParent(projectIdentity);
-        }
-
-        return projectIdentity;
-    }
-
-    private Set<EclipseProject> getEclipseProjects(Map<File, ProjectIdentity> projectIdentityMap) {
+    private Set<EclipseProject> getEclipseProjects() {
         Set<File> processedBuilds = Sets.newLinkedHashSet();
         Set<EclipseProject> eclipseProjects = Sets.newLinkedHashSet();
 
         for (ProjectConnection participant : this.participants) {
             EclipseProject rootProject = determineRootProject(participant.getModel(EclipseProject.class));
-            populateProjectIdentityHierarchy(rootProject, projectIdentityMap);
 
             // Only collect the root project once
             File rootProjectDirectory = rootProject.getProjectDirectory();
@@ -145,21 +123,14 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
      */
     private static final class DefaultModelResult<T> implements ModelResult<T> {
         private final T model;
-        private final ProjectIdentity projectIdentity;
 
-        private DefaultModelResult(T model, ProjectIdentity projectIdentity) {
+        private DefaultModelResult(T model) {
             this.model = model;
-            this.projectIdentity = projectIdentity;
         }
 
         @Override
         public T getModel() {
             return model;
-        }
-
-        @Override
-        public ProjectIdentity getProject() {
-            return projectIdentity;
         }
     }
 }

@@ -23,6 +23,5 @@ package org.gradle.tooling.composite;
  * @param <T> TODO add javadoc
  */
 public interface ModelResult<T> {
-    ProjectIdentity getProject();
     T getModel();
 }
