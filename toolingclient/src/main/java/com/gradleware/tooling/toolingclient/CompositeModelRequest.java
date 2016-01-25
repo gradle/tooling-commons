@@ -19,13 +19,19 @@ package com.gradleware.tooling.toolingclient;
 import java.util.Set;
 
 /**
- * A {@code CompositeModelRequest} allows you to fetch a snapshot of some model for a composite build. Instances of {@code CompositeModelRequest} are not thread-safe. <p> You use a {@code
- * CompositeModelRequest} as follows: <ul> <li>Create an instance of {@code CompositeModelRequest} by calling {@link ToolingClient#newCompositeModelRequest(Class)}. <li>Configure the request as appropriate.
- * <li>Call either {@link #executeAndWait()} or {@link #execute()} to fetch the model. <li>Optionally, you can reuse the request to fetch the model multiple times. </ul>
+ * A {@code CompositeModelRequest} allows you to fetch a snapshot of some model for a composite build. Instances of
+ * {@code CompositeModelRequest} are not thread-safe.
+ * <p/> You use a {@code CompositeModelRequest} as follows:
+ * <ul>
+ *     <li>Create an instance  by calling {@link ToolingClient#newCompositeModelRequest(Class)}.</li>
+ *     <li>Configure the request as appropriate.</li>
+ *     <li>Call either {@link #executeAndWait()} or {@link #execute()} to fetch the model.</li>
+ *     <li>Optionally, you can reuse the request to fetch the model multiple times.</li>
+ * </ul>
  *
  * @author Stefan Oehme
  * @param <T> the type of model to fetch
  */
-public interface CompositeModelRequest<T> extends CompositeRequest<Set<T>>{
+public interface CompositeModelRequest<T> extends CompositeRequest<Set<T>> {
 
 }

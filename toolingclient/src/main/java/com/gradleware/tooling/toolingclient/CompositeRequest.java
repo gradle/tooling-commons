@@ -17,12 +17,28 @@
 package com.gradleware.tooling.toolingclient;
 
 /**
- * TODO add javadoc.
- * 
+ * A special request type which is issued against a composition of Gradle builds.
+ * <p/>
+ * Instances of {@code CompositeRequest} are not thread-safe.
+ *
  * @author Stefan Oehme
  * @param <T> the result type
  */
 public interface CompositeRequest<T> extends Request<T> {
+
+    /**
+     * Specifies the builds which will participate in the request.
+     *
+     * @param buildIdentifier the descriptor of the Gradle builds which will participate in the request
+     * @return this
+     */
     CompositeRequest<T> participants(GradleBuildIdentifier... buildIdentifier);
+
+    /**
+     * Specifies additional builds which will participate in the request.
+     *
+     * @param buildIdentifier the descriptor of the Gradle builds which will participate in the request
+     * @return this
+     */
     CompositeRequest<T> addParticipants(GradleBuildIdentifier... buildIdentifier);
 }

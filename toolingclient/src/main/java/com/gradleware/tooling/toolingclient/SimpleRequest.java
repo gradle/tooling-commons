@@ -19,12 +19,14 @@ package com.gradleware.tooling.toolingclient;
 import java.io.File;
 
 /**
- * TODO add javadoc.
+ * Request to be issued on a single Gradle build.
+ *
  * @author Stefan Oehme
  *
  * @param <T> the result type
  */
 public interface SimpleRequest<T> extends Request<T> {
+
     /**
      * Specifies the working directory to use.
      *
