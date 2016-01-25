@@ -36,7 +36,7 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 /**
- * Default implementation for {@link CompositeModelRepository}
+ * Default implementation for {@link CompositeModelRepository}.
  *
  * @author Stefan Oehme
  */

@@ -21,7 +21,7 @@ import java.util.Set;
 import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
 
 /**
- * Default implementation for {@link com.gradleware.tooling.toolingclient.CompositeModelRequest}
+ * Default implementation for {@link com.gradleware.tooling.toolingclient.CompositeModelRequest}.
  *
  * @author Stefan Oehme
  * @param <T> the result type
