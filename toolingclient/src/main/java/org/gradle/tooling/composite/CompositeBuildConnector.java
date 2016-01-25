@@ -75,7 +75,8 @@ public abstract class CompositeBuildConnector {
      * Creates the connection to all participating builds added to the composite. You should call
      * {@link org.gradle.tooling.composite.CompositeBuildConnection#close()} when you are finished with the connection.
      *
-     * @throws GradleConnectionException on failure to establish a connection
+     * @throws GradleConnectionException on failure to establish a connection to the provided participants
+     * @throws IllegalStateException if no participating builds were provided by calling {@link #addParticipant(File)}
      * @return The connection. Never return null.
      */
     public abstract CompositeBuildConnection connect() throws GradleConnectionException;
