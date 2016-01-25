@@ -17,9 +17,9 @@
 package org.gradle.tooling.composite.internal;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.gradle.api.Transformer;
-import org.gradle.jarjar.com.google.common.collect.Maps;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.composite.CompositeBuildConnection;
 import org.gradle.tooling.composite.ModelResult;
