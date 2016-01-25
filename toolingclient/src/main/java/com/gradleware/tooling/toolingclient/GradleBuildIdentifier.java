@@ -16,6 +16,8 @@
 
 package com.gradleware.tooling.toolingclient;
 
+import com.google.common.base.Preconditions;
+
 import java.io.File;
 
 /**
@@ -34,7 +36,7 @@ public final class GradleBuildIdentifier {
     private GradleDistribution gradleDistribution;
 
     private GradleBuildIdentifier(File projectDir) {
-        this.projectDir = projectDir;
+        this.projectDir = Preconditions.checkNotNull(projectDir);
         this.gradleDistribution = GradleDistribution.fromBuild();
     }
 
