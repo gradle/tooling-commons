@@ -15,6 +15,7 @@
  */
 package org.gradle.tooling.composite
 
+import org.gradle.tooling.composite.AbstractCompositeBuildConnectorIntegrationTest.ExternalDependency
 import org.gradle.tooling.model.eclipse.EclipseProject
 
 class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractCompositeBuildConnectorIntegrationTest {
