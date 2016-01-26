@@ -31,6 +31,7 @@ import com.gradleware.tooling.toolingclient.ToolingClient;
 import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
 import com.gradleware.tooling.toolingmodel.repository.CompositeModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.EclipseWorkspaceUpdateEvent;
+import com.gradleware.tooling.toolingmodel.repository.Environment;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
@@ -43,15 +44,21 @@ import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
  */
 public class DefaultCompositeModelRepository extends BaseModelRepository implements CompositeModelRepository {
 
-    // TODO fetch the build environment for all projects to decide this
+    // TODO this needs to be decided on a per-project basis, like in DefaultSimpleModelRepository
     private static final boolean REQUIRES_IS_PUBLIC_FIX = false;
 
-    private ImmutableList<FixedRequestAttributes> requestAttributes;
+    private final ImmutableList<FixedRequestAttributes> requestAttributes;
+    private final Environment environment;
 
     public DefaultCompositeModelRepository(List<FixedRequestAttributes> requestAttributes, ToolingClient toolingClient, EventBus eventBus) {
+        this(requestAttributes, toolingClient, eventBus, Environment.STANDALONE);
+    }
+
+    public DefaultCompositeModelRepository(List<FixedRequestAttributes> requestAttributes, ToolingClient toolingClient, EventBus eventBus, Environment environment) {
         super(toolingClient, eventBus);
         Preconditions.checkArgument(requestAttributes.size() == 1, "Composite builds can currently contain exactly one project");
         this.requestAttributes = ImmutableList.copyOf(requestAttributes);
+        this.environment = environment;
     }
 
     @Override
