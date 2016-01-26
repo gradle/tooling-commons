@@ -15,8 +15,8 @@
  */
 package org.gradle.tooling.composite
 
+import org.gradle.tooling.BuildException
 import org.gradle.tooling.GradleConnectionException
-import org.gradle.tooling.composite.fixtures.ExternalDependencies
 import org.gradle.tooling.model.eclipse.EclipseProject
 
 class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends AbstractCompositeBuildConnectorIntegrationTest {
@@ -30,10 +30,19 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
         t.message == "A composite build requires at least one participating project."
     }
 
+    def "cannot create composite for participant with null project directory"() {
+        when:
+        createComposite([null])
+
+        then:
+        Throwable t = thrown(IllegalStateException)
+        t.message == "A project directory must be specified before creating a connection."
+    }
+
     def "cannot request model that is not an interface"() {
         given:
         File projectDir = directoryProvider.createDir('project')
-        createBuildFileWithDependency(projectDir, ExternalDependencies.COMMONS_LANG)
+        createBuildFile(projectDir)
 
         when:
         CompositeBuildConnection compositeBuildConnection = createComposite(projectDir)
@@ -47,7 +56,7 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
     def "cannot request model for unknown model"() {
         given:
         File projectDir = directoryProvider.createDir('project')
-        createBuildFileWithDependency(projectDir, ExternalDependencies.COMMONS_LANG)
+        createBuildFile(projectDir)
 
         when:
         CompositeBuildConnection compositeBuildConnection = createComposite(projectDir)
@@ -58,10 +67,24 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
         t.message == "The only supported model for a Gradle composite is EclipseProject.class."
     }
 
+    def "cannot create composite for participant with non-existent project directory"() {
+        given:
+        File projectDir = new File('dev/project')
+
+        when:
+        createComposite(projectDir).getModels(EclipseProject)
+
+        then:
+        Throwable t = thrown(BuildException)
+        t.message.contains("Could not fetch model of type 'EclipseProject'")
+        t.cause.message == "Project directory '$projectDir.absolutePath' does not exist."
+    }
+
     def "an exception is thrown if a the model cannot be built"() {
         given:
         File projectDir = directoryProvider.createDir('project')
-        createBuildFile(projectDir) << """
+        File buildFile = createBuildFile(projectDir)
+        buildFile << """
             task myTask {
                 doSomething {
                     println 'Hello world!"
@@ -76,6 +99,7 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
         then:
         Throwable t = thrown(GradleConnectionException)
         t.message.contains("Could not fetch model of type 'EclipseProject'")
+        t.cause.message.contains("Could not compile build file '$buildFile.absolutePath'.")
     }
 
     def "cannot create composite with multiple participating builds that contain projects with the same name"() {

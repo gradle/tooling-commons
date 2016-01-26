@@ -27,6 +27,10 @@ abstract class AbstractCompositeBuildConnectorIntegrationTest extends Specificat
     TestDirectoryProvider directoryProvider = new TestDirectoryProvider()
 
     protected CompositeBuildConnection createComposite(File... rootProjectDirectories) {
+        createComposite(rootProjectDirectories as List<File>)
+    }
+
+    protected CompositeBuildConnection createComposite(List<File> rootProjectDirectories) {
         CompositeBuildConnector compositeBuildConnector = CompositeBuildConnector.newComposite()
 
         rootProjectDirectories.each {
