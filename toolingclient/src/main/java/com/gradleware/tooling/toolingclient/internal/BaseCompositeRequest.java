@@ -24,10 +24,11 @@ import com.gradleware.tooling.toolingclient.CompositeRequest;
 import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
 
 /**
- * @author Stefan Oehme
+ * Internal base class for all composite requests.
  *
  * @param <T> the result type
  * @param <SELF> self reference
+ * @author Stefan Oehme
  */
 abstract class BaseCompositeRequest<T, SELF extends BaseCompositeRequest<T, SELF>> extends BaseRequest<T, SELF>implements InspectableCompositeRequest<T> {
 

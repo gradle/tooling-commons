@@ -22,10 +22,10 @@ import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.SimpleRequest;
 
 /**
- * TODO (donat) add javadoc.
- * 
- * @author Stefan Oehme
+ * Internal interface that allows reading the request configuration.
+ *
  * @param <T> result type
+ * @author Stefan Oehme
  */
 public interface InspectableSimpleRequest<T> extends InspectableRequest<T>, SimpleRequest<T> {
 

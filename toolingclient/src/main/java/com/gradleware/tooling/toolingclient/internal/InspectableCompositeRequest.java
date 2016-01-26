@@ -20,11 +20,16 @@ import com.gradleware.tooling.toolingclient.CompositeRequest;
 import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
 
 /**
- * @author Stefan Oehme
+ * Internal interface that allows reading the request configuration.
+ *
  * @param <T> result type
+ * @author Stefan Oehme
  */
 interface InspectableCompositeRequest<T> extends InspectableRequest<T>, CompositeRequest<T> {
 
+    /**
+     * The Gradle builds that will participate in the execution of this composite request.
+     */
     GradleBuildIdentifier[] getParticipants();
 
 }

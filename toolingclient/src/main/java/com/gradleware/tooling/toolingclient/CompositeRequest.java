@@ -29,16 +29,16 @@ public interface CompositeRequest<T> extends Request<T> {
     /**
      * Specifies the builds which will participate in the request.
      *
-     * @param buildIdentifier the descriptor of the Gradle builds which will participate in the request
+     * @param buildIdentifiers the descriptors of the Gradle builds which will participate in the request
      * @return this
      */
-    CompositeRequest<T> participants(GradleBuildIdentifier... buildIdentifier);
+    CompositeRequest<T> participants(GradleBuildIdentifier... buildIdentifiers);
 
     /**
      * Specifies additional builds which will participate in the request.
      *
-     * @param buildIdentifier the descriptor of the Gradle builds which will participate in the request
+     * @param buildIdentifiers the descriptor of the Gradle builds which will participate in the request
      * @return this
      */
-    CompositeRequest<T> addParticipants(GradleBuildIdentifier... buildIdentifier);
+    CompositeRequest<T> addParticipants(GradleBuildIdentifier... buildIdentifiers);
 }
