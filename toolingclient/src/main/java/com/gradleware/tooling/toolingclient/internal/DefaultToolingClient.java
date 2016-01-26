@@ -243,16 +243,16 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     }
 
     private CompositeBuildConnection openCompositeConnection(InspectableCompositeRequest<?> compositeRequest) {
-        if (compositeRequest.getParticipants().length != 1) {
-            throw new IllegalArgumentException("Only one root project per composite build is allowed at the moment.");
+        if (compositeRequest.getParticipants().length == 0) {
+            throw new IllegalArgumentException("There must be at least one participant in a composite build");
         }
-        CompositeBuildConnector builder = CompositeBuildConnector.newComposite();
+        CompositeBuildConnector connector = CompositeBuildConnector.newComposite();
         for (GradleBuildIdentifier identifier : compositeRequest.getParticipants()) {
-            CompositeParticipant participant = builder.addParticipant(identifier.getProjectDir());
+            CompositeParticipant participant = connector.addParticipant(identifier.getProjectDir());
             //TODO gradle user home and other FixedRequestAttributes
             identifier.getGradleDistribution().apply(participant);
         }
-        return builder.connect();
+        return connector.connect();
     }
 
     private <T> ModelBuilder<T> mapToModelBuilder(InspectableModelRequest<T> modelRequest, ProjectConnection connection) {

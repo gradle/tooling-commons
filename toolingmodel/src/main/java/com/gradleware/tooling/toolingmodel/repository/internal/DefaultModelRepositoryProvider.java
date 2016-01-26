@@ -71,7 +71,7 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
 
     @Override
     public CompositeModelRepository getCompositeModelRepository(FixedRequestAttributes... fixedRequestAttributes) {
-        Preconditions.checkArgument(fixedRequestAttributes.length == 1, "Only composites with one participating project are allowed at the moment");
+        Preconditions.checkArgument(fixedRequestAttributes.length > 0, "There must be at least one fixed request attributes");
         return getOrCreateCompositeModelRepository(Arrays.asList(fixedRequestAttributes));
     }
 

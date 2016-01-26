@@ -29,7 +29,7 @@ import spock.lang.Shared
 import spock.lang.Specification
 
 
-class CompositeModelRequestTest extends Specification{
+class CompositeModelRequestTest extends Specification {
 
     @Shared
     ToolingClient toolingClient = ToolingClient.newClient()
@@ -100,18 +100,39 @@ class CompositeModelRequestTest extends Specification{
         projects.find { it.name == 'sub2'}
     }
 
-    def "Can't query workspace model if more than one root is specified"() {
+    def "Can query workspace model if more than one root is specified"() {
         setup:
         def projectA = directoryProvider.createDir("a")
         def projectB = directoryProvider.createDir("b")
+        directoryProvider.createFile("a", "build.gradle") << """
+            project(':sub1a'); project('sub2a')
+        """
+        directoryProvider.createFile("a", "settings.gradle") << """
+            rootProject.name = 'project-a'
+            include 'sub1a', 'sub2a'
+        """
+        directoryProvider.createFile("b", "build.gradle") << """
+            project(':sub1b'); project('sub2b')
+        """
+        directoryProvider.createFile("b", "settings.gradle") << """
+            rootProject.name = 'project-b'
+            include 'sub1b', 'sub2b'
+        """
+
         def request = toolingClient.newCompositeModelRequest(EclipseProject)
         request.addParticipants(GradleBuildIdentifier.withProjectDir(projectA))
         request.addParticipants(GradleBuildIdentifier.withProjectDir(projectB))
 
         when:
-        request.executeAndWait()
+        def projects = request.executeAndWait()
 
         then:
-        thrown IllegalArgumentException
+        projects.size() == 6
+        projects.find { it.name == 'project-a'}
+        projects.find { it.name == 'project-b'}
+        projects.find { it.name == 'sub1a'}
+        projects.find { it.name == 'sub2a'}
+        projects.find { it.name == 'sub1b'}
+        projects.find { it.name == 'sub2b'}
     }
 }
