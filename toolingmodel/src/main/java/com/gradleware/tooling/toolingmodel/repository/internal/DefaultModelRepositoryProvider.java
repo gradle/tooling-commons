@@ -29,7 +29,7 @@ import com.gradleware.tooling.toolingclient.ToolingClient;
 import com.gradleware.tooling.toolingmodel.repository.CompositeModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.Environment;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 
 /**
@@ -42,7 +42,7 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
     private final ToolingClient toolingClient;
     private final Environment environment;
     private final Factory<EventBus> eventBusFactory;
-    private final Map<FixedRequestAttributes, ModelRepository> modelRepositories;
+    private final Map<FixedRequestAttributes, SimpleModelRepository> modelRepositories;
 
     public DefaultModelRepositoryProvider(ToolingClient toolingClient) {
         this(toolingClient, Environment.STANDALONE);
@@ -60,7 +60,7 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
     }
 
     @Override
-    public ModelRepository getModelRepository(FixedRequestAttributes fixedRequestAttributes) {
+    public SimpleModelRepository getModelRepository(FixedRequestAttributes fixedRequestAttributes) {
         Preconditions.checkNotNull(fixedRequestAttributes);
 
         return getOrCreateModelRepository(fixedRequestAttributes);
@@ -71,11 +71,11 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
         return new DefaultCompositeModelRepository(Arrays.asList(fixedRequestAttributes), this.toolingClient, eventBusFactory.create());
     }
 
-    private ModelRepository getOrCreateModelRepository(FixedRequestAttributes fixedRequestAttributes) {
-        ModelRepository modelRepository;
+    private SimpleModelRepository getOrCreateModelRepository(FixedRequestAttributes fixedRequestAttributes) {
+        SimpleModelRepository modelRepository;
         synchronized (this.modelRepositories) {
             if (!this.modelRepositories.containsKey(fixedRequestAttributes)) {
-                modelRepository = new DefaultModelRepository(fixedRequestAttributes, this.toolingClient, this.eventBusFactory.create(), this.environment);
+                modelRepository = new DefaultSimpleModelRepository(fixedRequestAttributes, this.toolingClient, this.eventBusFactory.create(), this.environment);
                 this.modelRepositories.put(fixedRequestAttributes, modelRepository);
             } else {
                 modelRepository = this.modelRepositories.get(fixedRequestAttributes);

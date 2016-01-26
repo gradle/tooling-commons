@@ -19,15 +19,15 @@ package com.gradleware.tooling.toolingmodel.repository;
 import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
 
 /**
- * Repository for Gradle composite build models.
- * 
+ * Repository for Gradle build models sourced from a composition of several Gradle builds.
+ *
  * @author Stefan Oehme
  */
 public interface CompositeModelRepository {
 
     /**
      * Fetches the {@link OmniEclipseWorkspace} synchronously and broadcasts it through a {@link EclipseWorkspaceUpdateEvent}.
-     * 
+     *
      * @param transientRequestAttributes the transient request attributes
      * @param fetchStrategy the fetch strategy
      * @return the workspace, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is

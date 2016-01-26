@@ -38,7 +38,7 @@ import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildStructureUpdateEvent;
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildUpdateEvent;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.model.GradleProject;
@@ -57,16 +57,16 @@ import java.util.Map;
  *
  * @author Etienne Studer
  */
-public final class DefaultModelRepository extends BaseCachingSimpleModelRepository implements ModelRepository {
+public final class DefaultSimpleModelRepository extends BaseModelRepository implements SimpleModelRepository {
 
     private final FixedRequestAttributes fixedRequestAttributes;
     private final Environment environment;
 
-    public DefaultModelRepository(FixedRequestAttributes fixedRequestAttributes, ToolingClient toolingClient, EventBus eventBus) {
+    public DefaultSimpleModelRepository(FixedRequestAttributes fixedRequestAttributes, ToolingClient toolingClient, EventBus eventBus) {
         this(fixedRequestAttributes, toolingClient, eventBus, Environment.STANDALONE);
     }
 
-    public DefaultModelRepository(FixedRequestAttributes fixedRequestAttributes, ToolingClient toolingClient, EventBus eventBus, Environment environment) {
+    public DefaultSimpleModelRepository(FixedRequestAttributes fixedRequestAttributes, ToolingClient toolingClient, EventBus eventBus, Environment environment) {
         super(toolingClient, eventBus);
         this.fixedRequestAttributes = Preconditions.checkNotNull(fixedRequestAttributes);
         this.environment = environment;

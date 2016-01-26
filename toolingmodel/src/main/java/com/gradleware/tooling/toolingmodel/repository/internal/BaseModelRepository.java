@@ -31,20 +31,20 @@ import com.gradleware.tooling.toolingclient.Consumer;
 import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingclient.ToolingClient;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 
 /**
  * Common base class for {@code ModelRepository} implementations.
  *
  * @author Etienne Studer
  */
-public abstract class BaseCachingSimpleModelRepository implements SimpleModelRepository {
+public abstract class BaseModelRepository implements ModelRepository {
 
     private final ToolingClient toolingClient;
     private final EventBus eventBus;
     private final Cache<Class<?>, Object> cache;
 
-    public BaseCachingSimpleModelRepository(ToolingClient toolingClient, EventBus eventBus) {
+    public BaseModelRepository(ToolingClient toolingClient, EventBus eventBus) {
         this.toolingClient = Preconditions.checkNotNull(toolingClient);
         this.eventBus = Preconditions.checkNotNull(eventBus);
         this.cache = CacheBuilder.newBuilder().build();

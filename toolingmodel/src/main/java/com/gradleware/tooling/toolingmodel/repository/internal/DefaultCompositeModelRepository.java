@@ -36,11 +36,15 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 /**
- * Default implementation for {@link CompositeModelRepository}.
+ * Default implementation for {@link CompositeModelRepository}. Model updates are broadcast via
+ * Google Guava's {@link EventBus}.
  *
  * @author Stefan Oehme
  */
-public class DefaultCompositeModelRepository extends BaseCachingSimpleModelRepository implements CompositeModelRepository {
+public class DefaultCompositeModelRepository extends BaseModelRepository implements CompositeModelRepository {
+
+    // TODO fetch the build environment for all projects to decide this
+    private static final boolean REQUIRES_IS_PUBLIC_FIX = false;
 
     private ImmutableList<FixedRequestAttributes> requestAttributes;
 
@@ -64,7 +68,7 @@ public class DefaultCompositeModelRepository extends BaseCachingSimpleModelRepos
 
             @Override
             public OmniEclipseWorkspace apply(Set<EclipseProject> eclipseProjects) {
-                return DefaultOmniEclipseWorkspace.from(eclipseProjects, false);
+                return DefaultOmniEclipseWorkspace.from(eclipseProjects, REQUIRES_IS_PUBLIC_FIX);
             }
         };
         return executeRequest(modelRequest, successHandler, fetchStrategy, OmniEclipseWorkspace.class, converter);

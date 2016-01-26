@@ -30,7 +30,7 @@ public interface ModelRepositoryProvider {
      * @param fixedRequestAttributes the request attributes for which to get the model repository
      * @return the model repository
      */
-    ModelRepository getModelRepository(FixedRequestAttributes fixedRequestAttributes);
+    SimpleModelRepository getModelRepository(FixedRequestAttributes fixedRequestAttributes);
 
     /**
      * Returns the {@code CompositeModelReqpository} for the given set
