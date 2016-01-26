@@ -35,7 +35,6 @@ public class DefaultCompositeParticipant implements CompositeParticipant {
     private GradleDistribution gradleDistribution;
 
     public DefaultCompositeParticipant(File rootProjectDirectory) {
-        assert rootProjectDirectory != null : "root project directory cannot be null";
         this.rootProjectDirectory = rootProjectDirectory;
     }
 

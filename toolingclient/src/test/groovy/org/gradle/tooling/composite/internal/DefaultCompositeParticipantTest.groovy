@@ -5,7 +5,6 @@ import org.gradle.tooling.composite.CompositeParticipant
 import org.gradle.tooling.composite.internal.dist.InstalledGradleDistribution
 import org.gradle.tooling.composite.internal.dist.URILocatedGradleDistribution
 import org.gradle.tooling.composite.internal.dist.VersionBasedGradleDistribution
-import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -21,17 +20,6 @@ class DefaultCompositeParticipantTest extends Specification {
         then:
         compositeParticipant.rootProjectDirectory == projectDir
         !compositeParticipant.distribution
-    }
-
-    @Ignore("Assertions will be enabled in Gradle core")
-    @Unroll
-    def "is instantiated with null constructor parameter value"() {
-        when:
-        new DefaultCompositeParticipant(null)
-
-        then:
-        Throwable t = thrown(AssertionError)
-        t.message == 'root project directory cannot be null'
     }
 
     @Unroll
