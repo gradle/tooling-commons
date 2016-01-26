@@ -43,7 +43,7 @@ public interface OmniEclipseWorkspace {
     List<OmniEclipseProject> getOpenEclipseProjects();
 
     /**
-     * Searches the open projects for a project matching the given specification
+     * Searches the open projects for a project matching the given specification.
      */
     Optional<OmniEclipseProject> tryFind(Spec<? super OmniEclipseProject> predicate);
 

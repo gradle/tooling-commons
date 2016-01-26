@@ -33,7 +33,7 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
 
 /**
- * Internal implementation of {@link OmniEclipseWorkspace}
+ * Internal implementation of {@link OmniEclipseWorkspace}.
  *
  * @author Stefan Oehme
  */
