@@ -21,25 +21,6 @@ import org.gradle.tooling.model.eclipse.EclipseProject
 
 class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractCompositeBuildConnectorIntegrationTest {
 
-    def "cannot create composite with multiple participating builds that contain projects with the same name"() {
-        given:
-        File projectDir1 = directoryProvider.createDir('project-1/my-project')
-        createBuildFile(projectDir1)
-        File projectDir2 = directoryProvider.createDir('project-2/my-project')
-        createBuildFile(projectDir2)
-
-        when:
-        CompositeBuildConnection compositeBuildConnection = createComposite(projectDir1, projectDir2)
-        compositeBuildConnection.getModels(EclipseProject)
-
-        then:
-        Throwable t = thrown(IllegalStateException)
-        t.message == "A composite build does not allow duplicate project names for any of the participating project. Offending project name: 'my-project'"
-
-        cleanup:
-        compositeBuildConnection.close()
-    }
-
     def "creating a composite with second instance of same participating build only adds it once"() {
         given:
         File projectDir = directoryProvider.createDir('project')
