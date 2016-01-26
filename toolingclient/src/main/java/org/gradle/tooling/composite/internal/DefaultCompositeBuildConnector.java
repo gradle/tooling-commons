@@ -66,14 +66,14 @@ public class DefaultCompositeBuildConnector extends CompositeBuildConnector {
     }
 
     private void useGradleDistribution(GradleConnector gradleConnector, GradleDistribution gradleDistribution) {
-        if (gradleDistribution != null) {
-            if (gradleDistribution instanceof InstalledGradleDistribution) {
-                gradleConnector.useInstallation(((InstalledGradleDistribution) gradleDistribution).getGradleHome());
-            } else if (gradleDistribution instanceof URILocatedGradleDistribution) {
-                gradleConnector.useDistribution(((URILocatedGradleDistribution) gradleDistribution).getLocation());
-            } else if (gradleDistribution instanceof VersionBasedGradleDistribution) {
-                gradleConnector.useGradleVersion(((VersionBasedGradleDistribution) gradleDistribution).getGradleVersion());
-            }
+        if (gradleDistribution == null) {
+            gradleConnector.useBuildDistribution();
+        } else if (gradleDistribution instanceof InstalledGradleDistribution) {
+            gradleConnector.useInstallation(((InstalledGradleDistribution) gradleDistribution).getGradleHome());
+        } else if (gradleDistribution instanceof URILocatedGradleDistribution) {
+            gradleConnector.useDistribution(((URILocatedGradleDistribution) gradleDistribution).getLocation());
+        } else if (gradleDistribution instanceof VersionBasedGradleDistribution) {
+            gradleConnector.useGradleVersion(((VersionBasedGradleDistribution) gradleDistribution).getGradleVersion());
         }
     }
 
