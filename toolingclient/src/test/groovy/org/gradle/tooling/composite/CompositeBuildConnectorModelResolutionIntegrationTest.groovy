@@ -21,12 +21,12 @@ import org.gradle.tooling.model.eclipse.EclipseProject
 
 class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractCompositeBuildConnectorIntegrationTest {
 
-    def "cannot create composite with multiple participating build that contain projects with the same name"() {
+    def "cannot create composite with multiple participating builds that contain projects with the same name"() {
         given:
         File projectDir1 = directoryProvider.createDir('project-1/my-project')
-        createBuildFileWithDependency(projectDir1, ExternalDependencies.COMMONS_LANG)
+        createBuildFile(projectDir1)
         File projectDir2 = directoryProvider.createDir('project-2/my-project')
-        createBuildFileWithDependency(projectDir2, ExternalDependencies.LOG4J)
+        createBuildFile(projectDir2)
 
         when:
         CompositeBuildConnection compositeBuildConnection = createComposite(projectDir1, projectDir2)
@@ -43,7 +43,7 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
     def "creating a composite with second instance of same participating build only adds it once"() {
         given:
         File projectDir = directoryProvider.createDir('project')
-        createBuildFileWithDependency(projectDir, ExternalDependencies.COMMONS_LANG)
+        createBuildFile(projectDir)
 
         when:
         CompositeBuildConnection compositeBuildConnection = createComposite(projectDir, projectDir)
@@ -51,7 +51,29 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
 
         then:
         compositeModel.size() == 1
-        assertModelResult(compositeModel, 'project', ExternalDependencies.COMMONS_LANG)
+        assertModelResult(compositeModel, 'project')
+
+        cleanup:
+        compositeBuildConnection.close()
+    }
+
+    def "creating a composite with second instance of project within the same participating build only adds it once"() {
+        given:
+        File rootProjectDir = directoryProvider.createDir('project')
+        createBuildFile(rootProjectDir)
+        File subProject = new File(rootProjectDir, 'sub')
+        createBuildFile(subProject)
+        File subSubProject = new File(subProject, 'sub-sub')
+        createBuildFile(subSubProject)
+        createSettingsFile(rootProjectDir, ['sub', 'sub:sub-sub'])
+
+        when:
+        CompositeBuildConnection compositeBuildConnection = createComposite(rootProjectDir, subProject)
+        Set<ModelResult<EclipseProject>> compositeModel = compositeBuildConnection.getModels(EclipseProject)
+
+        then:
+        compositeModel.size() == 3
+        assertModelResult(compositeModel, 'project')
 
         cleanup:
         compositeBuildConnection.close()
