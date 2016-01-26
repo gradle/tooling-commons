@@ -22,15 +22,34 @@ import org.gradle.api.specs.Spec;
 
 import com.google.common.base.Optional;
 
+import com.gradleware.tooling.toolingutils.ImmutableCollection;
+
 /**
- * TODO add javadoc.
- * 
+ * The workspace consists of all the {@link OmniEclipseProject}s in a composition of one or more
+ * Gradle builds.
+ *
  * @author Stefan Oehme
  */
+// TODO add description of de-duplication and dependency substitution as soon as it is implemented
 public interface OmniEclipseWorkspace {
+
+    /**
+     * A flattened view of all projects that are currently opened in the workspace. This may be a
+     * subset of all the projects belonging to the underlying Gradle builds. The returned projects
+     * themselves still contain the full hierarchy information, even if their parent or children are
+     * not open.
+     */
+    @ImmutableCollection
     List<OmniEclipseProject> getOpenEclipseProjects();
 
+    /**
+     * Searches the open projects for a project matching the given specification
+     */
     Optional<OmniEclipseProject> tryFind(Spec<? super OmniEclipseProject> predicate);
 
+    /**
+     * @return a view of all open projects that match the given predicate
+     */
+    @ImmutableCollection
     List<OmniEclipseProject> filter(Spec<? super OmniEclipseProject> predicate);
 }
