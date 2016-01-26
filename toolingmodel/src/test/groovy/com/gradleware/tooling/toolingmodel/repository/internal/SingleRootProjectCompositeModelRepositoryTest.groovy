@@ -245,7 +245,7 @@ class SingleRootProjectCompositeModelRepositoryTest extends ToolingModelToolingC
         model == eclipseWorkspace
 
         where:
-        [distribution, environment]<< runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+        [distribution, environment]<< runInAllEnvironmentsForGradleTargetVersions(">=2.3")
     }
 
     @SuppressWarnings("GroovyTrivialConditional")
