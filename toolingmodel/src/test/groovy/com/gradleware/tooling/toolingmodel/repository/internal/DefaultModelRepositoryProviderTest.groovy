@@ -67,7 +67,6 @@ class DefaultModelRepositoryProviderTest extends ToolingModelToolingClientSpecif
         assert !modelRepositoryProvider.getCompositeModelRepository(attributesOne).is(modelRepositoryProvider.getCompositeModelRepository(attributesThree))
     }
 
-    @NotYetImplemented
     def "Composite with multiple root projects"() {
         setup:
         def modelRepositoryProvider = new DefaultModelRepositoryProvider(toolingClient)
