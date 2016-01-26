@@ -30,8 +30,8 @@ import com.gradleware.tooling.toolingclient.ToolingClient;
 import com.gradleware.tooling.toolingmodel.repository.CompositeModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.Environment;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
+import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository;
 
 /**
  * Internal implementation of the {@code ModelRepositoryProvider} API.
@@ -71,7 +71,6 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
 
     @Override
     public CompositeModelRepository getCompositeModelRepository(FixedRequestAttributes... fixedRequestAttributes) {
-        Preconditions.checkArgument(fixedRequestAttributes.length > 0, "There must be at least one fixed request attributes");
         return getOrCreateCompositeModelRepository(Arrays.asList(fixedRequestAttributes));
     }
 

@@ -56,14 +56,14 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
 
     public DefaultCompositeModelRepository(List<FixedRequestAttributes> requestAttributes, ToolingClient toolingClient, EventBus eventBus, Environment environment) {
         super(toolingClient, eventBus);
-        Preconditions.checkArgument(requestAttributes.size() == 1, "Composite builds can currently contain exactly one project");
+        Preconditions.checkArgument(requestAttributes.size() > 0, "Composite builds need at least one participant");
         this.requestAttributes = ImmutableList.copyOf(requestAttributes);
         this.environment = environment;
     }
 
     @Override
     public OmniEclipseWorkspace fetchEclipseWorkspace(TransientRequestAttributes transientAttributes, FetchStrategy fetchStrategy) {
-        CompositeModelRequest<EclipseProject> modelRequest = createModelRequest(EclipseProject.class, this.requestAttributes.get(0), transientAttributes);
+        CompositeModelRequest<EclipseProject> modelRequest = createModelRequest(EclipseProject.class, this.requestAttributes, transientAttributes);
         Consumer<OmniEclipseWorkspace> successHandler = new Consumer<OmniEclipseWorkspace>() {
 
             @Override
@@ -81,9 +81,11 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
         return executeRequest(modelRequest, successHandler, fetchStrategy, OmniEclipseWorkspace.class, converter);
     }
 
-    private <T> CompositeModelRequest<T> createModelRequest(Class<T> model, FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientAttributes) {
+    private <T> CompositeModelRequest<T> createModelRequest(Class<T> model, List<FixedRequestAttributes> fixedAttributes, TransientRequestAttributes transientAttributes) {
         CompositeModelRequest<T> request = getToolingClient().newCompositeModelRequest(model);
-        fixedAttributes.apply(request);
+        for (FixedRequestAttributes fixedRequestAttribute : fixedAttributes) {
+            fixedRequestAttribute.apply(request);
+        }
         transientAttributes.apply(request);
         return request;
     }
