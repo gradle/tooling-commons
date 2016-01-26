@@ -167,11 +167,13 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
 
     @Override
     public <T> LongRunningOperationPromise<Set<T>> execute(InspectableCompositeModelRequest<T> modelRequest) {
+        //TODO allow async execution of composite model requests
         throw new UnsupportedOperationException();
     }
 
     @Override
     public <T> Set<T> executeAndWait(InspectableCompositeModelRequest<T> modelRequest) {
+        //TODO use async execution to allow for TransientRequestAttributes to take effect, see mapToLongRunningOperation()
         CompositeBuildConnection connection = getOrCreateCompositeConnection(modelRequest);
         Set<ModelResult<T>> models = connection.getModels(modelRequest.getModelType());
         Set<T> result = Sets.newHashSet();
@@ -247,7 +249,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         CompositeBuildConnector builder = CompositeBuildConnector.newComposite();
         for (GradleBuildIdentifier identifier : compositeRequest.getParticipants()) {
             CompositeParticipant participant = builder.addParticipant(identifier.getProjectDir());
-            //TODO gradle user home
+            //TODO gradle user home and other FixedRequestAttributes
             identifier.getGradleDistribution().apply(participant);
         }
         return builder.connect();

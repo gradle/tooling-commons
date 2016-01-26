@@ -24,7 +24,7 @@ package com.gradleware.tooling.toolingmodel.repository;
 public interface ModelRepositoryProvider {
 
     /**
-     * Returns the {@code ModelRepository} for the given {@code FixedRequestAttributes}. For the
+     * Returns the {@code SimpleModelRepository} for the given {@code FixedRequestAttributes}. For the
      * same set of request attributes the same model repository instance is returned each time.
      *
      * @param fixedRequestAttributes the request attributes for which to get the model repository
