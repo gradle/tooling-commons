@@ -51,6 +51,9 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
         then:
         Throwable t = thrown(IllegalArgumentException)
         t.message == "Cannot fetch a model of type 'java.lang.String' as this type is not an interface."
+
+        cleanup:
+        compositeBuildConnection.close()
     }
 
     def "cannot request model for unknown model"() {
@@ -65,6 +68,9 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
         then:
         Throwable t = thrown(IllegalArgumentException)
         t.message == "The only supported model for a Gradle composite is EclipseProject.class."
+
+        cleanup:
+        compositeBuildConnection.close()
     }
 
     def "cannot create composite for participant with non-existent project directory"() {
@@ -72,12 +78,16 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
         File projectDir = new File('dev/project')
 
         when:
-        createComposite(projectDir).getModels(EclipseProject)
+        CompositeBuildConnection compositeBuildConnection = createComposite(projectDir)
+        compositeBuildConnection.getModels(EclipseProject)
 
         then:
         Throwable t = thrown(BuildException)
         t.message.contains("Could not fetch model of type 'EclipseProject'")
         t.cause.message == "Project directory '$projectDir.absolutePath' does not exist."
+
+        cleanup:
+        compositeBuildConnection.close()
     }
 
     def "an exception is thrown if a the model cannot be built"() {
@@ -100,6 +110,10 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
         Throwable t = thrown(GradleConnectionException)
         t.message.contains("Could not fetch model of type 'EclipseProject'")
         t.cause.message.contains("Could not compile build file '$buildFile.absolutePath'.")
+
+
+        cleanup:
+        compositeBuildConnection.close()
     }
 
     def "cannot create composite with multiple participating builds that contain projects with the same name"() {
