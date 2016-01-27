@@ -15,8 +15,11 @@
  */
 package org.gradle.tooling.composite
 
+import org.gradle.tooling.BuildCancelledException
+import org.gradle.tooling.CancellationTokenSource
 import org.gradle.tooling.composite.fixtures.ExternalDependencies
 import org.gradle.tooling.composite.fixtures.ExternalDependency
+import org.gradle.tooling.internal.consumer.DefaultCancellationTokenSource
 import org.gradle.tooling.model.eclipse.EclipseProject
 
 class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractCompositeBuildConnectorIntegrationTest {
@@ -154,6 +157,43 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         assertModelResult(compositeModel, 'sub-2', ExternalDependencies.LOG4J)
         assertModelResult(compositeModel, 'sub-a', ExternalDependencies.COMMONS_MATH)
         assertModelResult(compositeModel, 'sub-b', ExternalDependencies.COMMONS_CODEC)
+
+        cleanup:
+        compositeBuildConnection.close()
+    }
+
+    def "can create composite, provide cancellation token but not cancel the operation"() {
+        given:
+        File projectDir = directoryProvider.createDir('project')
+        createBuildFile(projectDir)
+
+        when:
+        CancellationTokenSource tokenSource = new DefaultCancellationTokenSource()
+        CompositeBuildConnection compositeBuildConnection = createComposite(projectDir)
+        Set<ModelResult<EclipseProject>> compositeModel = compositeBuildConnection.models(EclipseProject).withCancellationToken(tokenSource.token()).get()
+
+        then:
+        compositeModel.size() == 1
+        assertModelResult(compositeModel, 'project')
+
+        cleanup:
+        compositeBuildConnection.close()
+    }
+
+    def "can create composite and cancel model creation"() {
+        given:
+        File projectDir = directoryProvider.createDir('project')
+        createBuildFile(projectDir)
+
+        when:
+        CancellationTokenSource tokenSource = new DefaultCancellationTokenSource()
+        tokenSource.cancel()
+        CompositeBuildConnection compositeBuildConnection = createComposite(projectDir)
+        compositeBuildConnection.models(EclipseProject).withCancellationToken(tokenSource.token()).get()
+
+        then:
+        Throwable t = thrown(BuildCancelledException)
+        t.message == 'Build cancelled'
 
         cleanup:
         compositeBuildConnection.close()
