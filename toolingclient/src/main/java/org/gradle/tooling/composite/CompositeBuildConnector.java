@@ -19,14 +19,8 @@ package org.gradle.tooling.composite;
 import org.gradle.internal.concurrent.DefaultExecutorFactory;
 import org.gradle.internal.concurrent.ExecutorFactory;
 import org.gradle.tooling.GradleConnectionException;
-import org.gradle.tooling.composite.internal.DefaultCompositeBuildConnector;
+import org.gradle.tooling.composite.internal.CompositeBuildConnectorFactory;
 import org.gradle.tooling.internal.consumer.*;
-import org.gradle.tooling.internal.consumer.async.AsyncConsumerActionExecutor;
-import org.gradle.tooling.internal.consumer.async.DefaultAsyncConsumerActionExecutor;
-import org.gradle.tooling.internal.consumer.connection.ConsumerActionExecutor;
-import org.gradle.tooling.internal.consumer.connection.LazyConsumerActionExecutor;
-import org.gradle.tooling.internal.consumer.connection.ProgressLoggingConsumerActionExecutor;
-import org.gradle.tooling.internal.consumer.connection.RethrowingErrorsConsumerActionExecutor;
 import org.gradle.tooling.internal.consumer.loader.CachingToolingImplementationLoader;
 import org.gradle.tooling.internal.consumer.loader.DefaultToolingImplementationLoader;
 import org.gradle.tooling.internal.consumer.loader.SynchronizedToolingImplementationLoader;
@@ -67,6 +61,7 @@ public abstract class CompositeBuildConnector {
     private static final ExecutorServiceFactory executorServiceFactory = new DefaultExecutorServiceFactory();
     private static final DistributionFactory distributionFactory = new DistributionFactory(executorServiceFactory);
     private static final DefaultConnectionParameters.Builder connectionParamsBuilder = DefaultConnectionParameters.builder();
+    private static final CompositeBuildConnectorFactory gradleCompositeFactory = new CompositeBuildConnectorFactory(toolingImplementationLoader, executorFactory, loggingProvider);
 
     /**
      * Creates a new composite build connector.
@@ -76,11 +71,7 @@ public abstract class CompositeBuildConnector {
     public static CompositeBuildConnector newComposite() {
         ConnectionParameters parameters = connectionParamsBuilder.build();
         Distribution distribution = distributionFactory.getClasspathDistribution();
-        ConsumerActionExecutor lazyConnection = new LazyConsumerActionExecutor(distribution, toolingImplementationLoader, loggingProvider, parameters);
-        ConsumerActionExecutor progressLoggingConnection = new ProgressLoggingConsumerActionExecutor(lazyConnection, loggingProvider);
-        ConsumerActionExecutor rethrowingErrorsConnection = new RethrowingErrorsConsumerActionExecutor(progressLoggingConnection);
-        AsyncConsumerActionExecutor asyncConnection = new DefaultAsyncConsumerActionExecutor(rethrowingErrorsConnection, executorFactory);
-        return new DefaultCompositeBuildConnector(asyncConnection, parameters);
+        return gradleCompositeFactory.create(distribution, parameters);
     }
 
     /**
