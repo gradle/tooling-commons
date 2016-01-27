@@ -1,9 +1,13 @@
 package org.gradle.tooling.composite.internal
 
+import org.gradle.tooling.internal.consumer.ConnectionParameters
+import org.gradle.tooling.internal.consumer.async.AsyncConsumerActionExecutor
 import spock.lang.Specification
 
 class DefaultCompositeBuildConnectorTest extends Specification {
-    DefaultCompositeBuildConnector connector = new DefaultCompositeBuildConnector()
+    AsyncConsumerActionExecutor connection = Mock(AsyncConsumerActionExecutor)
+    ConnectionParameters parameters = Mock(ConnectionParameters)
+    DefaultCompositeBuildConnector connector = new DefaultCompositeBuildConnector(connection, parameters)
 
     def "can add multiple, different participant"() {
         given:

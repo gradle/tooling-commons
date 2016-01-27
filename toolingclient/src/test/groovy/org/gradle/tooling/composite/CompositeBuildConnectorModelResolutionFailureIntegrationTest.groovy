@@ -128,8 +128,9 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
         compositeBuildConnection.getModels(EclipseProject)
 
         then:
-        Throwable t = thrown(IllegalStateException)
-        t.message == "A composite build does not allow duplicate project names for any of the participating project. Offending project name: 'my-project'"
+        Throwable t = thrown(GradleConnectionException)
+        t.message.contains("Could not fetch model of type 'EclipseProject'")
+        t.cause.message == "A composite build does not allow duplicate project names for any of the participating project. Offending project name: 'my-project'"
 
         cleanup:
         compositeBuildConnection.close()

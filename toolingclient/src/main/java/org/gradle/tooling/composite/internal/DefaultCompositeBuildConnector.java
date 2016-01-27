@@ -28,6 +28,8 @@ import org.gradle.tooling.composite.internal.dist.GradleDistribution;
 import org.gradle.tooling.composite.internal.dist.InstalledGradleDistribution;
 import org.gradle.tooling.composite.internal.dist.URILocatedGradleDistribution;
 import org.gradle.tooling.composite.internal.dist.VersionBasedGradleDistribution;
+import org.gradle.tooling.internal.consumer.ConnectionParameters;
+import org.gradle.tooling.internal.consumer.async.AsyncConsumerActionExecutor;
 import org.gradle.util.CollectionUtils;
 
 import java.io.File;
@@ -39,7 +41,14 @@ import java.util.Set;
  * @author Benjamin Muschko
  */
 public class DefaultCompositeBuildConnector extends CompositeBuildConnector {
+    private final AsyncConsumerActionExecutor connection;
+    private final ConnectionParameters parameters;
     private final Set<DefaultCompositeParticipant> participants = Sets.newLinkedHashSet();
+
+    public DefaultCompositeBuildConnector(AsyncConsumerActionExecutor connection, ConnectionParameters parameters) {
+        this.connection = connection;
+        this.parameters = parameters;
+    }
 
     @Override
     public CompositeParticipant addParticipant(File rootProjectDirectory) {
@@ -51,7 +60,7 @@ public class DefaultCompositeBuildConnector extends CompositeBuildConnector {
     @Override
     public CompositeBuildConnection connect() throws GradleConnectionException {
         Set<ProjectConnection> projectConnections = transformParticipantsToProjectConnections();
-        return new DefaultCompositeBuildConnection(projectConnections);
+        return new DefaultCompositeBuildConnection(connection, parameters, projectConnections);
     }
 
     private Set<ProjectConnection> transformParticipantsToProjectConnections() {
