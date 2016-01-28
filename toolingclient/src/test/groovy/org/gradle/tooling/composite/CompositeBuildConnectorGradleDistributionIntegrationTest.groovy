@@ -38,20 +38,24 @@ class CompositeBuildConnectorGradleDistributionIntegrationTest extends AbstractC
         createBuildFileWithDependency(projectDir, commonsLangDep)
 
         when:
-        CompositeBuildConnector compositeBuildConnector = CompositeBuildConnector.newComposite()
-        CompositeParticipant compositeParticipant = compositeBuildConnector.addParticipant(projectDir)
-        configurer.execute(compositeParticipant)
-        CompositeBuildConnection compositeBuildConnection = compositeBuildConnector.connect()
-        Set<ModelResult<EclipseProject>> compositeModel = compositeBuildConnection.getModels(EclipseProject)
+        CompositeBuildConnection connection
+        Set<ModelResult<EclipseProject>> compositeModel
+
+        try {
+            CompositeBuildConnector compositeBuildConnector = CompositeBuildConnector.newComposite()
+            CompositeParticipant compositeParticipant = compositeBuildConnector.addParticipant(projectDir)
+            configurer.execute(compositeParticipant)
+            CompositeBuildConnection compositeBuildConnection = compositeBuildConnector.connect()
+            compositeModel = compositeBuildConnection.getModels(EclipseProject)
+        } finally {
+            connection?.close()
+        }
 
         then:
         compositeModel.size() == 1
         ModelResult<EclipseProject> modelResult = assertModelResultInCompositeModel(compositeModel, 'project')
         assertExternalDependencies(modelResult.model, commonsLangDep)
         assertNoProjectDependencies(modelResult.model)
-
-        cleanup:
-        compositeBuildConnection.close()
 
         where:
         version | configurer

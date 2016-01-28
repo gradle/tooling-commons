@@ -30,15 +30,15 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         createBuildFile(projectDir)
 
         when:
-        CompositeBuildConnection compositeBuildConnection = createComposite(projectDir, projectDir)
-        Set<ModelResult<EclipseProject>> compositeModel = compositeBuildConnection.getModels(EclipseProject)
+        Set<ModelResult<EclipseProject>> compositeModel
+
+        withCompositeConnection([projectDir, projectDir]) { connection ->
+            compositeModel = connection.getModels(EclipseProject)
+        }
 
         then:
         compositeModel.size() == 1
         assertModelResult(compositeModel, 'project')
-
-        cleanup:
-        compositeBuildConnection.close()
     }
 
     def "creating a composite with second instance of project within the same participating build only adds it once"() {
@@ -52,15 +52,15 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         createSettingsFile(rootProjectDir, ['sub', 'sub:sub-sub'])
 
         when:
-        CompositeBuildConnection compositeBuildConnection = createComposite(rootProjectDir, subProject)
-        Set<ModelResult<EclipseProject>> compositeModel = compositeBuildConnection.getModels(EclipseProject)
+        Set<ModelResult<EclipseProject>> compositeModel
+
+        withCompositeConnection([rootProjectDir, subProject]) { connection ->
+            compositeModel = connection.getModels(EclipseProject)
+        }
 
         then:
         compositeModel.size() == 3
         assertModelResult(compositeModel, 'project')
-
-        cleanup:
-        compositeBuildConnection.close()
     }
 
     def "can create composite with single-project participating build"() {
@@ -69,15 +69,15 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         createBuildFileWithDependency(projectDir, ExternalDependencies.COMMONS_LANG)
 
         when:
-        CompositeBuildConnection compositeBuildConnection = createComposite(projectDir)
-        Set<ModelResult<EclipseProject>> compositeModel = compositeBuildConnection.getModels(EclipseProject)
+        Set<ModelResult<EclipseProject>> compositeModel
+
+        withCompositeConnection([projectDir]) { connection ->
+            compositeModel = connection.getModels(EclipseProject)
+        }
 
         then:
         compositeModel.size() == 1
         assertModelResult(compositeModel, 'project', ExternalDependencies.COMMONS_LANG)
-
-        cleanup:
-        compositeBuildConnection.close()
     }
 
     def "can create composite with single, multi-project participating build"() {
@@ -94,8 +94,11 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         createSettingsFile(rootProjectDir, ['sub-1', 'sub-2', 'sub-1:a-1', 'sub-2:b-2'])
 
         when:
-        CompositeBuildConnection compositeBuildConnection = createComposite(rootProjectDir)
-        Set<ModelResult<EclipseProject>> compositeModel = compositeBuildConnection.getModels(EclipseProject)
+        Set<ModelResult<EclipseProject>> compositeModel
+
+        withCompositeConnection([rootProjectDir]) { connection ->
+            compositeModel = connection.getModels(EclipseProject)
+        }
 
         then:
         compositeModel.size() == 5
@@ -104,9 +107,6 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         assertModelResult(compositeModel, 'sub-2', ExternalDependencies.LOG4J)
         assertModelResult(compositeModel, 'a-1', ExternalDependencies.COMMONS_MATH)
         assertModelResult(compositeModel, 'b-2', ExternalDependencies.COMMONS_CODEC)
-
-        cleanup:
-        compositeBuildConnection.close()
     }
 
     def "can create composite with multiple, single-project participating builds"() {
@@ -117,16 +117,16 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         createBuildFileWithDependency(projectDir2, ExternalDependencies.LOG4J)
 
         when:
-        CompositeBuildConnection compositeBuildConnection = createComposite(projectDir1, projectDir2)
-        Set<ModelResult<EclipseProject>> compositeModel = compositeBuildConnection.getModels(EclipseProject)
+        Set<ModelResult<EclipseProject>> compositeModel
+
+        withCompositeConnection([projectDir1, projectDir2]) { connection ->
+            compositeModel = connection.getModels(EclipseProject)
+        }
 
         then:
         compositeModel.size() == 2
         assertModelResult(compositeModel, 'project-1', ExternalDependencies.COMMONS_LANG)
         assertModelResult(compositeModel, 'project-2', ExternalDependencies.LOG4J)
-
-        cleanup:
-        compositeBuildConnection.close()
     }
 
     def "can create composite with multiple, multi-project participating builds"() {
@@ -146,8 +146,11 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         createSettingsFile(projectDir2, ['sub-a', 'sub-b'])
 
         when:
-        CompositeBuildConnection compositeBuildConnection = createComposite(projectDir1, projectDir2)
-        Set<ModelResult<EclipseProject>> compositeModel = compositeBuildConnection.getModels(EclipseProject)
+        Set<ModelResult<EclipseProject>> compositeModel
+
+        withCompositeConnection([projectDir1, projectDir2]) { connection ->
+            compositeModel = connection.getModels(EclipseProject)
+        }
 
         then:
         compositeModel.size() == 6
@@ -157,9 +160,6 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         assertModelResult(compositeModel, 'sub-2', ExternalDependencies.LOG4J)
         assertModelResult(compositeModel, 'sub-a', ExternalDependencies.COMMONS_MATH)
         assertModelResult(compositeModel, 'sub-b', ExternalDependencies.COMMONS_CODEC)
-
-        cleanup:
-        compositeBuildConnection.close()
     }
 
     def "can create composite, provide cancellation token but not cancel the operation"() {
@@ -169,15 +169,15 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
 
         when:
         CancellationTokenSource tokenSource = new DefaultCancellationTokenSource()
-        CompositeBuildConnection compositeBuildConnection = createComposite(projectDir)
-        Set<ModelResult<EclipseProject>> compositeModel = compositeBuildConnection.models(EclipseProject).withCancellationToken(tokenSource.token()).get()
+        Set<ModelResult<EclipseProject>> compositeModel
+
+        withCompositeConnection([projectDir]) { connection ->
+            compositeModel = connection.models(EclipseProject).withCancellationToken(tokenSource.token()).get()
+        }
 
         then:
         compositeModel.size() == 1
         assertModelResult(compositeModel, 'project')
-
-        cleanup:
-        compositeBuildConnection.close()
     }
 
     def "can create composite and cancel model creation"() {
@@ -188,15 +188,16 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         when:
         CancellationTokenSource tokenSource = new DefaultCancellationTokenSource()
         tokenSource.cancel()
-        CompositeBuildConnection compositeBuildConnection = createComposite(projectDir)
-        compositeBuildConnection.models(EclipseProject).withCancellationToken(tokenSource.token()).get()
+
+        Set<ModelResult<EclipseProject>> compositeModel
+
+        withCompositeConnection([projectDir]) { connection ->
+            compositeModel = connection.models(EclipseProject).withCancellationToken(tokenSource.token()).get()
+        }
 
         then:
         Throwable t = thrown(BuildCancelledException)
         t.message == 'Build cancelled'
-
-        cleanup:
-        compositeBuildConnection.close()
     }
 
     private ModelResult<EclipseProject> assertModelResult(Set<ModelResult<EclipseProject>> compositeModel, String projectName,

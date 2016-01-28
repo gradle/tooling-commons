@@ -45,15 +45,15 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
         createBuildFile(projectDir)
 
         when:
-        CompositeBuildConnection compositeBuildConnection = createComposite(projectDir)
-        compositeBuildConnection.getModels(String)
+        Set<ModelResult<EclipseProject>> compositeModel
+
+        withCompositeConnection([projectDir]) { connection ->
+            compositeModel = connection.getModels(String)
+        }
 
         then:
         Throwable t = thrown(IllegalArgumentException)
         t.message == "Cannot fetch a model of type 'java.lang.String' as this type is not an interface."
-
-        cleanup:
-        compositeBuildConnection.close()
     }
 
     def "cannot request model for unknown model"() {
@@ -62,15 +62,15 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
         createBuildFile(projectDir)
 
         when:
-        CompositeBuildConnection compositeBuildConnection = createComposite(projectDir)
-        compositeBuildConnection.getModels(List)
+        Set<ModelResult<EclipseProject>> compositeModel
+
+        withCompositeConnection([projectDir]) { connection ->
+            compositeModel = connection.getModels(List)
+        }
 
         then:
         Throwable t = thrown(IllegalArgumentException)
         t.message == "The only supported model for a Gradle composite is EclipseProject.class."
-
-        cleanup:
-        compositeBuildConnection.close()
     }
 
     def "cannot create composite for participant with non-existent project directory"() {
@@ -78,16 +78,16 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
         File projectDir = new File('dev/project')
 
         when:
-        CompositeBuildConnection compositeBuildConnection = createComposite(projectDir)
-        compositeBuildConnection.getModels(EclipseProject)
+        Set<ModelResult<EclipseProject>> compositeModel
+
+        withCompositeConnection([projectDir]) { connection ->
+            compositeModel = connection.getModels(EclipseProject)
+        }
 
         then:
         Throwable t = thrown(BuildException)
         t.message.contains("Could not fetch model of type 'EclipseProject'")
         t.cause.message == "Project directory '$projectDir.absolutePath' does not exist."
-
-        cleanup:
-        compositeBuildConnection.close()
     }
 
     def "an exception is thrown if a the model cannot be built"() {
@@ -103,17 +103,16 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
         """
 
         when:
-        CompositeBuildConnection compositeBuildConnection = createComposite(projectDir)
-        compositeBuildConnection.getModels(EclipseProject)
+        Set<ModelResult<EclipseProject>> compositeModel
+
+        withCompositeConnection([projectDir]) { connection ->
+            compositeModel = connection.getModels(EclipseProject)
+        }
 
         then:
         Throwable t = thrown(GradleConnectionException)
         t.message.contains("Could not fetch model of type 'EclipseProject'")
         t.cause.message.contains("Could not compile build file '$buildFile.absolutePath'.")
-
-
-        cleanup:
-        compositeBuildConnection.close()
     }
 
     def "cannot create composite with multiple participating builds that contain projects with the same name"() {
@@ -124,15 +123,15 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
         createBuildFile(projectDir2)
 
         when:
-        CompositeBuildConnection compositeBuildConnection = createComposite(projectDir1, projectDir2)
-        compositeBuildConnection.getModels(EclipseProject)
+        Set<ModelResult<EclipseProject>> compositeModel
+
+        withCompositeConnection([projectDir1, projectDir2]) { connection ->
+            compositeModel = connection.getModels(EclipseProject)
+        }
 
         then:
         Throwable t = thrown(GradleConnectionException)
         t.message.contains("Could not fetch model of type 'EclipseProject'")
         t.cause.message == "A composite build does not allow duplicate project names for any of the participating project. Offending project name: 'my-project'"
-
-        cleanup:
-        compositeBuildConnection.close()
     }
 }
