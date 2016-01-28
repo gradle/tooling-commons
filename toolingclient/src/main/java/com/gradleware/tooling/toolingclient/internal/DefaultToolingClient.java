@@ -167,20 +167,21 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
 
     @Override
     public <T> LongRunningOperationPromise<Set<T>> execute(InspectableCompositeModelRequest<T> modelRequest) {
-        //TODO allow async execution of composite model requests
-        throw new UnsupportedOperationException();
+        CompositeBuildConnection connection = getOrCreateCompositeConnection(modelRequest);
+        ModelBuilder<Set<ModelResult<T>>> modelBuilder = mapToModelBuilder(modelRequest, connection);
+        return LongRunningOperationPromise.unwrappingModelResults(LongRunningOperationPromise.forModelBuilder(modelBuilder));
     }
 
     @Override
     public <T> Set<T> executeAndWait(InspectableCompositeModelRequest<T> modelRequest) {
-        //TODO use async execution to allow for TransientRequestAttributes to take effect, see mapToLongRunningOperation()
         CompositeBuildConnection connection = getOrCreateCompositeConnection(modelRequest);
-        Set<ModelResult<T>> models = connection.getModels(modelRequest.getModelType());
-        Set<T> result = Sets.newHashSet();
-        for (ModelResult<T> modelResult : models) {
-            result.add(modelResult.getModel());
+        ModelBuilder<Set<ModelResult<T>>> modelBuilder = mapToModelBuilder(modelRequest, connection);
+        Set<ModelResult<T>> modelResults = modelBuilder.get();
+        Set<T> results = Sets.newLinkedHashSet();
+        for (ModelResult<T> modelResult : modelResults) {
+            results.add(modelResult.getModel());
         }
-        return result;
+        return results;
     }
 
     private ProjectConnection getProjectConnection(InspectableSimpleRequest<?> request) {
@@ -258,6 +259,11 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     private <T> ModelBuilder<T> mapToModelBuilder(InspectableModelRequest<T> modelRequest, ProjectConnection connection) {
         ModelBuilder<T> modelBuilder = connection.model(modelRequest.getModelType());
         modelBuilder.forTasks(modelRequest.getTasks());
+        return mapToLongRunningOperation(modelRequest, modelBuilder);
+    }
+
+    private <T> ModelBuilder<Set<ModelResult<T>>> mapToModelBuilder(InspectableCompositeModelRequest<T> modelRequest, CompositeBuildConnection connection) {
+        ModelBuilder<Set<ModelResult<T>>> modelBuilder = connection.models(modelRequest.getModelType());
         return mapToLongRunningOperation(modelRequest, modelBuilder);
     }
 

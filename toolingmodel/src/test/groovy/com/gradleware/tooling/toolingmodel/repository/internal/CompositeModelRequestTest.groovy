@@ -22,6 +22,8 @@ import com.gradleware.tooling.toolingclient.ToolingClient
 import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace
 
 import groovy.transform.NotYetImplemented
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.atomic.AtomicReference
 import org.gradle.tooling.model.GradleProject
 import org.gradle.tooling.model.eclipse.EclipseProject
 import org.junit.Rule
@@ -134,5 +136,32 @@ class CompositeModelRequestTest extends Specification {
         projects.find { it.name == 'sub2a'}
         projects.find { it.name == 'sub1b'}
         projects.find { it.name == 'sub2b'}
+    }
+
+    def "Can query for models asynchronously"() {
+        setup:
+        def request = toolingClient.newCompositeModelRequest(EclipseProject)
+        directoryProvider.createFile("build.gradle")
+        directoryProvider.createFile("settings.gradle") << "rootProject.name = 'root'"
+        request.participants(GradleBuildIdentifier.withProjectDir(directoryProvider.testDirectory))
+
+        when:
+        def result = new AtomicReference<Set<EclipseProject>>()
+        def promise = request.execute()
+        def latch = new CountDownLatch(1)
+
+        promise.onFailure {
+            latch.countDown()
+        }
+        promise.onComplete {projects ->
+            result.set(projects)
+            latch.countDown()
+        }
+        latch.await()
+        def projects = result.get()
+
+        then:
+        projects.size() == 1
+        projects[0].name == 'root'
     }
 }
