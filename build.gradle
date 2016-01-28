@@ -24,8 +24,6 @@ if (!project.hasProperty('build.type') || project.property('build.type') != 'rel
   }
 }
 
-wrapper.gradleVersion = '2.9'
-
 subprojects {
 
   group = rootProject.group
