@@ -192,8 +192,6 @@ class SingleRootProjectCompositeModelRepositoryTest extends ToolingModelToolingC
             'sub2',
             'subSub1'
         ]
-        //TODO workspace project order should be stable
-        //rootProject.all*.name == eclipseWorkspace.openEclipseProjects*.name
 
         def projectSub1 = rootProject.gradleProject.tryFind({ OmniGradleProject input ->
             return input.path.path == ':sub1'
