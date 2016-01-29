@@ -16,19 +16,15 @@
 
 package com.gradleware.tooling.toolingclient;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
-
-import com.gradleware.tooling.toolingclient.internal.ResultHandlerPromise;
-
-import java.util.Set;
-
 import org.gradle.tooling.BuildActionExecuter;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.TestLauncher;
-import org.gradle.tooling.composite.ModelResult;
+
+import com.google.common.base.Preconditions;
+
+import com.gradleware.tooling.toolingclient.internal.ResultHandlerPromise;
 
 /**
  * Promise in the context of long running operations, i.e. getting a model, launching a build, executing an action.
@@ -91,36 +87,6 @@ public abstract class LongRunningOperationPromise<T> {
         ResultHandlerPromise<T> promise = new ResultHandlerPromise<T>();
         buildActionExecuter.run(promise.getResultHandler());
         return promise;
-    }
-
-    /**
-     * Takes a {@link LongRunningOperationPromise} that returns {@link ModelResult}s and unwraps those to get the underlying models.
-     */
-    public static <T> LongRunningOperationPromise<Set<T>> unwrappingModelResults(final LongRunningOperationPromise<Set<ModelResult<T>>> delegate) {
-        return new LongRunningOperationPromise<Set<T>>() {
-
-            @Override
-            public LongRunningOperationPromise<Set<T>> onComplete(final Consumer<? super Set<T>> completeHandler) {
-                Consumer<Set<ModelResult<T>>> unwrappingHandler = new Consumer<Set<ModelResult<T>>>() {
-                    @Override
-                    public void accept(Set<ModelResult<T>> input) {
-                        Set<T> unwrappedResult = Sets.newLinkedHashSet();
-                        for (ModelResult<T> modelResult : input) {
-                            unwrappedResult.add(modelResult.getModel());
-                        }
-                        completeHandler.accept(unwrappedResult);
-                    }
-                };
-                delegate.onComplete(unwrappingHandler);
-                return this;
-            }
-
-            @Override
-            public LongRunningOperationPromise<Set<T>> onFailure(Consumer<? super GradleConnectionException> failureHandler) {
-                delegate.onFailure(failureHandler);
-                return this;
-            }
-        };
     }
 
     /**

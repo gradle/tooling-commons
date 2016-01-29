@@ -26,6 +26,7 @@ import org.gradle.jarjar.com.google.common.collect.Sets;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildActionExecuter;
 import org.gradle.tooling.BuildLauncher;
+import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ModelBuilder;
@@ -47,6 +48,7 @@ import com.google.common.collect.Maps;
 import com.gradleware.tooling.toolingclient.BuildActionRequest;
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 import com.gradleware.tooling.toolingclient.CompositeModelRequest;
+import com.gradleware.tooling.toolingclient.Consumer;
 import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
@@ -170,7 +172,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     public <T> LongRunningOperationPromise<Set<T>> execute(InspectableCompositeModelRequest<T> modelRequest) {
         CompositeBuildConnection connection = getOrCreateCompositeConnection(modelRequest);
         ModelBuilder<Set<ModelResult<T>>> modelBuilder = mapToModelBuilder(modelRequest, connection);
-        return LongRunningOperationPromise.unwrappingModelResults(LongRunningOperationPromise.forModelBuilder(modelBuilder));
+        return unwrapModelResults(LongRunningOperationPromise.forModelBuilder(modelBuilder));
     }
 
     @Override
@@ -178,6 +180,33 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         CompositeBuildConnection connection = getOrCreateCompositeConnection(modelRequest);
         ModelBuilder<Set<ModelResult<T>>> modelBuilder = mapToModelBuilder(modelRequest, connection);
         Set<ModelResult<T>> modelResults = modelBuilder.get();
+        return unwrapModelResults(modelResults);
+    }
+
+    private <T> LongRunningOperationPromise<Set<T>> unwrapModelResults(final LongRunningOperationPromise<Set<ModelResult<T>>> delegate) {
+        return new LongRunningOperationPromise<Set<T>>() {
+
+            @Override
+            public LongRunningOperationPromise<Set<T>> onComplete(final Consumer<? super Set<T>> completeHandler) {
+                Consumer<Set<ModelResult<T>>> unwrappingHandler = new Consumer<Set<ModelResult<T>>>() {
+                    @Override
+                    public void accept(Set<ModelResult<T>> input) {
+                        completeHandler.accept(unwrapModelResults(input));
+                    }
+                };
+                delegate.onComplete(unwrappingHandler);
+                return this;
+            }
+
+            @Override
+            public LongRunningOperationPromise<Set<T>> onFailure(Consumer<? super GradleConnectionException> failureHandler) {
+                delegate.onFailure(failureHandler);
+                return this;
+            }
+        };
+    }
+
+    private <T> Set<T> unwrapModelResults(Set<ModelResult<T>> modelResults) {
         Set<T> results = Sets.newLinkedHashSet();
         for (ModelResult<T> modelResult : modelResults) {
             results.add(modelResult.getModel());
