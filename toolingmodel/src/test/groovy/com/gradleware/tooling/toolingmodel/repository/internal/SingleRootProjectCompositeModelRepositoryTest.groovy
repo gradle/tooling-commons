@@ -16,35 +16,8 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal
 
-import com.google.common.collect.ImmutableList
-import com.google.common.eventbus.EventBus
-import com.google.common.eventbus.Subscribe
-import com.gradleware.tooling.junit.TestDirectoryProvider
-import com.gradleware.tooling.junit.TestFile
-import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
-import com.gradleware.tooling.spock.VerboseUnroll
-import com.gradleware.tooling.testing.GradleVersionExtractor
-import com.gradleware.tooling.testing.GradleVersionParameterization
-import com.gradleware.tooling.toolingclient.GradleDistribution
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
-import com.gradleware.tooling.toolingmodel.OmniBuildInvocationsContainer
-import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuild
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure
-import com.gradleware.tooling.toolingmodel.OmniGradleProject
-import com.gradleware.tooling.toolingmodel.Path
-import com.gradleware.tooling.toolingmodel.repository.BuildEnvironmentUpdateEvent
-import com.gradleware.tooling.toolingmodel.repository.BuildInvocationsUpdateEvent
-import com.gradleware.tooling.toolingmodel.repository.EclipseGradleBuildUpdateEvent
-import com.gradleware.tooling.toolingmodel.repository.EclipseWorkspaceUpdateEvent;
-import com.gradleware.tooling.toolingmodel.repository.Environment
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
-import com.gradleware.tooling.toolingmodel.repository.GradleBuildStructureUpdateEvent
-import com.gradleware.tooling.toolingmodel.repository.GradleBuildUpdateEvent
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
+import java.util.concurrent.atomic.AtomicReference
+
 import org.gradle.api.specs.Spec
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
@@ -52,7 +25,25 @@ import org.gradle.tooling.ProgressListener
 import org.gradle.util.GradleVersion
 import org.junit.Rule
 
-import java.util.concurrent.atomic.AtomicReference
+import com.google.common.collect.ImmutableList
+import com.google.common.eventbus.EventBus
+import com.google.common.eventbus.Subscribe
+
+import com.gradleware.tooling.junit.TestDirectoryProvider
+import com.gradleware.tooling.junit.TestFile
+import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
+import com.gradleware.tooling.spock.VerboseUnroll
+import com.gradleware.tooling.testing.GradleVersionExtractor
+import com.gradleware.tooling.testing.GradleVersionParameterization
+import com.gradleware.tooling.toolingclient.GradleDistribution
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject
+import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace
+import com.gradleware.tooling.toolingmodel.OmniGradleProject
+import com.gradleware.tooling.toolingmodel.Path
+import com.gradleware.tooling.toolingmodel.repository.EclipseWorkspaceUpdateEvent
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
 class SingleRootProjectCompositeModelRepositoryTest extends ToolingModelToolingClientSpecification {
@@ -146,7 +137,7 @@ class SingleRootProjectCompositeModelRepositoryTest extends ToolingModelToolingC
         projectWithErronousBuildFile.createFile('build.gradle') << 'task myTask {'
     }
 
-    def "a cache update is sent after fetching the workspace"(GradleDistribution distribution, Environment environment) {
+    def "a cache update is sent after fetching the workspace"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(projectA.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -243,15 +234,15 @@ class SingleRootProjectCompositeModelRepositoryTest extends ToolingModelToolingC
         model == eclipseWorkspace
 
         where:
-        [distribution, environment]<< runInAllEnvironmentsForGradleTargetVersions(">=2.3")
+        distribution << runWithAllGradleVersions(">=2.3")
     }
 
     @SuppressWarnings("GroovyTrivialConditional")
-    def "projects in the workspace have correct sources and project/external dependencies "(GradleDistribution distribution, Environment environment) {
+    def "projects in the workspace have correct sources and project/external dependencies "(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(projectB.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        def repository = new DefaultCompositeModelRepository([fixedRequestAttributes], toolingClient, new EventBus(), environment)
+        def repository = new DefaultCompositeModelRepository([fixedRequestAttributes], toolingClient, new EventBus())
 
         def apiProjectDir = new TestFile(this.projectB.testDirectory, 'api')
         apiProjectDir.create {
@@ -313,14 +304,14 @@ class SingleRootProjectCompositeModelRepositoryTest extends ToolingModelToolingC
         rootProject.tryFind({ it.name == 'impl' } as Spec).get().externalDependencies == []
 
         where:
-        [distribution, environment]<< runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+        distribution << runWithAllGradleVersions(">=1.0")
     }
 
-    def "projects in the workspace have correct build commands and natures"(GradleDistribution distribution, Environment environment) {
+    def "projects in the workspace have correct build commands and natures"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(projectB.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        def repository = new DefaultCompositeModelRepository([fixedRequestAttributes], toolingClient, new EventBus(), environment)
+        def repository = new DefaultCompositeModelRepository([fixedRequestAttributes], toolingClient, new EventBus())
 
         new TestFile(this.projectB.testDirectory, 'api/build.gradle') << """
           apply plugin: 'eclipse'
@@ -353,14 +344,14 @@ class SingleRootProjectCompositeModelRepositoryTest extends ToolingModelToolingC
         }
 
         where:
-        [distribution, environment]<< runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+        distribution << runWithAllGradleVersions(">=1.0")
     }
 
-    def "projects in the workspace have no source version settings for non-JVM projects"(GradleDistribution distribution, Environment environment) {
+    def "projects in the workspace have no source version settings for non-JVM projects"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(projectA.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        def repository = new DefaultCompositeModelRepository([fixedRequestAttributes], toolingClient, new EventBus(), environment)
+        def repository = new DefaultCompositeModelRepository([fixedRequestAttributes], toolingClient, new EventBus())
 
         when:
         OmniEclipseWorkspace eclipseWorkspace = repository.fetchEclipseWorkspace(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
@@ -378,14 +369,14 @@ class SingleRootProjectCompositeModelRepositoryTest extends ToolingModelToolingC
         }
 
         where:
-        [distribution, environment]<< runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+        distribution << runWithAllGradleVersions(">=1.0")
     }
 
-    def "projects in the workspace have correct source version settings for JVM projects"(GradleDistribution distribution, Environment environment) {
+    def "projects in the workspace have correct source version settings for JVM projects"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(projectA.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        def repository = new DefaultCompositeModelRepository([fixedRequestAttributes], toolingClient, new EventBus(), environment)
+        def repository = new DefaultCompositeModelRepository([fixedRequestAttributes], toolingClient, new EventBus())
         new TestFile(this.projectA.testDirectory, 'sub1/build.gradle') << """
           apply plugin: 'java'
           apply plugin: 'eclipse'
@@ -411,14 +402,14 @@ class SingleRootProjectCompositeModelRepositoryTest extends ToolingModelToolingC
         }
 
         where:
-        [distribution, environment]<< runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+        distribution << runWithAllGradleVersions(">=1.0")
     }
 
-    def "when fetching the workspace fails, there is no update event"(GradleDistribution distribution, Environment environment) {
+    def "when fetching the workspace fails, there is no update event"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(projectWithErronousBuildFile.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        def repository = new DefaultCompositeModelRepository([fixedRequestAttributes], toolingClient, new EventBus(), environment)
+        def repository = new DefaultCompositeModelRepository([fixedRequestAttributes], toolingClient, new EventBus())
 
         AtomicReference<EclipseWorkspaceUpdateEvent> publishedEvent = new AtomicReference<>();
         repository.register(new Object() {
@@ -439,7 +430,7 @@ class SingleRootProjectCompositeModelRepositoryTest extends ToolingModelToolingC
         publishedEvent.get() == null
 
         where:
-        [distribution, environment]<< runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+        distribution << runWithAllGradleVersions(">=1.0")
     }
 
     def "no more events are sent to receiver once he is unregistered"() {
@@ -494,8 +485,8 @@ class SingleRootProjectCompositeModelRepositoryTest extends ToolingModelToolingC
         }
     }
 
-    private static ImmutableList<List<Object>> runInAllEnvironmentsForGradleTargetVersions(String versionPattern) {
-        GradleVersionParameterization.Default.INSTANCE.getPermutations(versionPattern, Environment.values() as List)
+    private static ImmutableList<GradleDistribution> runWithAllGradleVersions(String versionPattern) {
+        GradleVersionParameterization.Default.INSTANCE.getGradleDistributions(versionPattern)
     }
 
 }
