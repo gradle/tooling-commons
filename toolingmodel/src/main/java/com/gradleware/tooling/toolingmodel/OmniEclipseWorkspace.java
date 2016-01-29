@@ -38,17 +38,25 @@ public interface OmniEclipseWorkspace {
      * subset of all the projects belonging to the underlying Gradle builds. The returned projects
      * themselves still contain the full hierarchy information, even if their parent or children are
      * not open.
+     *
+     * @return the open Eclipse projects
      */
     @ImmutableCollection
     List<OmniEclipseProject> getOpenEclipseProjects();
 
     /**
      * Searches the open projects for a project matching the given specification.
+     *
+     * @param predicate the criteria to match
+     * @return the matching project, if any
      */
     Optional<OmniEclipseProject> tryFind(Spec<? super OmniEclipseProject> predicate);
 
     /**
-     * @return a view of all open projects that match the given predicate
+     * Returns a view of all open projects that match the given specification.
+     *
+     * @param predicate the criteria to match
+     * @return the matching projects
      */
     @ImmutableCollection
     List<OmniEclipseProject> filter(Spec<? super OmniEclipseProject> predicate);

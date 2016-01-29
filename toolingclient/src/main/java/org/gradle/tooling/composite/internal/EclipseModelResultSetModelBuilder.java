@@ -49,7 +49,7 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Model builder for a Set of Eclipse ModelResults.
  *
- * @param <T>
+ * @param <T> the model type
  * @author Benjamin Muschko
  */
 public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOperation<EclipseModelResultSetModelBuilder<T>> implements ModelBuilder<Set<ModelResult<T>>> {

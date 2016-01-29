@@ -23,7 +23,7 @@ import com.google.common.base.Preconditions;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 
 /**
- * Base class for all {@link SimpleRequest}s.
+ * Base class for all {@link InspectableSimpleRequest}s.
  *
  * @param <T> the result type
  * @param <SELF> self reference
