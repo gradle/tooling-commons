@@ -21,7 +21,7 @@ import java.io.File;
 import com.google.common.base.Preconditions;
 
 /**
- * Encapsulates the information required to connect to a Gradle project.
+ * Encapsulates the information required to identify a Gradle build in a composite build.
  *
  * @author Stefan Oehme
  */
