@@ -34,7 +34,7 @@ import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 
 /**
- * Common base class for {@code ModelRepository} implementations.
+ * Common base class for {@code ModelRepository} implementations. Model updates are broadcast via Google Guava's {@link EventBus}.
  *
  * @author Etienne Studer
  */
@@ -56,6 +56,7 @@ public abstract class BaseModelRepository implements ModelRepository {
      * @param listener object whose subscriber methods should be registered
      * @see com.google.common.eventbus.EventBus#register(Object)
      */
+    @Override
     public void register(Object listener) {
         Preconditions.checkNotNull(listener);
         this.eventBus.register(listener);
@@ -68,13 +69,14 @@ public abstract class BaseModelRepository implements ModelRepository {
      * @param listener object whose subscriber methods should be unregistered
      * @see com.google.common.eventbus.EventBus#unregister(Object)
      */
+    @Override
     public void unregister(Object listener) {
         Preconditions.checkNotNull(listener);
         this.eventBus.unregister(listener);
     }
 
     protected ToolingClient getToolingClient() {
-        return toolingClient;
+        return this.toolingClient;
     }
 
     protected void postEvent(Object event) {

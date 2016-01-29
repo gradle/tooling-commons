@@ -51,7 +51,7 @@ import org.gradle.util.GradleVersion;
 import java.util.Map;
 
 /**
- * Repository for Gradle build models. Model updates are broadcast via Google Guava's {@link EventBus}.
+ * Repository for Gradle build models.
  * <p/>
  * This repository is aware of the different constraints given by the Environment in which the repository is used and given by the target Gradle version.
  *

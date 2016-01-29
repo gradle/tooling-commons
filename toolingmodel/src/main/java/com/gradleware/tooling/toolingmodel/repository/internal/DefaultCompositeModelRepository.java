@@ -36,8 +36,7 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 /**
- * Default implementation for {@link CompositeModelRepository}. Model updates are broadcast via
- * Google Guava's {@link EventBus}.
+ * Default implementation for {@link CompositeModelRepository}.
  *
  * @author Stefan Oehme
  */
