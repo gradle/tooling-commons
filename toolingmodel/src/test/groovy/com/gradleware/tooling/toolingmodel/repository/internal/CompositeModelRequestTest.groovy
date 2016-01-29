@@ -20,10 +20,12 @@ import com.gradleware.tooling.toolingclient.CompositeModelRequest;
 import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
 import com.gradleware.tooling.toolingclient.ToolingClient
 import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace
+import com.gradleware.tooling.toolingmodel.repository.internal.CompositeModelRequestTest.FetchMode;
 
 import groovy.transform.NotYetImplemented
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicReference
+import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.model.GradleProject
 import org.gradle.tooling.model.eclipse.EclipseProject
 import org.junit.Rule
@@ -40,32 +42,36 @@ class CompositeModelRequestTest extends Specification {
     TestDirectoryProvider directoryProvider = new TestDirectoryProvider("test-project");
 
 
-    def "If no project identifier is set then the request throws IllegalArgumentException"() {
+    def "If no project identifier is set then the request throws IllegalArgumentException"(FetchMode fetchMode) {
         setup:
         def request = toolingClient.newCompositeModelRequest(EclipseProject)
 
         when:
-        request.executeAndWait()
+        getEclipseProjects(request, fetchMode)
 
         then:
         thrown(IllegalArgumentException)
+
+        where:
+        fetchMode << FetchMode.values()
     }
 
-    def "Querying an invalid model throws IllegalArgumentException"(){
+    def "Querying an invalid model throws IllegalArgumentException"(Class<?> modelType, FetchMode fetchMode){
         setup:
         def request = toolingClient.newCompositeModelRequest(modelType)
 
         when:
-        request.executeAndWait()
+        getEclipseProjects(request, fetchMode)
 
         then:
         thrown IllegalArgumentException
 
         where:
         modelType << [GradleProject, String]
+        fetchMode << FetchMode.values()
     }
 
-    def "Can query project models for a single-module project"() {
+    def "Can query project models for a single-module project"(FetchMode fetchMode) {
         setup:
         def request = toolingClient.newCompositeModelRequest(EclipseProject)
         directoryProvider.createFile("build.gradle")
@@ -73,14 +79,17 @@ class CompositeModelRequestTest extends Specification {
         request.participants(GradleBuildIdentifier.withProjectDir(directoryProvider.testDirectory))
 
         when:
-        def projects = request.executeAndWait()
+        def projects = getEclipseProjects(request, fetchMode)
 
         then:
         projects.size() == 1
         projects[0].name == 'root'
+
+        where:
+        fetchMode << FetchMode.values()
     }
 
-    def "Can query workspace model for a multi-module project"() {
+    def "Can query workspace model for a multi-module project"(FetchMode fetchMode) {
         setup:
         directoryProvider.createFile("build.gradle") << """
             project(':sub1'); project('sub2')
@@ -93,16 +102,19 @@ class CompositeModelRequestTest extends Specification {
         request.participants(GradleBuildIdentifier.withProjectDir(directoryProvider.testDirectory))
 
         when:
-        def projects = request.executeAndWait()
+        def projects = getEclipseProjects(request, fetchMode)
 
         then:
         projects.size() == 3
         projects.find { it.name == 'root'}
         projects.find { it.name == 'sub1'}
         projects.find { it.name == 'sub2'}
+
+        where:
+        fetchMode << FetchMode.values()
     }
 
-    def "Can query workspace model if more than one root is specified"() {
+    def "Can query workspace model if more than one root is specified"(FetchMode fetchMode) {
         setup:
         def projectA = directoryProvider.createDir("a")
         def projectB = directoryProvider.createDir("b")
@@ -126,7 +138,7 @@ class CompositeModelRequestTest extends Specification {
         request.addParticipants(GradleBuildIdentifier.withProjectDir(projectB))
 
         when:
-        def projects = request.executeAndWait()
+        def projects = getEclipseProjects(request, fetchMode)
 
         then:
         projects.size() == 6
@@ -136,32 +148,39 @@ class CompositeModelRequestTest extends Specification {
         projects.find { it.name == 'sub2a'}
         projects.find { it.name == 'sub1b'}
         projects.find { it.name == 'sub2b'}
+
+        where:
+        fetchMode << FetchMode.values()
     }
 
-    def "Can query for models asynchronously"() {
-        setup:
-        def request = toolingClient.newCompositeModelRequest(EclipseProject)
-        directoryProvider.createFile("build.gradle")
-        directoryProvider.createFile("settings.gradle") << "rootProject.name = 'root'"
-        request.participants(GradleBuildIdentifier.withProjectDir(directoryProvider.testDirectory))
+    private def getEclipseProjects(CompositeModelRequest<EclipseProject> request, FetchMode fetchMode) {
+        if (fetchMode == FetchMode.SYNC) {
+            return request.executeAndWait()
+        } else {
+            def result = new AtomicReference<Set<EclipseProject>>()
+            def failure = new AtomicReference<GradleConnectionException>()
+            def promise = request.execute()
+            def latch = new CountDownLatch(1)
 
-        when:
-        def result = new AtomicReference<Set<EclipseProject>>()
-        def promise = request.execute()
-        def latch = new CountDownLatch(1)
-
-        promise.onFailure {
-            latch.countDown()
+            promise.onFailure { exception ->
+                failure.set(exception)
+                latch.countDown()
+            }
+            promise.onComplete { projects ->
+                result.set(projects)
+                latch.countDown()
+            }
+            latch.await()
+            if (failure.get()) {
+                throw failure.get()
+            } else {
+                return result.get()
+            }
         }
-        promise.onComplete {projects ->
-            result.set(projects)
-            latch.countDown()
-        }
-        latch.await()
-        def projects = result.get()
+    }
 
-        then:
-        projects.size() == 1
-        projects[0].name == 'root'
+    private static enum FetchMode {
+        SYNC,
+        ASYNC
     }
 }
