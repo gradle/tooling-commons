@@ -37,9 +37,9 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
  *
  * @author Stefan Oehme
  */
-public class DefaultOmniEclipseWorkspace implements OmniEclipseWorkspace {
+public final class DefaultOmniEclipseWorkspace implements OmniEclipseWorkspace {
 
-    private ImmutableList<OmniEclipseProject> eclipseProjects;
+    private final ImmutableList<OmniEclipseProject> eclipseProjects;
 
     private DefaultOmniEclipseWorkspace(List<OmniEclipseProject> eclipseProjects) {
         this.eclipseProjects = ImmutableList.copyOf(eclipseProjects);

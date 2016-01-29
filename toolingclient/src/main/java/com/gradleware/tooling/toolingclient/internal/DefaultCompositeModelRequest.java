@@ -18,6 +18,8 @@ package com.gradleware.tooling.toolingclient.internal;
 
 import java.util.Set;
 
+import com.google.common.base.Preconditions;
+
 import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
 
 /**
@@ -28,11 +30,11 @@ import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
  */
 public class DefaultCompositeModelRequest<T> extends BaseCompositeRequest<Set<T>, DefaultCompositeModelRequest<T>>implements InspectableCompositeModelRequest<T> {
 
-    private Class<T> modelType;
+    private final Class<T> modelType;
 
     DefaultCompositeModelRequest(ExecutableToolingClient toolingClient, Class<T> modelType) {
         super(toolingClient);
-        this.modelType = modelType;
+        this.modelType = Preconditions.checkNotNull(modelType);
     }
 
     @Override
