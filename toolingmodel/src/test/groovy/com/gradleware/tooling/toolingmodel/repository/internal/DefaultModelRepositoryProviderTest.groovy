@@ -33,7 +33,7 @@ class DefaultModelRepositoryProviderTest extends ToolingModelToolingClientSpecif
     TestDirectoryProvider projectB = new TestDirectoryProvider();
 
     def setup() {
-        [projectA, projectB].each {project ->
+        [projectA, projectB].each { project ->
             project.createFile('settings.gradle');
             project.createFile('build.gradle') << 'task myTask {}'
         }
