@@ -16,14 +16,14 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal
 
+import org.junit.Rule
+
 import com.google.common.collect.ImmutableList
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
+
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
 import com.gradleware.tooling.toolingclient.GradleDistribution
-
-import groovy.transform.NotYetImplemented;
-import org.junit.Rule
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 
 class DefaultModelRepositoryProviderTest extends ToolingModelToolingClientSpecification {
 
