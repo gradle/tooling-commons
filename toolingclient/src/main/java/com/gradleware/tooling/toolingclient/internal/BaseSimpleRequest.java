@@ -21,12 +21,15 @@ import java.io.File;
 import com.google.common.base.Preconditions;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
+import com.gradleware.tooling.toolingclient.SimpleRequest;
 
 /**
- * @author Stefan Oehme
+ * Base class for all {@link SimpleRequest}s.
  *
  * @param <T> the result type
  * @param <SELF> self reference
+ *
+ * @author Stefan Oehme
  */
 abstract class BaseSimpleRequest<T, SELF extends BaseSimpleRequest<T, SELF>> extends BaseRequest<T, SELF> implements InspectableSimpleRequest<T> {
     private File projectDir;
