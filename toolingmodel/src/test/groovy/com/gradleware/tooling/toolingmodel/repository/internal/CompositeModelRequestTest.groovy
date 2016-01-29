@@ -41,6 +41,13 @@ class CompositeModelRequestTest extends Specification {
     @Rule
     TestDirectoryProvider directoryProvider = new TestDirectoryProvider("test-project");
 
+    def "If no model type is given, a NullPointerException is thrown"() {
+        when:
+        toolingClient.newCompositeModelRequest(null)
+
+        then:
+        thrown(NullPointerException)
+    }
 
     def "If no project identifier is set then the request throws IllegalArgumentException"(FetchMode fetchMode) {
         setup:

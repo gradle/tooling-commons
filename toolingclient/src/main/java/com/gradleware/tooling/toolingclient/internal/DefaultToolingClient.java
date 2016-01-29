@@ -104,6 +104,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
 
     @Override
     public <T> CompositeModelRequest<T> newCompositeModelRequest(Class<T> modelType) {
+        Preconditions.checkNotNull(modelType);
         return new DefaultCompositeModelRequest<T>(this, modelType);
     }
 
