@@ -98,10 +98,9 @@ public final class FixedRequestAttributes {
     }
 
     public void apply(CompositeRequest<?> request) {
-        GradleBuildIdentifier participant = GradleBuildIdentifier.withProjectDir(this.projectDir)
-                .gradleUserHomeDir(this.gradleUserHome)
+        GradleBuildIdentifier participant = GradleBuildIdentifier
+                .withProjectDir(this.projectDir)
                 .gradleDistribution(this.gradleDistribution);
-        //TODO composites should support all request attributes that single projects support
         request.addParticipants(participant);
     }
 

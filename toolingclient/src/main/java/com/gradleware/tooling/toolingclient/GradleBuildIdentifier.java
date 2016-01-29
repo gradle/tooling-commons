@@ -16,9 +16,9 @@
 
 package com.gradleware.tooling.toolingclient;
 
-import com.google.common.base.Preconditions;
-
 import java.io.File;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Encapsulates the information required to connect to a Gradle project.
@@ -32,7 +32,6 @@ public final class GradleBuildIdentifier {
     }
 
     private final File projectDir;
-    private File gradleUserHomeDir;
     private GradleDistribution gradleDistribution;
 
     private GradleBuildIdentifier(File projectDir) {
@@ -42,21 +41,6 @@ public final class GradleBuildIdentifier {
 
     public File getProjectDir() {
         return this.projectDir;
-    }
-
-    /**
-     * Specifies the user's Gradle home directory to use. Defaults to {@code ~/.gradle}.
-     *
-     * @param gradleUserHomeDir the user's Gradle home directory to use
-     * @return this
-     */
-    public GradleBuildIdentifier gradleUserHomeDir(File gradleUserHomeDir) {
-        this.gradleUserHomeDir = gradleUserHomeDir;
-        return this;
-    }
-
-    public File getGradleUserHomeDir() {
-        return this.gradleUserHomeDir;
     }
 
     /**

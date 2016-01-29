@@ -230,7 +230,6 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         List<Object> connectionProperties = Lists.newArrayList();
         for (GradleBuildIdentifier identifier : compositeRequest.getParticipants()) {
             connectionProperties.add(identifier.getProjectDir());
-            connectionProperties.add(identifier.getGradleUserHomeDir());
             connectionProperties.add(identifier.getGradleDistribution());
         }
         return connectionProperties.hashCode();
@@ -251,7 +250,6 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         CompositeBuildConnector connector = CompositeBuildConnector.newComposite();
         for (GradleBuildIdentifier identifier : compositeRequest.getParticipants()) {
             CompositeParticipant participant = connector.addParticipant(identifier.getProjectDir());
-            //TODO gradle user home and other FixedRequestAttributes
             identifier.getGradleDistribution().apply(participant);
         }
         return connector.connect();
