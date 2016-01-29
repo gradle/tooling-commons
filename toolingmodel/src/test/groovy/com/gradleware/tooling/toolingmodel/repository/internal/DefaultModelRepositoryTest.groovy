@@ -562,7 +562,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
       assert guavaDependency.gradleModuleVersion.get().name == 'guava'
       assert guavaDependency.gradleModuleVersion.get().version == '18.0'
     } else {
-      !guavaDependency.gradleModuleVersion.isPresent()
+      assert !guavaDependency.gradleModuleVersion.isPresent()
     }
     eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Spec).get().externalDependencies == []
 

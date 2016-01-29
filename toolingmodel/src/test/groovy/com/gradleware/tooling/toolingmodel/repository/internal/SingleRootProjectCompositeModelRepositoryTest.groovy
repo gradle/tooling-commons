@@ -310,7 +310,7 @@ class SingleRootProjectCompositeModelRepositoryTest extends ToolingModelToolingC
             assert guavaDependency.gradleModuleVersion.get().name == 'guava'
             assert guavaDependency.gradleModuleVersion.get().version == '18.0'
         } else {
-            !guavaDependency.gradleModuleVersion.isPresent()
+            assert !guavaDependency.gradleModuleVersion.isPresent()
         }
         rootProject.tryFind({ it.name == 'impl' } as Spec).get().externalDependencies == []
 
