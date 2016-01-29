@@ -16,6 +16,7 @@
 
 package org.gradle.tooling.composite.internal;
 
+import com.google.common.collect.Sets;
 import org.gradle.api.Transformer;
 import org.gradle.internal.UncheckedException;
 import org.gradle.internal.event.ListenerNotificationException;
@@ -109,13 +110,17 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
     }
 
     private <S> Set<ModelResult<S>> toModelResults(Set<EclipseProject> eclipseProjects) {
-        return CollectionUtils.collect(eclipseProjects, new Transformer<ModelResult<S>, EclipseProject>() {
+        Set<ModelResult<S>> modelResults = Sets.newLinkedHashSet();
+
+        CollectionUtils.collect(eclipseProjects, modelResults, new Transformer<ModelResult<S>, EclipseProject>() {
             @SuppressWarnings("unchecked")
             @Override
             public ModelResult<S> transform(EclipseProject eclipseProject) {
                 return new DefaultModelResult<S>((S) eclipseProject);
             }
         });
+
+        return modelResults;
     }
 
     /**
