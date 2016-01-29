@@ -44,7 +44,10 @@ import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
  */
 public class DefaultCompositeModelRepository extends BaseModelRepository implements CompositeModelRepository {
 
-    // TODO this needs to be decided on a per-project basis, like in DefaultSimpleModelRepository
+    /*
+     *  TODO this needs to be decided on a per-project basis, like in DefaultSimpleModelRepository
+     *  For that, the composite needs to allow fetching the Build Environment
+     */
     private static final boolean REQUIRES_IS_PUBLIC_FIX = false;
 
     private final ImmutableList<FixedRequestAttributes> requestAttributes;
