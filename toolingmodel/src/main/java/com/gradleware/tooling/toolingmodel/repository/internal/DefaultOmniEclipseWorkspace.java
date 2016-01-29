@@ -17,6 +17,7 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.gradle.api.specs.Spec;
@@ -69,10 +70,11 @@ public final class DefaultOmniEclipseWorkspace implements OmniEclipseWorkspace {
         };
     }
 
-    public static OmniEclipseWorkspace from(Set<EclipseProject> eclipseProjects, boolean enforceAllTasksPublic) {
+    public static OmniEclipseWorkspace from(Set<EclipseProject> eclipseProjects, Map<EclipseProject, Boolean> isPublicFixRequiredForProjets) {
         List<OmniEclipseProject> omniEclipseProjects = Lists.newArrayList();
         for (EclipseProject eclipseProject : eclipseProjects) {
-            omniEclipseProjects.add(DefaultOmniEclipseProject.from(eclipseProject, enforceAllTasksPublic));
+            Boolean isPublicFixRequired = Optional.fromNullable(isPublicFixRequiredForProjets.get(eclipseProject)).or(Boolean.FALSE);
+            omniEclipseProjects.add(DefaultOmniEclipseProject.from(eclipseProject, isPublicFixRequired));
         }
         return new DefaultOmniEclipseWorkspace(omniEclipseProjects);
     }

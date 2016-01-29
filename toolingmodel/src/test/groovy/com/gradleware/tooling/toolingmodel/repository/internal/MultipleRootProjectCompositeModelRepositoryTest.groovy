@@ -32,6 +32,7 @@ import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
+import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
@@ -63,7 +64,10 @@ class MultipleRootProjectCompositeModelRepositoryTest extends ToolingModelToolin
         given:
         def participantA = new FixedRequestAttributes(projectA.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def participantB = new FixedRequestAttributes(projectB.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-        def repository = new DefaultCompositeModelRepository([participantA, participantB], toolingClient, new EventBus())
+        def repoProvider = Mock(ModelRepositoryProvider)
+        repoProvider.getModelRepository(participantA) >> new DefaultSimpleModelRepository(participantA, toolingClient, new EventBus())
+        repoProvider.getModelRepository(participantB) >> new DefaultSimpleModelRepository(participantB, toolingClient, new EventBus())
+        def repository = new DefaultCompositeModelRepository(repoProvider, [participantA, participantB], toolingClient, new EventBus())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
 
         when:
@@ -82,7 +86,10 @@ class MultipleRootProjectCompositeModelRepositoryTest extends ToolingModelToolin
         given:
         def participantA = new FixedRequestAttributes(projectA.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def participantB = new FixedRequestAttributes(projectB.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-        def repository = new DefaultCompositeModelRepository([participantA, participantB], toolingClient, new EventBus())
+        def repoProvider = Mock(ModelRepositoryProvider)
+        repoProvider.getModelRepository(participantA) >> new DefaultSimpleModelRepository(participantA, toolingClient, new EventBus())
+        repoProvider.getModelRepository(participantB) >> new DefaultSimpleModelRepository(participantB, toolingClient, new EventBus())
+        def repository = new DefaultCompositeModelRepository(repoProvider, [participantA, participantB], toolingClient, new EventBus())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
 
         projectB.file('settings.gradle') << "include 'server'"
