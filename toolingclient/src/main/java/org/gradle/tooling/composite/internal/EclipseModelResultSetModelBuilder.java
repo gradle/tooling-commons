@@ -63,7 +63,7 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
         this.modelType = modelType;
         this.connection = connection;
         this.compositeModelProducer = new EclipseProjectCompositeModelProducer(participants);
-        operationParamsBuilder.setEntryPoint("Eclipse ModelBuilder API");
+        this.operationParamsBuilder.setEntryPoint("Eclipse ModelBuilder API");
     }
 
     @Override
@@ -74,13 +74,13 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
     @Override
     public ModelBuilder<Set<ModelResult<T>>> forTasks(String... tasks) {
         List<String> rationalizedTasks = rationalizeInput(tasks);
-        operationParamsBuilder.setTasks(rationalizedTasks);
+        this.operationParamsBuilder.setTasks(rationalizedTasks);
         return this;
     }
 
     @Override
     public ModelBuilder<Set<ModelResult<T>>> forTasks(Iterable<String> tasks) {
-        operationParamsBuilder.setTasks(rationalizeInput(tasks));
+        this.operationParamsBuilder.setTasks(rationalizeInput(tasks));
         return this;
     }
 
@@ -91,26 +91,29 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
         return handler.getResult();
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void get(final ResultHandler<? super Set<ModelResult<T>>> handler) throws IllegalStateException {
         final ConsumerOperationParameters operationParameters = getConsumerOperationParameters();
-        connection.run(new ConsumerAction<T>() {
+        this.connection.run(new ConsumerAction<T>() {
+            @Override
             public ConsumerOperationParameters getParameters() {
                 return operationParameters;
             }
 
+            @Override
             public T run(ConsumerConnection connection) {
-                return (T) toModelResults(compositeModelProducer.getModel());
+                return (T) toModelResults(EclipseModelResultSetModelBuilder.this.compositeModelProducer.getModel());
             }
         }, new DefaultResultHandler(handler));
     }
 
-    private <T> Set<ModelResult<T>> toModelResults(Set<EclipseProject> eclipseProjects) {
-        return CollectionUtils.collect(eclipseProjects, new Transformer<ModelResult<T>, EclipseProject>() {
+    private <S> Set<ModelResult<S>> toModelResults(Set<EclipseProject> eclipseProjects) {
+        return CollectionUtils.collect(eclipseProjects, new Transformer<ModelResult<S>, EclipseProject>() {
             @SuppressWarnings("unchecked")
             @Override
-            public ModelResult<T> transform(EclipseProject eclipseProject) {
-                return new DefaultModelResult<T>((T) eclipseProject);
+            public ModelResult<S> transform(EclipseProject eclipseProject) {
+                return new DefaultModelResult<S>((S) eclipseProject);
             }
         });
     }
@@ -129,7 +132,7 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
 
         @Override
         public T getModel() {
-            return model;
+            return this.model;
         }
     }
 
@@ -138,14 +141,15 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
      *
      * @param <T> type
      */
-    private class BlockingResultHandler<T> implements ResultHandler<Set<ModelResult<T>>> {
+    private static class BlockingResultHandler<T> implements ResultHandler<Set<ModelResult<T>>> {
         private final BlockingQueue<Object> queue = new ArrayBlockingQueue<Object>(1);
         private final Object NULL = new Object();
 
+        @SuppressWarnings("unchecked")
         public Set<ModelResult<T>> getResult() {
             Object result;
             try {
-                result = queue.take();
+                result = this.queue.take();
             } catch (InterruptedException e) {
                 throw UncheckedException.throwAsUncheckedException(e);
             }
@@ -153,7 +157,7 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
             if (result instanceof Throwable) {
                 throw UncheckedException.throwAsUncheckedException(attachCallerThreadStackTrace((Throwable) result));
             }
-            if (result == NULL) {
+            if (result == this.NULL) {
                 return null;
             }
             return (Set<ModelResult<T>>)result;
@@ -170,57 +174,59 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
             return failure;
         }
 
+        @Override
         public void onComplete(Set<ModelResult<T>> result) {
-            queue.add(result == null ? NULL : result);
+            this.queue.add(result == null ? this.NULL : result);
         }
 
+        @Override
         public void onFailure(GradleConnectionException failure) {
-            queue.add(failure);
+            this.queue.add(failure);
         }
     }
 
     /**
      * Default implementation of a result handler.
      *
-     * @param <T> type
+     * @param <S> type
      */
-    public class DefaultResultHandler<T> implements ResultHandlerVersion1<Set<ModelResult<T>>> {
-        private final ResultHandler<? super Set<ModelResult<T>>> handler;
+    public class DefaultResultHandler<S> implements ResultHandlerVersion1<Set<ModelResult<S>>> {
+        private final ResultHandler<? super Set<ModelResult<S>>> handler;
 
-        public DefaultResultHandler(ResultHandler<? super Set<ModelResult<T>>> handler) {
+        public DefaultResultHandler(ResultHandler<? super Set<ModelResult<S>>> handler) {
             this.handler = handler;
         }
 
         @Override
-        public void onComplete(Set<ModelResult<T>> result) {
-            handler.onComplete(result);
+        public void onComplete(Set<ModelResult<S>> result) {
+            this.handler.onComplete(result);
         }
 
         @Override
         public void onFailure(Throwable failure) {
             if (failure instanceof InternalUnsupportedBuildArgumentException) {
-                handler.onFailure(new UnsupportedBuildArgumentException(connectionFailureMessage(failure)
+                this.handler.onFailure(new UnsupportedBuildArgumentException(connectionFailureMessage(failure)
                         + "\n" + failure.getMessage(), failure));
             } else if (failure instanceof UnsupportedOperationConfigurationException) {
-                handler.onFailure(new UnsupportedOperationConfigurationException(connectionFailureMessage(failure)
+                this.handler.onFailure(new UnsupportedOperationConfigurationException(connectionFailureMessage(failure)
                         + "\n" + failure.getMessage(), failure.getCause()));
             } else if (failure instanceof GradleConnectionException) {
-                handler.onFailure((GradleConnectionException) failure);
+                this.handler.onFailure((GradleConnectionException) failure);
             } else if (failure instanceof InternalBuildCancelledException) {
-                handler.onFailure(new BuildCancelledException(connectionFailureMessage(failure), failure.getCause()));
+                this.handler.onFailure(new BuildCancelledException(connectionFailureMessage(failure), failure.getCause()));
             } else if (failure instanceof InternalTestExecutionException) {
-                handler.onFailure(new TestExecutionException(connectionFailureMessage(failure), failure.getCause()));
+                this.handler.onFailure(new TestExecutionException(connectionFailureMessage(failure), failure.getCause()));
             } else if (failure instanceof BuildExceptionVersion1) {
-                handler.onFailure(new BuildException(connectionFailureMessage(failure), failure.getCause()));
+                this.handler.onFailure(new BuildException(connectionFailureMessage(failure), failure.getCause()));
             } else if (failure instanceof ListenerNotificationException) {
-                handler.onFailure(new ListenerFailedException(connectionFailureMessage(failure), ((ListenerNotificationException) failure).getCauses()));
+                this.handler.onFailure(new ListenerFailedException(connectionFailureMessage(failure), ((ListenerNotificationException) failure).getCauses()));
             } else {
-                handler.onFailure(new GradleConnectionException(connectionFailureMessage(failure), failure));
+                this.handler.onFailure(new GradleConnectionException(connectionFailureMessage(failure), failure));
             }
         }
 
         private String connectionFailureMessage(Throwable failure) {
-            String message = String.format("Could not fetch model of type '%s' using %s.", modelType.getSimpleName(), connection.getDisplayName());
+            String message = String.format("Could not fetch model of type '%s' using %s.", EclipseModelResultSetModelBuilder.this.modelType.getSimpleName(), EclipseModelResultSetModelBuilder.this.connection.getDisplayName());
             if (!(failure instanceof UnsupportedMethodException) && failure instanceof UnsupportedOperationException) {
                 message += "\n" + Exceptions.INCOMPATIBLE_VERSION_HINT;
             }

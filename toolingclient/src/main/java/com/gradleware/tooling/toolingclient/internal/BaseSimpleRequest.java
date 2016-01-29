@@ -21,7 +21,6 @@ import java.io.File;
 import com.google.common.base.Preconditions;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingclient.SimpleRequest;
 
 /**
  * Base class for all {@link SimpleRequest}s.
