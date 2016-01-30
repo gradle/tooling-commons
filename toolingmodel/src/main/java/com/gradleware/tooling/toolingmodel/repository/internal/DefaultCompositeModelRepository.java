@@ -75,7 +75,7 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
             @Override
             public OmniEclipseWorkspace apply(Set<EclipseProject> eclipseProjects) {
                 // for each project investigate if the isPublic fix is required
-                Map<EclipseProject, Boolean> isPublicFixRequiredForProjects = Maps.newHashMap();
+                Map<EclipseProject, Boolean> isPublicFixRequiredForProjects = Maps.newLinkedHashMap();
                 for (EclipseProject project : eclipseProjects) {
                     for (FixedRequestAttributes attribute : DefaultCompositeModelRepository.this.requestAttributes) {
                         if (eclipseProjectIsSubProjectOf(attribute.getProjectDir(), project)) {
@@ -100,7 +100,7 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
     }
 
     private boolean targetGradleVersionIsBetween(String minVersion, String maxVersion, FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientRequestAttributes) {
-        SimpleModelRepository simpleRepo = modelRepositoryProvider.getModelRepository(fixedAttributes);
+        SimpleModelRepository simpleRepo = this.modelRepositoryProvider.getModelRepository(fixedAttributes);
         OmniBuildEnvironment buildEnvironment = simpleRepo.fetchBuildEnvironment(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
         GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
         return gradleVersion.getBaseVersion().compareTo(GradleVersion.version(minVersion)) >= 0 &&
