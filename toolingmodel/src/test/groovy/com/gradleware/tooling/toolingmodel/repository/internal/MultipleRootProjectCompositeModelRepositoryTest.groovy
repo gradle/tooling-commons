@@ -62,12 +62,7 @@ class MultipleRootProjectCompositeModelRepositoryTest extends ToolingModelToolin
 
     def "Workspace contains all projects from all participants"(GradleDistribution distribution) {
         given:
-        def participantA = new FixedRequestAttributes(projectA.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-        def participantB = new FixedRequestAttributes(projectB.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-        def repoProvider = Mock(ModelRepositoryProvider)
-        repoProvider.getModelRepository(participantA) >> new DefaultSimpleModelRepository(participantA, toolingClient, new EventBus())
-        repoProvider.getModelRepository(participantB) >> new DefaultSimpleModelRepository(participantB, toolingClient, new EventBus())
-        def repository = new DefaultCompositeModelRepository(repoProvider, [participantA, participantB], toolingClient, new EventBus())
+        def repository = getCompositeRepository(distribution)
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
 
         when:
@@ -76,6 +71,7 @@ class MultipleRootProjectCompositeModelRepositoryTest extends ToolingModelToolin
         then:
         eclipseWorkspace != null
         eclipseWorkspace.openEclipseProjects.size() == 7
+        eclipseWorkspace.openEclipseProjects*.name == ['projectA', 'client', 'android', 'server', 'projectB', 'api', 'impl']
 
         where:
         distribution << runWithAllGradleVersions(">=1.0")
@@ -84,12 +80,7 @@ class MultipleRootProjectCompositeModelRepositoryTest extends ToolingModelToolin
 
     def "An exception is thrown when two projects have the same name"(GradleDistribution distribution) {
         given:
-        def participantA = new FixedRequestAttributes(projectA.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-        def participantB = new FixedRequestAttributes(projectB.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-        def repoProvider = Mock(ModelRepositoryProvider)
-        repoProvider.getModelRepository(participantA) >> new DefaultSimpleModelRepository(participantA, toolingClient, new EventBus())
-        repoProvider.getModelRepository(participantB) >> new DefaultSimpleModelRepository(participantB, toolingClient, new EventBus())
-        def repository = new DefaultCompositeModelRepository(repoProvider, [participantA, participantB], toolingClient, new EventBus())
+        def repository = getCompositeRepository(distribution)
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
 
         projectB.file('settings.gradle') << "include 'server'"
@@ -104,6 +95,14 @@ class MultipleRootProjectCompositeModelRepositoryTest extends ToolingModelToolin
         distribution << runWithAllGradleVersions(">=1.0")
     }
 
+    private getCompositeRepository(GradleDistribution distribution) {
+        def participantA = new FixedRequestAttributes(projectA.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+        def participantB = new FixedRequestAttributes(projectB.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+        def repoProvider = Mock(ModelRepositoryProvider)
+        repoProvider.getModelRepository(participantA) >> new DefaultSimpleModelRepository(participantA, toolingClient, new EventBus())
+        repoProvider.getModelRepository(participantB) >> new DefaultSimpleModelRepository(participantB, toolingClient, new EventBus())
+        return new DefaultCompositeModelRepository(repoProvider, [participantA, participantB], toolingClient, new EventBus())
+    }
 
     private static ImmutableList<GradleDistribution> runWithAllGradleVersions(String versionPattern) {
         GradleVersionParameterization.Default.INSTANCE.getGradleDistributions(versionPattern)
