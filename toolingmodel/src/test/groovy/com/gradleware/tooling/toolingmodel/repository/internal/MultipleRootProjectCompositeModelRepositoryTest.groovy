@@ -71,7 +71,6 @@ class MultipleRootProjectCompositeModelRepositoryTest extends ToolingModelToolin
         then:
         eclipseWorkspace != null
         eclipseWorkspace.openEclipseProjects.size() == 7
-        eclipseWorkspace.openEclipseProjects*.name == ['projectA', 'client', 'android', 'server', 'projectB', 'api', 'impl']
 
         where:
         distribution << runWithAllGradleVersions(">=1.0")
