@@ -196,7 +196,7 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
      *
      * @param <T> type
      */
-    private static class BlockingResultHandler<T> implements ResultHandler<Set<ModelResult<T>>> {
+    private static final class BlockingResultHandler<T> implements ResultHandler<Set<ModelResult<T>>> {
         private final BlockingQueue<Object> queue = new ArrayBlockingQueue<Object>(1);
         private final Object NULL = new Object();
 
@@ -245,7 +245,7 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
      *
      * @param <S> type
      */
-    public class DefaultResultHandler<S> implements ResultHandlerVersion1<Set<ModelResult<S>>> {
+    private final class DefaultResultHandler<S> implements ResultHandlerVersion1<Set<ModelResult<S>>> {
         private final ResultHandler<? super Set<ModelResult<S>>> handler;
 
         public DefaultResultHandler(ResultHandler<? super Set<ModelResult<S>>> handler) {
