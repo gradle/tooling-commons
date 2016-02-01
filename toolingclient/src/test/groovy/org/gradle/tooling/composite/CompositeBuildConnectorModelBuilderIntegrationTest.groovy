@@ -86,7 +86,7 @@ class CompositeBuildConnectorModelBuilderIntegrationTest extends AbstractComposi
         progressEventDescriptions[1] == ''
     }
 
-    def "event progress listener does not capture any events as not tasks are executed"() {
+    def "event progress listener does not capture any events as no tasks are executed"() {
         given:
         File projectDir = directoryProvider.createDir('project')
         createBuildFile(projectDir)
