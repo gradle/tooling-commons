@@ -17,18 +17,14 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.gradle.api.specs.Spec;
-import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
@@ -70,13 +66,8 @@ public final class DefaultOmniEclipseWorkspace implements OmniEclipseWorkspace {
         };
     }
 
-    public static OmniEclipseWorkspace from(Set<EclipseProject> eclipseProjects, Map<EclipseProject, Boolean> isPublicFixRequiredForProjets) {
-        List<OmniEclipseProject> omniEclipseProjects = Lists.newArrayList();
-        for (EclipseProject eclipseProject : eclipseProjects) {
-            Boolean isPublicFixRequired = Optional.fromNullable(isPublicFixRequiredForProjets.get(eclipseProject)).or(Boolean.FALSE);
-            omniEclipseProjects.add(DefaultOmniEclipseProject.from(eclipseProject, isPublicFixRequired));
-        }
-        return new DefaultOmniEclipseWorkspace(omniEclipseProjects);
+    public static OmniEclipseWorkspace from(List<OmniEclipseProject> eclipseProjects) {
+        return new DefaultOmniEclipseWorkspace(eclipseProjects);
     }
 
 }

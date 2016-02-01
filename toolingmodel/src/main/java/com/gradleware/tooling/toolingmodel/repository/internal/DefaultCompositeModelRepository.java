@@ -19,21 +19,22 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.util.GradleVersion;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 
 import com.gradleware.tooling.toolingclient.CompositeModelRequest;
 import com.gradleware.tooling.toolingclient.Consumer;
 import com.gradleware.tooling.toolingclient.ToolingClient;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
 import com.gradleware.tooling.toolingmodel.repository.CompositeModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.EclipseWorkspaceUpdateEvent;
@@ -74,17 +75,15 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
 
             @Override
             public OmniEclipseWorkspace apply(Set<EclipseProject> eclipseProjects) {
-                // for each project investigate if the isPublic fix is required
-                Map<EclipseProject, Boolean> isPublicFixRequiredForProjects = Maps.newLinkedHashMap();
-                for (EclipseProject project : eclipseProjects) {
-                    for (FixedRequestAttributes attribute : DefaultCompositeModelRepository.this.requestAttributes) {
-                        if (eclipseProjectIsSubProjectOf(attribute.getProjectDir(), project)) {
-                            Boolean isPublicFixRequired = targetGradleVersionIsBetween("2.1", "2.2.1", attribute, transientAttributes);
-                            isPublicFixRequiredForProjects.put(project, isPublicFixRequired);
-                        }
+                List<OmniEclipseProject> omniEclipseProjects = FluentIterable.from(eclipseProjects).transform(new Function<EclipseProject, OmniEclipseProject>() {
+
+                    @Override
+                    public OmniEclipseProject apply(EclipseProject eclipseProject) {
+                        boolean isPublicFixRequired = isPublicFixRequired(eclipseProject, transientAttributes);
+                        return DefaultOmniEclipseProject.from(eclipseProject, isPublicFixRequired);
                     }
-                }
-                return DefaultOmniEclipseWorkspace.from(eclipseProjects, isPublicFixRequiredForProjects);
+                }).toList();
+                return DefaultOmniEclipseWorkspace.from(omniEclipseProjects);
             }
         };
         return executeRequest(modelRequest, successHandler, fetchStrategy, OmniEclipseWorkspace.class, converter);
@@ -97,6 +96,15 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
         }
         transientAttributes.apply(request);
         return request;
+    }
+
+    boolean isPublicFixRequired(EclipseProject project, TransientRequestAttributes transientAttributes) {
+        for (FixedRequestAttributes attribute : DefaultCompositeModelRepository.this.requestAttributes) {
+            if (eclipseProjectIsSubProjectOf(attribute.getProjectDir(), project)) {
+                return targetGradleVersionIsBetween("2.1", "2.2.1", attribute, transientAttributes);
+            }
+        }
+        return false;
     }
 
     private boolean targetGradleVersionIsBetween(String minVersion, String maxVersion, FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientRequestAttributes) {
