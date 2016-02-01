@@ -18,6 +18,7 @@ package org.gradle.tooling.composite.internal;
 
 import org.gradle.api.Transformer;
 import org.gradle.internal.UncheckedException;
+import org.gradle.internal.classpath.ClassPath;
 import org.gradle.internal.event.ListenerNotificationException;
 import org.gradle.tooling.*;
 import org.gradle.tooling.composite.ModelResult;
@@ -39,6 +40,9 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.internal.Exceptions;
 import org.gradle.util.CollectionUtils;
 
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -73,15 +77,66 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
 
     @Override
     public ModelBuilder<Set<ModelResult<T>>> forTasks(String... tasks) {
-        List<String> rationalizedTasks = rationalizeInput(tasks);
-        this.operationParamsBuilder.setTasks(rationalizedTasks);
-        return this;
+        throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("execute tasks"));
     }
 
     @Override
     public ModelBuilder<Set<ModelResult<T>>> forTasks(Iterable<String> tasks) {
-        this.operationParamsBuilder.setTasks(rationalizeInput(tasks));
-        return this;
+        throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("execute tasks"));
+    }
+
+    @Override
+    public EclipseModelResultSetModelBuilder<T> withArguments(String... arguments) {
+        throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("provide arguments"));
+    }
+
+    @Override
+    public EclipseModelResultSetModelBuilder<T> withArguments(Iterable<String> arguments) {
+        throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("provide arguments"));
+    }
+
+    @Override
+    public EclipseModelResultSetModelBuilder<T> setStandardOutput(OutputStream outputStream) {
+        throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("set standard output"));
+    }
+
+    @Override
+    public EclipseModelResultSetModelBuilder<T> setStandardError(OutputStream outputStream) {
+        throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("set standard error"));
+    }
+
+    @Override
+    public EclipseModelResultSetModelBuilder<T> setStandardInput(InputStream inputStream) {
+        throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("set standard input"));
+    }
+
+    @Override
+    public EclipseModelResultSetModelBuilder<T> setColorOutput(boolean colorOutput) {
+        throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("set color output"));
+    }
+
+    @Override
+    public EclipseModelResultSetModelBuilder<T> setJavaHome(File javaHome) {
+        throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("set Java home"));
+    }
+
+    @Override
+    public EclipseModelResultSetModelBuilder<T> setJvmArguments(String... jvmArguments) {
+        throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("provide JVM arguments"));
+    }
+
+    @Override
+    public EclipseModelResultSetModelBuilder<T> setJvmArguments(Iterable<String> jvmArguments) {
+        throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("provide JVM arguments"));
+    }
+
+    @Override
+    public EclipseModelResultSetModelBuilder<T> withInjectedClassPath(ClassPath classpath) {
+        throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("inject a classpath"));
+    }
+
+    private String createUnsupportedMethodExceptionMessage(String functionality) {
+        return String.format("ModelBuilder for a composite cannot %s", functionality);
     }
 
     @Override
