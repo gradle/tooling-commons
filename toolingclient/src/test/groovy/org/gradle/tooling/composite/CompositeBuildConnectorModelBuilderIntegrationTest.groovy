@@ -15,12 +15,12 @@
  */
 package org.gradle.tooling.composite
 
-import org.gradle.tooling.BuildCancelledException
-import org.gradle.tooling.CancellationTokenSource
-import org.gradle.tooling.ProgressEvent
-import org.gradle.tooling.ProgressListener
+import org.gradle.tooling.*
 import org.gradle.tooling.internal.consumer.DefaultCancellationTokenSource
 import org.gradle.tooling.model.eclipse.EclipseProject
+
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 class CompositeBuildConnectorModelBuilderIntegrationTest extends AbstractCompositeBuildConnectorIntegrationTest {
 
@@ -84,5 +84,71 @@ class CompositeBuildConnectorModelBuilderIntegrationTest extends AbstractComposi
         progressEventDescriptions.size() == 2
         progressEventDescriptions[0] == 'Build'
         progressEventDescriptions[1] == ''
+    }
+
+    def "can create composite and capturing completed request with result handler"() {
+        given:
+        File projectDir = directoryProvider.createDir('project')
+        createBuildFile(projectDir)
+
+        when:
+        TestResultHandler<Set<ModelResult<EclipseProject>>> resultHandler = new TestResultHandler()
+
+        withCompositeConnection([projectDir]) { connection ->
+            connection.models(EclipseProject).get(resultHandler)
+            resultHandler.waitForResult()
+        }
+
+        then:
+        resultHandler.result.size() == 1
+        !resultHandler.failure
+    }
+
+    def "can create composite and capture failure with result handler"() {
+        given:
+        File projectDir = new File('someDir')
+
+        when:
+        TestResultHandler resultHandler = new TestResultHandler()
+
+        withCompositeConnection([projectDir]) { connection ->
+            connection.models(EclipseProject).get(resultHandler)
+            resultHandler.waitForResult()
+        }
+
+        then:
+        !resultHandler.result
+        resultHandler.failure.message.contains("Could not fetch model of type 'EclipseProject'")
+        resultHandler.failure.cause.message == "Project directory '$projectDir.absolutePath' does not exist."
+    }
+
+    private class TestResultHandler implements ResultHandler<Set<ModelResult<EclipseProject>>> {
+        private final CountDownLatch latch = new CountDownLatch(1)
+        private Set<ModelResult<EclipseProject>> result
+        private GradleConnectionException failure
+
+        @Override
+        void onComplete(Set<ModelResult<EclipseProject>> result) {
+            this.result = result
+            latch.countDown()
+        }
+
+        @Override
+        void onFailure(GradleConnectionException failure) {
+            this.failure = failure
+            latch.countDown()
+        }
+
+        void waitForResult() {
+            latch.await(10, TimeUnit.SECONDS)
+        }
+
+        Set<ModelResult<EclipseProject>> getResult() {
+            result
+        }
+
+        GradleConnectionException getFailure() {
+            failure
+        }
     }
 }
