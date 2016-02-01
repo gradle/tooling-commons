@@ -114,24 +114,4 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
         t.message.contains("Could not fetch model of type 'EclipseProject'")
         t.cause.message.contains("Could not compile build file '$buildFile.absolutePath'.")
     }
-
-    def "cannot create composite with multiple participating builds that contain projects with the same name"() {
-        given:
-        File projectDir1 = directoryProvider.createDir('project-1/my-project')
-        createBuildFile(projectDir1)
-        File projectDir2 = directoryProvider.createDir('project-2/my-project')
-        createBuildFile(projectDir2)
-
-        when:
-        Set<ModelResult<EclipseProject>> compositeModel
-
-        withCompositeConnection([projectDir1, projectDir2]) { connection ->
-            compositeModel = connection.getModels(EclipseProject)
-        }
-
-        then:
-        Throwable t = thrown(GradleConnectionException)
-        t.message.contains("Could not fetch model of type 'EclipseProject'")
-        t.cause.message == "A composite build does not allow duplicate project names for any of the participating project. Offending project name: 'my-project'"
-    }
 }

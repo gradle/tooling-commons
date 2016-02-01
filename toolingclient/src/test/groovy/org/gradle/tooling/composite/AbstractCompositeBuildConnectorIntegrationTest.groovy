@@ -78,11 +78,13 @@ abstract class AbstractCompositeBuildConnectorIntegrationTest extends Specificat
         """
     }
 
-    protected File createSettingsFile(File projectDir, List<String> projectPaths) {
+    protected File createSettingsFile(File projectDir, List<String> projectPaths = []) {
         File settingsFile = new File(projectDir, 'settings.gradle')
         createFile(settingsFile)
-        String includes = projectPaths.collect { "'$it'" }.join(', ')
-        settingsFile << "include $includes"
+        if (projectPaths) {
+            String includes = projectPaths.collect { "'$it'" }.join(', ')
+            settingsFile << "include $includes\n"
+        }
         settingsFile
     }
 

@@ -558,7 +558,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     def implProjectDependencies = rootProject.tryFind({ it.name == 'impl' } as Spec).get().projectDependencies
     implProjectDependencies.size() == 1
     def apiProjectDependency = implProjectDependencies[0]
-    apiProjectDependency.targetProjectPath.path == ':api'
+    apiProjectDependency.targetProjectDir.name == 'api'
     apiProjectDependency.exported == higherOrEqual('2.5', distribution) ? false : true
 
     // verify external dependencies

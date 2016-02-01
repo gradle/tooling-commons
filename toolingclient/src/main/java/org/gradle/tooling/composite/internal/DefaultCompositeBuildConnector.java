@@ -24,6 +24,7 @@ import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.composite.CompositeBuildConnection;
 import org.gradle.tooling.composite.CompositeBuildConnector;
 import org.gradle.tooling.composite.CompositeParticipant;
+import org.gradle.tooling.composite.internal.deduplication.DeduplicatingCompositeBuildConnection;
 import org.gradle.tooling.composite.internal.dist.GradleDistribution;
 import org.gradle.tooling.composite.internal.dist.InstalledGradleDistribution;
 import org.gradle.tooling.composite.internal.dist.URILocatedGradleDistribution;
@@ -37,7 +38,7 @@ import java.util.Set;
 
 /**
  * The default implementation of a composite build connector.
- * 
+ *
  * @author Benjamin Muschko
  */
 public class DefaultCompositeBuildConnector extends CompositeBuildConnector {
@@ -53,18 +54,20 @@ public class DefaultCompositeBuildConnector extends CompositeBuildConnector {
     @Override
     public CompositeParticipant addParticipant(File rootProjectDirectory) {
         DefaultCompositeParticipant participant = new DefaultCompositeParticipant(rootProjectDirectory);
-        participants.add(participant);
+        this.participants.add(participant);
         return participant;
     }
 
     @Override
     public CompositeBuildConnection connect() throws GradleConnectionException {
         Set<ProjectConnection> projectConnections = transformParticipantsToProjectConnections();
-        return new DefaultCompositeBuildConnection(connection, parameters, projectConnections);
+        DefaultCompositeBuildConnection actualConnection = new DefaultCompositeBuildConnection(this.connection, this.parameters, projectConnections);
+        DeduplicatingCompositeBuildConnection deduplicatingConnection = new DeduplicatingCompositeBuildConnection(actualConnection);
+        return deduplicatingConnection;
     }
 
     private Set<ProjectConnection> transformParticipantsToProjectConnections() {
-        return CollectionUtils.collect(participants, new Transformer<ProjectConnection, DefaultCompositeParticipant>() {
+        return CollectionUtils.collect(this.participants, new Transformer<ProjectConnection, DefaultCompositeParticipant>() {
             @Override
             public ProjectConnection transform(DefaultCompositeParticipant participant) {
                 GradleConnector gradleConnector = GradleConnector.newConnector().forProjectDirectory(participant.getRootProjectDirectory());
@@ -87,6 +90,6 @@ public class DefaultCompositeBuildConnector extends CompositeBuildConnector {
     }
 
     Set<DefaultCompositeParticipant> getParticipants() {
-        return participants;
+        return this.participants;
     }
 }

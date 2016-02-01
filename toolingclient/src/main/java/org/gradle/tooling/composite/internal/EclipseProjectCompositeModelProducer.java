@@ -16,14 +16,13 @@
 
 package org.gradle.tooling.composite.internal;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import java.io.File;
+import java.util.Set;
+
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
-import java.io.File;
-import java.util.Map;
-import java.util.Set;
+import com.google.common.collect.Sets;
 
 /**
  * Produces a model for a Eclipse composite.
@@ -41,7 +40,7 @@ public class EclipseProjectCompositeModelProducer implements CompositeModelProdu
     @Override
     public Set<EclipseProject> getModel() {
         Set<File> processedBuilds = Sets.newHashSet();
-        Map<String, EclipseProject> eclipseProjects = Maps.newHashMap();
+        Set<EclipseProject> eclipseProjects = Sets.newHashSet();
 
         for (ProjectConnection participant : this.connections) {
             EclipseProject rootProject = determineRootProject(participant.getModel(EclipseProject.class));
@@ -53,7 +52,7 @@ public class EclipseProjectCompositeModelProducer implements CompositeModelProdu
             }
         }
 
-        return Sets.newHashSet(eclipseProjects.values());
+        return Sets.newHashSet(eclipseProjects);
     }
 
     private EclipseProject determineRootProject(EclipseProject eclipseProject) {
@@ -63,13 +62,8 @@ public class EclipseProjectCompositeModelProducer implements CompositeModelProdu
         return determineRootProject(eclipseProject.getParent());
     }
 
-    private void addWithChildren(EclipseProject project, Map<String, EclipseProject> collectedProjects) {
-        if (collectedProjects.containsKey(project.getName())) {
-            String message = String.format("A composite build does not allow duplicate project names for any of the participating project. Offending project name: '%s'", project.getName());
-            throw new IllegalStateException(message);
-        }
-
-        collectedProjects.put(project.getName(), project);
+    private void addWithChildren(EclipseProject project, Set<EclipseProject> collectedProjects) {
+        collectedProjects.add(project);
 
         for (EclipseProject childProject : project.getChildren()) {
             addWithChildren(childProject, collectedProjects);

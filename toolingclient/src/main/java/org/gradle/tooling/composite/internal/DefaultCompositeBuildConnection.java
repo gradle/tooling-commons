@@ -37,8 +37,7 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
     private final ConnectionParameters parameters;
     private final Set<ProjectConnection> participants;
 
-    public DefaultCompositeBuildConnection(AsyncConsumerActionExecutor connection, ConnectionParameters parameters,
-                                           Set<ProjectConnection> participants) {
+    public DefaultCompositeBuildConnection(AsyncConsumerActionExecutor connection, ConnectionParameters parameters, Set<ProjectConnection> participants) {
         this.connection = connection;
         this.parameters = parameters;
 
@@ -64,7 +63,7 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
             throw new IllegalArgumentException(String.format("The only supported model for a Gradle composite is %s.class.", EclipseProject.class.getSimpleName()));
         }
 
-        return new EclipseModelResultSetModelBuilder<T>(modelType, connection, parameters, participants);
+        return new EclipseModelResultSetModelBuilder<T>(modelType, this.connection, this.parameters, this.participants);
     }
 
     @Override

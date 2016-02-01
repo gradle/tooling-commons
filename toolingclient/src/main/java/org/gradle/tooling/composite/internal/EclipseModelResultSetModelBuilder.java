@@ -126,24 +126,6 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
     }
 
     /**
-     * The default implementation of a model result.
-     *
-     * @author Benjamin Muschko
-     */
-    private static final class DefaultModelResult<T> implements ModelResult<T> {
-        private final T model;
-
-        private DefaultModelResult(T model) {
-            this.model = model;
-        }
-
-        @Override
-        public T getModel() {
-            return this.model;
-        }
-    }
-
-    /**
      * Implementation of a result handler that blocks until request is fully processed.
      *
      * @param <T> type

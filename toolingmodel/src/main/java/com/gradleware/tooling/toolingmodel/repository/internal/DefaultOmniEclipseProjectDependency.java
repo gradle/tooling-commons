@@ -16,12 +16,11 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
-import com.gradleware.tooling.toolingmodel.Path;
-import org.gradle.internal.reflect.JavaReflectionUtil;
-import org.gradle.internal.reflect.PropertyAccessor;
-import org.gradle.tooling.internal.adapter.ProtocolToModelAdapter;
+import java.io.File;
+
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
+
+import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
 
 /**
  * Default implementation of the {@link OmniEclipseProjectDependency} interface.
@@ -30,19 +29,19 @@ import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
  */
 public final class DefaultOmniEclipseProjectDependency implements OmniEclipseProjectDependency {
 
-    private final Path targetProjectPath;
+    private final File targetProjectDir;
     private final String path;
     private final boolean exported;
 
-    private DefaultOmniEclipseProjectDependency(Path targetProjectPath, String path, boolean exported) {
-        this.targetProjectPath = targetProjectPath;
+    private DefaultOmniEclipseProjectDependency(File targetProjectDir, String path, boolean exported) {
+        this.targetProjectDir = targetProjectDir;
         this.path = path;
         this.exported = exported;
     }
 
     @Override
-    public Path getTargetProjectPath() {
-        return this.targetProjectPath;
+    public File getTargetProjectDir() {
+        return this.targetProjectDir;
     }
 
     @Override
@@ -56,19 +55,10 @@ public final class DefaultOmniEclipseProjectDependency implements OmniEclipsePro
     }
 
     public static DefaultOmniEclipseProjectDependency from(EclipseProjectDependency projectDependency) {
-        String targetEclipseProjectPath = inspectTargetEclipseProjectPath(projectDependency);
         return new DefaultOmniEclipseProjectDependency(
-                Path.from(targetEclipseProjectPath),
+                projectDependency.getTargetProject().getProjectDirectory(),
                 projectDependency.getPath(),
                 getIsExported(projectDependency));
-    }
-
-    @SuppressWarnings("unchecked")
-    private static String inspectTargetEclipseProjectPath(EclipseProjectDependency projectDependency) {
-        // cannot cast due to class in proxy delegate is loaded by a different class loader
-        Object targetEclipseProject = new ProtocolToModelAdapter().unpack(projectDependency.getTargetProject());
-        PropertyAccessor<Object, String> pathProperty = (PropertyAccessor<Object, String>) JavaReflectionUtil.readableProperty(targetEclipseProject.getClass(), String.class, "path");
-        return pathProperty.getValue(targetEclipseProject);
     }
 
     /**

@@ -76,24 +76,6 @@ class MultipleRootProjectCompositeModelRepositoryTest extends ToolingModelToolin
         distribution << runWithAllGradleVersions(">=1.0")
     }
 
-
-    def "An exception is thrown when two projects have the same name"(GradleDistribution distribution) {
-        given:
-        def repository = getCompositeRepository(distribution)
-        def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-
-        projectB.file('settings.gradle') << "include 'server'"
-
-        when:
-        OmniEclipseWorkspace eclipseWorkspace = repository.fetchEclipseWorkspace(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-
-        then:
-        thrown GradleConnectionException
-
-        where:
-        distribution << runWithAllGradleVersions(">=1.0")
-    }
-
     private getCompositeRepository(GradleDistribution distribution) {
         def participantA = new FixedRequestAttributes(projectA.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def participantB = new FixedRequestAttributes(projectB.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
