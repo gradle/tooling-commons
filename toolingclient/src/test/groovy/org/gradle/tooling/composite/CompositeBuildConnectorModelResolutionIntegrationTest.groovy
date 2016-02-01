@@ -159,29 +159,6 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         assertModelResult(compositeModel, 'sub-b', ExternalDependencies.COMMONS_CODEC)
     }
 
-    def "composite model results preserves order in which participants were added"() {
-        given:
-        File projectDir1 = directoryProvider.createDir('my-project')
-        File projectDir2 = directoryProvider.createDir('gradle-com')
-        File projectDir3 = directoryProvider.createDir('buildship')
-        File projectDir4 = directoryProvider.createDir('thirdparty')
-        File projectDir5 = directoryProvider.createDir('utils')
-        List<File> participants = [projectDir1, projectDir2, projectDir3, projectDir4, projectDir5]
-
-        when:
-        Set<ModelResult<EclipseProject>> compositeModel
-
-        withCompositeConnection(participants) { connection ->
-            compositeModel = connection.getModels(EclipseProject)
-        }
-
-        then:
-        compositeModel.size() == 5
-        compositeModel.eachWithIndex { eclipseProject, index ->
-            assert eclipseProject.model.projectDirectory == participants[index]
-        }
-    }
-
     private ModelResult<EclipseProject> assertModelResult(Set<ModelResult<EclipseProject>> compositeModel, String projectName,
                                                           ExternalDependency... externalDependencies) {
         ModelResult<EclipseProject> modelResult = assertModelResultInCompositeModel(compositeModel, projectName)

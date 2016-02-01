@@ -64,9 +64,7 @@ public class DefaultCompositeBuildConnector extends CompositeBuildConnector {
     }
 
     private Set<ProjectConnection> transformParticipantsToProjectConnections() {
-        Set<ProjectConnection> projectConnections = Sets.newLinkedHashSet();
-
-        CollectionUtils.collect(participants, projectConnections, new Transformer<ProjectConnection, DefaultCompositeParticipant>() {
+        return CollectionUtils.collect(participants, new Transformer<ProjectConnection, DefaultCompositeParticipant>() {
             @Override
             public ProjectConnection transform(DefaultCompositeParticipant participant) {
                 GradleConnector gradleConnector = GradleConnector.newConnector().forProjectDirectory(participant.getRootProjectDirectory());
@@ -74,8 +72,6 @@ public class DefaultCompositeBuildConnector extends CompositeBuildConnector {
                 return gradleConnector.connect();
             }
         });
-
-        return projectConnections;
     }
 
     private void useGradleDistribution(GradleConnector gradleConnector, GradleDistribution gradleDistribution) {
