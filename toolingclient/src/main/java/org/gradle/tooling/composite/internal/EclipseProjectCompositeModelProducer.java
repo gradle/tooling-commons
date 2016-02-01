@@ -40,8 +40,8 @@ public class EclipseProjectCompositeModelProducer implements CompositeModelProdu
 
     @Override
     public Set<EclipseProject> getModel() {
-        Set<File> processedBuilds = Sets.newLinkedHashSet();
-        Map<String, EclipseProject> eclipseProjects = Maps.newLinkedHashMap();
+        Set<File> processedBuilds = Sets.newHashSet();
+        Map<String, EclipseProject> eclipseProjects = Maps.newHashMap();
 
         for (ProjectConnection participant : this.connections) {
             EclipseProject rootProject = determineRootProject(participant.getModel(EclipseProject.class));
@@ -53,7 +53,7 @@ public class EclipseProjectCompositeModelProducer implements CompositeModelProdu
             }
         }
 
-        return Sets.newLinkedHashSet(eclipseProjects.values());
+        return Sets.newHashSet(eclipseProjects.values());
     }
 
     private EclipseProject determineRootProject(EclipseProject eclipseProject) {

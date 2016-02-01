@@ -43,7 +43,7 @@ import java.util.Set;
 public class DefaultCompositeBuildConnector extends CompositeBuildConnector {
     private final AsyncConsumerActionExecutor connection;
     private final ConnectionParameters parameters;
-    private final Set<DefaultCompositeParticipant> participants = Sets.newLinkedHashSet();
+    private final Set<DefaultCompositeParticipant> participants = Sets.newHashSet();
 
     public DefaultCompositeBuildConnector(AsyncConsumerActionExecutor connection, ConnectionParameters parameters) {
         this.connection = connection;
