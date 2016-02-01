@@ -107,14 +107,6 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
         return false;
     }
 
-    private boolean targetGradleVersionIsBetween(String minVersion, String maxVersion, FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientRequestAttributes) {
-        SimpleModelRepository simpleRepo = this.modelRepositoryProvider.getModelRepository(fixedAttributes);
-        OmniBuildEnvironment buildEnvironment = simpleRepo.fetchBuildEnvironment(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
-        GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
-        return gradleVersion.getBaseVersion().compareTo(GradleVersion.version(minVersion)) >= 0 &&
-                gradleVersion.getBaseVersion().compareTo(GradleVersion.version(maxVersion)) <= 0;
-    }
-
     public static boolean eclipseProjectIsSubProjectOf(final File rootProjectDir, EclipseProject candidate) {
         try {
             File canonicalRootProjectDir = rootProjectDir.getCanonicalFile();
@@ -127,6 +119,14 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
     private static EclipseProject rootEclipseProject(EclipseProject project) {
         EclipseProject parent = project.getParent();
         return parent == null ? project : rootEclipseProject(parent);
+    }
+
+    private boolean targetGradleVersionIsBetween(String minVersion, String maxVersion, FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientRequestAttributes) {
+        SimpleModelRepository simpleRepo = this.modelRepositoryProvider.getModelRepository(fixedAttributes);
+        OmniBuildEnvironment buildEnvironment = simpleRepo.fetchBuildEnvironment(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
+        GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
+        return gradleVersion.getBaseVersion().compareTo(GradleVersion.version(minVersion)) >= 0 &&
+                gradleVersion.getBaseVersion().compareTo(GradleVersion.version(maxVersion)) <= 0;
     }
 
 }
