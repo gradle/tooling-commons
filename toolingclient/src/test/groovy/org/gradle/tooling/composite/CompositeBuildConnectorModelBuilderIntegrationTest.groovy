@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
 
 class CompositeBuildConnectorModelBuilderIntegrationTest extends AbstractCompositeBuildConnectorIntegrationTest {
 
-    def "can create composite, provide cancellation token but not cancel the operation"() {
+    def "can provide cancellation token but not cancel the operation"() {
         given:
         File projectDir = directoryProvider.createDir('project')
         createBuildFile(projectDir)
@@ -61,7 +61,7 @@ class CompositeBuildConnectorModelBuilderIntegrationTest extends AbstractComposi
         t.message == 'Build cancelled'
     }
 
-    def "can create composite and provide progress listener"() {
+    def "can provide progress listener"() {
         given:
         File projectDir = directoryProvider.createDir('project')
         createBuildFile(projectDir)
@@ -86,7 +86,30 @@ class CompositeBuildConnectorModelBuilderIntegrationTest extends AbstractComposi
         progressEventDescriptions[1] == ''
     }
 
-    def "can create composite and capturing completed request with result handler"() {
+    def "event progress listener does not capture any events as not tasks are executed"() {
+        given:
+        File projectDir = directoryProvider.createDir('project')
+        createBuildFile(projectDir)
+
+        when:
+        List<String> progressEventDisplayNames = []
+        Set<ModelResult<EclipseProject>> compositeModel
+
+        withCompositeConnection([projectDir]) { connection ->
+            compositeModel = connection.models(EclipseProject).addProgressListener(new org.gradle.tooling.events.ProgressListener() {
+                @Override
+                void statusChanged(org.gradle.tooling.events.ProgressEvent event) {
+                    progressEventDisplayNames << event.descriptor.displayName
+                }
+            }).get()
+        }
+
+        then:
+        compositeModel.size() == 1
+        progressEventDisplayNames.size() == 0
+    }
+
+    def "can capture completed request with result handler"() {
         given:
         File projectDir = directoryProvider.createDir('project')
         createBuildFile(projectDir)
