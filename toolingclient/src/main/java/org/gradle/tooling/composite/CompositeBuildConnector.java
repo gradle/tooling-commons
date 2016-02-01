@@ -40,15 +40,18 @@ import java.io.File;
  *
  * Example:
  * <pre>
- * CompositeBuildConnection connection = CompositeBuildConnector.newComposite()
- *     .addParticipant(new File("project-1"))
- *     .addParticipant(new File("project-2"))
- *     .connect();
+ * CompositeBuildConnection connection = null;
  *
  * try {
+ *     connection = CompositeBuildConnector.newComposite()
+ *         .addParticipant(new File("project-1"))
+ *         .addParticipant(new File("project-2"))
+ *         .connect();
  *     connection.getModels(EclipseProject.class);
  * } finally {
- *     connection.close();
+ *     if (connection != null) {
+ *         connection.close();
+ *     }
  * }
  * </pre>
  * 
