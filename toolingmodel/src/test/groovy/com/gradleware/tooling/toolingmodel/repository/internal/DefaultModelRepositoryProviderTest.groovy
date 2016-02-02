@@ -28,13 +28,13 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 class DefaultModelRepositoryProviderTest extends ToolingModelToolingClientSpecification {
 
     @Rule
-    TestDirectoryProvider projectA = new TestDirectoryProvider();
+    TestDirectoryProvider projectA = new TestDirectoryProvider()
     @Rule
-    TestDirectoryProvider projectB = new TestDirectoryProvider();
+    TestDirectoryProvider projectB = new TestDirectoryProvider()
 
     def setup() {
         [projectA, projectB].each { project ->
-            project.createFile('settings.gradle');
+            project.createFile('settings.gradle')
             project.createFile('build.gradle') << 'task myTask {}'
         }
     }
