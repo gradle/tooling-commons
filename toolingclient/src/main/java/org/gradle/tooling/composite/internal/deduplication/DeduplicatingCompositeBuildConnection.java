@@ -18,7 +18,6 @@ package org.gradle.tooling.composite.internal.deduplication;
 
 import java.util.Set;
 
-import org.gradle.jarjar.com.google.common.collect.Sets;
 import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.ResultHandler;
@@ -27,6 +26,8 @@ import org.gradle.tooling.composite.ModelResult;
 import org.gradle.tooling.composite.internal.DefaultModelResult;
 import org.gradle.tooling.composite.internal.DelegatingModelBuilder;
 import org.gradle.tooling.model.eclipse.EclipseProject;
+
+import com.google.common.collect.Sets;
 
 /**
  * De-duplicates {@link EclipseProject} names.

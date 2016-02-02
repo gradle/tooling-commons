@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.gradle.jarjar.com.google.common.primitives.Ints;
 import org.gradle.tooling.composite.internal.RedirectedProjectLookup;
 import org.gradle.tooling.composite.internal.RedirectionAwareEclipseProject;
 import org.gradle.tooling.model.eclipse.EclipseProject;
@@ -32,6 +31,7 @@ import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.primitives.Ints;
 
 /**
  * De-duplicates {@link EclipseProject} names.

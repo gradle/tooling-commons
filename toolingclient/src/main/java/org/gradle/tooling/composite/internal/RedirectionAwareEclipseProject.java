@@ -18,11 +18,12 @@ package org.gradle.tooling.composite.internal;
 
 import java.util.Set;
 
-import org.gradle.jarjar.com.google.common.collect.Sets;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
 import org.gradle.tooling.model.internal.ImmutableDomainObjectSet;
+
+import com.google.common.collect.Sets;
 
 /**
  * Presents a consistent project hierarchy even when projects are renamed or dependency-substituted.
