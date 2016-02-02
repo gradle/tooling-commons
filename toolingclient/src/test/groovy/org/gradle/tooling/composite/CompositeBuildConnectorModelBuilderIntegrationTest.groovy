@@ -127,7 +127,7 @@ class CompositeBuildConnectorModelBuilderIntegrationTest extends AbstractComposi
         !resultHandler.failure
     }
 
-    def "can create composite and capture failure with result handler"() {
+    def "can capture failure with result handler"() {
         given:
         File projectDir = new File('someDir')
 
@@ -163,7 +163,7 @@ class CompositeBuildConnectorModelBuilderIntegrationTest extends AbstractComposi
         }
 
         void waitForResult() {
-            latch.await(10, TimeUnit.SECONDS)
+            latch.await(20, TimeUnit.SECONDS)
         }
 
         Set<ModelResult<EclipseProject>> getResult() {
