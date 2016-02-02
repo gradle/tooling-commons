@@ -49,4 +49,9 @@ class RedirectionAwareEclipseProjectDependency implements EclipseProjectDependen
         return this.delegate.isExported();
     }
 
+    @Override
+    public String toString() {
+        return this.delegate.toString();
+    }
+
 }

@@ -109,7 +109,11 @@ public class DelegatingEclipseProject implements EclipseProject {
 
     @Override
     public String toString() {
-        return "project '" + getGradleProject().getPath() + "'";
+        return this.delegate.toString();
+    }
+
+    public EclipseProject getDelegate() {
+        return this.delegate;
     }
 
 }

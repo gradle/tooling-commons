@@ -37,4 +37,9 @@ class RenamedEclipseProject extends RedirectionAwareEclipseProject {
     public String getName() {
         return this.newName;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + " renamed to '" + getName() + "'";
+    }
 }
