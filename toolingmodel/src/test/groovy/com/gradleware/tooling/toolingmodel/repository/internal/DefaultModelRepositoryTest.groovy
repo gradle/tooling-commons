@@ -843,7 +843,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
       } else {
           def repoProvider = Mock(ModelRepositoryProvider)
           repoProvider.getModelRepository(_) >> new DefaultSimpleModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
-          def DefaultCompositeModelRepository repository = new DefaultCompositeModelRepository(repoProvider, [fixedRequestAttributes], toolingClient, new EventBus())
+          def DefaultCompositeModelRepository repository = new DefaultCompositeModelRepository(repoProvider, [fixedRequestAttributes] as Set, toolingClient, new EventBus())
           repository.register(listener)
           def eclipseWorkspace = repository.fetchEclipseWorkspace(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
           eclipseWorkspace.tryFind{p -> p.parent == null}.get()

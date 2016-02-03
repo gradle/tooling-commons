@@ -102,7 +102,7 @@ class MultipleRootProjectCompositeModelRepositoryTest extends ToolingModelToolin
         def repoProvider = Mock(ModelRepositoryProvider)
         repoProvider.getModelRepository(participantA) >> new DefaultSimpleModelRepository(participantA, toolingClient, new EventBus())
         repoProvider.getModelRepository(participantB) >> new DefaultSimpleModelRepository(participantB, toolingClient, new EventBus())
-        return new DefaultCompositeModelRepository(repoProvider, [participantA, participantB], toolingClient, new EventBus())
+        return new DefaultCompositeModelRepository(repoProvider, [participantA, participantB] as Set, toolingClient, new EventBus())
     }
 
     private static ImmutableList<GradleDistribution> runWithAllGradleVersions(String versionPattern) {

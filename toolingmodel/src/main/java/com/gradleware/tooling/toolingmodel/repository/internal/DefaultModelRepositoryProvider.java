@@ -16,9 +16,8 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.gradle.internal.Factory;
 
@@ -44,7 +43,7 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
     private final Environment environment;
     private final Factory<EventBus> eventBusFactory;
     private final Map<FixedRequestAttributes, SimpleModelRepository> modelRepositories;
-    private final Map<List<FixedRequestAttributes>, CompositeModelRepository> compositeModelRepositories;
+    private final Map<Set<FixedRequestAttributes>, CompositeModelRepository> compositeModelRepositories;
 
     public DefaultModelRepositoryProvider(ToolingClient toolingClient) {
         this(toolingClient, Environment.STANDALONE);
@@ -70,8 +69,8 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
     }
 
     @Override
-    public CompositeModelRepository getCompositeModelRepository(FixedRequestAttributes... fixedRequestAttributes) {
-        return getOrCreateCompositeModelRepository(Arrays.asList(fixedRequestAttributes));
+    public CompositeModelRepository getCompositeModelRepository(Set<FixedRequestAttributes> fixedRequestAttributes) {
+        return getOrCreateCompositeModelRepository(fixedRequestAttributes);
     }
 
     private SimpleModelRepository getOrCreateModelRepository(FixedRequestAttributes fixedRequestAttributes) {
@@ -87,7 +86,7 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
         return modelRepository;
     }
 
-    private CompositeModelRepository getOrCreateCompositeModelRepository(List<FixedRequestAttributes> fixedRequestAttributes) {
+    private CompositeModelRepository getOrCreateCompositeModelRepository(Set<FixedRequestAttributes> fixedRequestAttributes) {
         CompositeModelRepository modelRepository;
         synchronized (this.compositeModelRepositories) {
             if (!this.compositeModelRepositories.containsKey(fixedRequestAttributes)) {

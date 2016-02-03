@@ -207,7 +207,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     }
 
     private <T> Set<T> unwrapModelResults(Set<ModelResult<T>> modelResults) {
-        Set<T> results = Sets.newLinkedHashSet();
+        Set<T> results = Sets.newHashSet();
         for (ModelResult<T> modelResult : modelResults) {
             results.add(modelResult.getModel());
         }

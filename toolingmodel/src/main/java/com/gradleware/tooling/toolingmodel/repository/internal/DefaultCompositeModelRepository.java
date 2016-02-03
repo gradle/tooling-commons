@@ -28,7 +28,7 @@ import org.gradle.util.GradleVersion;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 
@@ -54,13 +54,13 @@ import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 public class DefaultCompositeModelRepository extends BaseModelRepository implements CompositeModelRepository {
 
     private final ModelRepositoryProvider modelRepositoryProvider;
-    private final ImmutableList<FixedRequestAttributes> requestAttributes;
+    private final ImmutableSet<FixedRequestAttributes> requestAttributes;
 
-    public DefaultCompositeModelRepository(ModelRepositoryProvider modelRepositoryProvider, List<FixedRequestAttributes> requestAttributes, ToolingClient toolingClient, EventBus eventBus) {
+    public DefaultCompositeModelRepository(ModelRepositoryProvider modelRepositoryProvider, Set<FixedRequestAttributes> requestAttributes, ToolingClient toolingClient, EventBus eventBus) {
         super(toolingClient, eventBus);
         this.modelRepositoryProvider = Preconditions.checkNotNull(modelRepositoryProvider);
         Preconditions.checkArgument(requestAttributes.size() > 0, "Composite builds need at least one participant");
-        this.requestAttributes = ImmutableList.copyOf(requestAttributes);
+        this.requestAttributes = ImmutableSet.copyOf(requestAttributes);
     }
 
     @Override
@@ -92,7 +92,7 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
         return executeRequest(modelRequest, successHandler, fetchStrategy, OmniEclipseWorkspace.class, converter);
     }
 
-    private <T> CompositeModelRequest<T> createModelRequest(Class<T> model, List<FixedRequestAttributes> fixedAttributes, TransientRequestAttributes transientAttributes) {
+    private <T> CompositeModelRequest<T> createModelRequest(Class<T> model, Set<FixedRequestAttributes> fixedAttributes, TransientRequestAttributes transientAttributes) {
         CompositeModelRequest<T> request = getToolingClient().newCompositeModelRequest(model);
         for (FixedRequestAttributes fixedRequestAttribute : fixedAttributes) {
             fixedRequestAttribute.apply(request);
