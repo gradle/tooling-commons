@@ -59,7 +59,6 @@ class MultipleRootProjectCompositeModelRepositoryTest extends ToolingModelToolin
 
     }
 
-
     def "Workspace contains all projects from all participants"(GradleDistribution distribution) {
         given:
         def repository = getCompositeRepository(distribution)
@@ -70,7 +69,28 @@ class MultipleRootProjectCompositeModelRepositoryTest extends ToolingModelToolin
 
         then:
         eclipseWorkspace != null
-        eclipseWorkspace.openEclipseProjects.size() == 7
+        eclipseWorkspace.openEclipseProjects*.name as Set == ['projectA', 'server', 'client', 'android', 'projectB', 'api', 'impl'] as Set
+
+        where:
+        distribution << runWithAllGradleVersions(">=1.0")
+    }
+
+    def "Project names are de-duplicated"(GradleDistribution distribution) {
+        given:
+        def repository = getCompositeRepository(distribution)
+        def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+
+        projectA.file("settings.gradle") << "include 'api'"
+        when:
+        OmniEclipseWorkspace eclipseWorkspace = repository.fetchEclipseWorkspace(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+
+        then:
+        eclipseWorkspace != null
+        eclipseWorkspace.openEclipseProjects*.name as Set == ['projectA', 'server', 'client', 'android', 'projectA-api', 'projectB', 'projectB-api', 'impl'] as Set
+        def root = eclipseWorkspace.tryFind{p -> p.name == 'projectA'}.get()
+        def subFromRoot = root.tryFind{p -> p.name == 'projectA-api'}.get()
+        def subFromWorkspace = eclipseWorkspace.tryFind{p -> p.name == 'projectA-api'}.get()
+        subFromRoot == subFromWorkspace
 
         where:
         distribution << runWithAllGradleVersions(">=1.0")
