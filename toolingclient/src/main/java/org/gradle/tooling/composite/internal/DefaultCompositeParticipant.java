@@ -73,17 +73,25 @@ public class DefaultCompositeParticipant implements CompositeParticipant {
 
         DefaultCompositeParticipant that = (DefaultCompositeParticipant) o;
 
-        return rootProjectDirectory != null ? rootProjectDirectory.equals(that.rootProjectDirectory) : that.rootProjectDirectory == null;
+        if (rootProjectDirectory != null ? !rootProjectDirectory.equals(that.rootProjectDirectory) : that.rootProjectDirectory != null)
+            return false;
+        return gradleDistribution != null ? gradleDistribution.equals(that.gradleDistribution) : that.gradleDistribution == null;
 
     }
 
     @Override
     public int hashCode() {
-        return rootProjectDirectory != null ? rootProjectDirectory.hashCode() : 0;
+        int result = rootProjectDirectory != null ? rootProjectDirectory.hashCode() : 0;
+        result = 31 * result + (gradleDistribution != null ? gradleDistribution.hashCode() : 0);
+        return result;
     }
 
     @Override
     public String toString() {
-        return String.format("root project dir %s", rootProjectDirectory);
+        return String.format("root project dir: %s, Gradle distribution: %s", rootProjectDirectory, gradleDistribution);
+    }
+
+    void setGradleDistribution(GradleDistribution gradleDistribution) {
+        this.gradleDistribution = gradleDistribution;
     }
 }

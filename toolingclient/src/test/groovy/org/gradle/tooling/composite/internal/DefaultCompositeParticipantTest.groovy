@@ -38,18 +38,26 @@ class DefaultCompositeParticipantTest extends Specification {
     }
 
     @Unroll
-    def "can compare with other instance (#projectDir)"() {
-        expect:
+    def "can compare with other instance (#projectDir, #distribution)"() {
+        given:
         DefaultCompositeParticipant participant1 = new DefaultCompositeParticipant(new File('/dev/myProject'))
+        participant1.useGradleVersion('2.8')
         DefaultCompositeParticipant participant2 = new DefaultCompositeParticipant(projectDir)
+        participant2.gradleDistribution = distribution
+
+        expect:
         (participant1 == participant2) == equality
         (participant1.hashCode() == participant2.hashCode()) == hashCode
         (participant1.toString() == participant2.toString()) == stringRepresentation
 
         where:
-        projectDir                 | equality | hashCode | stringRepresentation
-        new File('/dev/myProject') | true     | true     | true
-        new File('/dev/other')     | false    | false    | false
+        projectDir                 | distribution                                                       | equality | hashCode | stringRepresentation
+        new File('/dev/myProject') | new VersionBasedGradleDistribution('2.8')                          | true     | true     | true
+        new File('/dev/myProject') | new InstalledGradleDistribution(new File('.'))                     | false    | false    | false
+        new File('/dev/myProject') | new URILocatedGradleDistribution(new URI('http://www.google.com')) | false    | false    | false
+        new File('/dev/other')     | new VersionBasedGradleDistribution('2.8')                          | false    | false    | false
+        new File('/dev/other')     | new InstalledGradleDistribution(new File('.'))                     | false    | false    | false
+        new File('/dev/other')     | new URILocatedGradleDistribution(new URI('http://www.google.com')) | false    | false    | false
     }
 
     def "can add Gradle distribution"(distribution, Action<CompositeParticipant> configurer) {
