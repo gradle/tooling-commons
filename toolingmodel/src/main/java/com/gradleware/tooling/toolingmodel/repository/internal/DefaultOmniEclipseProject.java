@@ -235,12 +235,12 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         return from(project, enforceAllTasksPublic, Maps.<EclipseProject, DefaultOmniEclipseProject>newHashMap());
     }
 
-    private static DefaultOmniEclipseProject from(EclipseProject project, boolean enforceAllTasksPublic, Map<EclipseProject, DefaultOmniEclipseProject> cache) {
-        if (cache.containsKey(project)) {
-            return cache.get(project);
+    public static DefaultOmniEclipseProject from(EclipseProject project, boolean enforceAllTasksPublic, Map<EclipseProject, DefaultOmniEclipseProject> knownProjects) {
+        if (knownProjects.containsKey(project)) {
+            return knownProjects.get(project);
         }
         DefaultOmniEclipseProject eclipseProject = new DefaultOmniEclipseProject(OmniEclipseProjectComparator.INSTANCE);
-        cache.put(project, eclipseProject);
+        knownProjects.put(project, eclipseProject);
 
         eclipseProject.setName(project.getName());
         eclipseProject.setDescription(project.getDescription());
@@ -252,14 +252,14 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         eclipseProject.setSourceDirectories(toSourceDirectories(project.getSourceDirectories()));
         eclipseProject.setGradleProject(DefaultOmniGradleProject.from(project.getGradleProject(), enforceAllTasksPublic));
         if (project.getParent() != null) {
-            eclipseProject.setParent(from(project.getParent(), enforceAllTasksPublic, cache));
+            eclipseProject.setParent(from(project.getParent(), enforceAllTasksPublic, knownProjects));
         }
         setProjectNatures(eclipseProject, project);
         setBuildCommands(eclipseProject, project);
         setJavaSourceSettings(eclipseProject, project);
 
         for (EclipseProject child : project.getChildren()) {
-            DefaultOmniEclipseProject eclipseChildProject = from(child, enforceAllTasksPublic, cache);
+            DefaultOmniEclipseProject eclipseChildProject = from(child, enforceAllTasksPublic, knownProjects);
             eclipseProject.addChild(eclipseChildProject);
         }
 

@@ -19,6 +19,7 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.gradle.tooling.model.eclipse.EclipseProject;
@@ -28,6 +29,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 
 import com.gradleware.tooling.toolingclient.CompositeModelRequest;
@@ -75,12 +77,13 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
 
             @Override
             public OmniEclipseWorkspace apply(Set<EclipseProject> eclipseProjects) {
+                final Map<EclipseProject, DefaultOmniEclipseProject> knownProjects = Maps.newHashMap();
                 List<OmniEclipseProject> omniEclipseProjects = FluentIterable.from(eclipseProjects).transform(new Function<EclipseProject, OmniEclipseProject>() {
 
                     @Override
                     public OmniEclipseProject apply(EclipseProject eclipseProject) {
                         boolean isPublicFixRequired = isPublicFixRequired(eclipseProject, transientAttributes);
-                        return DefaultOmniEclipseProject.from(eclipseProject, isPublicFixRequired);
+                        return DefaultOmniEclipseProject.from(eclipseProject, isPublicFixRequired, knownProjects);
                     }
                 }).toList();
                 return DefaultOmniEclipseWorkspace.from(omniEclipseProjects);
