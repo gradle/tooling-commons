@@ -73,8 +73,9 @@ public class DefaultCompositeParticipant implements CompositeParticipant {
 
         DefaultCompositeParticipant that = (DefaultCompositeParticipant) o;
 
-        if (rootProjectDirectory != null ? !rootProjectDirectory.equals(that.rootProjectDirectory) : that.rootProjectDirectory != null)
+        if (rootProjectDirectory != null ? !rootProjectDirectory.equals(that.rootProjectDirectory) : that.rootProjectDirectory != null) {
             return false;
+        }
         return gradleDistribution != null ? gradleDistribution.equals(that.gradleDistribution) : that.gradleDistribution == null;
 
     }
