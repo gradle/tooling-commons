@@ -16,9 +16,7 @@
 
 package org.gradle.tooling.composite;
 
-import org.gradle.tooling.BuildException;
-import org.gradle.tooling.GradleConnectionException;
-import org.gradle.tooling.ModelBuilder;
+import org.gradle.tooling.*;
 
 import java.util.Set;
 
