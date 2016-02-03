@@ -16,7 +16,9 @@
 
 package org.gradle.tooling.composite;
 
-import org.gradle.tooling.*;
+import org.gradle.tooling.BuildException;
+import org.gradle.tooling.GradleConnectionException;
+import org.gradle.tooling.ModelBuilder;
 
 import java.util.Set;
 
@@ -36,7 +38,6 @@ public interface CompositeBuildConnection {
      * @param modelType the model type
      * @param <T> the model type
      * @return the models
-     * @throws UnknownModelException When the target Gradle version or build does not support the requested model
      * @throws BuildException On some failure executing the Gradle build, in order to build the model
      * @throws GradleConnectionException On some other failure using the connection
      * @throws IllegalStateException When this connection has been closed or is closing
@@ -56,7 +57,6 @@ public interface CompositeBuildConnection {
      * @param modelType the model type
      * @param <T> the model type
      * @return the builder
-     * @throws UnknownModelException When the target Gradle version or build does not support the requested model
      * @throws BuildException On some failure executing the Gradle build, in order to build the model
      * @throws GradleConnectionException On some other failure using the connection
      * @throws IllegalStateException When this connection has been closed or is closing
