@@ -75,18 +75,18 @@ public final class GradleDistribution {
     }
 
     /**
-     * Configures the specified connector with this distribution.
+     * Configures the specified target to use this distribution.
      *
-     * @param connector the connector to configure
+     * @param target the target to configure
      */
-    public void apply(GradleDistributionAware connector) {
-        Preconditions.checkNotNull(connector);
+    public void apply(GradleDistributionAware target) {
+        Preconditions.checkNotNull(target);
         if (this.localInstallationDir != null) {
-            connector.useInstallation(this.localInstallationDir);
+            target.useInstallation(this.localInstallationDir);
         } else if (this.remoteDistributionUri != null) {
-            connector.useDistribution(this.remoteDistributionUri);
+            target.useDistribution(this.remoteDistributionUri);
         } else if (this.version != null) {
-            connector.useGradleVersion(this.version);
+            target.useGradleVersion(this.version);
         }
     }
 
