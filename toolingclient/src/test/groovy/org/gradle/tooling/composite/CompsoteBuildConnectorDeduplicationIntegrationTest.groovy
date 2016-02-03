@@ -32,7 +32,7 @@ class CompsoteBuildConnectorDeduplicationIntegrationTest extends AbstractComposi
         def projects = getEclipseProjects(projectA, projectB)
 
         then:
-        assertProjectNames projects, ['foo', 'foo2']
+        assertProjectNames projects, ['foo1', 'foo2']
     }
 
     def "Conflicting subprojects are prefixed with their parent"() {

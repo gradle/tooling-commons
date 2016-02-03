@@ -89,7 +89,7 @@ public class HierarchicalElementDeduplicator {
             int count = 0;
             while (true) {
                 count++;
-                String candidateName = element.getName() + (count > 1 ? String.valueOf(count) : "");
+                String candidateName = element.getName() + String.valueOf(count);
                 if (!isNameTaken(candidateName, elements)) {
                     element.renameTo(candidateName);
                     break;
