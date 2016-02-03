@@ -292,7 +292,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
 
     private <T> ModelBuilder<Set<ModelResult<T>>> mapToModelBuilder(InspectableCompositeModelRequest<T> modelRequest, CompositeBuildConnection connection) {
         ModelBuilder<Set<ModelResult<T>>> modelBuilder = connection.models(modelRequest.getModelType());
-        return mapToLongRunningOperation(modelRequest, modelBuilder);
+        return mapToBasicLongRunningOperation(modelRequest, modelBuilder);
     }
 
     private <T> BuildActionExecuter<T> mapToBuildActionExecuter(InspectableBuildActionRequest<T> buildActionRequest, ProjectConnection connection) {
@@ -313,14 +313,19 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     }
 
     private <T extends LongRunningOperation> T mapToLongRunningOperation(InspectableRequest<?> request, T operation) {
-        operation.setColorOutput(request.isColorOutput()).
-                setStandardOutput(request.getStandardOutput()).
-                setStandardError(request.getStandardError()).
-                setStandardInput(request.getStandardInput()).
-                setJavaHome(request.getJavaHomeDir()).
-                setJvmArguments(request.getJvmArguments()).
-                withArguments(request.getArguments()).
-                withCancellationToken(request.getCancellationToken());
+        mapToBasicLongRunningOperation(request, operation)
+            .setColorOutput(request.isColorOutput()).
+            setStandardOutput(request.getStandardOutput()).
+            setStandardError(request.getStandardError()).
+            setStandardInput(request.getStandardInput()).
+            setJavaHome(request.getJavaHomeDir()).
+            setJvmArguments(request.getJvmArguments()).
+            withArguments(request.getArguments());
+        return operation;
+    }
+
+    private <T extends LongRunningOperation> T mapToBasicLongRunningOperation(InspectableRequest<?> request, T operation) {
+        operation.withCancellationToken(request.getCancellationToken());
         for (ProgressListener progressListener : request.getProgressListeners()) {
             operation.addProgressListener(progressListener);
         }
