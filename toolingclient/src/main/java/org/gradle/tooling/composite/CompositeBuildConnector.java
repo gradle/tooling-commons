@@ -83,7 +83,7 @@ public abstract class CompositeBuildConnector {
      * A composite needs to contain at least one participant before the method {@link #connect()} can be called.
      * <p>
      * The provided project directory should point to the root directory of a Gradle build. If the provided project
-     * directory points to a sub-project in a multi-project build, then the root project directory
+     * directory points to a sub-project within an hierarchical multi-project build, then the root project directory
      * is determined and the full project tree is traversed nonetheless.
      *
      * @param rootProjectDirectory the root project directory of the build
