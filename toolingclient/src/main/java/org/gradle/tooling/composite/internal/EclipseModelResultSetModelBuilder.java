@@ -198,7 +198,6 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
      */
     private static final class BlockingResultHandler<T> implements ResultHandler<Set<ModelResult<T>>> {
         private final BlockingQueue<Object> queue = new ArrayBlockingQueue<Object>(1);
-        private final Object NULL = new Object();
 
         @SuppressWarnings("unchecked")
         public Set<ModelResult<T>> getResult() {
@@ -228,7 +227,7 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
 
         @Override
         public void onComplete(Set<ModelResult<T>> result) {
-            this.queue.add(result == null ? this.NULL : result);
+            this.queue.add(result);
         }
 
         @Override
