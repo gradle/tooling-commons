@@ -212,9 +212,6 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
             if (result instanceof Throwable) {
                 throw UncheckedException.throwAsUncheckedException(attachCallerThreadStackTrace((Throwable) result));
             }
-            if (result == this.NULL) {
-                return null;
-            }
             return (Set<ModelResult<T>>)result;
         }
 
