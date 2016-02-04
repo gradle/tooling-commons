@@ -34,6 +34,21 @@ class CompsoteBuildConnectorDeduplicationIntegrationTest extends AbstractComposi
         then:
         assertProjectNames projects, ['foo1', 'foo2']
     }
+    
+    def "If a root project conflicts with a subproject, the subproject is renamed"() {
+        given:
+        File projectA = directoryProvider.createDir('projectA')
+        createSettingsFile(projectA) << 'rootProject.name = "foo"'
+        File projectB = directoryProvider.createDir('projectB')
+        createSettingsFile(projectB) << 'include "foo"'
+
+        when:
+        def projects = getEclipseProjects(projectA, projectB)
+
+
+        then:
+        assertProjectNames projects, ['foo', 'projectB', 'projectB-foo']
+    }
 
     def "Conflicting subprojects are prefixed with their parent"() {
         given:

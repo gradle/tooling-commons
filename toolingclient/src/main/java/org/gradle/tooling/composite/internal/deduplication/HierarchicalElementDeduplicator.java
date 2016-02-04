@@ -101,43 +101,36 @@ public class HierarchicalElementDeduplicator<T> {
             for (String duplicateName : getDuplicateNames()) {
                 Collection<T> elementsToRename = elementsByName.get(duplicateName);
                 Set<T> notYetRenamed = getNotYetRenamedElements(elementsToRename);
-                if (notYetRenamed.size() > 1) {
+                boolean renameSuccessful = false;
+                for (T element : notYetRenamed) {
+                    renameSuccessful |= renameUsingParentPrefix(element);
+                }
+                if (!renameSuccessful) {
                     for (T element : notYetRenamed) {
-                        rename(element);
-                    }
-                } else {
-                    for (T element : elementsToRename) {
-                        if (!notYetRenamed.contains(element)) {
-                            rename(element);
-                        }
-                    }
-                    boolean deduplicationFailed = true;
-                    for (T element : elementsToRename) {
-                        deduplicationFailed &= getOriginalName(element).equals(duplicateName);
-                    }
-                    if (deduplicationFailed) {
-                        for (T element : notYetRenamed) {
-                            rename(element);
-                        }
+                        renameUsingTieBreaker(element);
                     }
                 }
             }
         }
 
-        private void rename(T element) {
+        private boolean renameUsingParentPrefix(T element) {
             T prefixElement = prefixes.get(element);
             if (prefixElement != null) {
                 renameTo(element, getCurrentlyAssignedName(prefixElement) + "-" + getCurrentlyAssignedName(element));
                 prefixes.put(element, getParent(prefixElement));
-            } else {
-                int count = 0;
-                while (true) {
-                    count++;
-                    String candidateName = getOriginalName(element) + String.valueOf(count);
-                    if (!isNameTaken(candidateName)) {
-                        renameTo(element, candidateName);
-                        break;
-                    }
+                return true;
+            }
+            return false;
+        }
+        
+        private void renameUsingTieBreaker(T element) {
+            int count = 0;
+            while (true) {
+                count++;
+                String candidateName = getOriginalName(element) + String.valueOf(count);
+                if (!isNameTaken(candidateName)) {
+                    renameTo(element, candidateName);
+                    break;
                 }
             }
         }
