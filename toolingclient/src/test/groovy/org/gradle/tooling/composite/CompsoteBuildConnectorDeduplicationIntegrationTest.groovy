@@ -48,6 +48,20 @@ class CompsoteBuildConnectorDeduplicationIntegrationTest extends AbstractComposi
         then:
         assertProjectNames projects, ['projectA', 'projectB', 'projectA-foo', 'projectB-foo', 'projectA-foo-bar', 'projectB-foo-bar']
     }
+    
+    def "The de-duplicated name of the parent is used when prefixing children"() {
+        given:
+        File projectA = directoryProvider.createDir('projectA')
+        createSettingsFile(projectA, ['foo']) << "rootProject.name = 'root'"
+        File projectB = directoryProvider.createDir('projectB')
+        createSettingsFile(projectB, ['foo']) << "rootProject.name = 'root'"
+
+        when:
+        def projects = getEclipseProjects(projectA, projectB)
+
+        then:
+        assertProjectNames projects, ['root1', 'root2', 'root1-foo', 'root2-foo']
+    }
 
     def "Projects are not prefixed twice" () {
         given:

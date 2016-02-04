@@ -118,7 +118,7 @@ public class HierarchicalElementDeduplicator<T> {
         private void rename(T element) {
             T prefixElement = prefixes.get(element);
             if (prefixElement != null) {
-                newNames.put(element, getOriginalName(prefixElement) + "-" + getCurrentlyAssignedName(element));
+                newNames.put(element, getCurrentlyAssignedName(prefixElement) + "-" + getCurrentlyAssignedName(element));
                 prefixes.put(element, getParent(prefixElement));
             } else {
                 int count = 0;
