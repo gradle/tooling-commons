@@ -25,7 +25,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -66,9 +68,9 @@ public class HierarchicalElementDeduplicator<T> {
     private class StatefulDeduplicator {
 
         private final List<T> elements;
-        private Multimap<String, T> elementsByName;
-        private Map<T, String> newNames;
-        private Map<T, T> prefixes;
+        private final Multimap<String, T> elementsByName;
+        private final Map<T, String> newNames;
+        private final Map<T, T> prefixes;
 
         public StatefulDeduplicator(Collection<T> elements) {
             this.elements = Lists.newArrayList(elements);
@@ -152,27 +154,22 @@ public class HierarchicalElementDeduplicator<T> {
         }
 
         private String removeDuplicateWordsFromPrefix(String deduplicatedName, String originalName) {
-            if (deduplicatedName.equals(originalName)) {
-                return deduplicatedName;
-            }
-
             String prefix = deduplicatedName.substring(0, deduplicatedName.lastIndexOf(originalName));
             if (prefix.isEmpty()) {
                 return deduplicatedName;
             }
-            List<String> prefixWordList = Lists.newArrayList(prefix.split("-"));
-            List<String> postfixWordList = Lists.newArrayList(originalName.split("-"));
-            if (postfixWordList.size() > 1) {
-                prefixWordList.add(postfixWordList.get(0));
-                postfixWordList = postfixWordList.subList(1, postfixWordList.size());
+            
+            Splitter splitter = Splitter.on('-').omitEmptyStrings();
+            Set<String> collapsedPrefix = Sets.newLinkedHashSet(splitter.split(prefix));
+            List<String> postfix = Lists.newArrayList(splitter.split(originalName));
+            
+            if (postfix.size() > 1) {
+                String postfixHead = postfix.get(0);
+                collapsedPrefix.add(postfixHead);
+                postfix.remove(postfixHead);
             }
-            List<String> words = Lists.newArrayList();
-            for (String prefixWord : prefixWordList) {
-                if (words.isEmpty() || !words.get(words.size() - 1).equals(prefixWord)) {
-                    words.add(prefixWord);
-                }
-            }
-            words.addAll(postfixWordList);
+            
+            Iterable<String> words = Iterables.concat(collapsedPrefix, postfix);
             return Joiner.on('-').join(words);
         }
 
