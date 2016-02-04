@@ -40,7 +40,7 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         assertModelResult(compositeModel, 'project', [])
     }
 
-    def "creating a composite with second instance of project within the same participating build only adds it once"() {
+    def "creating a composite with second instance of project within the same participating, hierarchical build only adds it once"() {
         given:
         File rootProjectDir = directoryProvider.createDir('project')
         createBuildFile(rootProjectDir)
@@ -81,7 +81,7 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         assertModelResult(compositeModel, 'project', [], [ExternalDependencies.COMMONS_LANG])
     }
 
-    def "can create composite with single, multi-project participating build"() {
+    def "can create composite with single, hierarchical multi-project participating build"() {
         given:
         File rootProjectDir = directoryProvider.createDir('project')
         File subProjectDir1 = new File(rootProjectDir, 'sub-1')
@@ -110,6 +110,33 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         assertModelResult(compositeModel, 'b-2', [], [ExternalDependencies.COMMONS_CODEC])
     }
 
+    def "can create composite with single, flat multi-project participating build"() {
+        given:
+        File rootProjectDir = directoryProvider.createDir('master')
+        createBuildFile(rootProjectDir)
+        File sub1ProjectDir = directoryProvider.createDir('sub-1')
+        createBuildFile(sub1ProjectDir)
+        File sub2ProjectDir = directoryProvider.createDir('sub-2')
+        createBuildFile(sub2ProjectDir)
+        File sub3ProjectDir = directoryProvider.createDir('sub-3')
+        createBuildFile(sub3ProjectDir)
+        createSettingsFile(rootProjectDir, ['sub-1', 'sub-2', 'sub-3'])
+
+        when:
+        Set<ModelResult<EclipseProject>> compositeModel
+
+        withCompositeConnection([rootProjectDir]) { connection ->
+            compositeModel = connection.getModels(EclipseProject)
+        }
+
+        then:
+        compositeModel.size() == 4
+        assertModelResult(compositeModel, 'master', ['sub-1', 'sub-2', 'sub-3'])
+        assertModelResult(compositeModel, 'sub-1', [])
+        assertModelResult(compositeModel, 'sub-2', [])
+        assertModelResult(compositeModel, 'sub-3', [])
+    }
+
     def "can create composite with multiple, single-project participating builds"() {
         given:
         File projectDir1 = directoryProvider.createDir('project-1')
@@ -130,7 +157,7 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         assertModelResult(compositeModel, 'project-2', [], [ExternalDependencies.LOG4J])
     }
 
-    def "can create composite with multiple, multi-project participating builds"() {
+    def "can create composite with multiple, multi-project, hierarchical participating builds"() {
         given:
         File projectDir1 = directoryProvider.createDir('project-1')
         File sub1ProjectDir = new File(projectDir1, 'sub-1')
