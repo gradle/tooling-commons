@@ -59,17 +59,19 @@ public class HierarchicalElementDeduplicator<T> {
     private class StatefulDeduplicator {
 
         private final List<T> elements;
+        private Multimap<String, T> elementsByName;
         private Map<T, String> newNames;
         private Map<T, T> prefixes;
 
         public StatefulDeduplicator(Collection<T> elements) {
             this.elements = Lists.newArrayList(elements);
+            this.elementsByName = LinkedHashMultimap.create();
             this.newNames = Maps.newHashMap();
             this.prefixes = Maps.newHashMap();
         }
 
         public Map<T, String> getNewNames() {
-            if (newNames.isEmpty()) {
+            if (!elements.isEmpty() && newNames.isEmpty()) {
                 calculateNewNames();
             }
 
@@ -79,6 +81,7 @@ public class HierarchicalElementDeduplicator<T> {
         private void calculateNewNames() {
             sortElementsByDepth();
             for (T element : elements) {
+                elementsByName.put(getOriginalName(element), element);
                 prefixes.put(element, getParent(element));
             }
             while (!getDuplicateNames().isEmpty()) {
@@ -88,7 +91,6 @@ public class HierarchicalElementDeduplicator<T> {
         }
 
         private void deduplicate() {
-            Multimap<String, T> elementsByName = getElementsByName();
             for (String duplicateName : getDuplicateNames()) {
                 Collection<T> elementsToRename = elementsByName.get(duplicateName);
                 Set<T> notYetRenamed = getNotYetRenamedElements(elementsToRename);
@@ -118,7 +120,7 @@ public class HierarchicalElementDeduplicator<T> {
         private void rename(T element) {
             T prefixElement = prefixes.get(element);
             if (prefixElement != null) {
-                newNames.put(element, getCurrentlyAssignedName(prefixElement) + "-" + getCurrentlyAssignedName(element));
+                renameTo(element, getCurrentlyAssignedName(prefixElement) + "-" + getCurrentlyAssignedName(element));
                 prefixes.put(element, getParent(prefixElement));
             } else {
                 int count = 0;
@@ -126,19 +128,25 @@ public class HierarchicalElementDeduplicator<T> {
                     count++;
                     String candidateName = getOriginalName(element) + String.valueOf(count);
                     if (!isNameTaken(candidateName)) {
-                        newNames.put(element, candidateName);
+                        renameTo(element, candidateName);
                         break;
                     }
                 }
             }
         }
 
+        private void renameTo(T element, String newName) {
+            elementsByName.remove(getCurrentlyAssignedName(element), element);
+            elementsByName.put(newName, element);
+            newNames.put(element, newName);
+        }
+
         private void simplifyNames() {
-            Set<String> deduplicatedNames = getElementsByName().keySet();
+            Set<String> deduplicatedNames = elementsByName.keySet();
             for (T element : elements) {
                 String simplifiedName = removeDuplicateWordsFromPrefix(getCurrentlyAssignedName(element), getOriginalName(element));
                 if (!deduplicatedNames.contains(simplifiedName)) {
-                    newNames.put(element, simplifiedName);
+                    renameTo(element, simplifiedName);
                 }
             }
         }
@@ -168,16 +176,7 @@ public class HierarchicalElementDeduplicator<T> {
             return Joiner.on('-').join(words);
         }
 
-        private Multimap<String, T> getElementsByName() {
-            Multimap<String, T> elementsByName = LinkedHashMultimap.create();
-            for (T element : elements) {
-                elementsByName.put(getCurrentlyAssignedName(element), element);
-            }
-            return elementsByName;
-        }
-
         private Set<String> getDuplicateNames() {
-            Multimap<String, T> elementsByName = getElementsByName();
             Set<String> duplicates = Sets.newLinkedHashSet();
             for (Entry<String, Collection<T>> entry : elementsByName.asMap().entrySet()) {
                 if (entry.getValue().size() > 1) {
@@ -198,8 +197,8 @@ public class HierarchicalElementDeduplicator<T> {
         }
 
         private boolean isNameTaken(String name) {
-            for (T element : elements) {
-                if (getCurrentlyAssignedName(element).equals(name) && hasBeenRenamed(element)) {
+            for (T element : elementsByName.get(name)) {
+                if (hasBeenRenamed(element)) {
                     return true;
                 }
             }
