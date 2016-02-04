@@ -17,157 +17,234 @@
 package org.gradle.tooling.composite.internal.deduplication;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.gradle.tooling.model.HierarchicalElement;
-
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import com.google.common.primitives.Ints;
 
 /**
  * A generic name de-duplicator for hierarchical elements.
  *
- * Conflicting root elements are de-duplicated by appending a counter.
- * Conflicting sub-elements are de-duplicated by prepending their parent element names, separated by a dash.
+ * Conflicting root elements are de-duplicated by appending a counter. Conflicting sub-elements are
+ * de-duplicated by prepending their parent element names, separated by a dash.
  *
  * @author Stefan Oehme
  */
-public class HierarchicalElementDeduplicator {
+public class HierarchicalElementDeduplicator<T> {
 
-    public void deduplicate(Collection<RenamableElement> elements) {
-        Map<HierarchicalElement, HierarchicalElement> prefixes = Maps.newLinkedHashMap();
-        for (RenamableElement element : elements) {
-            prefixes.put(element.getOriginal(), element.getOriginal().getParent());
-        }
-        while (!getDuplicateNames(elements).isEmpty()) {
-            deduplicate(elements, prefixes);
-        }
-        simplifyNames(elements);
+    private final NameDeduplicationStrategy<T> strategy;
+
+    public HierarchicalElementDeduplicator(NameDeduplicationStrategy<T> strategy) {
+        this.strategy = strategy;
     }
 
-    private void deduplicate(Collection<RenamableElement> elements, Map<HierarchicalElement, HierarchicalElement> prefixes) {
-        Multimap<String, RenamableElement> elementsByName = getElementsByName(elements);
-        for (String duplicateName : getDuplicateNames(elements)) {
-            Collection<RenamableElement> elementsToRename = elementsByName.get(duplicateName);
-            Set<RenamableElement> notYetRenamed = getNotYetRenamedElements(elementsToRename);
-            if (notYetRenamed.size() > 1) {
-                for (RenamableElement element : notYetRenamed) {
-                    rename(element, prefixes, elements);
+    /**
+     * Returns a Map containing an entry for each element that needs to be renamed.
+     */
+    public Map<T, String> deduplicate(Collection<T> elements) {
+        return new StatefulDeduplicator(elements).getNewNames();
+    }
+
+    private class StatefulDeduplicator {
+
+        private final List<T> elements;
+        private Map<T, String> newNames;
+        private Map<T, T> prefixes;
+
+        public StatefulDeduplicator(Collection<T> elements) {
+            this.elements = Lists.newArrayList(elements);
+            this.newNames = Maps.newHashMap();
+            this.prefixes = Maps.newHashMap();
+        }
+
+        public Map<T, String> getNewNames() {
+            if (newNames.isEmpty()) {
+                calculateNewNames();
+            }
+
+            return ImmutableMap.copyOf(newNames);
+        }
+
+        private void calculateNewNames() {
+            sortElementsByDepth();
+            for (T element : elements) {
+                prefixes.put(element, getParent(element));
+            }
+            while (!getDuplicateNames().isEmpty()) {
+                deduplicate();
+            }
+            simplifyNames();
+        }
+
+        private void deduplicate() {
+            Multimap<String, T> elementsByName = getElementsByName();
+            for (String duplicateName : getDuplicateNames()) {
+                Collection<T> elementsToRename = elementsByName.get(duplicateName);
+                Set<T> notYetRenamed = getNotYetRenamedElements(elementsToRename);
+                if (notYetRenamed.size() > 1) {
+                    for (T element : notYetRenamed) {
+                        rename(element);
+                    }
+                } else {
+                    for (T element : elementsToRename) {
+                        if (!notYetRenamed.contains(element)) {
+                            rename(element);
+                        }
+                    }
+                    boolean deduplicationFailed = true;
+                    for (T element : elementsToRename) {
+                        deduplicationFailed &= getOriginalName(element).equals(duplicateName);
+                    }
+                    if (deduplicationFailed) {
+                        for (T element : notYetRenamed) {
+                            rename(element);
+                        }
+                    }
                 }
+            }
+        }
+
+        private void rename(T element) {
+            T prefixElement = prefixes.get(element);
+            if (prefixElement != null) {
+                newNames.put(element, getOriginalName(prefixElement) + "-" + getCurrentlyAssignedName(element));
+                prefixes.put(element, getParent(prefixElement));
             } else {
-                for (RenamableElement element : elementsToRename) {
-                    if (!notYetRenamed.contains(element)) {
-                        rename(element, prefixes, elements);
-                    }
-                }
-                boolean deduplicationFailed = true;
-                for (RenamableElement element : elementsToRename) {
-                    deduplicationFailed &= element.getName().equals(duplicateName);
-                }
-                if (deduplicationFailed) {
-                    for (RenamableElement element : notYetRenamed) {
-                        rename(element, prefixes, elements);
+                int count = 0;
+                while (true) {
+                    count++;
+                    String candidateName = getOriginalName(element) + String.valueOf(count);
+                    if (!isNameTaken(candidateName)) {
+                        newNames.put(element, candidateName);
+                        break;
                     }
                 }
             }
         }
-    }
 
-    private void rename(RenamableElement element, Map<HierarchicalElement, HierarchicalElement> prefixes, Collection<RenamableElement> elements) {
-        HierarchicalElement prefixElement = prefixes.get(element.getOriginal());
-        if (prefixElement != null) {
-            element.renameTo(prefixElement.getName() + "-" + element.getName());
-            prefixes.put(element.getOriginal(), prefixElement.getParent());
-        } else {
-            int count = 0;
-            while (true) {
-                count++;
-                String candidateName = element.getName() + String.valueOf(count);
-                if (!isNameTaken(candidateName, elements)) {
-                    element.renameTo(candidateName);
-                    break;
+        private void simplifyNames() {
+            Set<String> deduplicatedNames = getElementsByName().keySet();
+            for (T element : elements) {
+                String simplifiedName = removeDuplicateWordsFromPrefix(getCurrentlyAssignedName(element), getOriginalName(element));
+                if (!deduplicatedNames.contains(simplifiedName)) {
+                    newNames.put(element, simplifiedName);
                 }
             }
         }
-    }
 
-    private void simplifyNames(Collection<RenamableElement> elements) {
-        Set<String> deduplicatedNames = getElementsByName(elements).keySet();
-        for (RenamableElement element : elements) {
-            String simplifiedName = removeDuplicateWordsFromPrefix(element.getName(), element.getOriginal().getName());
-            if (!deduplicatedNames.contains(simplifiedName)) {
-                element.renameTo(simplifiedName);
+        private String removeDuplicateWordsFromPrefix(String deduplicatedName, String originalName) {
+            if (deduplicatedName.equals(originalName)) {
+                return deduplicatedName;
+            }
+
+            String prefix = deduplicatedName.substring(0, deduplicatedName.lastIndexOf(originalName));
+            if (prefix.isEmpty()) {
+                return deduplicatedName;
+            }
+            List<String> prefixWordList = Lists.newArrayList(prefix.split("-"));
+            List<String> postfixWordList = Lists.newArrayList(originalName.split("-"));
+            if (postfixWordList.size() > 1) {
+                prefixWordList.add(postfixWordList.get(0));
+                postfixWordList = postfixWordList.subList(1, postfixWordList.size());
+            }
+            List<String> words = Lists.newArrayList();
+            for (String prefixWord : prefixWordList) {
+                if (words.isEmpty() || !words.get(words.size() - 1).equals(prefixWord)) {
+                    words.add(prefixWord);
+                }
+            }
+            words.addAll(postfixWordList);
+            return Joiner.on('-').join(words);
+        }
+
+        private Multimap<String, T> getElementsByName() {
+            Multimap<String, T> elementsByName = LinkedHashMultimap.create();
+            for (T element : elements) {
+                elementsByName.put(getCurrentlyAssignedName(element), element);
+            }
+            return elementsByName;
+        }
+
+        private Set<String> getDuplicateNames() {
+            Multimap<String, T> elementsByName = getElementsByName();
+            Set<String> duplicates = Sets.newLinkedHashSet();
+            for (Entry<String, Collection<T>> entry : elementsByName.asMap().entrySet()) {
+                if (entry.getValue().size() > 1) {
+                    duplicates.add(entry.getKey());
+                }
+            }
+            return duplicates;
+        }
+
+        private Set<T> getNotYetRenamedElements(Collection<T> elementsToRename) {
+            Set<T> notYetRenamed = Sets.newLinkedHashSet();
+            for (T element : elementsToRename) {
+                if (!hasBeenRenamed(element)) {
+                    notYetRenamed.add(element);
+                }
+            }
+            return notYetRenamed;
+        }
+
+        private boolean isNameTaken(String name) {
+            for (T element : elements) {
+                if (getCurrentlyAssignedName(element).equals(name) && hasBeenRenamed(element)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private String getOriginalName(T element) {
+            return strategy.getName(element);
+        }
+
+        private String getCurrentlyAssignedName(T element) {
+            if (hasBeenRenamed(element)) {
+                return newNames.get(element);
+            } else {
+                return getOriginalName(element);
             }
         }
-    }
 
-    private String removeDuplicateWordsFromPrefix(String deduplicatedName, String originalName) {
-        if (deduplicatedName.equals(originalName)) {
-            return deduplicatedName;
+        private T getParent(T parent) {
+            return strategy.getParent(parent);
         }
 
-        String prefix = deduplicatedName.substring(0, deduplicatedName.lastIndexOf(originalName));
-        if (prefix.isEmpty()) {
-            return deduplicatedName;
+        private boolean hasBeenRenamed(T element) {
+            return newNames.containsKey(element);
         }
-        List<String> prefixWordList = Lists.newArrayList(prefix.split("-"));
-        List<String> postfixWordList = Lists.newArrayList(originalName.split("-"));
-        if (postfixWordList.size() > 1) {
-            prefixWordList.add(postfixWordList.get(0));
-            postfixWordList = postfixWordList.subList(1, postfixWordList.size());
+
+        private void sortElementsByDepth() {
+            Collections.sort(elements, new Comparator<T>() {
+
+                @Override
+                public int compare(T left, T right) {
+                    return Ints.compare(getDepth(left), getDepth(right));
+                }
+
+                private int getDepth(T element) {
+                    int depth = 0;
+                    T parent = element;
+                    while (parent != null) {
+                        depth++;
+                        parent = getParent(parent);
+                    }
+                    return depth;
+                }
+            });
         }
-        List<String> words = Lists.newArrayList();
-        for (String prefixWord : prefixWordList) {
-            if (words.isEmpty() || !words.get(words.size() - 1).equals(prefixWord)) {
-                words.add(prefixWord);
-            }
-        }
-        words.addAll(postfixWordList);
-        return Joiner.on('-').join(words);
     }
 
-    private boolean isNameTaken(String name, Collection<RenamableElement> elements) {
-        for (RenamableElement element : elements) {
-            if (element.getName().equals(name) && element.hasBeenRenamed()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private Multimap<String, RenamableElement> getElementsByName(Collection<RenamableElement> elements) {
-        Multimap<String, RenamableElement> elementsByName = LinkedHashMultimap.create();
-        for (RenamableElement element : elements) {
-            elementsByName.put(element.getName(), element);
-        }
-        return elementsByName;
-    }
-
-    private Set<String> getDuplicateNames(Collection<RenamableElement> elements) {
-        Multimap<String, RenamableElement> elementsByName = getElementsByName(elements);
-        Set<String> duplicates = Sets.newLinkedHashSet();
-        for (Entry<String, Collection<RenamableElement>> entry : elementsByName.asMap().entrySet()) {
-            if (entry.getValue().size() > 1) {
-                duplicates.add(entry.getKey());
-            }
-        }
-        return duplicates;
-    }
-
-    private Set<RenamableElement> getNotYetRenamedElements(Collection<RenamableElement> elementsToRename) {
-        Set<RenamableElement> notYetRenamed = Sets.newLinkedHashSet();
-        for (RenamableElement element : elementsToRename) {
-            if (!element.hasBeenRenamed()) {
-                notYetRenamed.add(element);
-            }
-        }
-        return notYetRenamed;
-    }
 }

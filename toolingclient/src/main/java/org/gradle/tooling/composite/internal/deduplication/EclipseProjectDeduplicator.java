@@ -16,10 +16,8 @@
 
 package org.gradle.tooling.composite.internal.deduplication;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.gradle.tooling.composite.internal.RedirectedProjectLookup;
@@ -27,11 +25,8 @@ import org.gradle.tooling.composite.internal.RedirectionAwareEclipseProject;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.eclipse.HierarchicalEclipseProject;
 
-import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.primitives.Ints;
 
 /**
  * De-duplicates {@link EclipseProject} names.
@@ -46,48 +41,28 @@ class EclipseProjectDeduplicator {
     }
 
     private void deduplicate(Set<EclipseProject> eclipseProjects, RenamedEclipseProjectTracker renamedElementTracker) {
-        List<RenamableElement> renamableProjects = Lists.newArrayList();
-        for (EclipseProject eclipseProject : eclipseProjects) {
-            renamableProjects.add(new RenambleEclipseProject(eclipseProject, renamedElementTracker));
+        Map<EclipseProject, String> newNames = new HierarchicalElementDeduplicator<EclipseProject>(new EclipseProjectNameDeduplicationStrategy()).deduplicate(eclipseProjects);
+        for (Entry<EclipseProject, String> nameChange : newNames.entrySet()) {
+            renamedElementTracker.renameTo(nameChange.getKey(), nameChange.getValue());
         }
-        sortByDepth(renamableProjects);
-        new HierarchicalElementDeduplicator().deduplicate(renamableProjects);
-    }
-
-    private void sortByDepth(List<RenamableElement> renamableProjects) {
-        Collections.sort(renamableProjects, new Comparator<RenamableElement>() {
-
-            @Override
-            public int compare(RenamableElement o1, RenamableElement o2) {
-                return Ints.compare(depth((EclipseProject) o1.getOriginal()), depth((EclipseProject) o2.getOriginal()));
-            }
-
-            private int depth(EclipseProject p) {
-                if (p.getParent() == null) {
-                    return 0;
-                }
-                return CharMatcher.is(':').countIn(p.getGradleProject().getPath());
-            }
-        });
     }
 
     /**
-     * Adapts {@link EclipseProject}s to the generic de-duplication infrastructure.
+     * Adapts {@link EclipseProject}s to the generic de-duplication algorithm
+     * @author Stefan Oehme
      */
-    private static class RenambleEclipseProject extends RenamableElement {
+    private static class EclipseProjectNameDeduplicationStrategy implements NameDeduplicationStrategy<EclipseProject> {
 
-        private final RenamedEclipseProjectTracker renamedElementTracker;
-
-        public RenambleEclipseProject(EclipseProject project, RenamedEclipseProjectTracker renamedElementTracker) {
-            super(project);
-            this.renamedElementTracker = renamedElementTracker;
+        @Override
+        public String getName(EclipseProject element) {
+            return element.getName();
         }
 
         @Override
-        public void handleRename(String newName) {
-            this.renamedElementTracker.renameTo((EclipseProject) getOriginal(), newName);
+        public EclipseProject getParent(EclipseProject element) {
+            return element.getParent();
         }
-
+        
     }
 
     /**
