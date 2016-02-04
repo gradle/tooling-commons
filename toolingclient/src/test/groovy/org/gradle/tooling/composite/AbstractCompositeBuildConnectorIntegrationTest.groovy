@@ -17,7 +17,6 @@ package org.gradle.tooling.composite
 
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import org.gradle.tooling.composite.fixtures.ExternalDependency
-import org.gradle.tooling.model.eclipse.EclipseProject
 import org.junit.Rule
 import spock.lang.Specification
 
@@ -51,7 +50,7 @@ abstract class AbstractCompositeBuildConnectorIntegrationTest extends Specificat
         }
     }
 
-    protected File createBuildFileWithDependency(File projectDir, ExternalDependency externalDependency) {
+    protected File createBuildFileWithExternalDependency(File projectDir, ExternalDependency externalDependency) {
         File buildFile = createBuildFile(projectDir)
         buildFile << javaBuildScript()
         buildFile << """
@@ -96,34 +95,5 @@ abstract class AbstractCompositeBuildConnectorIntegrationTest extends Specificat
         if (!file.exists() && !file.createNewFile()) {
             throw new IllegalStateException("Failed to create file $file")
         }
-    }
-
-    protected EclipseProject assertEclipseProjectInCompositeModel(Set<ModelResult<EclipseProject>> compositeModel, String projectName) {
-        ModelResult<EclipseProject> modelResult = compositeModel.find { it.model.name == projectName }
-        EclipseProject eclipseProject = modelResult.model
-        assert eclipseProject
-        eclipseProject
-    }
-
-    protected void assertChildren(EclipseProject eclipseProject, List<File> childrenProjectDirs) {
-        assert eclipseProject.children.size() == childrenProjectDirs.size()
-
-        eclipseProject.children.each {
-            assert childrenProjectDirs.contains(it.projectDirectory)
-        }
-    }
-
-    protected void assertExternalDependencies(EclipseProject eclipseProject, ExternalDependency... externalDependencies) {
-        assert eclipseProject.classpath.size() == externalDependencies.size()
-
-        externalDependencies.each { externalDependency ->
-            assert eclipseProject.classpath.collect { it.gradleModuleVersion }.find {
-                it.group == externalDependency.group && it.name == externalDependency.name && it.version == externalDependency.version
-            }
-        }
-    }
-
-    protected void assertNoProjectDependencies(EclipseProject eclipseProject) {
-        assert eclipseProject.projectDependencies.size() == 0
     }
 }
