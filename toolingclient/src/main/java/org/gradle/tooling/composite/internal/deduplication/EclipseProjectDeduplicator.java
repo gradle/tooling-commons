@@ -48,7 +48,7 @@ class EclipseProjectDeduplicator {
     }
 
     /**
-     * Adapts {@link EclipseProject}s to the generic de-duplication algorithm
+     * Adapts {@link EclipseProject}s to the generic de-duplication algorithm.
      * @author Stefan Oehme
      */
     private static class EclipseProjectNameDeduplicationStrategy implements NameDeduplicationStrategy<EclipseProject> {

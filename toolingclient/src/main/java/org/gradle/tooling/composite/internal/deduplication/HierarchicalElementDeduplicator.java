@@ -39,6 +39,7 @@ import com.google.common.primitives.Ints;
  * Conflicting root elements are de-duplicated by appending a counter. Conflicting sub-elements are
  * de-duplicated by prepending their parent element names, separated by a dash.
  *
+ * @param <T> the type of element to de-duplicate
  * @author Stefan Oehme
  */
 public class HierarchicalElementDeduplicator<T> {
@@ -50,12 +51,18 @@ public class HierarchicalElementDeduplicator<T> {
     }
 
     /**
-     * Returns a Map containing an entry for each element that needs to be renamed.
+     * Calculates a set of renamings for each duplicate name in the given set of elements.
+     *
+     * @param elements the elements with possibly duplicated names
+     * @return a Map containing the new name for each element that has to be renamed
      */
     public Map<T, String> deduplicate(Collection<T> elements) {
         return new StatefulDeduplicator(elements).getNewNames();
     }
 
+    /**
+     * This inner class hides the fact that the actual de-duplication algorithm is stateful.
+     */
     private class StatefulDeduplicator {
 
         private final List<T> elements;
