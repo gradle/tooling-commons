@@ -98,10 +98,19 @@ abstract class AbstractCompositeBuildConnectorIntegrationTest extends Specificat
         }
     }
 
-    protected ModelResult<EclipseProject> assertModelResultInCompositeModel(Set<ModelResult<EclipseProject>> compositeModel, String projectName) {
+    protected EclipseProject assertEclipseProjectInCompositeModel(Set<ModelResult<EclipseProject>> compositeModel, String projectName) {
         ModelResult<EclipseProject> modelResult = compositeModel.find { it.model.name == projectName }
-        assert modelResult
-        modelResult
+        EclipseProject eclipseProject = modelResult.model
+        assert eclipseProject
+        eclipseProject
+    }
+
+    protected void assertChildren(EclipseProject eclipseProject, List<File> childrenProjectDirs) {
+        assert eclipseProject.children.size() == childrenProjectDirs.size()
+
+        eclipseProject.children.each {
+            assert childrenProjectDirs.contains(it.projectDirectory)
+        }
     }
 
     protected void assertExternalDependencies(EclipseProject eclipseProject, ExternalDependency... externalDependencies) {

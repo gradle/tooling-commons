@@ -53,9 +53,9 @@ class CompositeBuildConnectorGradleDistributionIntegrationTest extends AbstractC
 
         then:
         compositeModel.size() == 1
-        ModelResult<EclipseProject> modelResult = assertModelResultInCompositeModel(compositeModel, 'project')
-        assertExternalDependencies(modelResult.model, commonsLangDep)
-        assertNoProjectDependencies(modelResult.model)
+        EclipseProject eclipseProject = assertEclipseProjectInCompositeModel(compositeModel, 'project')
+        assertExternalDependencies(eclipseProject, commonsLangDep)
+        assertNoProjectDependencies(eclipseProject)
 
         where:
         version | configurer
