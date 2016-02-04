@@ -39,12 +39,12 @@ abstract class AbstractCompositeBuildConnectorIntegrationTest extends Specificat
         compositeBuildConnector.connect()
     }
 
-    protected void withCompositeConnection(List<File> rootProjectDirectories, Closure c) {
+    def withCompositeConnection(List<File> rootProjectDirectories, Closure c) {
         CompositeBuildConnection connection
 
         try {
             connection = createComposite(rootProjectDirectories)
-            c(connection)
+            return c(connection)
         } finally {
             connection?.close()
         }

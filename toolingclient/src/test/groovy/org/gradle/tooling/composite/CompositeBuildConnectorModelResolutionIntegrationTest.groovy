@@ -29,10 +29,8 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         createBuildFile(projectDir)
 
         when:
-        Set<ModelResult<EclipseProject>> compositeModel
-
-        withCompositeConnection([projectDir, projectDir]) { connection ->
-            compositeModel = connection.getModels(EclipseProject)
+        Set<ModelResult<EclipseProject>> compositeModel = withCompositeConnection([projectDir, projectDir]) { connection ->
+            connection.getModels(EclipseProject)
         }
 
         then:
@@ -51,10 +49,8 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         createSettingsFile(rootProjectDir, ['sub', 'sub:sub-sub'])
 
         when:
-        Set<ModelResult<EclipseProject>> compositeModel
-
-        withCompositeConnection([rootProjectDir, subProjectDir]) { connection ->
-            compositeModel = connection.getModels(EclipseProject)
+        Set<ModelResult<EclipseProject>> compositeModel = withCompositeConnection([rootProjectDir, subProjectDir]) { connection ->
+            connection.getModels(EclipseProject)
         }
 
         then:
@@ -70,10 +66,8 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         createBuildFileWithExternalDependency(projectDir, ExternalDependencies.COMMONS_LANG)
 
         when:
-        Set<ModelResult<EclipseProject>> compositeModel
-
-        withCompositeConnection([projectDir]) { connection ->
-            compositeModel = connection.getModels(EclipseProject)
+        Set<ModelResult<EclipseProject>> compositeModel = withCompositeConnection([projectDir]) { connection ->
+            connection.getModels(EclipseProject)
         }
 
         then:
@@ -95,10 +89,8 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         createSettingsFile(rootProjectDir, ['sub-1', 'sub-2', 'sub-1:a-1', 'sub-2:b-2'])
 
         when:
-        Set<ModelResult<EclipseProject>> compositeModel
-
-        withCompositeConnection([rootProjectDir]) { connection ->
-            compositeModel = connection.getModels(EclipseProject)
+        Set<ModelResult<EclipseProject>> compositeModel = withCompositeConnection([rootProjectDir]) { connection ->
+            connection.getModels(EclipseProject)
         }
 
         then:
@@ -123,10 +115,8 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         createSettingsFile(rootProjectDir, ['sub-1', 'sub-2', 'sub-3'])
 
         when:
-        Set<ModelResult<EclipseProject>> compositeModel
-
-        withCompositeConnection([rootProjectDir]) { connection ->
-            compositeModel = connection.getModels(EclipseProject)
+        Set<ModelResult<EclipseProject>> compositeModel = withCompositeConnection([rootProjectDir]) { connection ->
+            connection.getModels(EclipseProject)
         }
 
         then:
@@ -145,10 +135,8 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         createBuildFileWithExternalDependency(projectDir2, ExternalDependencies.LOG4J)
 
         when:
-        Set<ModelResult<EclipseProject>> compositeModel
-
-        withCompositeConnection([projectDir1, projectDir2]) { connection ->
-            compositeModel = connection.getModels(EclipseProject)
+        Set<ModelResult<EclipseProject>> compositeModel = withCompositeConnection([projectDir1, projectDir2]) { connection ->
+            connection.getModels(EclipseProject)
         }
 
         then:
@@ -174,10 +162,8 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         createSettingsFile(projectDir2, ['sub-a', 'sub-b'])
 
         when:
-        Set<ModelResult<EclipseProject>> compositeModel
-
-        withCompositeConnection([projectDir1, projectDir2]) { connection ->
-            compositeModel = connection.getModels(EclipseProject)
+        Set<ModelResult<EclipseProject>> compositeModel = withCompositeConnection([projectDir1, projectDir2]) { connection ->
+            connection.getModels(EclipseProject)
         }
 
         then:
@@ -215,10 +201,8 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         createSettingsFile(rootProjectDir, ['sub-1', 'sub-2', 'sub-2:sub-sub'])
 
         when:
-        Set<ModelResult<EclipseProject>> compositeModel
-
-        withCompositeConnection([rootProjectDir, sub1ProjectDir]) { connection ->
-            compositeModel = connection.getModels(EclipseProject)
+        Set<ModelResult<EclipseProject>> compositeModel = withCompositeConnection([rootProjectDir, sub1ProjectDir]) { connection ->
+            connection.getModels(EclipseProject)
         }
 
         then:
