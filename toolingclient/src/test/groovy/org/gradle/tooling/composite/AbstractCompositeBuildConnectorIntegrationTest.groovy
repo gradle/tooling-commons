@@ -51,21 +51,18 @@ abstract class AbstractCompositeBuildConnectorIntegrationTest extends Specificat
         }
     }
 
-    protected File createBuildFileWithExternalDependency(File projectDir, ExternalDependency externalDependency) {
-        File buildFile = createBuildFile(projectDir)
-        buildFile << javaBuildScript()
-        buildFile << """
-            dependencies {
-                compile '${externalDependency.toString()}'
-            }
-        """
-        buildFile
-    }
-
     protected File createBuildFile(File projectDir) {
         File buildFile = new File(projectDir, 'build.gradle')
         GFileUtils.touch(buildFile)
         buildFile
+    }
+
+    protected File createSettingsFile(File projectDir, List<String> projectPaths) {
+        File settingsFile = new File(projectDir, 'settings.gradle')
+        GFileUtils.touch(settingsFile)
+        String includes = projectPaths.collect { "'$it'" }.join(', ')
+        settingsFile << "include $includes"
+        settingsFile
     }
 
     protected String javaBuildScript() {
@@ -77,11 +74,14 @@ abstract class AbstractCompositeBuildConnectorIntegrationTest extends Specificat
         """
     }
 
-    protected File createSettingsFile(File projectDir, List<String> projectPaths) {
-        File settingsFile = new File(projectDir, 'settings.gradle')
-        GFileUtils.touch(settingsFile)
-        String includes = projectPaths.collect { "'$it'" }.join(', ')
-        settingsFile << "include $includes"
-        settingsFile
+    protected File createBuildFileWithExternalDependency(File projectDir, ExternalDependency externalDependency) {
+        File buildFile = createBuildFile(projectDir)
+        buildFile << javaBuildScript()
+        buildFile << """
+            dependencies {
+                compile '${externalDependency.toString()}'
+            }
+        """
+        buildFile
     }
 }
