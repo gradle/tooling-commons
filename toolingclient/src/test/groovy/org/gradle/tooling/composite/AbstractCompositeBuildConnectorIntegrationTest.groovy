@@ -17,6 +17,7 @@ package org.gradle.tooling.composite
 
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import org.gradle.tooling.composite.fixtures.ExternalDependency
+import org.gradle.util.GFileUtils
 import org.junit.Rule
 import spock.lang.Specification
 
@@ -62,9 +63,8 @@ abstract class AbstractCompositeBuildConnectorIntegrationTest extends Specificat
     }
 
     protected File createBuildFile(File projectDir) {
-        createDir(projectDir)
         File buildFile = new File(projectDir, 'build.gradle')
-        createFile(buildFile)
+        GFileUtils.touch(buildFile)
         buildFile
     }
 
@@ -79,21 +79,9 @@ abstract class AbstractCompositeBuildConnectorIntegrationTest extends Specificat
 
     protected File createSettingsFile(File projectDir, List<String> projectPaths) {
         File settingsFile = new File(projectDir, 'settings.gradle')
-        createFile(settingsFile)
+        GFileUtils.touch(settingsFile)
         String includes = projectPaths.collect { "'$it'" }.join(', ')
         settingsFile << "include $includes"
         settingsFile
-    }
-
-    private void createDir(File dir) {
-        if (!dir.exists() && !dir.mkdirs()) {
-            throw new IllegalStateException("Failed to create directory $dir")
-        }
-    }
-
-    private void createFile(File file) {
-        if (!file.exists() && !file.createNewFile()) {
-            throw new IllegalStateException("Failed to create file $file")
-        }
     }
 }
