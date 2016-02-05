@@ -23,7 +23,7 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
 
     def "cannot create composite with no participating projects"() {
         when:
-        createComposite()
+        withCompositeConnection([])
 
         then:
         Throwable t = thrown(IllegalStateException)
@@ -32,7 +32,7 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
 
     def "cannot create composite for participant with null project directory"() {
         when:
-        createComposite([null])
+        withCompositeConnection([null])
 
         then:
         Throwable t = thrown(IllegalStateException)

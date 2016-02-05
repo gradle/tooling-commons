@@ -26,21 +26,7 @@ abstract class AbstractCompositeBuildConnectorIntegrationTest extends Specificat
     @Rule
     TestDirectoryProvider directoryProvider = new TestDirectoryProvider()
 
-    protected CompositeBuildConnection createComposite(File... rootProjectDirectories) {
-        createComposite(rootProjectDirectories as List<File>)
-    }
-
-    protected CompositeBuildConnection createComposite(List<File> rootProjectDirectories) {
-        CompositeBuildConnector compositeBuildConnector = CompositeBuildConnector.newComposite()
-
-        rootProjectDirectories.each {
-            compositeBuildConnector.addParticipant(it)
-        }
-
-        compositeBuildConnector.connect()
-    }
-
-    def withCompositeConnection(List<File> rootProjectDirectories, Closure c) {
+    def withCompositeConnection(List<File> rootProjectDirectories, Closure c = {}) {
         CompositeBuildConnection connection
 
         try {
@@ -49,6 +35,16 @@ abstract class AbstractCompositeBuildConnectorIntegrationTest extends Specificat
         } finally {
             connection?.close()
         }
+    }
+
+    private CompositeBuildConnection createComposite(List<File> rootProjectDirectories) {
+        CompositeBuildConnector compositeBuildConnector = CompositeBuildConnector.newComposite()
+
+        rootProjectDirectories.each {
+            compositeBuildConnector.addParticipant(it)
+        }
+
+        compositeBuildConnector.connect()
     }
 
     protected File createBuildFile(File projectDir) {
