@@ -218,7 +218,7 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
                                              List<ExternalDependency> externalDependencies = [],
                                              List<ProjectDependency> projectDependencies = []) {
         EclipseProject eclipseProject = assertEclipseProjectInCompositeModel(compositeModel, projectName)
-        assertChildren(eclipseProject, childrenProjectNames)
+        assertChildren(compositeModel, eclipseProject, childrenProjectNames)
         assertExternalDependencies(eclipseProject, externalDependencies)
         assertProjectDependencies(eclipseProject, projectDependencies)
         eclipseProject
@@ -231,11 +231,13 @@ class CompositeBuildConnectorModelResolutionIntegrationTest extends AbstractComp
         eclipseProject
     }
 
-    private void assertChildren(EclipseProject eclipseProject, List<String> childrenProjectNames) {
+    private void assertChildren(Set<ModelResult<EclipseProject>> compositeModel, EclipseProject eclipseProject, List<String> childrenProjectNames) {
         assert eclipseProject.children.size() == childrenProjectNames.size()
+        Map<String, EclipseProject> mappedChildProjects = compositeModel.findAll { childrenProjectNames.contains(it.model.name) }
+                                                                        .collectEntries { [(it.model.name) : it.model] }
 
-        eclipseProject.children.each {
-            assert childrenProjectNames.contains(it.name)
+        eclipseProject.children.each { child ->
+            assert mappedChildProjects.get(child.name).is(child)
         }
     }
 
