@@ -163,12 +163,11 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
         }, new DefaultResultHandler(handler));
     }
 
-    private <S> Set<ModelResult<S>> toModelResults(Set<EclipseProject> eclipseProjects) {
-        return CollectionUtils.collect(eclipseProjects, new Transformer<ModelResult<S>, EclipseProject>() {
-            @SuppressWarnings("unchecked")
+    private <S> Set<ModelResult<S>> toModelResults(Set<S> eclipseProjects) {
+        return CollectionUtils.collect(eclipseProjects, new Transformer<ModelResult<S>, S>() {
             @Override
-            public ModelResult<S> transform(EclipseProject eclipseProject) {
-                return new DefaultModelResult<S>((S) eclipseProject);
+            public ModelResult<S> transform(S eclipseProject) {
+                return new DefaultModelResult<S>(eclipseProject);
             }
         });
     }
