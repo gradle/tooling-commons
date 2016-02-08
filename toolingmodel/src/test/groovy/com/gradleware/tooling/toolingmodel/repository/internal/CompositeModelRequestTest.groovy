@@ -160,7 +160,7 @@ class CompositeModelRequestTest extends Specification {
         fetchMode << FetchMode.values()
     }
 
-    private def getEclipseProjects(CompositeModelRequest<EclipseProject> request, FetchMode fetchMode) {
+    private def Set<EclipseProject> getEclipseProjects(CompositeModelRequest<EclipseProject> request, FetchMode fetchMode) {
         if (fetchMode == FetchMode.SYNC) {
             return request.executeAndWait()
         } else {
