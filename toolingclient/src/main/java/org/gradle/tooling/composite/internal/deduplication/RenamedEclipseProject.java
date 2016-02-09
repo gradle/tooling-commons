@@ -26,7 +26,7 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
  */
 class RenamedEclipseProject extends RedirectionAwareEclipseProject {
 
-    private String newName;
+    private final String newName;
 
     public RenamedEclipseProject(EclipseProject original, String newName, RedirectedProjectLookup redirectedProjectLookup) {
         super(original,redirectedProjectLookup);
@@ -40,6 +40,6 @@ class RenamedEclipseProject extends RedirectionAwareEclipseProject {
 
     @Override
     public String toString() {
-        return super.toString() + " renamed to '" + getName() + "'";
+        return String.format("%s renamed to '%s'", super.toString(), getName());
     }
 }

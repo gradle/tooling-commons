@@ -36,7 +36,7 @@ import com.google.common.collect.Sets;
  */
 public class DeduplicatingCompositeBuildConnection implements CompositeBuildConnection {
 
-    private CompositeBuildConnection delegate;
+    private final CompositeBuildConnection delegate;
 
     public DeduplicatingCompositeBuildConnection(CompositeBuildConnection delegate) {
         this.delegate = delegate;
@@ -52,7 +52,7 @@ public class DeduplicatingCompositeBuildConnection implements CompositeBuildConn
     public <T> ModelBuilder<Set<ModelResult<T>>> models(Class<T> modelType) throws GradleConnectionException, IllegalStateException, IllegalArgumentException {
         ModelBuilder<Set<ModelResult<T>>> models = this.delegate.models(modelType);
         if (modelType == EclipseProject.class) {
-            DeduplicatingModelBuilder builder = new DeduplicatingModelBuilder((ModelBuilder) models);
+            DeduplicatingEclipseModelBuilder builder = new DeduplicatingEclipseModelBuilder((ModelBuilder) models);
             return (ModelBuilder) builder;
         } else {
             return models;
@@ -67,9 +67,9 @@ public class DeduplicatingCompositeBuildConnection implements CompositeBuildConn
     /**
      * Deduplicates {@link EclipseProject}s returned from the delegate.
      */
-    private static class DeduplicatingModelBuilder extends DelegatingModelBuilder<Set<ModelResult<EclipseProject>>> {
+    private static class DeduplicatingEclipseModelBuilder extends DelegatingModelBuilder<Set<ModelResult<EclipseProject>>> {
 
-        public DeduplicatingModelBuilder(ModelBuilder<Set<ModelResult<EclipseProject>>> delegate) {
+        public DeduplicatingEclipseModelBuilder(ModelBuilder<Set<ModelResult<EclipseProject>>> delegate) {
             super(delegate);
         }
 
@@ -81,7 +81,7 @@ public class DeduplicatingCompositeBuildConnection implements CompositeBuildConn
 
         @Override
         public void get(final ResultHandler<? super Set<ModelResult<EclipseProject>>> handler) throws IllegalStateException {
-            this.delegate.get(new DeduplicatingResultHanlder(handler));
+            this.delegate.get(new DeduplicatingResultHandler(handler));
         }
 
         private Set<ModelResult<EclipseProject>> deduplicate(Set<ModelResult<EclipseProject>> eclipseProjects) {
@@ -100,11 +100,11 @@ public class DeduplicatingCompositeBuildConnection implements CompositeBuildConn
         /**
          * Deduplicates the {@link EclipseProject}s before passing them on to the actual handler.
          */
-        private final class DeduplicatingResultHanlder implements ResultHandler<Set<ModelResult<EclipseProject>>> {
+        private final class DeduplicatingResultHandler implements ResultHandler<Set<ModelResult<EclipseProject>>> {
 
             private final ResultHandler<? super Set<ModelResult<EclipseProject>>> delegate;
 
-            private DeduplicatingResultHanlder(ResultHandler<? super Set<ModelResult<EclipseProject>>> handler) {
+            private DeduplicatingResultHandler(ResultHandler<? super Set<ModelResult<EclipseProject>>> handler) {
                 this.delegate = handler;
             }
 

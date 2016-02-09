@@ -19,7 +19,7 @@ import org.gradle.tooling.model.eclipse.EclipseProject
 
 import com.google.common.collect.Sets;
 
-class CompsoteBuildConnectorDeduplicationIntegrationTest extends AbstractCompositeBuildConnectorIntegrationTest {
+class CompositeBuildConnectorDeduplicationIntegrationTest extends AbstractCompositeBuildConnectorIntegrationTest {
 
     def "Conflicting root project names are de-duplicated using a counter"() {
         given:
@@ -34,7 +34,7 @@ class CompsoteBuildConnectorDeduplicationIntegrationTest extends AbstractComposi
         then:
         assertProjectNames projects, ['foo1', 'foo2']
     }
-    
+
     def "If a root project conflicts with a subproject, the subproject is renamed"() {
         given:
         File projectA = directoryProvider.createDir('projectA')
@@ -44,7 +44,6 @@ class CompsoteBuildConnectorDeduplicationIntegrationTest extends AbstractComposi
 
         when:
         def projects = getEclipseProjects(projectA, projectB)
-
 
         then:
         assertProjectNames projects, ['foo', 'projectB', 'projectB-foo']
@@ -63,7 +62,7 @@ class CompsoteBuildConnectorDeduplicationIntegrationTest extends AbstractComposi
         then:
         assertProjectNames projects, ['projectA', 'projectB', 'projectA-foo', 'projectB-foo', 'projectA-foo-bar', 'projectB-foo-bar']
     }
-    
+
     def "The de-duplicated name of the parent is used when prefixing children"() {
         given:
         File projectA = directoryProvider.createDir('projectA')
@@ -78,7 +77,7 @@ class CompsoteBuildConnectorDeduplicationIntegrationTest extends AbstractComposi
         assertProjectNames projects, ['root1', 'root2', 'root1-foo', 'root2-foo']
     }
 
-    def "Projects are not prefixed twice" () {
+    def "Projects are not prefixed twice"() {
         given:
         File projectA = directoryProvider.createDir('projectA')
         createSettingsFile(projectA, ['foo', 'foo:foo-bar', 'foo:foo-bar:bar-bar'])
@@ -92,7 +91,7 @@ class CompsoteBuildConnectorDeduplicationIntegrationTest extends AbstractComposi
         assertProjectNames projects, ['projectA', 'projectB', 'projectA-foo', 'projectB-foo', 'projectA-foo-bar', 'projectB-foo-bar', 'projectA-foo-bar-bar', 'projectB-foo-bar-bar']
     }
 
-    def "The project hierarchy contains renamed projects" () {
+    def "The project hierarchy contains renamed projects"() {
         given:
         File projectA = directoryProvider.createDir('projectA')
         createSettingsFile(projectA, ['foo'])
@@ -107,6 +106,7 @@ class CompsoteBuildConnectorDeduplicationIntegrationTest extends AbstractComposi
         def sub = root.children.head()
 
         then:
+        sub.parent == root
         projects.contains(sub)
     }
 
@@ -114,9 +114,9 @@ class CompsoteBuildConnectorDeduplicationIntegrationTest extends AbstractComposi
         given:
         File projectA = directoryProvider.createDir('projectA')
         createBuildFile(projectA) << """
-            ${javaBuildScript()}
+            apply plugin: 'java'
             project('foo') {
-                ${javaBuildScript()}
+                apply plugin: 'java'
             }
             dependencies {
                 compile project(':foo')
@@ -138,15 +138,15 @@ class CompsoteBuildConnectorDeduplicationIntegrationTest extends AbstractComposi
         dependency.targetProject == sub
     }
 
-    private def getEclipseProjects(File... rootDirs) {
+    private def Set<EclipseProject> getEclipseProjects(File... rootDirs) {
         def projects
         withCompositeConnection(rootDirs as List) { connection ->
-            projects =  connection.getModels(EclipseProject).collect {result -> result.model}
+            projects = connection.getModels(EclipseProject).collect {result -> result.model}
         }
         return projects
     }
 
-    private def void assertProjectNames(projects, names) {
+    private def void assertProjectNames(Collection<EclipseProject> projects, Collection<String> names) {
         assert projects*.name as Set == names as Set
     }
 }

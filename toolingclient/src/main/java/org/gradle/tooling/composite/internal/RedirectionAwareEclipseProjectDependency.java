@@ -25,8 +25,8 @@ import org.gradle.tooling.model.eclipse.HierarchicalEclipseProject;
  */
 class RedirectionAwareEclipseProjectDependency implements EclipseProjectDependency {
 
-    private EclipseProjectDependency delegate;
-    private RedirectedProjectLookup renamedProjectLookup;
+    private final EclipseProjectDependency delegate;
+    private final RedirectedProjectLookup renamedProjectLookup;
 
     public RedirectionAwareEclipseProjectDependency(EclipseProjectDependency delegate, RedirectedProjectLookup renamedProjectLookup) {
         this.delegate = delegate;

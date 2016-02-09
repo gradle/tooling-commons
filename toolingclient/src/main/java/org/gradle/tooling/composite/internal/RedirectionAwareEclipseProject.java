@@ -30,7 +30,7 @@ import com.google.common.collect.Sets;
  * @author Stefan Oehme
  */
 public class RedirectionAwareEclipseProject extends DelegatingEclipseProject {
-    private RedirectedProjectLookup redirectedProjectLookup;
+    private final RedirectedProjectLookup redirectedProjectLookup;
 
     public RedirectionAwareEclipseProject(EclipseProject original, RedirectedProjectLookup redirectedProjectLookup) {
         super(original);

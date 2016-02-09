@@ -36,7 +36,7 @@ import org.gradle.tooling.model.eclipse.EclipseSourceDirectory;
  */
 public class DelegatingEclipseProject implements EclipseProject {
 
-    private EclipseProject delegate;
+    private final EclipseProject delegate;
 
     public DelegatingEclipseProject(EclipseProject delegate) {
         this.delegate = delegate;
