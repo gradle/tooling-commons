@@ -138,7 +138,7 @@ class CompositeBuildConnectorDeduplicationIntegrationTest extends AbstractCompos
         dependency.targetProject == sub
     }
 
-    private def Set<EclipseProject> getEclipseProjects(File... rootDirs) {
+    private Set<EclipseProject> getEclipseProjects(File... rootDirs) {
         def projects
         withCompositeConnection(rootDirs as List) { connection ->
             projects = connection.getModels(EclipseProject).collect {result -> result.model}
@@ -146,7 +146,7 @@ class CompositeBuildConnectorDeduplicationIntegrationTest extends AbstractCompos
         return projects
     }
 
-    private def void assertProjectNames(Collection<EclipseProject> projects, Collection<String> names) {
+    private void assertProjectNames(Collection<EclipseProject> projects, Collection<String> names) {
         assert projects*.name as Set == names as Set
     }
 }
