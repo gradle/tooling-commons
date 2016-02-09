@@ -69,12 +69,21 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
     @Override
     public void close() {
         Throwable failure = null;
+
+        try {
+            this.connection.stop();
+        } catch (Throwable throwable) {
+            if (failure == null) {
+                failure = throwable;
+            }
+        }
+
         for (ProjectConnection projectConnection : this.participants) {
             try {
                 projectConnection.close();
-            } catch (Exception e) {
+            } catch (Throwable throwable) {
                 if (failure == null) {
-                    failure = e;
+                    failure = throwable;
                 }
             }
         }

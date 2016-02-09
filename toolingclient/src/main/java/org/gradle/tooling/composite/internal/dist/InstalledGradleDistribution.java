@@ -54,4 +54,9 @@ public class InstalledGradleDistribution implements GradleDistribution {
     public int hashCode() {
         return gradleHome != null ? gradleHome.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return String.format("installed Gradle distribution: %s", gradleHome.getAbsolutePath());
+    }
 }

@@ -54,4 +54,9 @@ public final class URILocatedGradleDistribution implements GradleDistribution {
     public int hashCode() {
         return location != null ? location.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return String.format("URI-located Gradle distribution: %s", location.toString());
+    }
 }

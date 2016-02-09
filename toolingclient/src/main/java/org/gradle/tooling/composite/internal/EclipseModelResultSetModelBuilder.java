@@ -40,6 +40,9 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.internal.Exceptions;
 import org.gradle.util.CollectionUtils;
 
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -83,6 +86,51 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
     }
 
     @Override
+    public EclipseModelResultSetModelBuilder<T> withArguments(String... arguments) {
+        throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("provide arguments"));
+    }
+
+    @Override
+    public EclipseModelResultSetModelBuilder<T> withArguments(Iterable<String> arguments) {
+        throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("provide arguments"));
+    }
+
+    @Override
+    public EclipseModelResultSetModelBuilder<T> setStandardOutput(OutputStream outputStream) {
+        throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("set standard output"));
+    }
+
+    @Override
+    public EclipseModelResultSetModelBuilder<T> setStandardError(OutputStream outputStream) {
+        throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("set standard error"));
+    }
+
+    @Override
+    public EclipseModelResultSetModelBuilder<T> setStandardInput(InputStream inputStream) {
+        throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("set standard input"));
+    }
+
+    @Override
+    public EclipseModelResultSetModelBuilder<T> setColorOutput(boolean colorOutput) {
+        throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("set color output"));
+    }
+
+    @Override
+    public EclipseModelResultSetModelBuilder<T> setJavaHome(File javaHome) {
+        throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("set Java home"));
+    }
+
+    @Override
+    public EclipseModelResultSetModelBuilder<T> setJvmArguments(String... jvmArguments) {
+        throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("provide JVM arguments"));
+    }
+
+    @Override
+    public EclipseModelResultSetModelBuilder<T> setJvmArguments(Iterable<String> jvmArguments) {
+        throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("provide JVM arguments"));
+    }
+
+    @Override
     public EclipseModelResultSetModelBuilder<T> withInjectedClassPath(ClassPath classpath) {
         throw new UnsupportedMethodException(createUnsupportedMethodExceptionMessage("inject a classpath"));
     }
@@ -115,12 +163,11 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
         }, new DefaultResultHandler(handler));
     }
 
-    private <S> Set<ModelResult<S>> toModelResults(Set<EclipseProject> eclipseProjects) {
-        return CollectionUtils.collect(eclipseProjects, new Transformer<ModelResult<S>, EclipseProject>() {
-            @SuppressWarnings("unchecked")
+    private <S> Set<ModelResult<S>> toModelResults(Set<S> eclipseProjects) {
+        return CollectionUtils.collect(eclipseProjects, new Transformer<ModelResult<S>, S>() {
             @Override
-            public ModelResult<S> transform(EclipseProject eclipseProject) {
-                return new DefaultModelResult<S>((S) eclipseProject);
+            public ModelResult<S> transform(S eclipseProject) {
+                return new DefaultModelResult<S>(eclipseProject);
             }
         });
     }
@@ -132,7 +179,6 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
      */
     private static final class BlockingResultHandler<T> implements ResultHandler<Set<ModelResult<T>>> {
         private final BlockingQueue<Object> queue = new ArrayBlockingQueue<Object>(1);
-        private final Object NULL = new Object();
 
         @SuppressWarnings("unchecked")
         public Set<ModelResult<T>> getResult() {
@@ -145,9 +191,6 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
 
             if (result instanceof Throwable) {
                 throw UncheckedException.throwAsUncheckedException(attachCallerThreadStackTrace((Throwable) result));
-            }
-            if (result == this.NULL) {
-                return null;
             }
             return (Set<ModelResult<T>>)result;
         }
@@ -165,7 +208,7 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
 
         @Override
         public void onComplete(Set<ModelResult<T>> result) {
-            this.queue.add(result == null ? this.NULL : result);
+            this.queue.add(result);
         }
 
         @Override

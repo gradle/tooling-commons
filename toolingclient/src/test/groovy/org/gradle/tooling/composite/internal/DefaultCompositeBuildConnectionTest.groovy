@@ -71,7 +71,7 @@ class DefaultCompositeBuildConnectionTest extends Specification {
                        { it.models(List) }]
     }
 
-    def "closes all participants"() {
+    def "stops connection and closes all participants"() {
         given:
         def projectConnection1 = Mock(ProjectConnection)
         def projectConnection2 = Mock(ProjectConnection)
@@ -82,8 +82,27 @@ class DefaultCompositeBuildConnectionTest extends Specification {
         defaultCompositeBuildConnection.close()
 
         then:
+        1 * connection.stop()
         1 * projectConnection1.close()
         1 * projectConnection2.close()
+    }
+
+    def "closes all participants even if stopping the connection failed"() {
+        given:
+        def projectConnection1 = Mock(ProjectConnection)
+        def projectConnection2 = Mock(ProjectConnection)
+        Set<ProjectConnection> projectConnections = [projectConnection1, projectConnection2] as Set<ProjectConnection>
+
+        when:
+        DefaultCompositeBuildConnection defaultCompositeBuildConnection = new DefaultCompositeBuildConnection(connection, parameters, projectConnections)
+        defaultCompositeBuildConnection.close()
+
+        then:
+        1 * connection.stop() >> { throw new RuntimeException('Something went wrong') }
+        1 * projectConnection1.close()
+        1 * projectConnection2.close()
+        Throwable t = thrown(RuntimeException)
+        t.message == 'Something went wrong'
     }
 
     def "propagates exception if thrown when closing participant"() {
@@ -96,6 +115,7 @@ class DefaultCompositeBuildConnectionTest extends Specification {
         defaultCompositeBuildConnection.close()
 
         then:
+        1 * connection.stop()
         1 * projectConnection1.close() >> { throw new RuntimeException('Something went wrong') }
         Throwable t = thrown(RuntimeException)
         t.message == 'Something went wrong'
@@ -113,6 +133,7 @@ class DefaultCompositeBuildConnectionTest extends Specification {
         defaultCompositeBuildConnection.close()
 
         then:
+        1 * connection.stop()
         1 * projectConnection1.close() >> { throw new RuntimeException('Something went wrong') }
         1 * projectConnection2.close()
         1 * projectConnection3.close()
@@ -132,6 +153,7 @@ class DefaultCompositeBuildConnectionTest extends Specification {
         defaultCompositeBuildConnection.close()
 
         then:
+        1 * connection.stop()
         1 * projectConnection1.close() >> { throw new RuntimeException('Something went wrong') }
         1 * projectConnection2.close() >> { throw new RuntimeException('More failures') }
         1 * projectConnection3.close()

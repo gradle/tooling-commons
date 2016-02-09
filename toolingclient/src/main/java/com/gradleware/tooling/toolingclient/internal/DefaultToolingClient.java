@@ -21,8 +21,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.gradle.internal.Factory;
-import org.gradle.jarjar.com.google.common.collect.Lists;
-import org.gradle.jarjar.com.google.common.collect.Sets;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildActionExecuter;
 import org.gradle.tooling.BuildLauncher;
@@ -43,7 +41,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingclient.BuildActionRequest;
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
@@ -292,7 +292,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
 
     private <T> ModelBuilder<Set<ModelResult<T>>> mapToModelBuilder(InspectableCompositeModelRequest<T> modelRequest, CompositeBuildConnection connection) {
         ModelBuilder<Set<ModelResult<T>>> modelBuilder = connection.models(modelRequest.getModelType());
-        return mapToLongRunningOperation(modelRequest, modelBuilder);
+        return mapToBasicLongRunningOperation(modelRequest, modelBuilder);
     }
 
     private <T> BuildActionExecuter<T> mapToBuildActionExecuter(InspectableBuildActionRequest<T> buildActionRequest, ProjectConnection connection) {
@@ -313,14 +313,19 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     }
 
     private <T extends LongRunningOperation> T mapToLongRunningOperation(InspectableRequest<?> request, T operation) {
-        operation.setColorOutput(request.isColorOutput()).
-                setStandardOutput(request.getStandardOutput()).
-                setStandardError(request.getStandardError()).
-                setStandardInput(request.getStandardInput()).
-                setJavaHome(request.getJavaHomeDir()).
-                setJvmArguments(request.getJvmArguments()).
-                withArguments(request.getArguments()).
-                withCancellationToken(request.getCancellationToken());
+        mapToBasicLongRunningOperation(request, operation)
+            .setColorOutput(request.isColorOutput()).
+            setStandardOutput(request.getStandardOutput()).
+            setStandardError(request.getStandardError()).
+            setStandardInput(request.getStandardInput()).
+            setJavaHome(request.getJavaHomeDir()).
+            setJvmArguments(request.getJvmArguments()).
+            withArguments(request.getArguments());
+        return operation;
+    }
+
+    private <T extends LongRunningOperation> T mapToBasicLongRunningOperation(InspectableRequest<?> request, T operation) {
+        operation.withCancellationToken(request.getCancellationToken());
         for (ProgressListener progressListener : request.getProgressListeners()) {
             operation.addProgressListener(progressListener);
         }

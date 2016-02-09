@@ -51,4 +51,9 @@ public class VersionBasedGradleDistribution implements GradleDistribution {
     public int hashCode() {
         return gradleVersion != null ? gradleVersion.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return String.format("version-based Gradle distribution: %s", gradleVersion);
+    }
 }

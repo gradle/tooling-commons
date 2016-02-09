@@ -47,5 +47,4 @@ interface ExecutableToolingClient {
 
     <T> LongRunningOperationPromise<Set<T>> execute(InspectableCompositeModelRequest<T> modelRequest);
 
-
 }

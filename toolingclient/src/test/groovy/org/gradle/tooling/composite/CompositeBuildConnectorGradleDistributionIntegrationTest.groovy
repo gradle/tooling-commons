@@ -35,7 +35,7 @@ class CompositeBuildConnectorGradleDistributionIntegrationTest extends AbstractC
         given:
         File projectDir = directoryProvider.createDir('project')
         ExternalDependency commonsLangDep = ExternalDependencies.COMMONS_LANG
-        createBuildFileWithDependency(projectDir, commonsLangDep)
+        createBuildFileWithExternalDependency(projectDir, commonsLangDep)
 
         when:
         CompositeBuildConnection connection
@@ -53,9 +53,6 @@ class CompositeBuildConnectorGradleDistributionIntegrationTest extends AbstractC
 
         then:
         compositeModel.size() == 1
-        ModelResult<EclipseProject> modelResult = assertModelResultInCompositeModel(compositeModel, 'project')
-        assertExternalDependencies(modelResult.model, commonsLangDep)
-        assertNoProjectDependencies(modelResult.model)
 
         where:
         version | configurer

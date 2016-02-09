@@ -36,8 +36,6 @@ public interface CompositeBuildConnection {
      * @param modelType the model type
      * @param <T> the model type
      * @return the models
-     * @throws UnsupportedVersionException When the target Gradle version does not support the given model
-     * @throws UnknownModelException When the target Gradle version or build does not support the requested model
      * @throws BuildException On some failure executing the Gradle build, in order to build the model
      * @throws GradleConnectionException On some other failure using the connection
      * @throws IllegalStateException When this connection has been closed or is closing
@@ -57,8 +55,6 @@ public interface CompositeBuildConnection {
      * @param modelType the model type
      * @param <T> the model type
      * @return the builder
-     * @throws UnsupportedVersionException When the target Gradle version does not support the given model
-     * @throws UnknownModelException When the target Gradle version or build does not support the requested model
      * @throws BuildException On some failure executing the Gradle build, in order to build the model
      * @throws GradleConnectionException On some other failure using the connection
      * @throws IllegalStateException When this connection has been closed or is closing

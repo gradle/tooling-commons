@@ -32,9 +32,11 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature;
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
+import com.gradleware.tooling.toolingmodel.OmniJavaRuntime;
 import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings;
+import com.gradleware.tooling.toolingmodel.OmniJavaVersion;
 import com.gradleware.tooling.toolingmodel.Path;
-import com.gradleware.tooling.toolingmodel.util.Maybe;
+import org.gradle.api.JavaVersion;
 import org.gradle.api.specs.Spec;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.ExternalDependency;
@@ -45,6 +47,7 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
 import org.gradle.tooling.model.eclipse.EclipseProjectNature;
 import org.gradle.tooling.model.eclipse.EclipseSourceDirectory;
+import org.gradle.tooling.model.java.InstalledJdk;
 
 import java.io.File;
 import java.util.Comparator;
@@ -69,8 +72,8 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     private ImmutableList<OmniEclipseSourceDirectory> sourceDirectories;
     private Optional<List<OmniEclipseProjectNature>> projectNatures;
     private Optional<List<OmniEclipseBuildCommand>> buildCommands;
-    private Maybe<OmniJavaSourceSettings> javaSourceSettings;
     private OmniGradleProject gradleProject;
+    private Optional<OmniJavaSourceSettings> javaSourceSettings;
 
     private DefaultOmniEclipseProject(Comparator<? super OmniEclipseProject> comparator) {
         this.hierarchyHelper = new HierarchyHelper<OmniEclipseProject>(this, Preconditions.checkNotNull(comparator));
@@ -175,11 +178,11 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     }
 
     @Override
-    public Maybe<OmniJavaSourceSettings> getJavaSourceSettings() {
+    public Optional<OmniJavaSourceSettings> getJavaSourceSettings() {
         return this.javaSourceSettings;
     }
 
-    private void setJavaSourceSettings(Maybe<OmniJavaSourceSettings> javaSourceSettings) {
+    private void setJavaSourceSettings(Optional<OmniJavaSourceSettings> javaSourceSettings) {
         this.javaSourceSettings = javaSourceSettings;
     }
 
@@ -359,28 +362,70 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     }
 
     /**
-     * EclipseProject#getJavaSourceSettings is only available in Gradle versions >= 2.10.
+     * EclipseProject#getJavaSourceSettings is only available in Gradle versions >= 2.10, JavaSourceSettings#getTargetBytecodeLevel is is only available in Gradle versions >= 2.11,
+     * JavaSourceSettings#getTargetRuntime is is only available in Gradle versions >= 2.11.
      *
      * @param eclipseProject the project to populate
      * @param project the project model
      */
     private static void setJavaSourceSettings(DefaultOmniEclipseProject eclipseProject, EclipseProject project) {
         try {
-            OmniJavaSourceSettings sourceSettings = toOmniJavaSourceSettings(project.getJavaSourceSettings());
-            eclipseProject.setJavaSourceSettings(Maybe.of(sourceSettings));
+            EclipseJavaSourceSettings sourceSettings = project.getJavaSourceSettings();
+            Optional<OmniJavaSourceSettings> javaSourceSettings = sourceSettings != null ? Optional.of(toOmniJavaSourceSettings(sourceSettings)) : Optional.<OmniJavaSourceSettings>absent();
+            eclipseProject.setJavaSourceSettings(javaSourceSettings);
         } catch (Exception ignore) {
-            eclipseProject.setJavaSourceSettings(Maybe.<OmniJavaSourceSettings>absent());
+            setCompatibilityJavaSourceSettings(eclipseProject);
         }
     }
 
-    private static OmniJavaSourceSettings toOmniJavaSourceSettings(EclipseJavaSourceSettings sourceSettings) {
-        if (sourceSettings != null) {
-            String sourceVersionName = sourceSettings.getSourceLanguageLevel().toString();
-            DefaultOmniJavaVersion sourceLanguageLevel = new DefaultOmniJavaVersion(sourceVersionName);
-            return new DefaultOmniJavaSourceSettings(sourceLanguageLevel);
-        } else {
-            return null;
+    private static OmniJavaSourceSettings toOmniJavaSourceSettings(final EclipseJavaSourceSettings javaSourceSettings) {
+        // the source language level is always present on the source settings
+        OmniJavaVersion sourceLanguageLevel = toOmniJavaVersion(javaSourceSettings.getSourceLanguageLevel());
+
+        OmniJavaVersion targetBytecodeLevel;
+        try {
+            targetBytecodeLevel = toOmniJavaVersion(javaSourceSettings.getTargetBytecodeVersion());
+        } catch (Exception ignore) {
+            // if the target bytecode level is not available, then fall back to the current source language level
+            targetBytecodeLevel = sourceLanguageLevel;
         }
+
+        OmniJavaRuntime targetRuntime;
+        try {
+            targetRuntime = toOmniJavaRuntime(javaSourceSettings.getJdk());
+        } catch (Exception ignore) {
+            // if the target runtime is not available, then fall back to the current JVM settings
+            targetRuntime = getCompatibilityJavaRuntime();
+        }
+
+        return DefaultOmniJavaSourceSettings.from(sourceLanguageLevel, targetBytecodeLevel, targetRuntime);
+    }
+
+    private static void setCompatibilityJavaSourceSettings(DefaultOmniEclipseProject eclipseProject) {
+        if (eclipseProject.getSourceDirectories().isEmpty()) {
+            eclipseProject.setJavaSourceSettings(Optional.<OmniJavaSourceSettings>absent());
+        } else {
+            OmniJavaVersion languageLevel = getCompatibilityLanguageLevel();
+            OmniJavaRuntime javaRuntime = getCompatibilityJavaRuntime();
+            OmniJavaSourceSettings javaSourceSettings = DefaultOmniJavaSourceSettings.from(languageLevel, languageLevel, javaRuntime);
+            eclipseProject.setJavaSourceSettings(Optional.of(javaSourceSettings));
+        }
+    }
+
+    private static DefaultOmniJavaVersion getCompatibilityLanguageLevel() {
+        return DefaultOmniJavaVersion.from(JavaVersion.current());
+    }
+
+    private static OmniJavaRuntime getCompatibilityJavaRuntime() {
+        return DefaultOmniJavaRuntime.from(JavaVersion.current(), new File(System.getProperty("java.home")).getAbsoluteFile());
+    }
+
+    private static OmniJavaRuntime toOmniJavaRuntime(InstalledJdk jdk) {
+        return DefaultOmniJavaRuntime.from(jdk.getJavaVersion(), jdk.getJavaHome());
+    }
+
+    private static OmniJavaVersion toOmniJavaVersion(JavaVersion javaVersion) {
+        return DefaultOmniJavaVersion.from(javaVersion);
     }
 
     /**

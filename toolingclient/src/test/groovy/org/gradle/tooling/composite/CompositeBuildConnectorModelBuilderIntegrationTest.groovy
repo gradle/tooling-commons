@@ -31,10 +31,9 @@ class CompositeBuildConnectorModelBuilderIntegrationTest extends AbstractComposi
 
         when:
         CancellationTokenSource tokenSource = new DefaultCancellationTokenSource()
-        Set<ModelResult<EclipseProject>> compositeModel
 
-        withCompositeConnection([projectDir]) { connection ->
-            compositeModel = connection.models(EclipseProject).withCancellationToken(tokenSource.token()).get()
+        Set<ModelResult<EclipseProject>> compositeModel = withCompositeConnection([projectDir]) { connection ->
+            connection.models(EclipseProject).withCancellationToken(tokenSource.token()).get()
         }
 
         then:
@@ -50,10 +49,8 @@ class CompositeBuildConnectorModelBuilderIntegrationTest extends AbstractComposi
         CancellationTokenSource tokenSource = new DefaultCancellationTokenSource()
         tokenSource.cancel()
 
-        Set<ModelResult<EclipseProject>> compositeModel
-
         withCompositeConnection([projectDir]) { connection ->
-            compositeModel = connection.models(EclipseProject).withCancellationToken(tokenSource.token()).get()
+            connection.models(EclipseProject).withCancellationToken(tokenSource.token()).get()
         }
 
         then:
@@ -68,10 +65,9 @@ class CompositeBuildConnectorModelBuilderIntegrationTest extends AbstractComposi
 
         when:
         List<String> progressEventDescriptions = []
-        Set<ModelResult<EclipseProject>> compositeModel
 
-        withCompositeConnection([projectDir]) { connection ->
-            compositeModel = connection.models(EclipseProject).addProgressListener(new ProgressListener() {
+        Set<ModelResult<EclipseProject>> compositeModel = withCompositeConnection([projectDir]) { connection ->
+            connection.models(EclipseProject).addProgressListener(new ProgressListener() {
                 @Override
                 void statusChanged(ProgressEvent event) {
                     progressEventDescriptions << event.description
@@ -93,10 +89,9 @@ class CompositeBuildConnectorModelBuilderIntegrationTest extends AbstractComposi
 
         when:
         List<String> progressEventDisplayNames = []
-        Set<ModelResult<EclipseProject>> compositeModel
 
-        withCompositeConnection([projectDir]) { connection ->
-            compositeModel = connection.models(EclipseProject).addProgressListener(new org.gradle.tooling.events.ProgressListener() {
+        Set<ModelResult<EclipseProject>> compositeModel = withCompositeConnection([projectDir]) { connection ->
+            connection.models(EclipseProject).addProgressListener(new org.gradle.tooling.events.ProgressListener() {
                 @Override
                 void statusChanged(org.gradle.tooling.events.ProgressEvent event) {
                     progressEventDisplayNames << event.descriptor.displayName

@@ -139,11 +139,9 @@ class CompositeBuildConnectorDeduplicationIntegrationTest extends AbstractCompos
     }
 
     private Set<EclipseProject> getEclipseProjects(File... rootDirs) {
-        def projects
-        withCompositeConnection(rootDirs as List) { connection ->
-            projects = connection.getModels(EclipseProject).collect {result -> result.model}
+        return withCompositeConnection(rootDirs as List) { connection ->
+            return connection.getModels(EclipseProject).collect {result -> result.model}
         }
-        return projects
     }
 
     private void assertProjectNames(Collection<EclipseProject> projects, Collection<String> names) {

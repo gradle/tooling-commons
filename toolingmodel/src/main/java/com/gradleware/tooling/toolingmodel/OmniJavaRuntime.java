@@ -14,31 +14,29 @@
  * limitations under the License.
  */
 
-package com.gradleware.tooling.toolingmodel.repository.internal;
+package com.gradleware.tooling.toolingmodel;
 
-import com.gradleware.tooling.toolingmodel.OmniJavaVersion;
-import org.gradle.api.JavaVersion;
+import java.io.File;
 
 /**
- * Default implementation of the {@link OmniJavaVersion} interface.
+ * Describes the Java Runtime for a Java project.
  *
  * @author Donát Csikós
  */
-public final class DefaultOmniJavaVersion implements OmniJavaVersion {
+public interface OmniJavaRuntime {
 
-    private final String name;
+    /**
+     * Returns the Java language level supported by the current runtime.
+     *
+     * @return the supported Java language level
+     */
+    OmniJavaVersion getJavaVersion();
 
-    private DefaultOmniJavaVersion(JavaVersion name) {
-        this.name = name.toString();
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    public static DefaultOmniJavaVersion from(JavaVersion name) {
-        return new DefaultOmniJavaVersion(name);
-    }
+    /**
+     * Returns the Java Runtime installation directory.
+     *
+     * @return the installation directory
+     */
+    File getHomeDirectory();
 
 }

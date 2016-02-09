@@ -17,7 +17,7 @@ package org.gradle.tooling.composite
 
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import org.gradle.tooling.composite.fixtures.ExternalDependency
-import org.gradle.tooling.model.eclipse.EclipseProject
+import org.gradle.util.GFileUtils
 import org.junit.Rule
 import spock.lang.Specification
 
@@ -26,11 +26,18 @@ abstract class AbstractCompositeBuildConnectorIntegrationTest extends Specificat
     @Rule
     TestDirectoryProvider directoryProvider = new TestDirectoryProvider()
 
-    protected CompositeBuildConnection createComposite(File... rootProjectDirectories) {
-        createComposite(rootProjectDirectories as List<File>)
+    def withCompositeConnection(List<File> rootProjectDirectories, Closure c = {}) {
+        CompositeBuildConnection connection
+
+        try {
+            connection = createComposite(rootProjectDirectories)
+            return c(connection)
+        } finally {
+            connection?.close()
+        }
     }
 
-    protected CompositeBuildConnection createComposite(List<File> rootProjectDirectories) {
+    private CompositeBuildConnection createComposite(List<File> rootProjectDirectories) {
         CompositeBuildConnector compositeBuildConnector = CompositeBuildConnector.newComposite()
 
         rootProjectDirectories.each {
@@ -40,33 +47,20 @@ abstract class AbstractCompositeBuildConnectorIntegrationTest extends Specificat
         compositeBuildConnector.connect()
     }
 
-    protected void withCompositeConnection(List<File> rootProjectDirectories, Closure c) {
-        CompositeBuildConnection connection
-
-        try {
-            connection = createComposite(rootProjectDirectories)
-            c(connection)
-        } finally {
-            connection?.close()
-        }
-    }
-
-    protected File createBuildFileWithDependency(File projectDir, ExternalDependency externalDependency) {
-        File buildFile = createBuildFile(projectDir)
-        buildFile << javaBuildScript()
-        buildFile << """
-            dependencies {
-                compile '${externalDependency.toString()}'
-            }
-        """
-        buildFile
-    }
-
     protected File createBuildFile(File projectDir) {
-        createDir(projectDir)
         File buildFile = new File(projectDir, 'build.gradle')
-        createFile(buildFile)
+        GFileUtils.touch(buildFile)
         buildFile
+    }
+
+    protected File createSettingsFile(File projectDir, List<String> projectPaths = []) {
+        File settingsFile = new File(projectDir, 'settings.gradle')
+        GFileUtils.touch(settingsFile)
+        if (projectPaths) {
+            String includes = projectPaths.collect { "'$it'" }.join(', ')
+            settingsFile << "include $includes"
+        }
+        settingsFile
     }
 
     protected String javaBuildScript() {
@@ -78,45 +72,14 @@ abstract class AbstractCompositeBuildConnectorIntegrationTest extends Specificat
         """
     }
 
-    protected File createSettingsFile(File projectDir, List<String> projectPaths = []) {
-        File settingsFile = new File(projectDir, 'settings.gradle')
-        createFile(settingsFile)
-        if (projectPaths) {
-            String includes = projectPaths.collect { "'$it'" }.join(', ')
-            settingsFile << "include $includes\n"
-        }
-        settingsFile
-    }
-
-    private void createDir(File dir) {
-        if (!dir.exists() && !dir.mkdirs()) {
-            throw new IllegalStateException("Failed to create directory $dir")
-        }
-    }
-
-    private void createFile(File file) {
-        if (!file.exists() && !file.createNewFile()) {
-            throw new IllegalStateException("Failed to create file $file")
-        }
-    }
-
-    protected ModelResult<EclipseProject> assertModelResultInCompositeModel(Set<ModelResult<EclipseProject>> compositeModel, String projectName) {
-        ModelResult<EclipseProject> modelResult = compositeModel.find { it.model.name == projectName }
-        assert modelResult
-        modelResult
-    }
-
-    protected void assertExternalDependencies(EclipseProject eclipseProject, ExternalDependency... externalDependencies) {
-        assert eclipseProject.classpath.size() == externalDependencies.size()
-
-        externalDependencies.each { externalDependency ->
-            assert eclipseProject.classpath.collect { it.gradleModuleVersion }.find {
-                it.group == externalDependency.group && it.name == externalDependency.name && it.version == externalDependency.version
+    protected File createBuildFileWithExternalDependency(File projectDir, ExternalDependency externalDependency) {
+        File buildFile = createBuildFile(projectDir)
+        buildFile << javaBuildScript()
+        buildFile << """
+            dependencies {
+                compile '${externalDependency.toString()}'
             }
-        }
-    }
-
-    protected void assertNoProjectDependencies(EclipseProject eclipseProject) {
-        assert eclipseProject.projectDependencies.size() == 0
+        """
+        buildFile
     }
 }

@@ -43,6 +43,15 @@ class EclipseModelResultSetModelBuilderTest extends Specification {
         message                 | configurer
         'execute tasks'         | { it.forTasks([] as String[]) }
         'execute tasks'         | { it.forTasks([]) }
+        'provide arguments'     | { it.withArguments([] as String[]) }
+        'provide arguments'     | { it.withArguments([]) }
+        'set standard output'   | { it.setStandardOutput(System.out) }
+        'set standard error'    | { it.setStandardError(System.err) }
+        'set standard input'    | { it.setStandardInput(System.in) }
+        'set color output'      | { it.setColorOutput(true) }
+        'set Java home'         | { it.setJavaHome(new File('.')) }
+        'provide JVM arguments' | { it.setJvmArguments([] as String[]) }
+        'provide JVM arguments' | { it.setJvmArguments([]) }
         'inject a classpath'    | { it.withInjectedClassPath(ClassPath.EMPTY) }
     }
 }

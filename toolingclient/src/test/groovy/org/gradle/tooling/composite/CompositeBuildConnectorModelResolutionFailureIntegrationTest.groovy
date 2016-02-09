@@ -23,7 +23,7 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
 
     def "cannot create composite with no participating projects"() {
         when:
-        createComposite()
+        withCompositeConnection([])
 
         then:
         Throwable t = thrown(IllegalStateException)
@@ -32,7 +32,7 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
 
     def "cannot create composite for participant with null project directory"() {
         when:
-        createComposite([null])
+        withCompositeConnection([null])
 
         then:
         Throwable t = thrown(IllegalStateException)
@@ -45,10 +45,8 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
         createBuildFile(projectDir)
 
         when:
-        Set<ModelResult<EclipseProject>> compositeModel
-
         withCompositeConnection([projectDir]) { connection ->
-            compositeModel = connection.getModels(String)
+            connection.getModels(String)
         }
 
         then:
@@ -62,10 +60,8 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
         createBuildFile(projectDir)
 
         when:
-        Set<ModelResult<EclipseProject>> compositeModel
-
         withCompositeConnection([projectDir]) { connection ->
-            compositeModel = connection.getModels(List)
+            connection.getModels(List)
         }
 
         then:
@@ -78,10 +74,8 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
         File projectDir = new File('dev/project')
 
         when:
-        Set<ModelResult<EclipseProject>> compositeModel
-
         withCompositeConnection([projectDir]) { connection ->
-            compositeModel = connection.getModels(EclipseProject)
+            connection.getModels(EclipseProject)
         }
 
         then:
@@ -103,15 +97,37 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
         """
 
         when:
-        Set<ModelResult<EclipseProject>> compositeModel
-
         withCompositeConnection([projectDir]) { connection ->
-            compositeModel = connection.getModels(EclipseProject)
+            connection.getModels(EclipseProject)
         }
 
         then:
         Throwable t = thrown(GradleConnectionException)
         t.message.contains("Could not fetch model of type 'EclipseProject'")
         t.cause.message.contains("Could not compile build file '$buildFile.absolutePath'.")
+    }
+
+    def "cannot create composite with second instance of project within the same participating, flat build"() {
+        given:
+        File rootProjectDir = directoryProvider.createDir('master')
+        createBuildFile(rootProjectDir)
+        File sub1ProjectDir = directoryProvider.createDir('sub-1')
+        createBuildFile(sub1ProjectDir)
+        File sub2ProjectDir = directoryProvider.createDir('sub-2')
+        createBuildFile(sub2ProjectDir)
+        File sub3ProjectDir = directoryProvider.createDir('sub-3')
+        createBuildFile(sub3ProjectDir)
+        createSettingsFile(rootProjectDir, ['sub-1', 'sub-2', 'sub-3'])
+
+        when:
+        withCompositeConnection([rootProjectDir, sub2ProjectDir]) { connection ->
+            connection.getModels(EclipseProject)
+        }
+
+        then:
+        Throwable t = thrown(GradleConnectionException)
+        t.message.contains("Could not fetch model of type 'EclipseProject'")
+        t.cause instanceof IllegalStateException
+        t.cause.message == "A composite build does not allow duplicate project names for any of the participating project. Offending project name: 'sub-2'"
     }
 }
