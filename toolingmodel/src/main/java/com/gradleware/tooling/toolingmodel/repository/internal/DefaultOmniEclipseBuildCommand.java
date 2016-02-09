@@ -39,12 +39,12 @@ public final class DefaultOmniEclipseBuildCommand implements OmniEclipseBuildCom
 
     @Override
     public String getName() {
-        return name;
+        return this.name;
     }
 
     @Override
     public Map<String, String> getArguments() {
-        return arguments;
+        return this.arguments;
     }
 
     public static DefaultOmniEclipseBuildCommand from(EclipseBuildCommand buildCommand) {

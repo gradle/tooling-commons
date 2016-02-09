@@ -16,9 +16,8 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import org.gradle.tooling.model.eclipse.EclipseProjectNature;
-
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature;
+import org.gradle.tooling.model.eclipse.EclipseProjectNature;
 
 /**
  * Default implementation of the {@link OmniEclipseProjectNature} interface.
@@ -35,7 +34,7 @@ public final class DefaultOmniEclipseProjectNature implements OmniEclipseProject
 
     @Override
     public String getId() {
-        return id;
+        return this.id;
     }
 
     public static DefaultOmniEclipseProjectNature from(EclipseProjectNature projectNature) {

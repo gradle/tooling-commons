@@ -46,7 +46,7 @@ import com.gradleware.tooling.toolingmodel.repository.GradleBuildUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 import com.gradleware.tooling.toolingmodel.repository.internal.DefaultModelRepositoryTest.RepositoryType;
-
+import org.gradle.api.JavaVersion
 import org.gradle.api.specs.Spec
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
@@ -631,13 +631,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
 
     then:
     def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
-    def sourceCompatibility = eclipseProject.javaSourceSettings
-    if (higherOrEqual('2.10', distribution)) {
-      assert sourceCompatibility.isPresent()
-      assert sourceCompatibility.get() == null
-    } else {
-      assert !sourceCompatibility.isPresent()
-    }
+    !eclipseProject.javaSourceSettings.isPresent()
 
     where:
     [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.0")
@@ -653,9 +647,11 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
       eclipse {
         project {
           sourceCompatibility = 1.2
+          targetCompatibility = 1.3
         }
       }
     """
+    new TestFile(this.directoryProvider.testDirectory, 'sub1/src/main/java').mkdirs()
 
     when:
     def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment, repositoryType)
@@ -663,11 +659,22 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     then:
     def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
     def sourceCompatibility = eclipseProject.javaSourceSettings
-    if (higherOrEqual('2.10', distribution)) {
-      assert sourceCompatibility.isPresent()
+    sourceCompatibility.isPresent()
+    if (higherOrEqual('2.11', distribution)) {
       assert sourceCompatibility.get().sourceLanguageLevel.name == '1.2'
+      assert sourceCompatibility.get().targetBytecodeLevel.name == '1.3'
+      assert sourceCompatibility.get().targetRuntime.homeDirectory != null
+      assert sourceCompatibility.get().targetRuntime.javaVersion != null
+    } else if (higherOrEqual('2.10', distribution)) {
+      assert sourceCompatibility.get().sourceLanguageLevel.name == '1.2'
+      assert sourceCompatibility.get().targetBytecodeLevel.name == '1.2'
+      assert sourceCompatibility.get().targetRuntime.homeDirectory == new File(System.getProperty("java.home"))
+      assert sourceCompatibility.get().targetRuntime.javaVersion.name == JavaVersion.current().toString()
     } else {
-      assert !sourceCompatibility.isPresent()
+      assert sourceCompatibility.get().sourceLanguageLevel.name == JavaVersion.current().toString()
+      assert sourceCompatibility.get().targetBytecodeLevel.name == JavaVersion.current().toString()
+      assert sourceCompatibility.get().targetRuntime.homeDirectory == new File(System.getProperty("java.home"))
+      assert sourceCompatibility.get().targetRuntime.javaVersion.name == JavaVersion.current().toString()
     }
 
     where:
@@ -756,7 +763,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
 
     def myTaskSelector = sub2ExplicitTaskSelectors.find { it.name == 'myTask' }
     myTaskSelector.name == 'myTask'
-    myTaskSelector.description == higherOrEqual('2.3', distribution) ? 'another task of sub2' : 'sub2:myTask task selector'
+    myTaskSelector.description != null // TODO (donat) add more specific assertions
     myTaskSelector.projectPath.path == ':sub2'
     myTaskSelector.isPublic()
     myTaskSelector.selectedTaskPaths*.path as List == (!higherOrEqual('1.12', distribution) || !higherOrEqual('2.3', distribution) && environment == Environment.ECLIPSE ? [':sub2:myTask', ':sub2:subSub1:myTask'] : [])

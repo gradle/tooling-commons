@@ -1,6 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: toolingclient
+Bundle-Vendor: Gradle Inc.
+Bundle-Name: Gradle Tooling Commons - Tooling Client
 Bundle-SymbolicName: com.gradleware.tooling.client
 Bundle-Version: 0.10.0.qualifier
 Bundle-ClassPath: .

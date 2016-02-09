@@ -30,4 +30,18 @@ public interface OmniJavaSourceSettings {
      */
     OmniJavaVersion getSourceLanguageLevel();
 
+    /**
+     * Returns the Java target language level.
+     *
+     * @return the Java target language level
+     */
+    OmniJavaVersion getTargetBytecodeLevel();
+
+    /**
+     * Returns the description of the Java Runtime.
+     *
+     * @return the description of the Java Runtime
+     */
+    OmniJavaRuntime getTargetRuntime();
+
 }

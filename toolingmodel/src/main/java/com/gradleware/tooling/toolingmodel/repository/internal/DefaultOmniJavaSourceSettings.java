@@ -16,6 +16,7 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
+import com.gradleware.tooling.toolingmodel.OmniJavaRuntime;
 import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings;
 import com.gradleware.tooling.toolingmodel.OmniJavaVersion;
 
@@ -27,14 +28,32 @@ import com.gradleware.tooling.toolingmodel.OmniJavaVersion;
 public final class DefaultOmniJavaSourceSettings implements OmniJavaSourceSettings {
 
     private final OmniJavaVersion sourceLanguageLevel;
+    private final OmniJavaVersion targetBytecodeLevel;
+    private final OmniJavaRuntime targetRuntime;
 
-    public DefaultOmniJavaSourceSettings(OmniJavaVersion sourceLanguageLevel) {
+    private DefaultOmniJavaSourceSettings(OmniJavaVersion sourceLanguageLevel, OmniJavaVersion targetBytecodeLevel, OmniJavaRuntime targeRuntime) {
         this.sourceLanguageLevel = sourceLanguageLevel;
+        this.targetBytecodeLevel = targetBytecodeLevel;
+        this.targetRuntime = targeRuntime;
     }
 
     @Override
     public OmniJavaVersion getSourceLanguageLevel() {
-        return sourceLanguageLevel;
+        return this.sourceLanguageLevel;
+    }
+
+    @Override
+    public OmniJavaVersion getTargetBytecodeLevel() {
+        return this.targetBytecodeLevel;
+    }
+
+    @Override
+    public OmniJavaRuntime getTargetRuntime() {
+        return this.targetRuntime;
+    }
+
+    public static DefaultOmniJavaSourceSettings from(OmniJavaVersion sourceLanguageLevel, OmniJavaVersion targetBytecodeLevel, OmniJavaRuntime targeRuntime) {
+        return new DefaultOmniJavaSourceSettings(sourceLanguageLevel, targetBytecodeLevel, targeRuntime);
     }
 
 }

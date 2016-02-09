@@ -9,22 +9,25 @@ group = 'com.gradleware.tooling'
 
 // define the version of the GAV
 version = file('version.txt').text.trim()
-def bundleVersion = getBundleVersion(version)
 
 // in case this is not a final release, add a timestamp to the version for unique identification of 'snapshot' versions
 if (!project.hasProperty('build.type') || project.property('build.type') != 'release') {
   if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
     // in case of CI builds, add the full date and time to the version timestamp
     version = version + '-' + new SimpleDateFormat("yyyyMMddkkmmssZ").format(new Date())
-    bundleVersion = bundleVersion + '.v' + new SimpleDateFormat("yyyyMMddkkmmssZ").format(new Date())
   } else {
     // in case of local builds, do not add the time to the version timestamp to ensure incremental updates apply when building locally
     version = version + '-' + new SimpleDateFormat("yyyyMMdd").format(new Date())
-    bundleVersion = bundleVersion + '.v' + new SimpleDateFormat("yyyyMMdd").format(new Date())
   }
 }
 
-wrapper.gradleVersion = '2.9'
+// calculate the bundle version, and use a more precise date qualifier when built on a CI server
+def bundleVersion = getBundleVersion(version)
+if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
+  bundleVersion = bundleVersion + '.v' + new SimpleDateFormat("yyyyMMddkkmm").format(new Date())
+} else {
+  bundleVersion = bundleVersion + '.v' + new SimpleDateFormat("yyyyMMdd").format(new Date())
+}
 
 subprojects {
 
@@ -99,7 +102,7 @@ subprojects {
   // cannot apply publishing plugin to all sub-projects here due to limitations in that plugin
   // apply plugin: 'maven-publish'
 
-  // allow to run tests in parallel
+  // allow to run tests in parallel and set bigger PermGen for executors
   tasks.withType(Test).all {
       maxParallelForks = 4
       jvmArgs '-XX:MaxPermSize=1024m'
