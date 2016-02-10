@@ -16,6 +16,8 @@
 
 package org.gradle.tooling.composite.internal.deduplication;
 
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Adapts any type of element to the generic {@link HierarchicalElementDeduplicator}.
@@ -28,4 +30,6 @@ public interface NameDeduplicationStrategy<T> {
     String getName(T element);
 
     T getParent(T element);
+
+    Map<T, String> renameTiedElements(Set<T> tiedElements, String currentName);
 }

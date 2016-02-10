@@ -16,6 +16,8 @@
 
 package org.gradle.tooling.composite.internal.deduplication;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -61,6 +63,22 @@ class EclipseProjectDeduplicator {
         @Override
         public EclipseProject getParent(EclipseProject element) {
             return element.getParent();
+        }
+
+        @Override
+        public Map<EclipseProject, String> renameTiedElements(Set<EclipseProject> tiedElements, String currentName) {
+            EclipseProject[] sortedByDirectory = tiedElements.toArray(new EclipseProject[0]);
+            Arrays.sort(sortedByDirectory, new Comparator<EclipseProject>() {
+                @Override
+                public int compare(EclipseProject left, EclipseProject right) {
+                    return left.getProjectDirectory().compareTo(right.getProjectDirectory());
+                }
+            });
+            Map<EclipseProject, String> newNames = Maps.newHashMap();
+            for (int i = 0; i < sortedByDirectory.length; i++) {
+                newNames.put(sortedByDirectory[i], currentName + (i + 1));
+            }
+            return newNames;
         }
 
     }

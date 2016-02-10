@@ -108,9 +108,7 @@ public class HierarchicalElementDeduplicator<T> {
                     renameSuccessful |= renameUsingParentPrefix(element);
                 }
                 if (!renameSuccessful) {
-                    for (T element : notYetRenamed) {
-                        renameUsingTieBreaker(element);
-                    }
+                    renameTiedElements(notYetRenamed, duplicateName);
                 }
             }
         }
@@ -125,15 +123,10 @@ public class HierarchicalElementDeduplicator<T> {
             return false;
         }
 
-        private void renameUsingTieBreaker(T element) {
-            int count = 0;
-            while (true) {
-                count++;
-                String candidateName = getOriginalName(element) + String.valueOf(count);
-                if (!isNameTaken(candidateName)) {
-                    renameTo(element, candidateName);
-                    break;
-                }
+        private void renameTiedElements(Set<T> notYetRenamed, String duplicateName) {
+            Map<T, String> renamedElements = HierarchicalElementDeduplicator.this.strategy.renameTiedElements(notYetRenamed, duplicateName);
+            for (Entry<T, String> renamedElement : renamedElements.entrySet()) {
+                renameTo(renamedElement.getKey(), renamedElement.getValue());
             }
         }
 
@@ -191,15 +184,6 @@ public class HierarchicalElementDeduplicator<T> {
                 }
             }
             return notYetRenamed;
-        }
-
-        private boolean isNameTaken(String name) {
-            for (T element : this.elementsByName.get(name)) {
-                if (hasBeenRenamed(element)) {
-                    return true;
-                }
-            }
-            return false;
         }
 
         private String getOriginalName(T element) {
