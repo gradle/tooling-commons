@@ -27,7 +27,7 @@ import java.net.URI;
 
 /**
  * The default implementation of a composite participant.
- * 
+ *
  * @author Benjamin Muschko
  */
 public class DefaultCompositeParticipant implements CompositeParticipant {
@@ -40,26 +40,26 @@ public class DefaultCompositeParticipant implements CompositeParticipant {
 
     @Override
     public File getRootProjectDirectory() {
-        return rootProjectDirectory;
+        return this.rootProjectDirectory;
     }
 
     @Override
     public void useInstallation(File gradleHome) {
-        gradleDistribution = new InstalledGradleDistribution(gradleHome);
+        this.gradleDistribution = new InstalledGradleDistribution(gradleHome);
     }
 
     @Override
     public void useGradleVersion(String gradleVersion) {
-        gradleDistribution = new VersionBasedGradleDistribution(gradleVersion);
+        this.gradleDistribution = new VersionBasedGradleDistribution(gradleVersion);
     }
 
     @Override
     public void useDistribution(URI location) {
-        gradleDistribution = new URILocatedGradleDistribution(location);
+        this.gradleDistribution = new URILocatedGradleDistribution(location);
     }
 
     GradleDistribution getDistribution() {
-        return gradleDistribution;
+        return this.gradleDistribution;
     }
 
     @Override
@@ -73,23 +73,23 @@ public class DefaultCompositeParticipant implements CompositeParticipant {
 
         DefaultCompositeParticipant that = (DefaultCompositeParticipant) o;
 
-        if (rootProjectDirectory != null ? !rootProjectDirectory.equals(that.rootProjectDirectory) : that.rootProjectDirectory != null) {
+        if (this.rootProjectDirectory != null ? !this.rootProjectDirectory.equals(that.rootProjectDirectory) : that.rootProjectDirectory != null) {
             return false;
         }
-        return gradleDistribution != null ? gradleDistribution.equals(that.gradleDistribution) : that.gradleDistribution == null;
+        return this.gradleDistribution != null ? this.gradleDistribution.equals(that.gradleDistribution) : that.gradleDistribution == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result = rootProjectDirectory != null ? rootProjectDirectory.hashCode() : 0;
-        result = 31 * result + (gradleDistribution != null ? gradleDistribution.hashCode() : 0);
+        int result = this.rootProjectDirectory != null ? this.rootProjectDirectory.hashCode() : 0;
+        result = 31 * result + (this.gradleDistribution != null ? this.gradleDistribution.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return String.format("root project dir: %s, Gradle distribution: %s", rootProjectDirectory, gradleDistribution);
+        return String.format("root project dir: %s, Gradle distribution: %s", this.rootProjectDirectory, this.gradleDistribution);
     }
 
     void setGradleDistribution(GradleDistribution gradleDistribution) {

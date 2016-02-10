@@ -54,7 +54,7 @@ import java.io.File;
  *     }
  * }
  * </pre>
- * 
+ *
  * @author Benjamin Muschko
  */
 public abstract class CompositeBuildConnector {

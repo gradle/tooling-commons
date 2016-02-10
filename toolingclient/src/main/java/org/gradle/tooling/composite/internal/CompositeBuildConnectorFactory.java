@@ -48,10 +48,10 @@ public class CompositeBuildConnectorFactory {
     }
 
     public CompositeBuildConnector create(Distribution distribution, ConnectionParameters parameters) {
-        ConsumerActionExecutor lazyConnection = new LazyConsumerActionExecutor(distribution, toolingImplementationLoader, loggingProvider, parameters);
-        ConsumerActionExecutor progressLoggingConnection = new ProgressLoggingConsumerActionExecutor(lazyConnection, loggingProvider);
+        ConsumerActionExecutor lazyConnection = new LazyConsumerActionExecutor(distribution, this.toolingImplementationLoader, this.loggingProvider, parameters);
+        ConsumerActionExecutor progressLoggingConnection = new ProgressLoggingConsumerActionExecutor(lazyConnection, this.loggingProvider);
         ConsumerActionExecutor rethrowingErrorsConnection = new RethrowingErrorsConsumerActionExecutor(progressLoggingConnection);
-        AsyncConsumerActionExecutor asyncConnection = new DefaultAsyncConsumerActionExecutor(rethrowingErrorsConnection, executorFactory);
+        AsyncConsumerActionExecutor asyncConnection = new DefaultAsyncConsumerActionExecutor(rethrowingErrorsConnection, this.executorFactory);
         return new DefaultCompositeBuildConnector(asyncConnection, parameters);
     }
 }

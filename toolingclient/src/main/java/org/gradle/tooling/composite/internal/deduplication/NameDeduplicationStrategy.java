@@ -19,7 +19,7 @@ package org.gradle.tooling.composite.internal.deduplication;
 
 /**
  * Adapts any type of element to the generic {@link HierarchicalElementDeduplicator}.
- * 
+ *
  * @param <T> the type of element to de-duplicate
  * @author Stefan Oehme
  */

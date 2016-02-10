@@ -62,7 +62,7 @@ class EclipseProjectDeduplicator {
         public EclipseProject getParent(EclipseProject element) {
             return element.getParent();
         }
-        
+
     }
 
     /**

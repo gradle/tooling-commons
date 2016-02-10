@@ -20,7 +20,7 @@ import java.net.URI;
 
 /**
  * Represents a Gradle distribution locatable by URI.
- * 
+ *
  * @author Benjamin Muschko
  */
 public final class URILocatedGradleDistribution implements GradleDistribution {
@@ -32,7 +32,7 @@ public final class URILocatedGradleDistribution implements GradleDistribution {
     }
 
     public URI getLocation() {
-        return location;
+        return this.location;
     }
 
     @Override
@@ -46,17 +46,17 @@ public final class URILocatedGradleDistribution implements GradleDistribution {
 
         URILocatedGradleDistribution that = (URILocatedGradleDistribution) o;
 
-        return location != null ? location.equals(that.location) : that.location == null;
+        return this.location != null ? this.location.equals(that.location) : that.location == null;
 
     }
 
     @Override
     public int hashCode() {
-        return location != null ? location.hashCode() : 0;
+        return this.location != null ? this.location.hashCode() : 0;
     }
 
     @Override
     public String toString() {
-        return String.format("URI-located Gradle distribution: %s", location.toString());
+        return String.format("URI-located Gradle distribution: %s", this.location.toString());
     }
 }

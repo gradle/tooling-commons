@@ -23,7 +23,7 @@ import java.util.Set;
 /**
  * Represents a long-lived connection to a composite of Gradle project(s). You obtain an instance of a
  * {@code CompositeBuildConnection} by using {@link org.gradle.tooling.composite.CompositeBuildConnector#connect()}.
- * 
+ *
  * @author Benjamin Muschko
  */
 public interface CompositeBuildConnection {
