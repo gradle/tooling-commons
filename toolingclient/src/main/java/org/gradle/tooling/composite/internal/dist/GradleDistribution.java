@@ -18,7 +18,7 @@ package org.gradle.tooling.composite.internal.dist;
 
 /**
  * Represents a Gradle distribution.
- * 
+ *
  * @author Benjamin Muschko
  */
 public interface GradleDistribution {

@@ -20,7 +20,7 @@ import java.io.File;
 
 /**
  * Represents a directory containing a valid Gradle installation.
- * 
+ *
  * @author Benjamin Muschko
  */
 public class InstalledGradleDistribution implements GradleDistribution {
@@ -32,7 +32,7 @@ public class InstalledGradleDistribution implements GradleDistribution {
     }
 
     public File getGradleHome() {
-        return gradleHome;
+        return this.gradleHome;
     }
 
     @Override
@@ -46,17 +46,17 @@ public class InstalledGradleDistribution implements GradleDistribution {
 
         InstalledGradleDistribution that = (InstalledGradleDistribution) o;
 
-        return gradleHome != null ? gradleHome.equals(that.gradleHome) : that.gradleHome == null;
+        return this.gradleHome != null ? this.gradleHome.equals(that.gradleHome) : that.gradleHome == null;
 
     }
 
     @Override
     public int hashCode() {
-        return gradleHome != null ? gradleHome.hashCode() : 0;
+        return this.gradleHome != null ? this.gradleHome.hashCode() : 0;
     }
 
     @Override
     public String toString() {
-        return String.format("installed Gradle distribution: %s", gradleHome.getAbsolutePath());
+        return String.format("installed Gradle distribution: %s", this.gradleHome.getAbsolutePath());
     }
 }

@@ -23,7 +23,7 @@ import java.net.URI;
  * Indicates that a Gradle distribution can be used for executing the composite operation.
  * <p>
  * If no distribution is set explicitly, the distribution defined by the target Gradle build is used.
- * 
+ *
  * @author Benjamin Muschko
  */
 public interface GradleDistributionAware {

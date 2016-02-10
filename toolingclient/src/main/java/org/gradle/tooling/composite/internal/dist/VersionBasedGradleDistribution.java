@@ -18,7 +18,7 @@ package org.gradle.tooling.composite.internal.dist;
 
 /**
  * Represents a Gradle distribution identified by version.
- * 
+ *
  * @author Benjamin Muschko
  */
 public class VersionBasedGradleDistribution implements GradleDistribution {
@@ -29,7 +29,7 @@ public class VersionBasedGradleDistribution implements GradleDistribution {
     }
 
     public String getGradleVersion() {
-        return gradleVersion;
+        return this.gradleVersion;
     }
 
     @Override
@@ -43,17 +43,17 @@ public class VersionBasedGradleDistribution implements GradleDistribution {
 
         VersionBasedGradleDistribution that = (VersionBasedGradleDistribution) o;
 
-        return gradleVersion != null ? gradleVersion.equals(that.gradleVersion) : that.gradleVersion == null;
+        return this.gradleVersion != null ? this.gradleVersion.equals(that.gradleVersion) : that.gradleVersion == null;
 
     }
 
     @Override
     public int hashCode() {
-        return gradleVersion != null ? gradleVersion.hashCode() : 0;
+        return this.gradleVersion != null ? this.gradleVersion.hashCode() : 0;
     }
 
     @Override
     public String toString() {
-        return String.format("version-based Gradle distribution: %s", gradleVersion);
+        return String.format("version-based Gradle distribution: %s", this.gradleVersion);
     }
 }
