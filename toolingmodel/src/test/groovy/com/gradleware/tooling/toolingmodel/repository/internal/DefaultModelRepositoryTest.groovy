@@ -51,7 +51,6 @@ import org.gradle.tooling.ProgressListener
 import org.gradle.util.GradleVersion
 import org.junit.Rule
 
-import java.io.File;
 import java.util.concurrent.atomic.AtomicReference
 
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
