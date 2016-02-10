@@ -42,7 +42,8 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildStructureUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
-import org.gradle.api.JavaVersion
+
+import org.gradle.api.JavaVersion;
 import org.gradle.api.specs.Spec
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
@@ -50,6 +51,7 @@ import org.gradle.tooling.ProgressListener
 import org.gradle.util.GradleVersion
 import org.junit.Rule
 
+import java.io.File;
 import java.util.concurrent.atomic.AtomicReference
 
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
@@ -753,7 +755,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
 
     def myTaskSelector = sub2ExplicitTaskSelectors.find { it.name == 'myTask' }
     myTaskSelector.name == 'myTask'
-    myTaskSelector.description != null // TODO (donat) add more specific assertions
+    myTaskSelector.description == higherOrEqual('2.3', distribution) ? 'another task of sub2' : 'sub2:myTask task selector'
     myTaskSelector.projectPath.path == ':sub2'
     myTaskSelector.isPublic()
     myTaskSelector.selectedTaskPaths*.path as List == (!higherOrEqual('1.12', distribution) || !higherOrEqual('2.3', distribution) && environment == Environment.ECLIPSE ? [':sub2:myTask', ':sub2:subSub1:myTask'] : [])
