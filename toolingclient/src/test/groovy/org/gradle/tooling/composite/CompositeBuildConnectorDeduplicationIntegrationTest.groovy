@@ -35,6 +35,21 @@ class CompositeBuildConnectorDeduplicationIntegrationTest extends AbstractCompos
         assertProjectNames projects, ['foo1', 'foo2']
     }
 
+    def "The counter for root projects is deterministic"() {
+        given:
+        File projectA = directoryProvider.createDir('projectA')
+        createSettingsFile(projectA) << 'rootProject.name = "foo"'
+        File projectB = directoryProvider.createDir('projectB')
+        createSettingsFile(projectB) << 'rootProject.name = "foo"'
+
+        when:
+        def projects = getEclipseProjects(projectA, projectB)
+
+        then:
+        projects.find {it.name == 'foo1' && it.projectDirectory.name == 'projectA'}
+        projects.find {it.name == 'foo2' && it.projectDirectory.name == 'projectB'}
+    }
+
     def "If a root project conflicts with a subproject, the subproject is renamed"() {
         given:
         File projectA = directoryProvider.createDir('projectA')
