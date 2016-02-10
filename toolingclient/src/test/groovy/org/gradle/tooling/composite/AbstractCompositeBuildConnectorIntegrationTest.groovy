@@ -58,7 +58,7 @@ abstract class AbstractCompositeBuildConnectorIntegrationTest extends Specificat
         GFileUtils.touch(settingsFile)
         if (projectPaths) {
             String includes = projectPaths.collect { "'$it'" }.join(', ')
-            settingsFile << "include $includes"
+            settingsFile << "include $includes\n"
         }
         settingsFile
     }
