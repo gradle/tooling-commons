@@ -153,16 +153,24 @@ public class HierarchicalElementDeduplicator<T> {
             }
 
             Splitter splitter = Splitter.on('-').omitEmptyStrings();
-            Set<String> collapsedPrefix = Sets.newLinkedHashSet(splitter.split(prefix));
-            List<String> postfix = Lists.newArrayList(splitter.split(originalName));
+            List<String> prefixParts = Lists.newArrayList(splitter.split(prefix));
+            List<String> postfixParts = Lists.newArrayList(splitter.split(originalName));
+            List<String> words = Lists.newArrayList();
 
-            if (postfix.size() > 1) {
-                String postfixHead = postfix.get(0);
-                collapsedPrefix.add(postfixHead);
-                postfix.remove(postfixHead);
+            if (postfixParts.size() > 1) {
+                String postfixHead = postfixParts.get(0);
+                prefixParts.add(postfixHead);
+                postfixParts.remove(postfixHead);
             }
 
-            Iterable<String> words = Iterables.concat(collapsedPrefix, postfix);
+            for (String prefixPart : prefixParts) {
+                if (!prefixPart.equals(Iterables.getLast(words, null))) {
+                    words.add(prefixPart);
+                }
+            }
+
+            words.addAll(postfixParts);
+
             return Joiner.on('-').join(words);
         }
 

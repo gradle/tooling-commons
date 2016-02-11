@@ -95,15 +95,15 @@ class CompositeBuildConnectorDeduplicationIntegrationTest extends AbstractCompos
     def "Projects are not prefixed twice"() {
         given:
         File projectA = directoryProvider.createDir('projectA')
-        createSettingsFile(projectA, ['foo', 'foo:foo-bar', 'foo:foo-bar:bar-bar'])
+        createSettingsFile(projectA, ['foo', 'foo:foo-bar', 'foo:foo-bar:bar-bar-foo'])
         File projectB = directoryProvider.createDir('projectB')
-        createSettingsFile(projectB, ['foo', 'foo:foo-bar', 'foo:foo-bar:bar-bar'])
+        createSettingsFile(projectB, ['foo', 'foo:foo-bar', 'foo:foo-bar:bar-bar-foo'])
 
         when:
         def projects = getEclipseProjects(projectA, projectB)
 
         then:
-        assertProjectNames projects, ['projectA', 'projectB', 'projectA-foo', 'projectB-foo', 'projectA-foo-bar', 'projectB-foo-bar', 'projectA-foo-bar-bar', 'projectB-foo-bar-bar']
+        assertProjectNames projects, ['projectA', 'projectB', 'projectA-foo', 'projectB-foo', 'projectA-foo-bar', 'projectB-foo-bar', 'projectA-foo-bar-bar-foo', 'projectB-foo-bar-bar-foo']
     }
 
     def "The project hierarchy contains renamed projects"() {
