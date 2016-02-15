@@ -17,8 +17,6 @@ package org.gradle.tooling.composite
 
 import org.gradle.tooling.model.eclipse.EclipseProject
 
-import com.google.common.collect.Sets;
-
 class CompositeBuildConnectorDeduplicationIntegrationTest extends AbstractCompositeBuildConnectorIntegrationTest {
 
     def "Conflicting root project names are de-duplicated using a counter"() {
@@ -35,19 +33,23 @@ class CompositeBuildConnectorDeduplicationIntegrationTest extends AbstractCompos
         assertProjectNames projects, ['foo1', 'foo2']
     }
 
-    def "The counter for root projects is deterministic"() {
+    def "The counter for root projects is deterministic"(List<String> directoryNames) {
         given:
-        File projectA = directoryProvider.createDir('projectA')
-        createSettingsFile(projectA) << 'rootProject.name = "foo"'
-        File projectB = directoryProvider.createDir('projectB')
-        createSettingsFile(projectB) << 'rootProject.name = "foo"'
+        def File[] projectDirs = directoryNames.collect { name ->
+            File dir = directoryProvider.createDir(name)
+            createSettingsFile(dir) << 'rootProject.name = "foo"'
+            dir
+        }
 
         when:
-        def projects = getEclipseProjects(projectA, projectB)
+        def projects = getEclipseProjects(projectDirs)
 
         then:
         projects.find {it.name == 'foo1' && it.projectDirectory.name == 'projectA'}
         projects.find {it.name == 'foo2' && it.projectDirectory.name == 'projectB'}
+
+        where:
+        directoryNames << [['projectA', 'projectB'], ['projectB', 'projectA']]
     }
 
     def "If a root project conflicts with a subproject, the subproject is renamed"() {
