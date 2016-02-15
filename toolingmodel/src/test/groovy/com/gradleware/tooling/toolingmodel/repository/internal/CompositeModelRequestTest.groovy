@@ -142,8 +142,8 @@ class CompositeModelRequestTest extends Specification {
         """
 
         def request = toolingClient.newCompositeModelRequest(EclipseProject)
-        request.addParticipants(GradleBuildIdentifier.create(projectA))
-        request.addParticipants(GradleBuildIdentifier.create(projectB))
+        request.addParticipants(new GradleBuildIdentifier(projectA, GradleDistribution.fromBuild()))
+        request.addParticipants(new GradleBuildIdentifier(projectB, GradleDistribution.fromBuild()))
 
         when:
         def projects = getEclipseProjects(request, fetchMode)
