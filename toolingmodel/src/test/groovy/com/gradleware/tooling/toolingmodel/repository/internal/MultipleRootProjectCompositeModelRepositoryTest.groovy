@@ -87,9 +87,9 @@ class MultipleRootProjectCompositeModelRepositoryTest extends ToolingModelToolin
         then:
         eclipseWorkspace != null
         eclipseWorkspace.openEclipseProjects*.name as Set == ['projectA', 'server', 'client', 'android', 'projectA-api', 'projectB', 'projectB-api', 'impl'] as Set
-        def root = eclipseWorkspace.tryFind{p -> p.name == 'projectA'}.get()
-        def subFromRoot = root.tryFind{p -> p.name == 'projectA-api'}.get()
-        def subFromWorkspace = eclipseWorkspace.tryFind{p -> p.name == 'projectA-api'}.get()
+        def root = eclipseWorkspace.tryFind { p -> p.name == 'projectA' }.get()
+        def subFromRoot = root.tryFind { p -> p.name == 'projectA-api' }.get()
+        def subFromWorkspace = eclipseWorkspace.tryFind { p -> p.name == 'projectA-api' }.get()
         subFromRoot == subFromWorkspace
 
         where:
