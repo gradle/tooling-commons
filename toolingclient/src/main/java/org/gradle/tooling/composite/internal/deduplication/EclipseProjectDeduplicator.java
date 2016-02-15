@@ -16,8 +16,9 @@
 
 package org.gradle.tooling.composite.internal.deduplication;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -28,6 +29,7 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.eclipse.HierarchicalEclipseProject;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
@@ -43,7 +45,14 @@ class EclipseProjectDeduplicator {
     }
 
     private void deduplicate(Set<EclipseProject> eclipseProjects, RenamedEclipseProjectTracker renamedElementTracker) {
-        Map<EclipseProject, String> newNames = new HierarchicalElementDeduplicator<EclipseProject>(new EclipseProjectNameDeduplicationStrategy()).deduplicate(eclipseProjects);
+        List<EclipseProject> projectsSortedByDir = Lists.newArrayList(eclipseProjects);
+        Collections.sort(projectsSortedByDir, new Comparator<EclipseProject>() {
+            @Override
+            public int compare(EclipseProject left, EclipseProject right) {
+                return left.getProjectDirectory().compareTo(right.getProjectDirectory());
+            }
+        });
+        Map<EclipseProject, String> newNames = new HierarchicalElementDeduplicator<EclipseProject>(new EclipseProjectNameDeduplicationStrategy()).deduplicate(projectsSortedByDir);
         for (Entry<EclipseProject, String> nameChange : newNames.entrySet()) {
             renamedElementTracker.renameTo(nameChange.getKey(), nameChange.getValue());
         }
@@ -53,7 +62,7 @@ class EclipseProjectDeduplicator {
      * Adapts {@link EclipseProject}s to the generic de-duplication algorithm.
      * @author Stefan Oehme
      */
-    private static class EclipseProjectNameDeduplicationStrategy implements NameDeduplicationStrategy<EclipseProject> {
+    private static class EclipseProjectNameDeduplicationStrategy implements NameDeduplicationAdapter<EclipseProject> {
 
         @Override
         public String getName(EclipseProject element) {
@@ -64,23 +73,6 @@ class EclipseProjectDeduplicator {
         public EclipseProject getParent(EclipseProject element) {
             return element.getParent();
         }
-
-        @Override
-        public Map<EclipseProject, String> renameTiedElements(Set<EclipseProject> tiedElements, String currentName) {
-            EclipseProject[] sortedByDirectory = tiedElements.toArray(new EclipseProject[0]);
-            Arrays.sort(sortedByDirectory, new Comparator<EclipseProject>() {
-                @Override
-                public int compare(EclipseProject left, EclipseProject right) {
-                    return left.getProjectDirectory().compareTo(right.getProjectDirectory());
-                }
-            });
-            Map<EclipseProject, String> newNames = Maps.newHashMap();
-            for (int i = 0; i < sortedByDirectory.length; i++) {
-                newNames.put(sortedByDirectory[i], currentName + (i + 1));
-            }
-            return newNames;
-        }
-
     }
 
     /**

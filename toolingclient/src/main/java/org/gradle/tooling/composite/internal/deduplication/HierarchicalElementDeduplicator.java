@@ -26,6 +26,7 @@ import java.util.Set;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultimap;
@@ -51,10 +52,10 @@ import com.google.common.primitives.Ints;
  */
 public class HierarchicalElementDeduplicator<T> {
 
-    private final NameDeduplicationStrategy<T> strategy;
+    private final NameDeduplicationAdapter<T> adapter;
 
-    public HierarchicalElementDeduplicator(NameDeduplicationStrategy<T> strategy) {
-        this.strategy = strategy;
+    public HierarchicalElementDeduplicator(NameDeduplicationAdapter<T> adapter) {
+        this.adapter = adapter;
     }
 
     /**
@@ -129,9 +130,9 @@ public class HierarchicalElementDeduplicator<T> {
         }
 
         private void renameTiedElements(Set<T> notYetRenamed, String duplicateName) {
-            Map<T, String> renamedElements = HierarchicalElementDeduplicator.this.strategy.renameTiedElements(notYetRenamed, duplicateName);
-            for (Entry<T, String> renamedElement : renamedElements.entrySet()) {
-                renameTo(renamedElement.getKey(), renamedElement.getValue());
+            List<T> tiedElements = ImmutableList.copyOf(notYetRenamed);
+            for (int i = 0; i < tiedElements.size(); i++) {
+                renameTo(tiedElements.get(i), duplicateName + (i + 1));
             }
         }
 
@@ -200,7 +201,7 @@ public class HierarchicalElementDeduplicator<T> {
         }
 
         private String getOriginalName(T element) {
-            return HierarchicalElementDeduplicator.this.strategy.getName(element);
+            return HierarchicalElementDeduplicator.this.adapter.getName(element);
         }
 
         private String getCurrentlyAssignedName(T element) {
@@ -212,7 +213,7 @@ public class HierarchicalElementDeduplicator<T> {
         }
 
         private T getParent(T parent) {
-            return HierarchicalElementDeduplicator.this.strategy.getParent(parent);
+            return HierarchicalElementDeduplicator.this.adapter.getParent(parent);
         }
 
         private boolean hasBeenRenamed(T element) {
