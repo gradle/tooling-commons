@@ -16,8 +16,6 @@
 
 package com.gradleware.tooling.toolingclient;
 
-import java.util.Set;
-
 /**
  * A {@code CompositeModelRequest} allows you to fetch a snapshot of some model for a composite build. Instances of
  * {@code CompositeModelRequest} are not thread-safe.
@@ -32,6 +30,6 @@ import java.util.Set;
  * @author Stefan Oehme
  * @param <T> the type of model to fetch
  */
-public interface CompositeModelRequest<T> extends CompositeRequest<Set<T>> {
+public interface CompositeModelRequest<T> extends CompositeRequest<T> {
 
 }

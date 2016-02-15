@@ -17,6 +17,7 @@
 package com.gradleware.tooling.toolingclient.internal;
 
 import java.util.Arrays;
+import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
 
@@ -30,7 +31,7 @@ import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
  * @param <SELF> self reference
  * @author Stefan Oehme
  */
-abstract class BaseCompositeRequest<T, SELF extends BaseCompositeRequest<T, SELF>> extends BaseRequest<T, SELF>implements InspectableCompositeRequest<T> {
+abstract class BaseCompositeRequest<T, SELF extends BaseCompositeRequest<T, SELF>> extends BaseRequest<Set<T>, SELF>implements InspectableCompositeRequest<T> {
 
     private ImmutableList<GradleBuildIdentifier> participants;
 
