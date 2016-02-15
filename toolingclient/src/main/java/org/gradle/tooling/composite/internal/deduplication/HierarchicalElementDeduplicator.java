@@ -37,9 +37,14 @@ import com.google.common.primitives.Ints;
 
 /**
  * A generic name de-duplicator for hierarchical elements.
- *
+ * <p>
  * Conflicting root elements are de-duplicated by appending a counter. Conflicting sub-elements are
  * de-duplicated by prepending their parent element names, separated by a dash.
+ * <p>
+ * If a child's simple name already contains the name of its parent, the two prefixes are collapsed to keep names short.
+ * For example, an elements with the name segments <code>root:impl:impl-simple</code> would initially get the name
+ * <code>root-impl-impl-simple</code> and would then be shortened to <code>root-impl-simple</code>
+ * This shortening is of course only applied if it does not introduce a new name conflict.
  *
  * @param <T> the type of element to de-duplicate
  * @author Stefan Oehme
