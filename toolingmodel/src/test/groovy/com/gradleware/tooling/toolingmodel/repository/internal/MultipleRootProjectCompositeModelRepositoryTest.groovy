@@ -75,22 +75,41 @@ class MultipleRootProjectCompositeModelRepositoryTest extends ToolingModelToolin
         distribution << runWithAllGradleVersions(">=1.0")
     }
 
-    def "Project names are de-duplicated"(GradleDistribution distribution) {
+    def "Sub-Project names are de-duplicated"(GradleDistribution distribution) {
         given:
         def repository = getCompositeRepository(distribution)
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
 
-        projectA.file("settings.gradle") << "include 'api'"
+        projectB.file("settings.gradle") << "include 'client:android'"
         when:
         OmniEclipseWorkspace eclipseWorkspace = repository.fetchEclipseWorkspace(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
         then:
         eclipseWorkspace != null
-        eclipseWorkspace.openEclipseProjects*.name as Set == ['projectA', 'server', 'client', 'android', 'projectA-api', 'projectB', 'projectB-api', 'impl'] as Set
+        eclipseWorkspace.openEclipseProjects*.name as Set == ['projectA', 'server', 'projectA-client', 'projectA-client-android', 'api', 'projectB', 'projectB-client', 'projectB-client-android', 'impl'] as Set
         def root = eclipseWorkspace.tryFind { p -> p.name == 'projectA' }.get()
-        def subFromRoot = root.tryFind { p -> p.name == 'projectA-api' }.get()
-        def subFromWorkspace = eclipseWorkspace.tryFind { p -> p.name == 'projectA-api' }.get()
+        def subFromRoot = root.tryFind { p -> p.name == 'projectA-client-android' }.get()
+        def subFromWorkspace = eclipseWorkspace.tryFind { p -> p.name == 'projectA-client-android' }.get()
         subFromRoot == subFromWorkspace
+
+        where:
+        distribution << runWithAllGradleVersions(">=1.0")
+    }
+
+    def "Root-Project names are de-duplicated"(GradleDistribution distribution) {
+        given:
+        def repository = getCompositeRepository(distribution)
+        def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+
+        projectB.file("settings.gradle") << "rootProject.name = 'projectA'"
+        when:
+        OmniEclipseWorkspace eclipseWorkspace = repository.fetchEclipseWorkspace(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+
+        then:
+        eclipseWorkspace != null
+        def projectNames = eclipseWorkspace.openEclipseProjects*.name
+        projectNames.contains('projectA1')
+        projectNames.contains('projectA2')
 
         where:
         distribution << runWithAllGradleVersions(">=1.0")
