@@ -27,31 +27,16 @@ import com.google.common.base.Preconditions;
  */
 public final class GradleBuildIdentifier {
 
-    public static GradleBuildIdentifier withProjectDir(File projectDir) {
-        return new GradleBuildIdentifier(projectDir);
-    }
-
     private final File projectDir;
-    private GradleDistribution gradleDistribution;
+    private final GradleDistribution gradleDistribution;
 
-    private GradleBuildIdentifier(File projectDir) {
+    public GradleBuildIdentifier(File projectDir, GradleDistribution gradleDistribution) {
         this.projectDir = Preconditions.checkNotNull(projectDir);
-        this.gradleDistribution = GradleDistribution.fromBuild();
+        this.gradleDistribution = Preconditions.checkNotNull(gradleDistribution);
     }
 
     public File getProjectDir() {
         return this.projectDir;
-    }
-
-    /**
-     * Specifies the Gradle distribution to use. Defaults to a project-specific Gradle version.
-     *
-     * @param gradleDistribution the Gradle distribution to use
-     * @return this
-     */
-    public GradleBuildIdentifier gradleDistribution(GradleDistribution gradleDistribution) {
-        this.gradleDistribution = gradleDistribution;
-        return this;
     }
 
     public GradleDistribution getGradleDistribution() {

@@ -17,7 +17,8 @@
 package com.gradleware.tooling.toolingmodel.repository.internal
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.toolingclient.CompositeModelRequest;
-import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
+import com.gradleware.tooling.toolingclient.GradleBuildIdentifier
+import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.ToolingClient
 import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace
 import com.gradleware.tooling.toolingmodel.repository.internal.CompositeModelRequestTest.FetchMode;
@@ -83,7 +84,7 @@ class CompositeModelRequestTest extends Specification {
         def request = toolingClient.newCompositeModelRequest(EclipseProject)
         directoryProvider.createFile("build.gradle")
         directoryProvider.createFile("settings.gradle") << "rootProject.name = 'root'"
-        request.participants(GradleBuildIdentifier.withProjectDir(directoryProvider.testDirectory))
+        request.participants(new GradleBuildIdentifier(directoryProvider.testDirectory, GradleDistribution.fromBuild()))
 
         when:
         def projects = getEclipseProjects(request, fetchMode)
@@ -106,7 +107,7 @@ class CompositeModelRequestTest extends Specification {
             include 'sub1', 'sub2'
         """
         def request = toolingClient.newCompositeModelRequest(EclipseProject)
-        request.participants(GradleBuildIdentifier.withProjectDir(directoryProvider.testDirectory))
+        request.participants(new GradleBuildIdentifier(directoryProvider.testDirectory, GradleDistribution.fromBuild()))
 
         when:
         def projects = getEclipseProjects(request, fetchMode)
@@ -141,8 +142,8 @@ class CompositeModelRequestTest extends Specification {
         """
 
         def request = toolingClient.newCompositeModelRequest(EclipseProject)
-        request.addParticipants(GradleBuildIdentifier.withProjectDir(projectA))
-        request.addParticipants(GradleBuildIdentifier.withProjectDir(projectB))
+        request.addParticipants(GradleBuildIdentifier.create(projectA))
+        request.addParticipants(GradleBuildIdentifier.create(projectB))
 
         when:
         def projects = getEclipseProjects(request, fetchMode)
