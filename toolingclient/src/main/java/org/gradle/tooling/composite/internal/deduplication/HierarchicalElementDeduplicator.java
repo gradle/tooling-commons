@@ -28,6 +28,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
@@ -108,12 +109,17 @@ public class HierarchicalElementDeduplicator<T> {
         private void deduplicate() {
             for (String duplicateName : getDuplicateNames()) {
                 Collection<T> elementsToRename = this.elementsByName.get(duplicateName);
+                Set<String> reservedNames = ImmutableSet.copyOf(this.elementsByName.keySet());
                 Set<T> notYetRenamed = getNotYetRenamedElements(elementsToRename);
-                boolean renameSuccessful = false;
+                boolean deduplicationSuccessful = false;
                 for (T element : notYetRenamed) {
-                    renameSuccessful |= renameUsingParentPrefix(element);
+                    boolean elementRenamed = true;
+                    while (elementRenamed && reservedNames.contains(getCurrentlyAssignedName(element))) {
+                        elementRenamed = renameUsingParentPrefix(element);
+                        deduplicationSuccessful |= elementRenamed;
+                    }
                 }
-                if (!renameSuccessful) {
+                if (!deduplicationSuccessful) {
                     renameTiedElements(notYetRenamed, duplicateName);
                 }
             }
