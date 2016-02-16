@@ -25,7 +25,7 @@ package org.gradle.tooling.composite.internal.deduplication;
 public interface NameDeduplicationAdapter<T> {
 
     /**
-     * Returns the original name of the given element
+     * Returns the original name of the given element.
      *
      * @param element the element, cannot be null
      * @return the name of the element, never null
