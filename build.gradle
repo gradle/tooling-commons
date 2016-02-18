@@ -2,7 +2,12 @@ import org.gradle.internal.os.OperatingSystem
 
 import java.text.SimpleDateFormat
 
-description = "Root project of the Commons project of the Gradle Tooling Platform."
+// include build receipt plugin and accept its license
+plugins {
+  id 'com.gradle.build-receipt' version '1.0'
+}
+
+buildReceiptLicense { agreementUrl = "https://gradle.com/terms-of-service"; agree = "yes" }
 
 // define the group of the GAV
 group = 'com.gradleware.tooling'
@@ -28,6 +33,8 @@ if (project.hasProperty('build.invoker') && project.property('build.invoker') ==
 } else {
   bundleVersion = bundleVersion + '.v' + new SimpleDateFormat("yyyyMMdd").format(new Date())
 }
+
+description = "Root project of the Commons project of the Gradle Tooling Platform."
 
 subprojects {
 

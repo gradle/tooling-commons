@@ -98,9 +98,7 @@ public final class FixedRequestAttributes {
     }
 
     public void apply(CompositeRequest<?> request) {
-        GradleBuildIdentifier participant = GradleBuildIdentifier
-                .withProjectDir(this.projectDir)
-                .gradleDistribution(this.gradleDistribution);
+        GradleBuildIdentifier participant = new GradleBuildIdentifier(this.projectDir, this.gradleDistribution);
         request.addParticipants(participant);
     }
 

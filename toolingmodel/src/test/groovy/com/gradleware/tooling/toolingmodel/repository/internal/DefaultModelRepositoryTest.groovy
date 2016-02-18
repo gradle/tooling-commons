@@ -45,8 +45,8 @@ import com.gradleware.tooling.toolingmodel.repository.GradleBuildStructureUpdate
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
+import org.gradle.api.JavaVersion;
 import com.gradleware.tooling.toolingmodel.repository.internal.DefaultModelRepositoryTest.RepositoryType;
-import org.gradle.api.JavaVersion
 import org.gradle.api.specs.Spec
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
@@ -763,7 +763,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
 
     def myTaskSelector = sub2ExplicitTaskSelectors.find { it.name == 'myTask' }
     myTaskSelector.name == 'myTask'
-    myTaskSelector.description != null // TODO (donat) add more specific assertions
+    myTaskSelector.description != null
     myTaskSelector.projectPath.path == ':sub2'
     myTaskSelector.isPublic()
     myTaskSelector.selectedTaskPaths*.path as List == (!higherOrEqual('1.12', distribution) || !higherOrEqual('2.3', distribution) && environment == Environment.ECLIPSE ? [':sub2:myTask', ':sub2:subSub1:myTask'] : [])
