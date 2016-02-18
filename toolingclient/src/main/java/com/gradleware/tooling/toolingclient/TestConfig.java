@@ -134,9 +134,9 @@ public final class TestConfig {
      */
     public static final class Builder {
 
-        private ImmutableList.Builder<String> jvmTestClasses;
-        private ArrayListMultimap<String, String> jvmTestMethods;
-        private ImmutableList.Builder<TestOperationDescriptor> tests;
+        private final ImmutableList.Builder<String> jvmTestClasses;
+        private final ArrayListMultimap<String, String> jvmTestMethods;
+        private final ImmutableList.Builder<TestOperationDescriptor> tests;
 
         public Builder() {
             this.jvmTestClasses = ImmutableList.builder();

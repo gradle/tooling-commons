@@ -16,33 +16,67 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal
 
+import org.junit.Rule
+
 import com.google.common.collect.ImmutableList
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
+
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
 import com.gradleware.tooling.toolingclient.GradleDistribution
-import org.junit.Rule
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 
 class DefaultModelRepositoryProviderTest extends ToolingModelToolingClientSpecification {
 
-  @Rule
-  TestDirectoryProvider directoryProvider = new TestDirectoryProvider();
+    @Rule
+    TestDirectoryProvider projectA = new TestDirectoryProvider()
+    @Rule
+    TestDirectoryProvider projectB = new TestDirectoryProvider()
 
-  def setup() {
-    directoryProvider.createFile('settings.gradle');
-    directoryProvider.createFile('build.gradle') << 'task myTask {}'
-  }
+    def setup() {
+        [projectA, projectB].each { project ->
+            project.createFile('settings.gradle')
+            project.createFile('build.gradle') << 'task myTask {}'
+        }
+    }
 
-  def "getModelRepository"() {
-    setup:
-    def modelRepositoryProvider = new DefaultModelRepositoryProvider(toolingClient)
+    def "getModelRepository"() {
+        setup:
+        def modelRepositoryProvider = new DefaultModelRepositoryProvider(toolingClient)
 
-    def attributesOne = new FixedRequestAttributes(directoryProvider.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
-    def attributesTwo = new FixedRequestAttributes(directoryProvider.testDirectory, null, GradleDistribution.forVersion('1.12'), null, ImmutableList.of(), ImmutableList.of())
+        def attributesOne = new FixedRequestAttributes(projectA.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
+        def attributesTwo = new FixedRequestAttributes(projectA.testDirectory, null, GradleDistribution.forVersion('1.12'), null, ImmutableList.of(), ImmutableList.of())
+        def attributesThree = new FixedRequestAttributes(projectB.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
 
-    assert modelRepositoryProvider.getModelRepository(attributesOne).is(modelRepositoryProvider.getModelRepository(attributesOne))
-    assert modelRepositoryProvider.getModelRepository(attributesTwo).is(modelRepositoryProvider.getModelRepository(attributesTwo))
-    assert !modelRepositoryProvider.getModelRepository(attributesOne).is(modelRepositoryProvider.getModelRepository(attributesTwo))
-  }
+        assert modelRepositoryProvider.getModelRepository(attributesOne).is(modelRepositoryProvider.getModelRepository(attributesOne))
+        assert modelRepositoryProvider.getModelRepository(attributesTwo).is(modelRepositoryProvider.getModelRepository(attributesTwo))
+        assert !modelRepositoryProvider.getModelRepository(attributesOne).is(modelRepositoryProvider.getModelRepository(attributesTwo))
+        assert !modelRepositoryProvider.getModelRepository(attributesOne).is(modelRepositoryProvider.getModelRepository(attributesThree))
+    }
 
+    def "Composite with one root project"() {
+        setup:
+        def modelRepositoryProvider = new DefaultModelRepositoryProvider(toolingClient)
+
+        def attributesOne = new FixedRequestAttributes(projectA.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
+        def attributesTwo = new FixedRequestAttributes(projectA.testDirectory, null, GradleDistribution.forVersion('1.12'), null, ImmutableList.of(), ImmutableList.of())
+        def attributesThree = new FixedRequestAttributes(projectB.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
+
+        assert modelRepositoryProvider.getCompositeModelRepository(attributesOne).is(modelRepositoryProvider.getCompositeModelRepository(attributesOne))
+        assert modelRepositoryProvider.getCompositeModelRepository(attributesTwo).is(modelRepositoryProvider.getCompositeModelRepository(attributesTwo))
+        assert !modelRepositoryProvider.getCompositeModelRepository(attributesOne).is(modelRepositoryProvider.getCompositeModelRepository(attributesTwo))
+        assert !modelRepositoryProvider.getCompositeModelRepository(attributesOne).is(modelRepositoryProvider.getCompositeModelRepository(attributesThree))
+    }
+
+    def "Composite with multiple root projects"() {
+        setup:
+        def modelRepositoryProvider = new DefaultModelRepositoryProvider(toolingClient)
+
+        def attributesOne = new FixedRequestAttributes(projectA.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
+        def attributesTwo = new FixedRequestAttributes(projectA.testDirectory, null, GradleDistribution.forVersion('1.12'), null, ImmutableList.of(), ImmutableList.of())
+        def attributesThree = new FixedRequestAttributes(projectB.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
+
+        assert modelRepositoryProvider.getCompositeModelRepository(attributesOne, attributesThree).is(modelRepositoryProvider.getCompositeModelRepository(attributesOne, attributesThree))
+        assert !modelRepositoryProvider.getCompositeModelRepository(attributesOne, attributesThree).is(modelRepositoryProvider.getCompositeModelRepository(attributesTwo, attributesThree))
+        assert !modelRepositoryProvider.getCompositeModelRepository(attributesOne).is(modelRepositoryProvider.getCompositeModelRepository(attributesOne, attributesThree))
+    }
 }

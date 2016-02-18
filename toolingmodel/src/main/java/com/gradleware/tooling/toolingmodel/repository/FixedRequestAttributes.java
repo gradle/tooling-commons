@@ -19,8 +19,11 @@ package com.gradleware.tooling.toolingmodel.repository;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+
+import com.gradleware.tooling.toolingclient.CompositeRequest;
+import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingclient.Request;
+import com.gradleware.tooling.toolingclient.SimpleRequest;
 import com.gradleware.tooling.toolingutils.ImmutableCollection;
 import org.gradle.api.Nullable;
 
@@ -85,13 +88,18 @@ public final class FixedRequestAttributes {
         return this.arguments;
     }
 
-    public void apply(Request<?> request) {
+    public void apply(SimpleRequest<?> request) {
         request.projectDir(this.projectDir);
         request.gradleUserHomeDir(this.gradleUserHome);
         request.gradleDistribution(this.gradleDistribution);
         request.javaHomeDir(this.javaHome);
         request.jvmArguments(this.jvmArguments.toArray(new String[this.jvmArguments.size()]));
         request.arguments(this.arguments.toArray(new String[this.arguments.size()]));
+    }
+
+    public void apply(CompositeRequest<?> request) {
+        GradleBuildIdentifier participant = new GradleBuildIdentifier(this.projectDir, this.gradleDistribution);
+        request.addParticipants(participant);
     }
 
     @Override

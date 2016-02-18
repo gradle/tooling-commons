@@ -29,6 +29,7 @@ import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
 import com.gradleware.tooling.toolingmodel.OmniBuildInvocationsContainer
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure
 import com.gradleware.tooling.toolingmodel.OmniGradleProject
@@ -36,14 +37,16 @@ import com.gradleware.tooling.toolingmodel.Path
 import com.gradleware.tooling.toolingmodel.repository.BuildEnvironmentUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.BuildInvocationsUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.EclipseGradleBuildUpdateEvent
+import com.gradleware.tooling.toolingmodel.repository.EclipseWorkspaceUpdateEvent;
 import com.gradleware.tooling.toolingmodel.repository.Environment
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildStructureUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildUpdateEvent
+import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
-
 import org.gradle.api.JavaVersion;
+import com.gradleware.tooling.toolingmodel.repository.internal.DefaultModelRepositoryTest.RepositoryType;
 import org.gradle.api.specs.Spec
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
@@ -158,7 +161,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+    def repository = new DefaultSimpleModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
     AtomicReference<BuildEnvironmentUpdateEvent> publishedEvent = new AtomicReference<>();
     AtomicReference<OmniBuildEnvironment> modelInRepository = new AtomicReference<>();
@@ -203,7 +206,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+    def repository = new DefaultSimpleModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
     AtomicReference<GradleBuildStructureUpdateEvent> publishedEvent = new AtomicReference<>();
     AtomicReference<OmniGradleBuildStructure> modelInRepository = new AtomicReference<>();
@@ -258,7 +261,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildStructure.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+    def repository = new DefaultSimpleModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
     AtomicReference<GradleBuildStructureUpdateEvent> publishedEvent = new AtomicReference<>();
     repository.register(new Object() {
@@ -286,7 +289,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+    def repository = new DefaultSimpleModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
     AtomicReference<GradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
     AtomicReference<OmniGradleBuild> modelInRepository = new AtomicReference<>();
@@ -390,7 +393,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+    def repository = new DefaultSimpleModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
     AtomicReference<GradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
     repository.register(new Object() {
@@ -414,46 +417,31 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
-  def "fetchEclipseGradleBuild - send event after cache update"(GradleDistribution distribution, Environment environment) {
+  def "fetchEclipseGradleBuild - projects have correct structure and tasks" (GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
-
-    AtomicReference<EclipseGradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
-    AtomicReference<OmniEclipseGradleBuild> modelInRepository = new AtomicReference<>();
-    repository.register(new Object() {
-
-      @SuppressWarnings("GroovyUnusedDeclaration")
-      @Subscribe
-      public void listen(EclipseGradleBuildUpdateEvent event) {
-        publishedEvent.set(event)
-        modelInRepository.set(repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
-      }
-    })
+    def repository = new DefaultSimpleModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
     when:
-    OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    OmniEclipseProject rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment, repositoryType)
 
     then:
-    eclipseGradleBuild != null
-    eclipseGradleBuild.rootEclipseProject != null
-    eclipseGradleBuild.rootEclipseProject.name == 'my root project'
-    eclipseGradleBuild.rootEclipseProject.description == 'a sample root project'
-    eclipseGradleBuild.rootEclipseProject.path == Path.from(':')
-    eclipseGradleBuild.rootEclipseProject.projectDirectory.absolutePath == directoryProvider.testDirectory.absolutePath
-    eclipseGradleBuild.rootProject.root == eclipseGradleBuild.rootProject
-    eclipseGradleBuild.rootEclipseProject.parent == null
-    eclipseGradleBuild.rootEclipseProject.children.size() == 2
-    eclipseGradleBuild.rootEclipseProject.children*.name == ['sub1', 'sub2']
-    eclipseGradleBuild.rootEclipseProject.children*.description == ['sub project 1', 'sub project 2']
-    eclipseGradleBuild.rootEclipseProject.children*.path.path == [':sub1', ':sub2']
-    eclipseGradleBuild.rootProject.children*.root == [eclipseGradleBuild.rootProject, eclipseGradleBuild.rootProject]
-    eclipseGradleBuild.rootEclipseProject.children*.parent == [eclipseGradleBuild.rootEclipseProject, eclipseGradleBuild.rootEclipseProject]
-    eclipseGradleBuild.rootEclipseProject.all.size() == 4
-    eclipseGradleBuild.rootEclipseProject.all*.name == ['my root project', 'sub1', 'sub2', 'subSub1']
+    rootProject != null
+    rootProject.name == 'my root project'
+    rootProject.description == 'a sample root project'
+    rootProject.path == Path.from(':')
+    rootProject.projectDirectory.absolutePath == directoryProvider.testDirectory.absolutePath
+    rootProject.parent == null
+    rootProject.children.size() == 2
+    rootProject.children*.name == ['sub1', 'sub2']
+    rootProject.children*.description == ['sub project 1', 'sub project 2']
+    rootProject.children*.path.path == [':sub1', ':sub2']
+    rootProject.children*.parent == [rootProject, rootProject]
+    rootProject.all.size() == 4
+    rootProject.all*.name == ['my root project', 'sub1', 'sub2', 'subSub1']
 
-    def projectSub1 = eclipseGradleBuild.rootProject.tryFind({ OmniGradleProject input ->
+    def projectSub1 = rootProject.gradleProject.tryFind({ OmniGradleProject input ->
       return input.path.path == ':sub1'
     } as Spec).get()
     projectSub1.projectTasks.findAll { !ImplicitTasks.ALL.contains(it.name) }.size() == 2
@@ -480,7 +468,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
       assert !mySecondTaskOfSub1.group.present
     }
 
-    def projectSub2 = eclipseGradleBuild.rootProject.tryFind({ OmniGradleProject input ->
+    def projectSub2 = rootProject.gradleProject.tryFind({ OmniGradleProject input ->
       return input.path.path == ':sub2'
     } as Spec).get()
     projectSub2.taskSelectors.findAll { !ImplicitTasks.ALL.contains(it.name) }.size() == 5
@@ -492,23 +480,44 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     myTaskSelector.isPublic()
     myTaskSelector.selectedTaskPaths*.path as List == [':sub2:myTask', ':sub2:subSub1:myTask']
 
-    def event = publishedEvent.get()
-    event != null
-    event.eclipseGradleBuild == eclipseGradleBuild
-
-    def model = modelInRepository.get()
-    model == eclipseGradleBuild
-
     where:
-    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
+  def "fetchEclipseGradleBuild - send event after cache update"(GradleDistribution distribution, Environment environment) {
+      given:
+      def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+      def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+      def repository = new DefaultSimpleModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+
+      AtomicReference<EclipseGradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
+      AtomicReference<OmniEclipseGradleBuild> modelInRepository = new AtomicReference<>();
+      repository.register(new Object() {
+
+        @SuppressWarnings("GroovyUnusedDeclaration")
+        @Subscribe
+        public void listen(EclipseGradleBuildUpdateEvent event) {
+          publishedEvent.set(event)
+          modelInRepository.set(repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
+        }
+      })
+
+      when:
+      OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+
+      then:
+      def model = modelInRepository.get()
+      model == eclipseGradleBuild
+
+      where:
+      [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+    }
+
   @SuppressWarnings("GroovyTrivialConditional")
-  def "fetchEclipseGradleBuild - sources and project/external dependencies "(GradleDistribution distribution, Environment environment) {
+  def "fetchEclipseGradleBuild - sources and project/external dependencies "(GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderMultiProjectBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
     def apiProjectDir = new TestFile(this.directoryProviderMultiProjectBuild.testDirectory, 'api')
     apiProjectDir.create {
@@ -524,18 +533,17 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     }
 
     when:
-    OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment, repositoryType)
 
     then:
-    eclipseGradleBuild != null
-    eclipseGradleBuild.rootEclipseProject != null
-    eclipseGradleBuild.rootEclipseProject.name == 'root project of multi-project build'
-    eclipseGradleBuild.rootEclipseProject.sourceDirectories == []
-    eclipseGradleBuild.rootEclipseProject.projectDependencies == []
-    eclipseGradleBuild.rootEclipseProject.externalDependencies == []
+    rootProject != null
+    rootProject.name == 'root project of multi-project build'
+    rootProject.sourceDirectories == []
+    rootProject.projectDependencies == []
+    rootProject.externalDependencies == []
 
     // verify source directories
-    def apiSourceDirectories = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Spec).get().sourceDirectories
+    def apiSourceDirectories = rootProject.tryFind({ it.name == 'api' } as Spec).get().sourceDirectories
     apiSourceDirectories.size() == 3
     apiSourceDirectories[0].path == 'src/main/java'
     apiSourceDirectories[0].directory == apiProjectDir.file('src/main/java')
@@ -543,18 +551,18 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     apiSourceDirectories[1].directory == apiProjectDir.file('src/main/resources')
     apiSourceDirectories[2].path == 'src/test/java'
     apiSourceDirectories[2].directory == apiProjectDir.file('src/test/java')
-    eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Spec).get().sourceDirectories == []
+    rootProject.tryFind({ it.name == 'impl' } as Spec).get().sourceDirectories == []
 
     // verify project dependencies
-    eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Spec).get().projectDependencies == []
-    def implProjectDependencies = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Spec).get().projectDependencies
+    rootProject.tryFind({ it.name == 'api' } as Spec).get().projectDependencies == []
+    def implProjectDependencies = rootProject.tryFind({ it.name == 'impl' } as Spec).get().projectDependencies
     implProjectDependencies.size() == 1
     def apiProjectDependency = implProjectDependencies[0]
     apiProjectDependency.targetProjectPath.path == ':api'
     apiProjectDependency.exported == higherOrEqual('2.5', distribution) ? false : true
 
     // verify external dependencies
-    def apiExternalDependencies = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Spec).get().externalDependencies
+    def apiExternalDependencies = rootProject.tryFind({ it.name == 'api' } as Spec).get().externalDependencies
     apiExternalDependencies.size() == 1
     def guavaDependency = apiExternalDependencies[0]
     guavaDependency.file != null
@@ -566,19 +574,18 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
       assert guavaDependency.gradleModuleVersion.get().name == 'guava'
       assert guavaDependency.gradleModuleVersion.get().version == '18.0'
     } else {
-      !guavaDependency.gradleModuleVersion.isPresent()
+      assert !guavaDependency.gradleModuleVersion.isPresent()
     }
-    eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'impl' } as Spec).get().externalDependencies == []
+    rootProject.tryFind({ it.name == 'impl' } as Spec).get().externalDependencies == []
 
     where:
-    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
-  def "fetchEclipseGradleBuild - build commands and natures"(GradleDistribution distribution, Environment environment) {
+  def "fetchEclipseGradleBuild - build commands and natures"(GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderMultiProjectBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
     new TestFile(this.directoryProviderMultiProjectBuild.testDirectory, 'api/build.gradle') << """
       apply plugin: 'eclipse'
@@ -592,10 +599,10 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     """
 
     when:
-    OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment, repositoryType)
 
     then:
-    def apiEclipseProject = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'api' } as Spec).get()
+    def apiEclipseProject = rootProject.tryFind({ it.name == 'api' } as Spec).get()
     def projectNatures = apiEclipseProject.projectNatures
     def buildCommands = apiEclipseProject.buildCommands
     if (higherOrEqual('2.9', distribution)) {
@@ -611,31 +618,29 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     }
 
     where:
-    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
-  def "fetchEclipseGradleBuild - source version settings for non-JVM projects"(GradleDistribution distribution, Environment environment) {
+  def "fetchEclipseGradleBuild - source version settings for non-JVM projects"(GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
     when:
-    OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment, repositoryType)
 
     then:
-    def eclipseProject = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'sub1' } as Spec).get()
+    def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
     !eclipseProject.javaSourceSettings.isPresent()
 
     where:
-    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
-  def "fetchEclipseGradleBuild - source version settings for JVM projects"(GradleDistribution distribution, Environment environment) {
+  def "fetchEclipseGradleBuild - source version settings for JVM projects"(GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
     new TestFile(this.directoryProvider.testDirectory, 'sub1/build.gradle') << """
       apply plugin: 'java'
       apply plugin: 'eclipse'
@@ -649,10 +654,10 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     new TestFile(this.directoryProvider.testDirectory, 'sub1/src/main/java').mkdirs()
 
     when:
-    OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment, repositoryType)
 
     then:
-    def eclipseProject = eclipseGradleBuild.rootEclipseProject.tryFind({ it.name == 'sub1' } as Spec).get()
+    def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
     def sourceCompatibility = eclipseProject.javaSourceSettings
     sourceCompatibility.isPresent()
     if (higherOrEqual('2.11', distribution)) {
@@ -673,27 +678,31 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     }
 
     where:
-    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
-  def "fetchEclipseGradleBuild - when exception is thrown"(GradleDistribution distribution, Environment environment) {
+  def "fetchEclipseGradleBuild - when exception is thrown"(GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
-    AtomicReference<EclipseGradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
-    repository.register(new Object() {
-
+    AtomicReference<?> publishedEvent = new AtomicReference<>();
+    def listener = new Object() {
       @SuppressWarnings("GroovyUnusedDeclaration")
       @Subscribe
       public void listen(EclipseGradleBuildUpdateEvent event) {
         publishedEvent.set(event)
       }
-    })
+
+      @SuppressWarnings("GroovyUnusedDeclaration")
+      @Subscribe
+      public void listen(EclipseWorkspaceUpdateEvent event) {
+          publishedEvent.set(event)
+      }
+    }
 
     when:
-    repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment, repositoryType, listener)
 
     then:
     thrown(GradleConnectionException)
@@ -701,14 +710,14 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     publishedEvent.get() == null
 
     where:
-    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
   def "fetchBuildInvocations - send event after cache update"(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+    def repository = new DefaultSimpleModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
     AtomicReference<BuildInvocationsUpdateEvent> publishedEvent = new AtomicReference<>();
     AtomicReference<OmniBuildInvocationsContainer> modelInRepository = new AtomicReference<>();
@@ -775,7 +784,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+    def repository = new DefaultSimpleModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
     AtomicReference<BuildInvocationsUpdateEvent> publishedEvent = new AtomicReference<>();
     repository.register(new Object() {
@@ -803,7 +812,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
+    def repository = new DefaultSimpleModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
 
     AtomicReference<BuildEnvironmentUpdateEvent> publishedEvent = new AtomicReference<>();
     def listener = new Object() {
@@ -832,6 +841,27 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     publishedEvent.get() == null
   }
 
+  private fetchRootEclipseProject(FixedRequestAttributes fixedRequestAttributes, TransientRequestAttributes transientRequestAttributes, Environment environment, RepositoryType repositoryType, Object listener = new Object()) {
+      if (repositoryType == RepositoryType.SIMPLE) {
+          def repository = new DefaultSimpleModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+          repository.register(listener)
+          OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+          return eclipseGradleBuild.rootEclipseProject
+      } else {
+          def repoProvider = Mock(ModelRepositoryProvider)
+          repoProvider.getModelRepository(_) >> new DefaultSimpleModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
+          def DefaultCompositeModelRepository repository = new DefaultCompositeModelRepository(repoProvider, [fixedRequestAttributes], toolingClient, new EventBus())
+          repository.register(listener)
+          def eclipseWorkspace = repository.fetchEclipseWorkspace(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+          eclipseWorkspace.tryFind{p -> p.parent == null}.get()
+      }
+  }
+
+  private static enum RepositoryType {
+      SIMPLE,
+      COMPOSITE
+  }
+
   private static boolean higherOrEqual(String minVersion, GradleDistribution distribution) {
     def gradleVersion = GradleVersion.version(extractVersion(distribution))
     gradleVersion.baseVersion.compareTo(GradleVersion.version(minVersion)) >= 0
@@ -850,6 +880,10 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
 
   private static ImmutableList<List<Object>> runInAllEnvironmentsForGradleTargetVersions(String versionPattern) {
     GradleVersionParameterization.Default.INSTANCE.getPermutations(versionPattern, Environment.values() as List)
+  }
+
+  private static ImmutableList<List<Object>> fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(String versionPattern) {
+      GradleVersionParameterization.Default.INSTANCE.getPermutations(versionPattern, Environment.values() as List, RepositoryType.values() as List)
   }
 
 }

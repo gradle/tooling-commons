@@ -16,7 +16,6 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
-import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.Request;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
@@ -32,16 +31,6 @@ import java.io.OutputStream;
  * @author Etienne Studer
  */
 interface InspectableRequest<T> extends Request<T> {
-
-    File getProjectDir();
-
-    File getGradleUserHomeDir();
-
-    /**
-     * @return never null, DefaultToolingClient requires a distribution to execute the request
-     * @see DefaultToolingClient#openConnection(com.gradleware.tooling.toolingclient.internal.InspectableRequest)
-     */
-    GradleDistribution getGradleDistribution();
 
     boolean isColorOutput();
 

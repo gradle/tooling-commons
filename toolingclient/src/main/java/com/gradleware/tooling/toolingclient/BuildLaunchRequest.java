@@ -31,7 +31,7 @@ import java.io.OutputStream;
  *
  * @author Etienne Studer
  */
-public interface BuildLaunchRequest extends Request<Void> {
+public interface BuildLaunchRequest extends SimpleRequest<Void> {
 
     /**
      * {@inheritDoc}

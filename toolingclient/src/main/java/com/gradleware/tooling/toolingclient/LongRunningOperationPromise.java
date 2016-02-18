@@ -16,13 +16,15 @@
 
 package com.gradleware.tooling.toolingclient;
 
-import com.google.common.base.Preconditions;
-import com.gradleware.tooling.toolingclient.internal.ResultHandlerPromise;
 import org.gradle.tooling.BuildActionExecuter;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.TestLauncher;
+
+import com.google.common.base.Preconditions;
+
+import com.gradleware.tooling.toolingclient.internal.ResultHandlerPromise;
 
 /**
  * Promise in the context of long running operations, i.e. getting a model, launching a build, executing an action.

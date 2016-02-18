@@ -31,11 +31,4 @@ public interface OmniEclipseGradleBuild extends BuildScopedModel {
      */
     OmniEclipseProject getRootEclipseProject();
 
-    /**
-     * Returns the root Gradle project of the build.
-     *
-     * @return the root Gradle project
-     */
-    OmniGradleProject getRootProject();
-
 }

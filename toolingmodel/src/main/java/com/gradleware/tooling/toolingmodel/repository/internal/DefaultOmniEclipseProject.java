@@ -22,6 +22,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
+
 import com.gradleware.tooling.toolingmodel.OmniEclipseBuildCommand;
 import com.gradleware.tooling.toolingmodel.OmniEclipseLinkedResource;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
@@ -29,6 +31,7 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature;
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
+import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.OmniJavaRuntime;
 import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings;
 import com.gradleware.tooling.toolingmodel.OmniJavaVersion;
@@ -49,6 +52,7 @@ import org.gradle.tooling.model.java.InstalledJdk;
 import java.io.File;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Default implementation of the {@link OmniEclipseProject} interface.
@@ -68,6 +72,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     private ImmutableList<OmniEclipseSourceDirectory> sourceDirectories;
     private Optional<List<OmniEclipseProjectNature>> projectNatures;
     private Optional<List<OmniEclipseBuildCommand>> buildCommands;
+    private OmniGradleProject gradleProject;
     private Optional<OmniJavaSourceSettings> javaSourceSettings;
 
     private DefaultOmniEclipseProject(Comparator<? super OmniEclipseProject> comparator) {
@@ -220,8 +225,26 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         return this.hierarchyHelper.tryFind(predicate);
     }
 
-    public static DefaultOmniEclipseProject from(EclipseProject project) {
+    @Override
+    public OmniGradleProject getGradleProject() {
+        return this.gradleProject;
+    }
+
+    private void setGradleProject(OmniGradleProject gradleProject) {
+        this.gradleProject = gradleProject;
+    }
+
+    public static DefaultOmniEclipseProject from(EclipseProject project, boolean enforceAllTasksPublic) {
+        return from(project, enforceAllTasksPublic, Maps.<EclipseProject, DefaultOmniEclipseProject>newHashMap());
+    }
+
+    private static DefaultOmniEclipseProject from(EclipseProject project, boolean enforceAllTasksPublic, Map<EclipseProject, DefaultOmniEclipseProject> cache) {
+        if (cache.containsKey(project)) {
+            return cache.get(project);
+        }
         DefaultOmniEclipseProject eclipseProject = new DefaultOmniEclipseProject(OmniEclipseProjectComparator.INSTANCE);
+        cache.put(project, eclipseProject);
+
         eclipseProject.setName(project.getName());
         eclipseProject.setDescription(project.getDescription());
         eclipseProject.setPath(Path.from(project.getGradleProject().getPath()));
@@ -230,12 +253,16 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         eclipseProject.setExternalDependencies(toExternalDependencies(project.getClasspath()));
         eclipseProject.setLinkedResources(toLinkedResources(project.getLinkedResources()));
         eclipseProject.setSourceDirectories(toSourceDirectories(project.getSourceDirectories()));
+        eclipseProject.setGradleProject(DefaultOmniGradleProject.from(project.getGradleProject(), enforceAllTasksPublic));
+        if (project.getParent() != null) {
+            eclipseProject.setParent(from(project.getParent(), enforceAllTasksPublic, cache));
+        }
         setProjectNatures(eclipseProject, project);
         setBuildCommands(eclipseProject, project);
         setJavaSourceSettings(eclipseProject, project);
 
         for (EclipseProject child : project.getChildren()) {
-            DefaultOmniEclipseProject eclipseChildProject = from(child);
+            DefaultOmniEclipseProject eclipseChildProject = from(child, enforceAllTasksPublic, cache);
             eclipseProject.addChild(eclipseChildProject);
         }
 

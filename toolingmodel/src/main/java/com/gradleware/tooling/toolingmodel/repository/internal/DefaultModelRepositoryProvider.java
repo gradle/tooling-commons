@@ -16,17 +16,22 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import org.gradle.internal.Factory;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
+
 import com.gradleware.tooling.toolingclient.ToolingClient;
+import com.gradleware.tooling.toolingmodel.repository.CompositeModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.Environment;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
-import org.gradle.internal.Factory;
-
-import java.util.Map;
+import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository;
 
 /**
  * Internal implementation of the {@code ModelRepositoryProvider} API.
@@ -38,7 +43,8 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
     private final ToolingClient toolingClient;
     private final Environment environment;
     private final Factory<EventBus> eventBusFactory;
-    private final Map<FixedRequestAttributes, ModelRepository> modelRepositories;
+    private final Map<FixedRequestAttributes, SimpleModelRepository> modelRepositories;
+    private final Map<List<FixedRequestAttributes>, CompositeModelRepository> compositeModelRepositories;
 
     public DefaultModelRepositoryProvider(ToolingClient toolingClient) {
         this(toolingClient, Environment.STANDALONE);
@@ -53,23 +59,42 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
         this.environment = Preconditions.checkNotNull(environment);
         this.eventBusFactory = Preconditions.checkNotNull(eventBusFactory);
         this.modelRepositories = Maps.newHashMap();
+        this.compositeModelRepositories = Maps.newHashMap();
     }
 
     @Override
-    public ModelRepository getModelRepository(FixedRequestAttributes fixedRequestAttributes) {
+    public SimpleModelRepository getModelRepository(FixedRequestAttributes fixedRequestAttributes) {
         Preconditions.checkNotNull(fixedRequestAttributes);
 
         return getOrCreateModelRepository(fixedRequestAttributes);
     }
 
-    private ModelRepository getOrCreateModelRepository(FixedRequestAttributes fixedRequestAttributes) {
-        ModelRepository modelRepository;
+    @Override
+    public CompositeModelRepository getCompositeModelRepository(FixedRequestAttributes... fixedRequestAttributes) {
+        return getOrCreateCompositeModelRepository(Arrays.asList(fixedRequestAttributes));
+    }
+
+    private SimpleModelRepository getOrCreateModelRepository(FixedRequestAttributes fixedRequestAttributes) {
+        SimpleModelRepository modelRepository;
         synchronized (this.modelRepositories) {
             if (!this.modelRepositories.containsKey(fixedRequestAttributes)) {
-                modelRepository = new DefaultModelRepository(fixedRequestAttributes, this.toolingClient, this.eventBusFactory.create(), this.environment);
+                modelRepository = new DefaultSimpleModelRepository(fixedRequestAttributes, this.toolingClient, this.eventBusFactory.create(), this.environment);
                 this.modelRepositories.put(fixedRequestAttributes, modelRepository);
             } else {
                 modelRepository = this.modelRepositories.get(fixedRequestAttributes);
+            }
+        }
+        return modelRepository;
+    }
+
+    private CompositeModelRepository getOrCreateCompositeModelRepository(List<FixedRequestAttributes> fixedRequestAttributes) {
+        CompositeModelRepository modelRepository;
+        synchronized (this.compositeModelRepositories) {
+            if (!this.compositeModelRepositories.containsKey(fixedRequestAttributes)) {
+                modelRepository = new DefaultCompositeModelRepository(this, fixedRequestAttributes, this.toolingClient, this.eventBusFactory.create());
+                this.compositeModelRepositories.put(fixedRequestAttributes, modelRepository);
+            } else {
+                modelRepository = this.compositeModelRepositories.get(fixedRequestAttributes);
             }
         }
         return modelRepository;

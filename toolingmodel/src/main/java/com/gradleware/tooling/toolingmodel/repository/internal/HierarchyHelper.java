@@ -38,7 +38,7 @@ import java.util.List;
  */
 final class HierarchyHelper<T extends HierarchicalModel<T>> {
 
-    private T current;
+    private final T current;
     private T parent;
     private final List<T> children;
     private final Comparator<? super T> comparator;
