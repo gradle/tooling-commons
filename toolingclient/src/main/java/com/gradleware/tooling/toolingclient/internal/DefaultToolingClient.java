@@ -355,7 +355,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
                 try {
                     connection.close();
                 } catch (Exception e) {
-                    LOG.error("Error closing the connection: " + e.getMessage(), e);
+                    LOG.warn("Problem closing the connection: " + e.getMessage(), e);
                 }
             }
         }
@@ -364,7 +364,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
                 try {
                     connection.close();
                 } catch (Exception e) {
-                    LOG.error("Error closing the composite connection: " + e.getMessage(), e);
+                    LOG.warn("Problem closing the composite connection: " + e.getMessage(), e);
                 }
             }
         }
