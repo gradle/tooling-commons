@@ -37,10 +37,10 @@ class FixedRequestAttributesTest extends Specification {
     requestAttributes.apply(buildActionRequest)
 
     then:
-    1 * buildActionRequest.projectDir(projectDir)
-    1 * buildActionRequest.gradleUserHomeDir(gradleUserHomeDir)
+    1 * buildActionRequest.projectDir(projectDir.canonicalFile)
+    1 * buildActionRequest.gradleUserHomeDir(gradleUserHomeDir.canonicalFile)
     1 * buildActionRequest.gradleDistribution(distribution)
-    1 * buildActionRequest.javaHomeDir(javaHomeDir)
+    1 * buildActionRequest.javaHomeDir(javaHomeDir.canonicalFile)
     1 * buildActionRequest.jvmArguments("alpha")
     1 * buildActionRequest.arguments("beta")
   }

@@ -16,6 +16,13 @@
 
 package com.gradleware.tooling.toolingmodel.repository;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+import org.gradle.api.Nullable;
+import org.gradle.api.UncheckedIOException;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -25,10 +32,6 @@ import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.SimpleRequest;
 import com.gradleware.tooling.toolingutils.ImmutableCollection;
-import org.gradle.api.Nullable;
-
-import java.io.File;
-import java.util.List;
 
 /**
  * Container to hold those attributes of a {@link com.gradleware.tooling.toolingclient.Request} that must not change between request invocations if the semantics of how the build
@@ -46,12 +49,20 @@ public final class FixedRequestAttributes {
     private final ImmutableList<String> arguments;
 
     public FixedRequestAttributes(File projectDir, File gradleUserHome, GradleDistribution gradleDistribution, File javaHome, List<String> jvmArguments, List<String> arguments) {
-        this.projectDir = Preconditions.checkNotNull(projectDir);
-        this.gradleUserHome = gradleUserHome;
+        this.projectDir = canonicalize(Preconditions.checkNotNull(projectDir));
+        this.gradleUserHome = gradleUserHome == null ? null : canonicalize(gradleUserHome);
         this.gradleDistribution = Preconditions.checkNotNull(gradleDistribution);
-        this.javaHome = javaHome;
+        this.javaHome = javaHome == null ? null : canonicalize(javaHome);
         this.jvmArguments = ImmutableList.copyOf(jvmArguments);
         this.arguments = ImmutableList.copyOf(arguments);
+    }
+
+    private static File canonicalize(File file) {
+        try {
+            return file.getCanonicalFile();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @SuppressWarnings("UnusedDeclaration")
