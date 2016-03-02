@@ -48,6 +48,16 @@ public final class FixedRequestAttributes {
     private final ImmutableList<String> jvmArguments;
     private final ImmutableList<String> arguments;
 
+    /**
+     * All directories are canonicalized to match the behavior of Gradle.
+     * @param projectDir the project directory, must not be null
+     * @param gradleUserHome the Gradle user home, can be null
+     * @param gradleDistribution the Gradle distribution, must not be null
+     * @param javaHome the Java installation, can be null
+     * @param jvmArguments the JVM arguments, must not be null
+     * @param arguments the build arguments, must not be null
+     * @throws UncheckedIOException if canonicalization fails
+     */
     public FixedRequestAttributes(File projectDir, File gradleUserHome, GradleDistribution gradleDistribution, File javaHome, List<String> jvmArguments, List<String> arguments) {
         this.projectDir = canonicalize(Preconditions.checkNotNull(projectDir));
         this.gradleUserHome = gradleUserHome == null ? null : canonicalize(gradleUserHome);
