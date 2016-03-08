@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.gradle.api.Nullable;
-import org.gradle.api.UncheckedIOException;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -56,7 +55,8 @@ public final class FixedRequestAttributes {
      * @param javaHome the Java installation, can be null
      * @param jvmArguments the JVM arguments, must not be null
      * @param arguments the build arguments, must not be null
-     * @throws UncheckedIOException if canonicalization fails
+     * @throws NullPointerException if any mandatory argument is null
+     * @throws IllegalArgumentException if a directory cannot be canonicalized
      */
     public FixedRequestAttributes(File projectDir, File gradleUserHome, GradleDistribution gradleDistribution, File javaHome, List<String> jvmArguments, List<String> arguments) {
         this.projectDir = canonicalize(Preconditions.checkNotNull(projectDir));
@@ -71,7 +71,7 @@ public final class FixedRequestAttributes {
         try {
             return file.getCanonicalFile();
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 
