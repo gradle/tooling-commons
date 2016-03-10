@@ -1,0 +1,51 @@
+import p2.*
+
+apply plugin: P2RepositoryPlugin
+
+// publish to private Gradleware repository
+if (hasProperty('GRADLE_REPO_URL')) {
+  apply plugin: 'maven-publish'
+
+  publishing {
+    repositories {
+      maven {
+        name = 'privateGradle'
+        url GRADLE_REPO_URL
+        credentials {
+          username GRADLE_REPO_USER
+          password GRADLE_REPO_PASSWORD
+        }
+      }
+    }
+    publications {
+      p2repository(MavenPublication) {
+        artifact compressP2Repository {
+		  classifier 'p2'
+		}
+      }
+    }
+  }
+}
+
+dependencies {
+    plugin project(':toolingutils')
+    plugin project(':toolingclient')
+    plugin project(':toolingmodel')
+    plugin "org.gradle:gradle-tooling-api:$toolingApiVersion"
+}
+
+p2Repository {
+    bundleInfo('gradle-tooling-api') {
+        bundleVersion = '2.11.0'
+        resources = file('resources/gradle-tooling-api/about')
+        manifestTemplate = """Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gradle Tooling API
+Bundle-Vendor: Gradle Inc.
+Bundle-SymbolicName: org.gradle.toolingapi
+Bundle-ClassPath: .
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.slf4j.api;bundle-version="1.7.2"
+"""
+    }
+}
