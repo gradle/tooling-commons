@@ -131,6 +131,17 @@ subprojects {
     }
   }
 
+  if (path in [':toolingmodel', ':toolingclient', 'toolingutils']) {
+    sourceSets {
+      main {
+        resources {
+          srcDir 'src/main/resources'
+          srcDir { rootProject.file('gradle/license') }
+        }
+      }
+    }
+  }
+
   // apply Checkstyle plugin, mainly to ensure copyright and javadoc is present
   apply plugin: 'checkstyle'
 

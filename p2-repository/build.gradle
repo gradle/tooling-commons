@@ -19,7 +19,7 @@ if (hasProperty('GRADLE_REPO_URL')) {
     }
     publications {
       p2repository(MavenPublication) {
-        artifact compressP2Repository {
+        artifact createCompressedP2Repository {
 		  classifier 'p2'
 		}
       }
@@ -35,9 +35,12 @@ dependencies {
 }
 
 p2Repository {
-    bundleInfo('gradle-tooling-api') {
-        bundleVersion = '2.11.0'
-        resources = file('resources/gradle-tooling-api/about')
+    'gradle-tooling-api' {
+        bundleVersion = getBundleVersion(toolingApiVersion)
+        resources = copySpec {
+            from 'resources/gradle-tooling-api/about'
+            from rootProject.file('gradle/license')
+        }
         manifestTemplate = """Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gradle Tooling API
@@ -47,5 +50,19 @@ Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.slf4j.api;bundle-version="1.7.2"
 """
+    }
+}
+
+
+private String getBundleVersion(String projectVersion) {
+    java.util.regex.Matcher matcher = projectVersion =~ /(\d+).(\d+)(?:-.*|\.(\d+)(?:-.*)?)?/
+    if (matcher.matches()) {
+        def major = matcher.group(1)
+        def minor = matcher.group(2)
+        def service = matcher.group(3)
+        if (service == null) service = "0"
+        return "${major}.${minor}.${service}"
+    } else {
+        throw new IllegalArgumentException("Invalid project version format: $projectVersion")
     }
 }

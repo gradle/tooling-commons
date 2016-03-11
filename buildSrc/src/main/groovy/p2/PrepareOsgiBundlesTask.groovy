@@ -15,8 +15,8 @@ class PrepareOsgiBundlesTask extends DefaultTask {
     @TaskAction
     void prepareOsgiBundles() {
         source.eachFileMatch(~/^.*\.jar$/) { File jar ->
-            String key = project.p2Repository.bundleInfoMap.keySet().find { jar.name.contains(it) }
-            if (!key) {
+            BundleInfo bundle = project.p2Repository.find { jar.name.contains(it.name) }
+            if (!bundle) {
                 // if no bundle info is associated then we assume it's already a plugin and copy it as is
                 project.copy {
                     from jar
@@ -24,14 +24,20 @@ class PrepareOsgiBundlesTask extends DefaultTask {
                 }
             } else {
                 // update the plugin manifest then copy it
-                BundleInfo bundle = project.p2Repository.bundleInfoMap[key]
                 Set<String> packageNames = getPackageNames(jar)
                 String fullVersion = "${bundle.bundleVersion}.${'v' + new Date().format('yyyyMMddkkmm')}"
                 String manifest = manifestFor(bundle.manifestTemplate, packageNames, bundle.bundleVersion, fullVersion)
 
-                File manifestFile = project.file("${project.buildDir}/tmp/manifests/${key}/META-INF/MANIFEST.MF")
+                File manifestFile = project.file("${project.buildDir}/tmp/manifests/${bundle.name}/META-INF/MANIFEST.MF")
                 manifestFile.parentFile.mkdirs()
                 manifestFile.text = manifest
+
+                File extraResources = project.file("${project.buildDir}/tmp/extraresources/${bundle.name}")
+                extraResources.mkdirs()
+                project.copy {
+                    with bundle.resources
+                    into extraResources
+                }
 
                 File osgiJar = new File(target, "osgi_${jar.name}")
 
@@ -41,7 +47,7 @@ class PrepareOsgiBundlesTask extends DefaultTask {
                 project.ant.zip(update: 'true', destfile: osgiJar) {
                     fileset(dir: manifestFile.parentFile.parentFile)
                     if (bundle.resources) {
-                        fileset(dir: bundle.resources)
+                        fileset(dir: extraResources)
                     }
                 }
             }
@@ -51,14 +57,9 @@ class PrepareOsgiBundlesTask extends DefaultTask {
     String manifestFor(String manifestTemplate, Set<String> packageNames, String mainVersion, String fullVersion) {
         StringBuilder manifest = new StringBuilder(manifestTemplate)
 
-        if (packageNames.size() == 1) {
-            manifest.append "Export-Package: ${packageNames[0]};version=\"${mainVersion}\"\n"
-        } else if (packageNames.size() > 1) {
-            manifest.append "Export-Package: ${packageNames[0]};version=\"${mainVersion}\",\n"
-            for(i in 1..<(packageNames.size()-1)) {
-                manifest.append " ${packageNames[i]};version=\"${mainVersion}\",\n"
-            }
-            manifest.append " ${packageNames[-1]};version=\"${mainVersion}\"\n"
+        if (!packageNames.isEmpty()) {
+            String exportedPackages = packageNames.collect { " ${it};version=\"${mainVersion}\"" }.join(',\n')
+            manifest.append "Export-Package:${exportedPackages}\n"
         }
         manifest.append "Bundle-Version: $fullVersion\n"
         manifest.toString()
