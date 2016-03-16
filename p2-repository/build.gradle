@@ -37,10 +37,8 @@ dependencies {
 p2Repository {
     'gradle-tooling-api' {
         bundleVersion = getBundleVersion(toolingApiVersion)
-        resources = copySpec {
-            from 'resources/gradle-tooling-api/about'
-            from rootProject.file('gradle/license')
-        }
+        resource file('resources/gradle-tooling-api/about')
+        resource rootProject.file('gradle/license')
         manifestTemplate = """Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gradle Tooling API

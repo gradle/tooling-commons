@@ -1,14 +1,18 @@
 package p2
 
-import org.gradle.api.file.CopySpec
+import groovy.transform.EqualsAndHashCode
 
-class BundleInfo {
-    String name
+@EqualsAndHashCode
+class BundleInfo implements Serializable {
+    final String name
     String bundleVersion
-    CopySpec resources
+    List<String> resources = []
     String manifestTemplate
 
     BundleInfo(String name) {
         this.name = name
+    }
+    public void resource(File resource) {
+        resources.add(resource.absolutePath)
     }
 }

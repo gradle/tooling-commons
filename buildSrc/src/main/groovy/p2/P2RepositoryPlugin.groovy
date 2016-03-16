@@ -59,6 +59,7 @@ class P2RepositoryPlugin implements Plugin<Project> {
             group = TASK_GROUP_NAME
             dependsOn TASK_NAME_COPY_BUNDLES
 
+            project.afterEvaluate { bundles =  bundleInfos.toList() }
             source = new File(project.buildDir, "$JARS_STAGING_FOLDER/plugins")
             target = new File(project.buildDir, "$BUNDLES_STAGING_FOLDER/plugins")
         }

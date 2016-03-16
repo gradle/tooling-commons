@@ -6,6 +6,9 @@ import org.gradle.api.tasks.*
 
 class PrepareOsgiBundlesTask extends DefaultTask {
 
+    @Input
+    List<BundleInfo> bundles
+
     @InputDirectory
     File source
 
@@ -15,7 +18,7 @@ class PrepareOsgiBundlesTask extends DefaultTask {
     @TaskAction
     void prepareOsgiBundles() {
         source.eachFileMatch(~/^.*\.jar$/) { File jar ->
-            BundleInfo bundle = project.p2Repository.find { jar.name.contains(it.name) }
+            BundleInfo bundle = bundles.find { jar.name.contains(it.name) }
             if (!bundle) {
                 // if no bundle info is associated then we assume it's already a plugin and copy it as is
                 project.copy {
@@ -35,7 +38,7 @@ class PrepareOsgiBundlesTask extends DefaultTask {
                 File extraResources = project.file("${project.buildDir}/tmp/extraresources/${bundle.name}")
                 extraResources.mkdirs()
                 project.copy {
-                    with bundle.resources
+                    from bundle.resources
                     into extraResources
                 }
 
