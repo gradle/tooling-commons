@@ -37,6 +37,7 @@ if (hasProperty('GRADLE_REPO_URL')) {
     p2repository {
         'org.gradle:gradle-tooling-api' {
             bundleVersion = getBundleVersion(toolingApiVersion)
+            versionQualifier = bundleVersionQualifier
             resource file('resources/gradle-tooling-api/about')
             resource rootProject.file('gradle/license')
             filteredPackagesPattern = ".*internal.*|.*jarjar.*"

@@ -27,12 +27,12 @@ if (!project.hasProperty('build.type') || project.property('build.type') != 'rel
 }
 
 // calculate the bundle version, and use a more precise date qualifier when built on a CI server
-def bundleVersion = getBundleVersion(version)
 if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
-  bundleVersion = bundleVersion + '.v' + new SimpleDateFormat("yyyyMMddkkmm").format(new Date())
+  ext.bundleVersionQualifier = 'v' + new SimpleDateFormat("yyyyMMddkkmm").format(new Date())
 } else {
-  bundleVersion = bundleVersion + '.v' + new SimpleDateFormat("yyyyMMdd").format(new Date())
+  ext.bundleVersionQualifier = 'v' + new SimpleDateFormat("yyyyMMdd").format(new Date())
 }
+ext.bundleVersion = getBundleVersion(version) + '.' +  bundleVersionQualifier
 
 description = "Root project of the Commons project of the Gradle Tooling Platform."
 

@@ -6,6 +6,7 @@ import groovy.transform.EqualsAndHashCode
 class BundleInfo implements Serializable {
     final String name
     String bundleVersion
+    String versionQualifier
     List<String> resources = []
     String manifestTemplate
     String filteredPackagesPattern

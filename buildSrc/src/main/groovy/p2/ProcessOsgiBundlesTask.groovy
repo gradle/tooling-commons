@@ -29,10 +29,9 @@ class ProcessOsgiBundlesTask extends DefaultTask {
                         into target
                     }
                 } else {
-                    // update the plugin manifest then copy it
-                    File jar = jarArtifact.file
-                    Set<String> packageNames = packageNames(jar, bundleInfo.filteredPackagesPattern)
-                    String fullVersion = "${bundleInfo.bundleVersion}.${'v' + new Date().format('yyyyMMddkkmm')}"
+                    // otherwise update the plugin manifest then copy it
+                    Set<String> packageNames = packageNames(jarArtifact.file, bundleInfo.filteredPackagesPattern)
+                    String fullVersion = "${bundleInfo.bundleVersion}.${bundleInfo.versionQualifier}"
                     String manifest = manifestFor(bundleInfo.manifestTemplate, packageNames, bundleInfo.bundleVersion, fullVersion)
 
                     File manifestFile = project.file("${project.buildDir}/tmp/manifests/${bundleInfo.name.replace(':','.')}/META-INF/MANIFEST.MF")
@@ -46,10 +45,10 @@ class ProcessOsgiBundlesTask extends DefaultTask {
                         into extraResources
                     }
 
-                    File osgiJar = new File(target, "osgi_${jar.name}")
+                    File osgiJar = new File(target, "osgi_${jarArtifact.file.name}")
 
                     project.ant.zip(destfile: osgiJar) {
-                        zipfileset(src: jar, excludes: 'META-INF/MANIFEST.MF')
+                        zipfileset(src: jarArtifact.file, excludes: 'META-INF/MANIFEST.MF')
                     }
                     project.ant.zip(update: 'true', destfile: osgiJar) {
                         fileset(dir: manifestFile.parentFile.parentFile)
