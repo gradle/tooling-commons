@@ -34,11 +34,12 @@ if (hasProperty('GRADLE_REPO_URL')) {
         plugin "org.gradle:gradle-tooling-api:$toolingApiVersion"
     }
 
-    p2Repository {
+    p2repository {
         'org.gradle:gradle-tooling-api' {
             bundleVersion = getBundleVersion(toolingApiVersion)
             resource file('resources/gradle-tooling-api/about')
             resource rootProject.file('gradle/license')
+            filteredPackagesPattern = ".*internal.*|.*jarjar.*"
             manifestTemplate = """Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gradle Tooling API
@@ -48,7 +49,7 @@ Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.slf4j.api;bundle-version="1.7.2"
 """
-        }
+    }
 }
 
 
