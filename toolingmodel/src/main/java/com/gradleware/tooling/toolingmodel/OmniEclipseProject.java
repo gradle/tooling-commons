@@ -66,12 +66,6 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
     @ImmutableCollection
     List<OmniEclipseProject> getAll();
 
-
-    /**
-     * @return the underlying {@link OmniGradleProject}
-     */
-    OmniGradleProject getGradleProject();
-
     /**
      * Returns all projects that match the given criteria.
      *
@@ -182,5 +176,12 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
      * @return the Java source settings, or {@link Optional#absent()} if not a Java project
      */
     Optional<OmniJavaSourceSettings> getJavaSourceSettings();
+
+    /**
+     * Returns the underlying Gradle project.
+     *
+     * @return the underlying {@link OmniGradleProject}
+     */
+    OmniGradleProject getGradleProject();
 
 }

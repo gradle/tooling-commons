@@ -43,4 +43,5 @@ public interface ModelRepositoryProvider {
      * @return the composite model repository
      */
     CompositeModelRepository getCompositeModelRepository(Set<FixedRequestAttributes> fixedRequestAttributes);
+
 }

@@ -37,4 +37,5 @@ public interface ModelRepository {
      * @param listener listener to unsubscribe from receiving events
      */
     void unregister(Object listener);
+
 }

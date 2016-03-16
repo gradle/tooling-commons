@@ -72,8 +72,8 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     private ImmutableList<OmniEclipseSourceDirectory> sourceDirectories;
     private Optional<List<OmniEclipseProjectNature>> projectNatures;
     private Optional<List<OmniEclipseBuildCommand>> buildCommands;
-    private OmniGradleProject gradleProject;
     private Optional<OmniJavaSourceSettings> javaSourceSettings;
+    private OmniGradleProject gradleProject;
 
     private DefaultOmniEclipseProject(Comparator<? super OmniEclipseProject> comparator) {
         this.hierarchyHelper = new HierarchyHelper<OmniEclipseProject>(this, Preconditions.checkNotNull(comparator));
@@ -187,6 +187,15 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     }
 
     @Override
+    public OmniGradleProject getGradleProject() {
+        return this.gradleProject;
+    }
+
+    private void setGradleProject(OmniGradleProject gradleProject) {
+        this.gradleProject = gradleProject;
+    }
+
+    @Override
     public OmniEclipseProject getRoot() {
         return this.hierarchyHelper.getRoot();
     }
@@ -225,15 +234,6 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         return this.hierarchyHelper.tryFind(predicate);
     }
 
-    @Override
-    public OmniGradleProject getGradleProject() {
-        return this.gradleProject;
-    }
-
-    private void setGradleProject(OmniGradleProject gradleProject) {
-        this.gradleProject = gradleProject;
-    }
-
     public static DefaultOmniEclipseProject from(EclipseProject project, boolean enforceAllTasksPublic) {
         return from(project, enforceAllTasksPublic, Maps.<EclipseProject, DefaultOmniEclipseProject>newHashMap());
     }
@@ -242,6 +242,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         if (knownProjects.containsKey(project)) {
             return knownProjects.get(project);
         }
+
         DefaultOmniEclipseProject eclipseProject = new DefaultOmniEclipseProject(OmniEclipseProjectComparator.INSTANCE);
         knownProjects.put(project, eclipseProject);
 

@@ -80,4 +80,5 @@ class DefaultModelRepositoryProviderTest extends ToolingModelToolingClientSpecif
         assert !modelRepositoryProvider.getCompositeModelRepository(Sets.newHashSet(attributesOne, attributesThree)).is(modelRepositoryProvider.getCompositeModelRepository(Sets.newHashSet(attributesTwo, attributesThree)))
         assert !modelRepositoryProvider.getCompositeModelRepository(Sets.newHashSet(attributesOne)).is(modelRepositoryProvider.getCompositeModelRepository(Sets.newHashSet(attributesOne, attributesThree)))
     }
+
 }

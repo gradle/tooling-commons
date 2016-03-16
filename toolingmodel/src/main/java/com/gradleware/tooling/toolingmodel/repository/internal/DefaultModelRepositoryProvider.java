@@ -64,12 +64,12 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
     @Override
     public SimpleModelRepository getModelRepository(FixedRequestAttributes fixedRequestAttributes) {
         Preconditions.checkNotNull(fixedRequestAttributes);
-
         return getOrCreateModelRepository(fixedRequestAttributes);
     }
 
     @Override
     public CompositeModelRepository getCompositeModelRepository(Set<FixedRequestAttributes> fixedRequestAttributes) {
+        Preconditions.checkNotNull(fixedRequestAttributes);
         return getOrCreateCompositeModelRepository(fixedRequestAttributes);
     }
 

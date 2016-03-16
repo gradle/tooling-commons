@@ -49,6 +49,7 @@ public final class FixedRequestAttributes {
 
     /**
      * All directories are canonicalized to match the behavior of Gradle.
+     *
      * @param projectDir the project directory, must not be null
      * @param gradleUserHome the Gradle user home, can be null
      * @param gradleDistribution the Gradle distribution, must not be null
