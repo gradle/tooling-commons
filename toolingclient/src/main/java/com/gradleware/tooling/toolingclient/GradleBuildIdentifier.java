@@ -42,4 +42,5 @@ public final class GradleBuildIdentifier {
     public GradleDistribution getGradleDistribution() {
         return this.gradleDistribution;
     }
+
 }

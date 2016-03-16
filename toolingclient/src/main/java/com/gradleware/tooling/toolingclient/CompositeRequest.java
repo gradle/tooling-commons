@@ -43,4 +43,5 @@ public interface CompositeRequest<T> extends Request<Set<T>> {
      * @return this
      */
     CompositeRequest<T> addParticipants(GradleBuildIdentifier... buildIdentifiers);
+
 }

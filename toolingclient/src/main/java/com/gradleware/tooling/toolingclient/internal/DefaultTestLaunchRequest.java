@@ -26,7 +26,7 @@ import com.gradleware.tooling.toolingclient.TestConfig;
  *
  * @author Donát Csikós
  */
-public final class DefaultTestLaunchRequest extends BaseSimpleRequest<Void, DefaultTestLaunchRequest> implements InspectableTestLaunchRequest {
+final class DefaultTestLaunchRequest extends BaseSimpleRequest<Void, DefaultTestLaunchRequest> implements InspectableTestLaunchRequest {
 
     private final TestConfig tests;
 

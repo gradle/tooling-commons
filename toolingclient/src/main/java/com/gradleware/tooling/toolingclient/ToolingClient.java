@@ -89,6 +89,7 @@ public abstract class ToolingClient {
 
     /**
      * Creates a new composite model request. A composite model request is used to fetch a given composite model that is available through the Tooling API.
+     *
      * @param <T> the type of the model to fetch
      * @param modelType the type of the model to fetch
      * @return a new instance

@@ -19,17 +19,16 @@ package com.gradleware.tooling.toolingclient.internal;
 import com.gradleware.tooling.toolingclient.CompositeModelRequest;
 
 /**
- * Internal companion for {@link CompositeModelRequest} that allows reading the configuration
- * values.
- *
- * @author Stefan Oehme
+ * Internal companion for {@link CompositeModelRequest} that allows reading the configuration values.
  *
  * @param <T> the result type
+ * @author Stefan Oehme
  */
-public interface InspectableCompositeModelRequest<T> extends CompositeModelRequest<T>, InspectableCompositeRequest<T> {
+interface InspectableCompositeModelRequest<T> extends CompositeModelRequest<T>, InspectableCompositeRequest<T> {
 
     /**
      * @return never null, DefaultToolingClient requires a model type to execute the request
+     * @see DefaultToolingClient#mapToModelBuilder(InspectableModelRequest, org.gradle.tooling.ProjectConnection)
      */
     Class<T> getModelType();
 

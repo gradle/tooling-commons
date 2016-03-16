@@ -29,9 +29,6 @@ import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
  */
 interface InspectableCompositeRequest<T> extends InspectableRequest<Set<T>>, CompositeRequest<T> {
 
-    /**
-     * @return the Gradle builds that will participate in the execution of this composite request.
-     */
     GradleBuildIdentifier[] getParticipants();
 
 }

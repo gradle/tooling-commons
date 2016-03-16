@@ -313,8 +313,8 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     }
 
     private <T extends LongRunningOperation> T mapToLongRunningOperation(InspectableRequest<?> request, T operation) {
-        mapToBasicLongRunningOperation(request, operation)
-            .setColorOutput(request.isColorOutput()).
+        mapToBasicLongRunningOperation(request, operation).
+            setColorOutput(request.isColorOutput()).
             setStandardOutput(request.getStandardOutput()).
             setStandardError(request.getStandardError()).
             setStandardInput(request.getStandardInput()).

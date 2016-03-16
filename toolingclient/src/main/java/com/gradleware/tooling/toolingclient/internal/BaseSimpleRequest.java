@@ -31,6 +31,7 @@ import com.gradleware.tooling.toolingclient.GradleDistribution;
  * @author Stefan Oehme
  */
 abstract class BaseSimpleRequest<T, SELF extends BaseSimpleRequest<T, SELF>> extends BaseRequest<T, SELF> implements InspectableSimpleRequest<T> {
+
     private File projectDir;
     private File gradleUserHomeDir;
     private GradleDistribution gradleDistribution;
@@ -85,4 +86,5 @@ abstract class BaseSimpleRequest<T, SELF extends BaseSimpleRequest<T, SELF>> ext
         }
         return copy;
     }
+
 }

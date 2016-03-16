@@ -27,15 +27,12 @@ import com.gradleware.tooling.toolingclient.SimpleRequest;
  * @param <T> result type
  * @author Stefan Oehme
  */
-public interface InspectableSimpleRequest<T> extends InspectableRequest<T>, SimpleRequest<T> {
+interface InspectableSimpleRequest<T> extends InspectableRequest<T>, SimpleRequest<T> {
 
     File getProjectDir();
 
     File getGradleUserHomeDir();
 
-    /**
-     * @return never null, DefaultToolingClient requires a distribution to execute the request
-     */
     GradleDistribution getGradleDistribution();
 
 }

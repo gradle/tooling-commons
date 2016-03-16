@@ -26,6 +26,7 @@ import java.io.File;
  * @param <T> the result type
  */
 public interface SimpleRequest<T> extends Request<T> {
+
     /**
      * Specifies the working directory to use.
      *

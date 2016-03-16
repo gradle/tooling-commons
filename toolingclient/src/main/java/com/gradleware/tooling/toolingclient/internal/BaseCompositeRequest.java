@@ -54,7 +54,7 @@ abstract class BaseCompositeRequest<T, SELF extends BaseCompositeRequest<T, SELF
 
     @Override
     public GradleBuildIdentifier[] getParticipants() {
-        return this.participants.toArray(new GradleBuildIdentifier[0]);
+        return this.participants.toArray(new GradleBuildIdentifier[this.participants.size()]);
     }
 
     @Override
