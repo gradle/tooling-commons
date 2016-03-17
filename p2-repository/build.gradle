@@ -37,7 +37,7 @@ bundleInfos {
     bundleVersion = getBundleVersion(toolingApiVersion)
     versionQualifier = bundleVersionQualifier
     manifestTemplate = file('resources/gradle-tooling-api/manifest-template.txt').text
-    filteredPackagesPattern = ".*internal.*|.*jarjar.*"
+    filteredPackagesPattern = ".*jarjar.*"
     resources = copySpec {
       from file('resources/gradle-tooling-api/about')
       from rootProject.file('gradle/license')
