@@ -1,0 +1,61 @@
+import p2.*
+
+apply plugin: P2RepositoryPlugin
+
+// publish to private Gradleware repository
+if (hasProperty('GRADLE_REPO_URL')) {
+  apply plugin: 'maven-publish'
+
+  publishing {
+    repositories {
+      maven {
+        name = 'privateGradle'
+        url GRADLE_REPO_URL
+        credentials {
+          username GRADLE_REPO_USER
+          password GRADLE_REPO_PASSWORD
+        }
+      }
+    }
+    publications {
+      mavenJava(MavenPublication) {
+        artifact createCompressedP2Repository
+      }
+    }
+  }
+}
+
+dependencies {
+  plugin project(':toolingutils')
+  plugin project(':toolingclient')
+  plugin project(':toolingmodel')
+  plugin "org.gradle:gradle-tooling-api:$toolingApiVersion"
+}
+
+bundleInfos {
+  'org.gradle:gradle-tooling-api' {
+    bundleVersion = getBundleVersion(toolingApiVersion)
+    versionQualifier = bundleVersionQualifier
+    manifestTemplate = file('resources/gradle-tooling-api/manifest-template.txt').text
+    filteredPackagesPattern = ".*internal.*|.*jarjar.*"
+    resources = copySpec {
+      from file('resources/gradle-tooling-api/about')
+      from rootProject.file('gradle/license')
+    }
+  }
+}
+
+private String getBundleVersion(String projectVersion) {
+  java.util.regex.Matcher matcher = projectVersion =~ /(\d+).(\d+)(?:-.*|\.(\d+)(?:-.*)?)?/
+  if (matcher.matches()) {
+    def major = matcher.group(1)
+    def minor = matcher.group(2)
+    def service = matcher.group(3)
+    if (service == null) {
+      service = "0"
+    }
+    return "${major}.${minor}.${service}"
+  } else {
+    throw new IllegalArgumentException("Invalid project version format: $projectVersion")
+  }
+}
