@@ -36,10 +36,10 @@ bundleInfos {
   'org.gradle:gradle-tooling-api' {
     bundleVersion = getBundleVersion(toolingApiVersion)
     versionQualifier = bundleVersionQualifier
+    manifestTemplate = file('resources/gradle-tooling-api/manifest-template.txt').text
+    filteredPackagesPattern = ".*internal.*|.*jarjar.*"
     resource file('resources/gradle-tooling-api/about')
     resource rootProject.file('gradle/license')
-    filteredPackagesPattern = ".*internal.*|.*jarjar.*"
-    manifestTemplate = file('resources/gradle-tooling-api/manifest-template.txt').text
   }
 }
 
