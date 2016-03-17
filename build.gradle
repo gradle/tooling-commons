@@ -131,11 +131,11 @@ subprojects {
     }
   }
 
+  // Add the license files to all projects consumed by Buildship
   if (path in [':toolingmodel', ':toolingclient', 'toolingutils']) {
     sourceSets {
       main {
         resources {
-          srcDir 'src/main/resources'
           srcDir { rootProject.file('gradle/license') }
         }
       }
