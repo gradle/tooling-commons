@@ -18,10 +18,8 @@ if (hasProperty('GRADLE_REPO_URL')) {
       }
     }
     publications {
-      p2repository(MavenPublication) {
-        artifact createCompressedP2Repository {
-		  classifier 'p2'
-		}
+      mavenJava(MavenPublication) {
+        artifact createCompressedP2Repository
       }
     }
   }
