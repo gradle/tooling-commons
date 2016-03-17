@@ -136,7 +136,7 @@ subprojects {
     sourceSets {
       main {
         resources {
-          srcDir { rootProject.file('gradle/license') }
+          srcDir rootProject.file('gradle/license')
         }
       }
     }
