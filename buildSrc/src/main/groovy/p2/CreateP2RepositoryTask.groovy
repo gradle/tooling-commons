@@ -23,9 +23,7 @@ class CreateP2RepositoryTask extends DefaultTask {
                 '-metadataRepository', targetRepositoryDir.toURI().toURL(),
                 '-artifactRepository', targetRepositoryDir.toURI().toURL(),
                 '-source', bundleSourceDir,
-                '-compress',
                 '-publishArtifacts',
-                '-reusePack200Files',
                 '-configs', 'ANY')
         }
     }
