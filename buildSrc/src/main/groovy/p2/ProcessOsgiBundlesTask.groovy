@@ -39,7 +39,7 @@ class ProcessOsgiBundlesTask extends DefaultTask {
                     manifestFile.parentFile.mkdirs()
                     manifestFile.text = manifest
                     project.copy {
-                        from bundleInfo.resources
+                        with bundleInfo.resources
                         into extraResources
                     }
 
@@ -48,9 +48,7 @@ class ProcessOsgiBundlesTask extends DefaultTask {
                         zipfileset(src: jarArtifact.file, excludes: 'META-INF/MANIFEST.MF')
                     }
                     project.ant.zip(update: 'true', destfile: osgiJar) {
-                        if (bundleInfo.resources) {
-                            fileset(dir: extraResources)
-                        }
+                        fileset(dir: extraResources)
                     }
                 }
             }
