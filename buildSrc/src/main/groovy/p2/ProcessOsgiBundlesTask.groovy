@@ -18,40 +18,36 @@ class ProcessOsgiBundlesTask extends DefaultTask {
 
     @TaskAction
     void processOsgiBundles() {
-        dependencies().each { ResolvedDependency dependency ->
-            ResolvedArtifact jarArtifact = jarArtifact(dependency)
+        pluginDependencies().each { ResolvedDependency dependency ->
+            ResolvedArtifact jarArtifact = findJarArtifact(dependency)
             if (jarArtifact) {
                 BundleInfo bundleInfo = findBundleInfo(dependency.moduleGroup, dependency.moduleName)
+                // if no bundle info is associated then we assume it's already a plugin and copy as it is, otherwise
+                // first update the plugin manifest then do the copy
                 if (!bundleInfo) {
-                    // if no bundle info is associated then we assume it's already a plugin and copy it as is
                     project.copy {
                         from jarArtifact.file
                         into target
                     }
                 } else {
-                    // otherwise update the plugin manifest then copy it
                     Set<String> packageNames = packageNames(jarArtifact.file, bundleInfo.filteredPackagesPattern)
                     String fullVersion = "${bundleInfo.bundleVersion}.${bundleInfo.versionQualifier}"
                     String manifest = manifestFor(bundleInfo.manifestTemplate, packageNames, bundleInfo.bundleVersion, fullVersion)
 
-                    File manifestFile = project.file("${project.buildDir}/tmp/manifests/${bundleInfo.name.replace(':','.')}/META-INF/MANIFEST.MF")
+                    File extraResources = project.file("${project.buildDir}/tmp/bundle-resources/${bundleInfo.name.replace(':','.')}")
+                    File manifestFile = new File(extraResources, '/META-INF/MANIFEST.MF')
                     manifestFile.parentFile.mkdirs()
                     manifestFile.text = manifest
-
-                    File extraResources = project.file("${project.buildDir}/tmp/extraresources/${bundleInfo.name.replace(':','.')}")
-                    extraResources.mkdirs()
                     project.copy {
                         from bundleInfo.resources
                         into extraResources
                     }
 
                     File osgiJar = new File(target, "osgi_${jarArtifact.file.name}")
-
                     project.ant.zip(destfile: osgiJar) {
                         zipfileset(src: jarArtifact.file, excludes: 'META-INF/MANIFEST.MF')
                     }
                     project.ant.zip(update: 'true', destfile: osgiJar) {
-                        fileset(dir: manifestFile.parentFile.parentFile)
                         if (bundleInfo.resources) {
                             fileset(dir: extraResources)
                         }
@@ -61,28 +57,17 @@ class ProcessOsgiBundlesTask extends DefaultTask {
         }
     }
 
-    Set<ResolvedDependency> dependencies() {
+    Set<ResolvedDependency> pluginDependencies() {
         project.getConfigurations().getByName(P2RepositoryPlugin.PLUGIN_CONFIGURATION_NAME).resolvedConfiguration
                 .firstLevelModuleDependencies
     }
 
-    ResolvedArtifact jarArtifact(ResolvedDependency dependency) {
+    ResolvedArtifact findJarArtifact(ResolvedDependency dependency) {
          dependency.moduleArtifacts.find { it.extension == 'jar' }
     }
 
     BundleInfo findBundleInfo(String groupId, String artifactId) {
         bundles.find { it.name == groupId + ':' + artifactId }
-    }
-
-    String manifestFor(String manifestTemplate, Set<String> packageNames, String mainVersion, String fullVersion) {
-        StringBuilder manifest = new StringBuilder(manifestTemplate)
-
-        if (!packageNames.isEmpty()) {
-            String exportedPackages = packageNames.collect { " ${it};version=\"${mainVersion}\"" }.join(',\n')
-            manifest.append "Export-Package:${exportedPackages}\n"
-        }
-        manifest.append "Bundle-Version: $fullVersion\n"
-        manifest.toString()
     }
 
     Set<String> packageNames(File jar, String filteredPackagesPattern) {
@@ -102,5 +87,16 @@ class ProcessOsgiBundlesTask extends DefaultTask {
             }
         }
         result
+    }
+
+    String manifestFor(String manifestTemplate, Set<String> packageNames, String mainVersion, String fullVersion) {
+        StringBuilder manifest = new StringBuilder(manifestTemplate)
+
+        if (!packageNames.isEmpty()) {
+            String exportedPackages = packageNames.collect { " ${it};version=\"${mainVersion}\"" }.join(',\n')
+            manifest.append "Export-Package:${exportedPackages}\n"
+        }
+        manifest.append "Bundle-Version: $fullVersion\n"
+        manifest.toString()
     }
 }

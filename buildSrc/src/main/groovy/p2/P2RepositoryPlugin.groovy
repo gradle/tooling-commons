@@ -11,7 +11,7 @@ class P2RepositoryPlugin implements Plugin<Project> {
 
     static final String TASK_GROUP_NAME = 'p2'
     static final String TASK_NAME_DOWNLOAD_ECLIPSE_SDK = 'downloadEclipseSdk'
-    static final String TASK_NAME_PROCESS_BUNDLES = 'processOsgiBundles'
+    static final String TASK_NAME_PROCESS_BUNDLES = 'processBundles'
     static final String TASK_NAME_CREATE_P2_REPOSITORY = 'createP2Repository'
     static final String TASK_NAME_COMPRESS_P2_REPOSITORY = 'createCompressedP2Repository'
 
@@ -30,7 +30,7 @@ class P2RepositoryPlugin implements Plugin<Project> {
         configureConfigurations(project)
 
         addDownloadEclipseSdkTask(project)
-        addProcessOsgiBundlesTask(project)
+        addProcessBundlesTask(project)
         addCreateP2RepositoryTask(project)
         addCompressP2RepositoryTask(project)
     }
@@ -38,16 +38,15 @@ class P2RepositoryPlugin implements Plugin<Project> {
     private void addDownloadEclipseSdkTask(Project project) {
         project.tasks.create(TASK_NAME_DOWNLOAD_ECLIPSE_SDK, DownloadEclipseSdkTask) {
             group = TASK_GROUP_NAME
-            description = "Downloads an Eclipse SDK to perform P2 operations with."
         }
     }
 
-    private void addProcessOsgiBundlesTask(Project project) {
+    private void addProcessBundlesTask(Project project) {
         project.tasks.create(TASK_NAME_PROCESS_BUNDLES, ProcessOsgiBundlesTask) {
             group = TASK_GROUP_NAME
 
             dependsOn project.getConfigurations().getByName(PLUGIN_CONFIGURATION_NAME)
-            project.afterEvaluate { bundles = bundleInfos.toList() }
+            project.afterEvaluate { bundles =  bundleInfos.toList() }
             target = new File(project.buildDir, "$BUNDLES_STAGING_FOLDER/plugins")
         }
     }

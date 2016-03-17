@@ -41,18 +41,9 @@ bundleInfos {
     resource file('resources/gradle-tooling-api/about')
     resource rootProject.file('gradle/license')
     filteredPackagesPattern = ".*internal.*|.*jarjar.*"
-    manifestTemplate = """Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Gradle Tooling API
-Bundle-Vendor: Gradle Inc.
-Bundle-SymbolicName: org.gradle.toolingapi
-Bundle-ClassPath: .
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.slf4j.api;bundle-version="1.7.2"
-"""
+    manifestTemplate = file('resources/gradle-tooling-api/manifest-template.txt').text
   }
 }
-
 
 private String getBundleVersion(String projectVersion) {
   java.util.regex.Matcher matcher = projectVersion =~ /(\d+).(\d+)(?:-.*|\.(\d+)(?:-.*)?)?/
@@ -60,9 +51,10 @@ private String getBundleVersion(String projectVersion) {
     def major = matcher.group(1)
     def minor = matcher.group(2)
     def service = matcher.group(3)
-    if (service == null) service = "0" {
-      return "${major}.${minor}.${service}"
+    if (service == null) {
+      service = "0"
     }
+    return "${major}.${minor}.${service}"
   } else {
     throw new IllegalArgumentException("Invalid project version format: $projectVersion")
   }
