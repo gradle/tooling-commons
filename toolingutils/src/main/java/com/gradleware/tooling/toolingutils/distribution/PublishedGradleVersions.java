@@ -100,62 +100,63 @@ public final class PublishedGradleVersions {
     }
 
     /**
-     * Creates a new instance based on the version information available on services.gradle.org. If caching is enabled, the version information is only retrieved remotely if the
-     * version information is not cached or if the cached data has expired.
+     * Creates a new instance based on the version information available on services.gradle.org.
      *
-     * @param enableCaching if {@code true} the version information is retrieved from the cache if available and if not outdated
+     * @param lookupStratgy the strategy to use when retrieving the versions
      * @return the new instance
      */
-    public static PublishedGradleVersions create(boolean enableCaching) {
-        if (enableCaching) {
-            File cacheFile = getCacheFile();
-            // allow to read from and write to cache file
-            if (cacheFile.isFile() && cacheFile.exists()) {
-                // if cache file exists, try to make use of it
-                Optional<String> cachedVersions = readCacheVersionsFile(cacheFile);
-                if (cacheFile.lastModified() > System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1)) {
-                    // cache file is current and its version information can be used
-                    LOG.info("Gradle version information cache file is not out-of-date. No remote download required.");
-                    if (cachedVersions.isPresent()) {
-                        // local cache file is valid, use it
-                        return create(cachedVersions.get());
-                    } else {
-                        // local cache file is not valid, download latest version information
-                        LOG.error("Cannot read found Gradle version information cache file. Remote download required.");
-                        String json = downloadVersionInformation();
-                        storeCacheVersionsFile(json, cacheFile);
-                        return create(json);
-                    }
-                } else {
-                    // cache file is out-of-date, download latest version information, but fall back to cached version in case of download problems
-                    LOG.info("Gradle version information cache file is out-of-date. Remote download required.");
-                    String json;
-                    try {
-                        json = downloadVersionInformation();
-                    } catch (RuntimeException e) {
-                        if (cachedVersions.isPresent()) {
-                            // download failed, but local cache file is valid, use it
-                            return create(cachedVersions.get());
-                        } else {
-                            // download failed and local cache file is invalid, too
-                            throw new RuntimeException("Cannot collect Gradle version information remotely nor locally.", e);
-                        }
-                    }
-                    storeCacheVersionsFile(json, cacheFile);
-                    return create(json);
-                }
-            } else {
-                // if no previous cache file exists, download and cache the version information
-                LOG.info("Gradle version information cache file is not available. Remote download required.");
-                String json = downloadVersionInformation();
-                storeCacheVersionsFile(json, cacheFile);
-                return create(json);
-            }
-        } else {
-            // read versions from Gradle services end-point each time (do not cache downloaded version information)
+    public static PublishedGradleVersions create(LookupStrategy lookupStratgy) {
+        if (lookupStratgy == LookupStrategy.REMOTE) {
+            LOG.info("Gradle version information caching disabled. Remote download required.");
             String json = downloadVersionInformation();
             return create(json);
         }
+        File cacheFile = getCacheFile();
+        if (!cacheFile.isFile() || !cacheFile.exists()) {
+            LOG.info("Gradle version information cache is not available. Remote download required.");
+            return tryToDownloadAndCacheVersions(cacheFile, lookupStratgy);
+        }
+
+        if (cacheFile.lastModified() > System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1)) {
+            LOG.info("Gradle version information cache is up-to-date. Trying to read.");
+            return tryToReadUpToDateVersionsFile(cacheFile, lookupStratgy);
+        } else {
+            LOG.info("Gradle version information cache is out-of-date. Trying to update.");
+            return tryToUpdateOutdatedVersionsFile(cacheFile, lookupStratgy);
+        }
+    }
+
+    private static PublishedGradleVersions tryToReadUpToDateVersionsFile(File cacheFile, LookupStrategy lookupStratgy) {
+        Optional<String> cachedVersions = readCacheVersionsFile(cacheFile);
+        if (cachedVersions.isPresent()) {
+            return create(cachedVersions.get());
+        } else {
+            LOG.error("Cannot read Gradle version information cache. Remote download required.");
+            return tryToDownloadAndCacheVersions(cacheFile, lookupStratgy);
+        }
+    }
+
+    private static PublishedGradleVersions tryToUpdateOutdatedVersionsFile(File cacheFile, LookupStrategy lookupStratgy) {
+        try {
+            return tryToDownloadAndCacheVersions(cacheFile, lookupStratgy);
+        } catch (RuntimeException e) {
+            Optional<String> cachedVersions = readCacheVersionsFile(cacheFile);
+            if (cachedVersions.isPresent()) {
+                LOG.info("Updating Gradle version information cache failed. Using outdated cache.");
+                return create(cachedVersions.get());
+            } else {
+                throw new IllegalStateException("Cannot collect Gradle version information remotely nor locally.", e);
+            }
+        }
+    }
+
+    private static PublishedGradleVersions tryToDownloadAndCacheVersions(File cacheFile, LookupStrategy lookupStratgy) {
+        if (lookupStratgy == LookupStrategy.CACHED_ONLY) {
+            throw new IllegalStateException("Could not get Gradle version information from cache and remote update was disabled");
+        }
+        String json = downloadVersionInformation();
+        storeCacheVersionsFile(json, cacheFile);
+        return create(json);
     }
 
     private static String downloadVersionInformation() {
@@ -164,10 +165,12 @@ public final class PublishedGradleVersions {
         try {
             URL url = createURL(VERSIONS_URL);
             connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(10000);
             reader = new InputStreamReader(connection.getInputStream(), Charsets.UTF_8);
             return CharStreams.toString(reader);
         } catch (IOException e) {
-            throw new RuntimeException("Cannot download published Gradle versions.", e);
+            throw new IllegalStateException("Cannot download published Gradle versions.", e);
             // throw an exception if version information cannot be downloaded since we need this information
         } finally {
             try {
@@ -203,13 +206,7 @@ public final class PublishedGradleVersions {
         }
     }
 
-    /**
-     * Creates a new instance based on the provided version information.
-     *
-     * @param json the json string containing the version information
-     * @return the new instance
-     */
-    public static PublishedGradleVersions create(String json) {
+    private static PublishedGradleVersions create(String json) {
         // convert versions from JSON String to JSON Map
         Gson gson = new GsonBuilder().create();
         TypeToken<List<Map<String, String>>> typeToken = new TypeToken<List<Map<String, String>>>() {
@@ -230,6 +227,29 @@ public final class PublishedGradleVersions {
 
     private static File getCacheFile() {
         return new File(System.getProperty("user.home"), ".tooling/gradle/versions.json");
+    }
+
+    /**
+     * Determines how Gradle versions are retrieved.
+     *
+     * @author Stefan Oehme
+     */
+    public static enum LookupStrategy {
+        /**
+         * Look only in the local cache file. Fail if it does not exist or is unreadable.
+         */
+        CACHED_ONLY,
+        /**
+         * Look in the local cache file first. Try a remote call if it cannot be read.
+         * If the remote call succeeds, store the result in the cache.
+         * Fail if the remote call fails.
+         */
+        REMOTE_IF_NOT_CACHED,
+        /**
+         * Disable caching, execute a remote call directly.
+         * Fail if the remote call fails.
+         */
+        REMOTE
     }
 
 }
