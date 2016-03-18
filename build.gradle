@@ -16,21 +16,22 @@ group = 'com.gradleware.tooling'
 version = file('version.txt').text.trim()
 
 // in case this is not a final release, add a timestamp to the version for unique identification of 'snapshot' versions
+Date versionDate = new Date()
 if (!project.hasProperty('build.type') || project.property('build.type') != 'release') {
   if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
     // in case of CI builds, add the full date and time to the version timestamp
-    version = version + '-' + new SimpleDateFormat("yyyyMMddkkmmssZ").format(new Date())
+    version = version + '-' + new SimpleDateFormat("yyyyMMddkkmmssZ").format(versionDate)
   } else {
     // in case of local builds, do not add the time to the version timestamp to ensure incremental updates apply when building locally
-    version = version + '-' + new SimpleDateFormat("yyyyMMdd").format(new Date())
+    version = version + '-' + new SimpleDateFormat("yyyyMMdd").format(versionDate)
   }
 }
 
 // calculate the bundle version, and use a more precise date qualifier when built on a CI server
 if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
-  ext.bundleVersionQualifier = 'v' + new SimpleDateFormat("yyyyMMddkkmm").format(new Date())
+  ext.bundleVersionQualifier = 'v' + new SimpleDateFormat("yyyyMMddkkmm").format(versionDate)
 } else {
-  ext.bundleVersionQualifier = 'v' + new SimpleDateFormat("yyyyMMdd").format(new Date())
+  ext.bundleVersionQualifier = 'v' + new SimpleDateFormat("yyyyMMdd").format(versionDate)
 }
 ext.bundleVersion = getBundleVersion(version) + '.' +  bundleVersionQualifier
 
