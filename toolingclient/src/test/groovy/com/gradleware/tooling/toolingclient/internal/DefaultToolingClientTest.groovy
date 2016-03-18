@@ -21,6 +21,8 @@ import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingclient.LaunchableConfig
 import com.gradleware.tooling.toolingclient.TestConfig
 import com.gradleware.tooling.toolingclient.ToolingClient
+import com.gradleware.tooling.toolingclient.ToolingClient.ConnectionStrategy;
+
 import org.gradle.internal.Factory
 import org.gradle.tooling.BuildAction
 import org.gradle.tooling.BuildController
@@ -108,18 +110,16 @@ class DefaultToolingClientTest extends Specification {
     toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
   }
 
-  def "connectionPooling"() {
+  def "if REUSE strategy is specified, a new connection is only opened when fixed request attributes change"() {
     given:
-    AtomicInteger connectionCreationCount = new AtomicInteger(0)
     Factory<GradleConnector> connectorFactory = Mock(Factory.class)
-    2 * connectorFactory.create() >> {
-      connectionCreationCount.incrementAndGet()
-      def connector = GradleConnector.newConnector()
-      ((DefaultGradleConnector) connector).embedded(true)
-      return connector
-    } // must combine mocking with stubbing
+    def createConnection = {
+        def connector = GradleConnector.newConnector()
+        ((DefaultGradleConnector) connector).embedded(true)
+        return connector
+    }
 
-    DefaultToolingClient toolingClient = new DefaultToolingClient(connectorFactory)
+    DefaultToolingClient toolingClient = new DefaultToolingClient(connectorFactory, ConnectionStrategy.REUSE)
     def modelRequest = toolingClient.newModelRequest(BuildEnvironment.class)
 
     when:
@@ -129,29 +129,58 @@ class DefaultToolingClientTest extends Specification {
     modelRequest.executeAndWait()
 
     then:
-    connectionCreationCount.get() == 1
+    1 * connectorFactory.create() >> createConnection()
 
     when:
     modelRequest.executeAndWait()
 
     then:
-    connectionCreationCount.get() == 1
+    0 * connectorFactory.create()
 
     when:
     modelRequest.gradleDistribution(GradleDistribution.forVersion("2.1"))
     modelRequest.executeAndWait()
 
     then:
-    // new connection is created iff combination of fixed request attributes is new
-    connectionCreationCount.get() == 2
+    1 * connectorFactory.create() >> createConnection()
 
     when:
-    modelRequest.progressListeners(Mock(ProgressListener))
+    modelRequest.progressListeners(Stub(ProgressListener))
     modelRequest.executeAndWait()
 
     then:
-    // no new connection is created if only combination of transient request attributes is new
-    connectionCreationCount.get() == 2
+    0 * connectorFactory.create()
+
+    cleanup:
+    toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
+  }
+
+  def "if PER_REQUEST strategy is specified, a new connection is opened for every request"() {
+    given:
+    Factory<GradleConnector> connectorFactory = Mock(Factory.class)
+    def createConnection = {
+      def connector = GradleConnector.newConnector()
+      ((DefaultGradleConnector) connector).embedded(true)
+      return connector
+    }
+
+    DefaultToolingClient toolingClient = new DefaultToolingClient(connectorFactory, ConnectionStrategy.PER_REQUEST)
+    def modelRequest = toolingClient.newModelRequest(BuildEnvironment.class)
+
+    when:
+    modelRequest.projectDir(directoryProvider.testDirectory)
+    modelRequest.gradleUserHomeDir(new File(System.getProperty("user.home") + File.separator + ".gradle"))
+    modelRequest.gradleDistribution(GradleDistribution.fromBuild())
+    modelRequest.executeAndWait()
+
+    then:
+    1 * connectorFactory.create() >> createConnection()
+
+    when:
+    modelRequest.executeAndWait()
+
+    then:
+    1 * connectorFactory.create() >> createConnection()
 
     cleanup:
     toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)

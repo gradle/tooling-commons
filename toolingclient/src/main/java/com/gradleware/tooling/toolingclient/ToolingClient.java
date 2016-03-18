@@ -32,7 +32,8 @@ import org.gradle.tooling.GradleConnector;
 public abstract class ToolingClient {
 
     /**
-     * Creates a new instance. Typically, a single tooling client instance is used for the entire life-time of the consumer interacting with the tooling client.
+     * Creates a new instance.
+     * Typically, a single tooling client instance is used for the entire life-time of the consumer interacting with the tooling client.
      *
      * @return a new instance
      */
@@ -41,7 +42,8 @@ public abstract class ToolingClient {
     }
 
     /**
-     * Creates a new instance and uses the given factory whenever a new connector is required by the tooling client. Typically, a single tooling client instance is used for the
+     * Creates a new instance and uses the given factory whenever a new connector is required by the tooling client.
+     * Typically, a single tooling client instance is used for the
      * entire life-time of the consumer interacting with the tooling client.
      *
      * @param connectorFactory the connector factory
@@ -49,6 +51,18 @@ public abstract class ToolingClient {
      */
     public static ToolingClient newClient(Factory<GradleConnector> connectorFactory) {
         return new DefaultToolingClient(connectorFactory);
+    }
+
+    /**
+     * Creates a new instance and uses the given factory and connection strategy whenever a new connector is required by the tooling client.
+     * Typically, a single tooling client instance is used for the entire life-time of the consumer interacting with the tooling client.
+     *
+     * @param connectorFactory the connector factory
+     * @param connectionStrategy how to obtain connections
+     * @return a new instance
+     */
+    public static ToolingClient newClient(Factory<GradleConnector> connectorFactory, ConnectionStrategy connectionStrategy) {
+        return new DefaultToolingClient(connectorFactory, connectionStrategy);
     }
 
     /**
@@ -119,6 +133,26 @@ public abstract class ToolingClient {
          */
         GRACEFULLY
 
+    }
+
+    /**
+     * Controls the connection caching behavior of the tooling client.
+     *
+     * @author Stefan Oehme
+     *
+     */
+    public enum ConnectionStrategy {
+        /**
+         * Open a new connection for each request.
+         */
+        PER_REQUEST,
+
+        /**
+         * Reuse connections if the connection attributes haven't changed.
+         * This can improve performance, but at the cost of not detecting changes
+         * to the Gradle wrapper version.
+         */
+        REUSE
     }
 
 }

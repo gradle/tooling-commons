@@ -67,15 +67,22 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     private static final Logger LOG = LoggerFactory.getLogger(DefaultToolingClient.class);
 
     private final Factory<GradleConnector> connectorFactory;
+    private final ConnectionStrategy connectionStrategy;
     private final Map<Integer, ProjectConnection> connections;
     private final Map<Integer, CompositeBuildConnection> compositeConnections;
+
 
     public DefaultToolingClient() {
         this(DefaultGradleConnectorFactory.INSTANCE);
     }
 
     public DefaultToolingClient(Factory<GradleConnector> connectorFactory) {
+        this(connectorFactory, ConnectionStrategy.PER_REQUEST);
+    }
+
+    public DefaultToolingClient(Factory<GradleConnector> connectorFactory, ConnectionStrategy connectionStrategy) {
         this.connectorFactory = connectorFactory;
+        this.connectionStrategy = connectionStrategy;
         this.connections = Maps.newHashMap();
         this.compositeConnections = Maps.newHashMap();
     }
@@ -170,14 +177,14 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
 
     @Override
     public <T> LongRunningOperationPromise<Set<T>> execute(InspectableCompositeModelRequest<T> modelRequest) {
-        CompositeBuildConnection connection = getOrCreateCompositeConnection(modelRequest);
+        CompositeBuildConnection connection = getCompositeConnection(modelRequest);
         ModelBuilder<Set<ModelResult<T>>> modelBuilder = mapToModelBuilder(modelRequest, connection);
         return unwrapModelResults(LongRunningOperationPromise.forModelBuilder(modelBuilder));
     }
 
     @Override
     public <T> Set<T> executeAndWait(InspectableCompositeModelRequest<T> modelRequest) {
-        CompositeBuildConnection connection = getOrCreateCompositeConnection(modelRequest);
+        CompositeBuildConnection connection = getCompositeConnection(modelRequest);
         ModelBuilder<Set<ModelResult<T>>> modelBuilder = mapToModelBuilder(modelRequest, connection);
         Set<ModelResult<T>> modelResults = modelBuilder.get();
         return unwrapModelResults(modelResults);
@@ -216,7 +223,20 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
 
     private ProjectConnection getProjectConnection(InspectableSimpleRequest<?> request) {
         Preconditions.checkNotNull(request);
-        return getOrCreateProjectConnection(request);
+        if (this.connectionStrategy == ConnectionStrategy.REUSE) {
+            return getOrCreateProjectConnection(request);
+        } else {
+            return openConnection(request);
+        }
+    }
+
+    private CompositeBuildConnection getCompositeConnection(InspectableCompositeRequest<?> request) {
+        Preconditions.checkNotNull(request);
+        if (this.connectionStrategy == ConnectionStrategy.REUSE) {
+            return getOrCreateCompositeConnection(request);
+        } else {
+            return openCompositeConnection(request);
+        }
     }
 
     private ProjectConnection getOrCreateProjectConnection(InspectableSimpleRequest<?> modelRequest) {
@@ -388,5 +408,4 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         }
 
     }
-
 }
