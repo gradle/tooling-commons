@@ -71,7 +71,8 @@ class CompositeBuildConnectorModelResolutionFailureIntegrationTest extends Abstr
 
     def "cannot create composite for participant with non-existent project directory"() {
         given:
-        File projectDir = new File('dev/project')
+        File projectDir = directoryProvider.createDir('dev', 'project')
+        projectDir.deleteDir()
 
         when:
         withCompositeConnection([projectDir]) { connection ->
