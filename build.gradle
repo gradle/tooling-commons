@@ -18,21 +18,11 @@ version = file('version.txt').text.trim()
 // in case this is not a final release, add a timestamp to the version for unique identification of 'snapshot' versions
 Date versionDate = new Date()
 if (!project.hasProperty('build.type') || project.property('build.type') != 'release') {
-  if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
-    // in case of CI builds, add the full date and time to the version timestamp
-    version = version + '-' + new SimpleDateFormat("yyyyMMddkkmmss").format(versionDate)
-  } else {
-    // in case of local builds, do not add the time to the version timestamp to ensure incremental updates apply when building locally
-    version = version + '-' + new SimpleDateFormat("yyyyMMdd").format(versionDate)
-  }
+  version = version + '-' + calculateVersionQualifier(project, '', versionDate)
 }
 
 // calculate the bundle version, and use a more precise date qualifier when built on a CI server
-if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
-  ext.bundleVersionQualifier = 'v' + new SimpleDateFormat("yyyyMMddkkmmss").format(versionDate)
-} else {
-  ext.bundleVersionQualifier = 'v' + new SimpleDateFormat("yyyyMMdd").format(versionDate)
-}
+ext.bundleVersionQualifier =  calculateVersionQualifier(project, 'v', versionDate)
 ext.bundleVersion = getBundleVersion(version) + '.' +  bundleVersionQualifier
 
 description = "Root project of the Commons project of the Gradle Tooling Platform."
@@ -204,6 +194,19 @@ private ExecResult execCommand(Object... args) {
   exec {
     commandLine args
   }
+}
+
+def calculateVersionQualifier(Project project, String prefix, Date date) {
+  SimpleDateFormat dateFormat
+  if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
+    // in case of CI builds, add the full date and time to the version timestamp
+    dateFormat = new SimpleDateFormat("yyyyMMddkkmmss")
+  } else {
+    // in case of local builds, do not add the time to the version timestamp to ensure incremental updates apply when building locally
+    dateFormat = new SimpleDateFormat("yyyyMMdd")
+  }
+  dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+  prefix + dateFormat.format(date)
 }
 
 def getBundleVersion(String version) {
