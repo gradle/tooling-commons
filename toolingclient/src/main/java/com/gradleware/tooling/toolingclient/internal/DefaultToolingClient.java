@@ -222,32 +222,26 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     }
 
     private ProjectConnection getProjectConnection(InspectableSimpleRequest<?> request) {
-        Preconditions.checkNotNull(request);
-        if (this.connectionStrategy == ConnectionStrategy.REUSE) {
-            return getOrCreateProjectConnection(request);
-        } else {
-            return openConnection(request);
-        }
+        return getOrCreateProjectConnection(request);
     }
 
     private CompositeBuildConnection getCompositeConnection(InspectableCompositeRequest<?> request) {
-        Preconditions.checkNotNull(request);
-        if (this.connectionStrategy == ConnectionStrategy.REUSE) {
-            return getOrCreateCompositeConnection(request);
-        } else {
-            return openCompositeConnection(request);
-        }
+        return getOrCreateCompositeConnection(request);
     }
 
-    private ProjectConnection getOrCreateProjectConnection(InspectableSimpleRequest<?> modelRequest) {
+    private ProjectConnection getOrCreateProjectConnection(InspectableSimpleRequest<?> simpleRequest) {
+        Preconditions.checkNotNull(simpleRequest);
         ProjectConnection connection;
-        int connectionKey = calculateConnectionKey(modelRequest);
+        int connectionKey = calculateConnectionKey(simpleRequest);
         synchronized (this.connections) {
-            if (!this.connections.containsKey(connectionKey)) {
-                connection = openConnection(modelRequest);
+            connection = this.connections.get(connectionKey);
+            if (connection != null && this.connectionStrategy == ConnectionStrategy.PER_REQUEST) {
+                closeConnection(connection);
+                connection = null;
+            }
+            if (connection == null) {
+                connection = openConnection(simpleRequest);
                 this.connections.put(connectionKey, connection);
-            } else {
-                connection = this.connections.get(connectionKey);
             }
         }
         return connection;
@@ -255,14 +249,18 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
 
 
     private CompositeBuildConnection getOrCreateCompositeConnection(InspectableCompositeRequest<?> compositeRequest) {
+        Preconditions.checkNotNull(compositeRequest);
         CompositeBuildConnection connection;
         int connectionKey = calculateCompositeConnectionKey(compositeRequest);
         synchronized (this.compositeConnections) {
-            if (!this.compositeConnections.containsKey(connectionKey)) {
+            connection = this.compositeConnections.get(connectionKey);
+            if (connection != null && this.connectionStrategy == ConnectionStrategy.PER_REQUEST) {
+                closeConnection(connection);
+                connection = null;
+            }
+            if (connection == null) {
                 connection = openCompositeConnection(compositeRequest);
                 this.compositeConnections.put(connectionKey, connection);
-            } else {
-                connection = this.compositeConnections.get(connectionKey);
             }
         }
         return connection;
@@ -372,21 +370,29 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         // todo (etst) do not allow new connections once shutdown is in process
         synchronized (this.connections) {
             for (ProjectConnection connection : this.connections.values()) {
-                try {
-                    connection.close();
-                } catch (Exception e) {
-                    LOG.warn("Problem closing the connection: " + e.getMessage(), e);
-                }
+                closeConnection(connection);
             }
         }
         synchronized (this.compositeConnections) {
             for (CompositeBuildConnection connection : this.compositeConnections.values()) {
-                try {
-                    connection.close();
-                } catch (Exception e) {
-                    LOG.warn("Problem closing the composite connection: " + e.getMessage(), e);
-                }
+                closeConnection(connection);
             }
+        }
+    }
+
+    private void closeConnection(ProjectConnection connection) {
+        try {
+            connection.close();
+        } catch (Exception e) {
+            LOG.warn("Problem closing the connection: " + e.getMessage(), e);
+        }
+    }
+
+    private void closeConnection(CompositeBuildConnection connection) {
+        try {
+            connection.close();
+        } catch (Exception e) {
+            LOG.warn("Problem closing the composite connection: " + e.getMessage(), e);
         }
     }
 
