@@ -21,7 +21,7 @@ import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingclient.LaunchableConfig
 import com.gradleware.tooling.toolingclient.TestConfig
 import com.gradleware.tooling.toolingclient.ToolingClient
-import com.gradleware.tooling.toolingclient.ToolingClient.ConnectionStrategy;
+import com.gradleware.tooling.toolingclient.ToolingClient.ConnectionStrategy
 
 import org.gradle.internal.Factory
 import org.gradle.tooling.BuildAction
