@@ -56,7 +56,7 @@ class ProcessOsgiBundlesTask extends DefaultTask {
         manifestFile.parentFile.mkdirs()
         manifestFile.text = manifest
         project.copy {
-            with bundleInfo.resources
+            with project.copySpec(bundleInfo.resources)
             into extraResources
         }
 
