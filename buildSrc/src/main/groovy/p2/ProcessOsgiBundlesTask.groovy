@@ -26,34 +26,10 @@ class ProcessOsgiBundlesTask extends DefaultTask {
             ResolvedArtifact jarArtifact = findJarArtifact(dependency)
             if (jarArtifact) {
                 BundleInfo bundleInfo = findBundleInfo(dependency.moduleGroup, dependency.moduleName)
-                // if no bundle info is associated then we assume it's already a plugin and copy as it is, otherwise
-                // first update the plugin manifest then do the copy
                 if (!bundleInfo) {
-                    project.copy {
-                        from jarArtifact.file
-                        into target
-                    }
+                    copyExistingBundle(jarArtifact)
                 } else {
-                    Set<String> packageNames = packageNames(jarArtifact.file, bundleInfo.filteredPackagesPattern)
-                    String fullVersion = "${bundleInfo.bundleVersion}.${bundleInfo.versionQualifier}"
-                    String manifest = manifestFor(bundleInfo.manifestTemplate, packageNames, bundleInfo.bundleVersion, fullVersion)
-
-                    File extraResources = project.file("${project.buildDir}/tmp/bundle-resources/${bundleInfo.name.replace(':','.')}")
-                    File manifestFile = new File(extraResources, '/META-INF/MANIFEST.MF')
-                    manifestFile.parentFile.mkdirs()
-                    manifestFile.text = manifest
-                    project.copy {
-                        with bundleInfo.resources
-                        into extraResources
-                    }
-
-                    File osgiJar = new File(target, "osgi_${jarArtifact.file.name}")
-                    project.ant.zip(destfile: osgiJar) {
-                        zipfileset(src: jarArtifact.file, excludes: 'META-INF/MANIFEST.MF')
-                    }
-                    project.ant.zip(update: 'true', destfile: osgiJar) {
-                        fileset(dir: extraResources)
-                    }
+                    createNewBundle(jarArtifact, bundleInfo)
                 }
             }
         }
@@ -61,6 +37,36 @@ class ProcessOsgiBundlesTask extends DefaultTask {
 
     Set<ResolvedDependency> pluginDependencies() {
         pluginConfiguration.resolvedConfiguration.firstLevelModuleDependencies
+    }
+
+    WorkResult copyExistingBundle(ResolvedArtifact jar) {
+        project.copy {
+            from jar.file
+            into target
+        }
+    }
+
+    void createNewBundle(ResolvedArtifact jar, BundleInfo bundleInfo) {
+        Set<String> packageNames = packageNames(jar.file, bundleInfo.filteredPackagesPattern)
+        String fullVersion = "${bundleInfo.bundleVersion}.${bundleInfo.versionQualifier}"
+        String manifest = manifestFor(bundleInfo.manifestTemplate, packageNames, bundleInfo.bundleVersion, fullVersion)
+
+        File extraResources = project.file("${project.buildDir}/tmp/bundle-resources/${bundleInfo.name.replace(':', '.')}")
+        File manifestFile = new File(extraResources, '/META-INF/MANIFEST.MF')
+        manifestFile.parentFile.mkdirs()
+        manifestFile.text = manifest
+        project.copy {
+            with bundleInfo.resources
+            into extraResources
+        }
+
+        File osgiJar = new File(target, "osgi_${jar.file.name}")
+        project.ant.zip(destfile: osgiJar) {
+            zipfileset(src: jar.file, excludes: 'META-INF/MANIFEST.MF')
+        }
+        project.ant.zip(update: 'true', destfile: osgiJar) {
+            fileset(dir: extraResources)
+        }
     }
 
     ResolvedArtifact findJarArtifact(ResolvedDependency dependency) {
