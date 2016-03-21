@@ -44,10 +44,11 @@ class P2RepositoryPlugin implements Plugin<Project> {
     private void addProcessBundlesTask(Project project) {
         project.tasks.create(TASK_NAME_PROCESS_BUNDLES, ProcessOsgiBundlesTask) {
             group = TASK_GROUP_NAME
-
             dependsOn project.getConfigurations().getByName(PLUGIN_CONFIGURATION_NAME)
+
             project.afterEvaluate { bundles =  bundleInfos.toList() }
             target = new File(project.buildDir, "$BUNDLES_STAGING_FOLDER/plugins")
+            pluginConfiguration = project.configurations.getByName(P2RepositoryPlugin.PLUGIN_CONFIGURATION_NAME)
         }
     }
 

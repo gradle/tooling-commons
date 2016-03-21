@@ -1,5 +1,6 @@
 package p2
 
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.api.artifacts.ResolvedDependency
 
@@ -9,6 +10,9 @@ import org.gradle.api.*
 import org.gradle.api.tasks.*
 
 class ProcessOsgiBundlesTask extends DefaultTask {
+
+    @Input
+    Configuration pluginConfiguration
 
     @Input
     List<BundleInfo> bundles
@@ -56,8 +60,7 @@ class ProcessOsgiBundlesTask extends DefaultTask {
     }
 
     Set<ResolvedDependency> pluginDependencies() {
-        project.getConfigurations().getByName(P2RepositoryPlugin.PLUGIN_CONFIGURATION_NAME).resolvedConfiguration
-                .firstLevelModuleDependencies
+        pluginConfiguration.resolvedConfiguration.firstLevelModuleDependencies
     }
 
     ResolvedArtifact findJarArtifact(ResolvedDependency dependency) {
