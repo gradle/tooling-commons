@@ -149,8 +149,8 @@ public abstract class ToolingClient {
 
         /**
          * Reuse connections if the connection attributes haven't changed.
-         * This can improve performance, but at the cost of not detecting changes
-         * to the Gradle wrapper version.
+         * This allows the Gradle daemon to send updates to the client,
+         * but at the cost of not detecting changes to the Gradle wrapper version.
          */
         REUSE
     }
