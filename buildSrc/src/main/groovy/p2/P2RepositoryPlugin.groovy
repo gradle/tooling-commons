@@ -74,7 +74,9 @@ class P2RepositoryPlugin implements Plugin<Project> {
     }
 
     private void configureExtensions(Project project) {
-        bundleInfos = project.container(BundleInfo)
+        bundleInfos = project.container(BundleInfo) {
+            new BundleInfo(it, project)
+        }
         project.extensions.bundleInfos = bundleInfos
     }
 

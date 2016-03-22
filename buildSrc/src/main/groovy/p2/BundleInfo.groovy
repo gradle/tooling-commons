@@ -1,6 +1,9 @@
 package p2
 
 import groovy.transform.EqualsAndHashCode
+import org.gradle.api.Project
+import org.gradle.api.file.CopySpec;
+import org.gradle.util.ConfigureUtil;;
 
 @EqualsAndHashCode(excludes = 'resources')
 class BundleInfo implements Serializable {
@@ -9,14 +12,15 @@ class BundleInfo implements Serializable {
     String versionQualifier
     String manifestTemplate
     String filteredPackagesPattern
-    transient Closure resources
+    transient CopySpec resources
 
-    BundleInfo(String name) {
+    BundleInfo(String name, Project project) {
         this.name = name
+        this.resources = project.copySpec()
     }
 
-    void resources(Closure resources) {
-        this.resources = resources
+    void resources(Closure closure) {
+        ConfigureUtil.configure(closure, resources)
     }
 
 }
