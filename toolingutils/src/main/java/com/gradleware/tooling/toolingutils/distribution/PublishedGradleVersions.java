@@ -30,6 +30,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.gradleware.tooling.toolingutils.ImmutableCollection;
+
+import org.gradle.api.UncheckedIOException;
 import org.gradle.util.GradleVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -170,7 +172,7 @@ public final class PublishedGradleVersions {
             reader = new InputStreamReader(connection.getInputStream(), Charsets.UTF_8);
             return CharStreams.toString(reader);
         } catch (IOException e) {
-            throw new IllegalStateException("Cannot download published Gradle versions.", e);
+            throw new UncheckedIOException("Cannot download published Gradle versions.", e);
             // throw an exception if version information cannot be downloaded since we need this information
         } finally {
             try {
