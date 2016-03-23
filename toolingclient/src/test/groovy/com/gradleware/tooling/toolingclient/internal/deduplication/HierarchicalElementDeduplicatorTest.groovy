@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.tooling.composite.deduplication
+package com.gradleware.tooling.toolingclient.internal.deduplication
 
-import org.gradle.tooling.composite.deduplication.HierarchicalElementDeduplicatorTest.DummyAdapter
-import org.gradle.tooling.composite.deduplication.HierarchicalElementDeduplicatorTest.DummyElement;
-import org.gradle.tooling.composite.internal.deduplication.HierarchicalElementDeduplicator
-import org.gradle.tooling.composite.internal.deduplication.NameDeduplicationAdapter
 import spock.lang.Specification
 
 import com.google.common.collect.Lists
+import com.gradleware.tooling.toolingclient.internal.deduplication.HierarchicalElementDeduplicator
+import com.gradleware.tooling.toolingclient.internal.deduplication.NameDeduplicationAdapter
 
 class HierarchicalElementDeduplicatorTest extends Specification {
 

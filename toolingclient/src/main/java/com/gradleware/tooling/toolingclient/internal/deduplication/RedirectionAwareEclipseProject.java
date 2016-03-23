@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.gradle.tooling.composite.internal;
+package com.gradleware.tooling.toolingclient.internal.deduplication;
 
 import java.util.Set;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.gradle.tooling.composite.internal.deduplication;
+package com.gradleware.tooling.toolingclient.internal.deduplication;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,8 +23,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.gradle.tooling.composite.internal.RedirectedProjectLookup;
-import org.gradle.tooling.composite.internal.RedirectionAwareEclipseProject;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.eclipse.HierarchicalEclipseProject;
 

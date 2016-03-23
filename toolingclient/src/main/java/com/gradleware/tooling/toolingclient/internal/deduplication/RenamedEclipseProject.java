@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package org.gradle.tooling.composite.internal.deduplication;
+package com.gradleware.tooling.toolingclient.internal.deduplication;
 
-import org.gradle.tooling.composite.internal.RedirectedProjectLookup;
-import org.gradle.tooling.composite.internal.RedirectionAwareEclipseProject;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 /**

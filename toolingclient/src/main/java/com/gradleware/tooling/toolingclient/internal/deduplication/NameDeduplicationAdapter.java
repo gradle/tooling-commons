@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.gradle.tooling.composite.internal.deduplication;
+package com.gradleware.tooling.toolingclient.internal.deduplication;
 
 /**
  * Adapts any type of element to the generic {@link HierarchicalElementDeduplicator}.
