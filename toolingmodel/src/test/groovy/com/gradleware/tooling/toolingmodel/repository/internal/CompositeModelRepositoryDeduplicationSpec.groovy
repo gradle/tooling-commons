@@ -36,7 +36,7 @@ import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
-class MultipleRootProjectCompositeModelRepositoryTest extends ToolingModelToolingClientSpecification {
+class CompositeModelRepositoryDeduplicationSpec extends ToolingModelToolingClientSpecification {
 
     @Rule
     TestDirectoryProvider projectA = new TestDirectoryProvider("projectA");
@@ -56,16 +56,11 @@ class MultipleRootProjectCompositeModelRepositoryTest extends ToolingModelToolin
           include 'api'
           include 'impl'
         '''
-
     }
 
     def "Workspace contains all projects from all participants"(GradleDistribution distribution) {
-        given:
-        def repository = getCompositeRepository(distribution)
-        def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-
         when:
-        OmniEclipseWorkspace eclipseWorkspace = repository.fetchEclipseWorkspace(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+        OmniEclipseWorkspace eclipseWorkspace = getWorkspaceModel(distribution)
 
         then:
         eclipseWorkspace != null
@@ -77,12 +72,10 @@ class MultipleRootProjectCompositeModelRepositoryTest extends ToolingModelToolin
 
     def "Sub-Project names are de-duplicated"(GradleDistribution distribution) {
         given:
-        def repository = getCompositeRepository(distribution)
-        def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-
         projectB.file("settings.gradle") << "include 'client:android'"
+
         when:
-        OmniEclipseWorkspace eclipseWorkspace = repository.fetchEclipseWorkspace(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+        OmniEclipseWorkspace eclipseWorkspace = getWorkspaceModel(distribution)
 
         then:
         eclipseWorkspace != null
@@ -98,12 +91,10 @@ class MultipleRootProjectCompositeModelRepositoryTest extends ToolingModelToolin
 
     def "Root-Project names are de-duplicated"(GradleDistribution distribution) {
         given:
-        def repository = getCompositeRepository(distribution)
-        def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-
         projectB.file("settings.gradle") << "rootProject.name = 'projectA'"
+
         when:
-        OmniEclipseWorkspace eclipseWorkspace = repository.fetchEclipseWorkspace(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+        OmniEclipseWorkspace eclipseWorkspace = getWorkspaceModel(distribution)
 
         then:
         eclipseWorkspace != null
@@ -115,13 +106,15 @@ class MultipleRootProjectCompositeModelRepositoryTest extends ToolingModelToolin
         distribution << runWithAllGradleVersions(">=1.0")
     }
 
-    private getCompositeRepository(GradleDistribution distribution) {
+    private getWorkspaceModel(GradleDistribution distribution) {
         def participantA = new FixedRequestAttributes(projectA.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def participantB = new FixedRequestAttributes(projectB.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-        def repoProvider = Mock(ModelRepositoryProvider)
+        def repoProvider = Stub(ModelRepositoryProvider)
         repoProvider.getModelRepository(participantA) >> new DefaultSimpleModelRepository(participantA, toolingClient, new EventBus())
         repoProvider.getModelRepository(participantB) >> new DefaultSimpleModelRepository(participantB, toolingClient, new EventBus())
-        return new DefaultCompositeModelRepository(repoProvider, [participantA, participantB] as Set, toolingClient, new EventBus())
+        def repository = new DefaultCompositeModelRepository(repoProvider, [participantA, participantB] as Set, toolingClient, new EventBus())
+        def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+        repository.fetchEclipseWorkspace(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
     }
 
     private static ImmutableList<GradleDistribution> runWithAllGradleVersions(String versionPattern) {
