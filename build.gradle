@@ -210,15 +210,13 @@ def calculateVersionQualifier(Project project, String prefix, Date date) {
 }
 
 def getBundleVersion(String version) {
-  def matcher = version =~ /(\d+).(\d+)(?:-.*|\.(\d+)(?:-.*)?)?/
+  def matcher = version =~ /(\d+)\.(\d+)(?:-.*|\.(\d+)(?:-.*)?)?/
   if (matcher.matches()) {
     def major = matcher.group(1)
     def minor = matcher.group(2)
-    def service = matcher.group(3)
-    if (service == null) { service = "0"
-      return "$major.$minor.$service"
-    } else {
-      return "NIL"
-    }
+    def service = matcher.group(3) ?: '0'
+    return "$major.$minor.$service"
+  } else {
+    throw new IllegalArgumentException("Invalid bundle version: $version")
   }
 }
