@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: Gradle Inc.
 Bundle-Name: Gradle Tooling Commons - Tooling Utils
 Bundle-SymbolicName: com.gradleware.tooling.utils
-Bundle-Version: 0.11.1.qualifier
+Bundle-Version: 0.11.2.qualifier
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.gradleware.tooling.toolingutils;version="0.12.0",
