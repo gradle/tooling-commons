@@ -16,6 +16,8 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
+import java.io.File;
+import java.util.List;
 import java.util.Set;
 
 import com.gradleware.tooling.toolingclient.CompositeRequest;
@@ -31,4 +33,9 @@ interface InspectableCompositeRequest<T> extends InspectableRequest<Set<T>>, Com
 
     GradleBuildIdentifier[] getParticipants();
 
+    File getParticipantJavaHome(GradleBuildIdentifier participant);
+
+    List<String> getParticipantArguments(GradleBuildIdentifier participant);
+
+    List<String> getParticipantJvmArguments(GradleBuildIdentifier participant);
 }

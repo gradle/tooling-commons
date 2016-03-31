@@ -16,6 +16,7 @@
 
 package org.gradle.tooling.composite;
 
+import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
 import org.gradle.internal.concurrent.DefaultExecutorFactory;
 import org.gradle.internal.concurrent.ExecutorFactory;
 import org.gradle.tooling.GradleConnectionException;
@@ -27,6 +28,8 @@ import org.gradle.tooling.internal.consumer.loader.SynchronizedToolingImplementa
 import org.gradle.tooling.internal.consumer.loader.ToolingImplementationLoader;
 
 import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>A {@code CompositeBuildConnector} is the main entry point for create a composite build. You use this API as follows:</p>

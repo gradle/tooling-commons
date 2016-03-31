@@ -28,7 +28,7 @@ class DefaultCompositeBuildConnectionTest extends Specification {
 
     def "cannot create composite with no participants"() {
         when:
-        new DefaultCompositeBuildConnection(connection, parameters, [] as Set<ProjectConnection>)
+        new DefaultCompositeBuildConnection(connection, parameters, [:])
 
         then:
         Throwable t = thrown(IllegalStateException)
@@ -38,7 +38,8 @@ class DefaultCompositeBuildConnectionTest extends Specification {
     def "cannot request model that is not an interface"(Action<CompositeBuildConnection> configurer) {
         given:
         def projectConnection = Mock(ProjectConnection)
-        Set<ProjectConnection> projectConnections = [projectConnection] as Set<ProjectConnection>
+        def participant = Mock(DefaultCompositeParticipant)
+        def projectConnections = [(participant) : projectConnection]
 
         when:
         DefaultCompositeBuildConnection defaultCompositeBuildConnection = new DefaultCompositeBuildConnection(connection, parameters, projectConnections)
@@ -56,10 +57,11 @@ class DefaultCompositeBuildConnectionTest extends Specification {
     def "cannot request model for unknown model"(Action<CompositeBuildConnection> configurer) {
         given:
         def projectConnection = Mock(ProjectConnection)
-        Set<ProjectConnection> projectConnections = [projectConnection] as Set<ProjectConnection>
+        def participant = Mock(DefaultCompositeParticipant)
+        def projectConnections = [(participant) : projectConnection]
 
         when:
-        DefaultCompositeBuildConnection defaultCompositeBuildConnection = new DefaultCompositeBuildConnection(connection, parameters, projectConnections)
+        DefaultCompositeBuildConnection defaultCompositeBuildConnection = new DefaultCompositeBuildConnection(connection, parameters, projectConnections,)
         configurer.execute(defaultCompositeBuildConnection)
 
         then:
@@ -75,7 +77,9 @@ class DefaultCompositeBuildConnectionTest extends Specification {
         given:
         def projectConnection1 = Mock(ProjectConnection)
         def projectConnection2 = Mock(ProjectConnection)
-        Set<ProjectConnection> projectConnections = [projectConnection1, projectConnection2] as Set<ProjectConnection>
+        def participant1 = Mock(DefaultCompositeParticipant)
+        def participant2 = Mock(DefaultCompositeParticipant)
+        def projectConnections = [(participant1) : projectConnection1, (participant2) : projectConnection2]
 
         when:
         DefaultCompositeBuildConnection defaultCompositeBuildConnection = new DefaultCompositeBuildConnection(connection, parameters, projectConnections)
@@ -91,7 +95,9 @@ class DefaultCompositeBuildConnectionTest extends Specification {
         given:
         def projectConnection1 = Mock(ProjectConnection)
         def projectConnection2 = Mock(ProjectConnection)
-        Set<ProjectConnection> projectConnections = [projectConnection1, projectConnection2] as Set<ProjectConnection>
+        def participant1 = Mock(DefaultCompositeParticipant)
+        def participant2 = Mock(DefaultCompositeParticipant)
+        def projectConnections = [(participant1) : projectConnection1, (participant2) : projectConnection2]
 
         when:
         DefaultCompositeBuildConnection defaultCompositeBuildConnection = new DefaultCompositeBuildConnection(connection, parameters, projectConnections)
@@ -107,8 +113,9 @@ class DefaultCompositeBuildConnectionTest extends Specification {
 
     def "propagates exception if thrown when closing participant"() {
         given:
-        def projectConnection1 = Mock(ProjectConnection)
-        Set<ProjectConnection> projectConnections = [projectConnection1] as Set<ProjectConnection>
+        def projectConnection = Mock(ProjectConnection)
+        def participant = Mock(DefaultCompositeParticipant)
+        def projectConnections = [(participant) : projectConnection]
 
         when:
         DefaultCompositeBuildConnection defaultCompositeBuildConnection = new DefaultCompositeBuildConnection(connection, parameters, projectConnections)
@@ -116,7 +123,7 @@ class DefaultCompositeBuildConnectionTest extends Specification {
 
         then:
         1 * connection.stop()
-        1 * projectConnection1.close() >> { throw new RuntimeException('Something went wrong') }
+        1 * projectConnection.close() >> { throw new RuntimeException('Something went wrong') }
         Throwable t = thrown(RuntimeException)
         t.message == 'Something went wrong'
     }
@@ -126,7 +133,10 @@ class DefaultCompositeBuildConnectionTest extends Specification {
         def projectConnection1 = Mock(ProjectConnection)
         def projectConnection2 = Mock(ProjectConnection)
         def projectConnection3 = Mock(ProjectConnection)
-        Set<ProjectConnection> projectConnections = [projectConnection1, projectConnection2, projectConnection3] as Set<ProjectConnection>
+        def participant1 = Mock(DefaultCompositeParticipant)
+        def participant2 = Mock(DefaultCompositeParticipant)
+        def participant3 = Mock(DefaultCompositeParticipant)
+        def projectConnections = [(participant1) : projectConnection1, (participant2) : projectConnection2, (participant3) : projectConnection3]
 
         when:
         DefaultCompositeBuildConnection defaultCompositeBuildConnection = new DefaultCompositeBuildConnection(connection, parameters, projectConnections)
@@ -146,7 +156,10 @@ class DefaultCompositeBuildConnectionTest extends Specification {
         def projectConnection1 = Mock(ProjectConnection)
         def projectConnection2 = Mock(ProjectConnection)
         def projectConnection3 = Mock(ProjectConnection)
-        Set<ProjectConnection> projectConnections = [projectConnection1, projectConnection2, projectConnection3] as Set<ProjectConnection>
+        def participant1 = Mock(DefaultCompositeParticipant)
+        def participant2 = Mock(DefaultCompositeParticipant)
+        def participant3 = Mock(DefaultCompositeParticipant)
+        def projectConnections = [(participant1) : projectConnection1, (participant2) : projectConnection2, (participant3) : projectConnection3]
 
         when:
         DefaultCompositeBuildConnection defaultCompositeBuildConnection = new DefaultCompositeBuildConnection(connection, parameters, projectConnections)

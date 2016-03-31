@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,20 +17,19 @@
 package org.gradle.tooling.composite;
 
 import java.io.File;
+import java.util.List;
 
 /**
- * Represents a participating build for a composite.
- * <p>
- * A participating build can consist of a single or multiple Gradle projects.
+ * Optional arguments for a composite build participant.
  *
- * @author Benjamin Muschko
+ * @author Donat Csikos
  */
-public interface CompositeParticipant extends GradleDistributionAware, BuildArguments {
+public interface BuildArguments {
 
-    /**
-     * Returns the root project directory of a participating Gradle build.
-     *
-     * @return the root project directory
-     */
-    File getRootProjectDirectory();
+    void useJavaHome(File javaHome);
+
+    void useArguments(List<String> arguments);
+
+    void useJvmArguments(List<String> jvmArguments);
+
 }

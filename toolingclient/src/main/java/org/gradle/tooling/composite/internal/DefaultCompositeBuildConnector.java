@@ -16,8 +16,9 @@
 
 package org.gradle.tooling.composite.internal;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.gradle.api.Transformer;
+import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
 import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
@@ -31,9 +32,10 @@ import org.gradle.tooling.composite.internal.dist.URILocatedGradleDistribution;
 import org.gradle.tooling.composite.internal.dist.VersionBasedGradleDistribution;
 import org.gradle.tooling.internal.consumer.ConnectionParameters;
 import org.gradle.tooling.internal.consumer.async.AsyncConsumerActionExecutor;
-import org.gradle.util.CollectionUtils;
 
 import java.io.File;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -45,6 +47,7 @@ public class DefaultCompositeBuildConnector extends CompositeBuildConnector {
     private final AsyncConsumerActionExecutor connection;
     private final ConnectionParameters parameters;
     private final Set<DefaultCompositeParticipant> participants = Sets.newHashSet();
+    private final Map<GradleBuildIdentifier, List<String>> arguments = Maps.newHashMap();
 
     public DefaultCompositeBuildConnector(AsyncConsumerActionExecutor connection, ConnectionParameters parameters) {
         this.connection = connection;
@@ -59,22 +62,26 @@ public class DefaultCompositeBuildConnector extends CompositeBuildConnector {
     }
 
     @Override
+    public void useArguments(Map<GradleBuildIdentifier, List<String>> arguments) {
+        this.arguments.putAll(arguments);
+    }
+
+    @Override
     public CompositeBuildConnection connect() throws GradleConnectionException {
-        Set<ProjectConnection> projectConnections = transformParticipantsToProjectConnections();
+        Map<DefaultCompositeParticipant, ProjectConnection> projectConnections = transformParticipantsToProjectConnections();
         DefaultCompositeBuildConnection actualConnection = new DefaultCompositeBuildConnection(this.connection, this.parameters, projectConnections);
         DeduplicatingCompositeBuildConnection deduplicatingConnection = new DeduplicatingCompositeBuildConnection(actualConnection);
         return deduplicatingConnection;
     }
 
-    private Set<ProjectConnection> transformParticipantsToProjectConnections() {
-        return CollectionUtils.collect(this.participants, new Transformer<ProjectConnection, DefaultCompositeParticipant>() {
-            @Override
-            public ProjectConnection transform(DefaultCompositeParticipant participant) {
-                GradleConnector gradleConnector = GradleConnector.newConnector().forProjectDirectory(participant.getRootProjectDirectory());
-                useGradleDistribution(gradleConnector, participant.getDistribution());
-                return gradleConnector.connect();
-            }
-        });
+    private Map<DefaultCompositeParticipant, ProjectConnection> transformParticipantsToProjectConnections() {
+        Map<DefaultCompositeParticipant, ProjectConnection> result = Maps.newHashMap();
+        for (DefaultCompositeParticipant participant : this.participants) {
+            GradleConnector gradleConnector = GradleConnector.newConnector().forProjectDirectory(participant.getRootProjectDirectory());
+            useGradleDistribution(gradleConnector, participant.getDistribution());
+            result.put(participant, gradleConnector.connect());
+        }
+        return result;
     }
 
     private void useGradleDistribution(GradleConnector gradleConnector, GradleDistribution gradleDistribution) {

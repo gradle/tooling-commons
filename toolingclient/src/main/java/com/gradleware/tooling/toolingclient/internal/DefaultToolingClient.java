@@ -297,6 +297,9 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         CompositeBuildConnector connector = CompositeBuildConnector.newComposite();
         for (GradleBuildIdentifier identifier : compositeRequest.getParticipants()) {
             CompositeParticipant participant = connector.addParticipant(identifier.getProjectDir());
+            participant.useJavaHome(compositeRequest.getParticipantJavaHome(identifier));
+            participant.useArguments(compositeRequest.getParticipantArguments(identifier));
+            participant.useJvmArguments(compositeRequest.getParticipantJvmArguments(identifier));
             identifier.getGradleDistribution().apply(participant);
         }
         return connector.connect();

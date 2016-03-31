@@ -16,6 +16,7 @@
 
 package com.gradleware.tooling.toolingclient;
 
+import java.io.File;
 import java.util.Set;
 
 /**
@@ -44,4 +45,30 @@ public interface CompositeRequest<T> extends Request<Set<T>> {
      */
     CompositeRequest<T> addParticipants(GradleBuildIdentifier... buildIdentifiers);
 
+    /**
+     * Specifies Java home for the target participant.
+     *
+     * @param participant the target participant
+     * @param javaHome the Java home folder for the participant
+     * @return this
+     */
+    CompositeRequest<T> javaHome(GradleBuildIdentifier participant, File javaHome);
+
+    /**
+     * Specifies build arguments for a target participant.
+     *
+     * @param participant the target participant
+     * @param arguments the build argument for the participant
+     * @return this
+     */
+    CompositeRequest<T> arguments(GradleBuildIdentifier participant, String... arguments);
+
+    /**
+     * Specifies JVM arguments for a target participant.
+     *
+     * @param participant the target participant
+     * @param jvmArguments the JVM argument for the participant
+     * @return this
+     */
+    CompositeRequest<T> jvmArguments(GradleBuildIdentifier participant, String... jvmArguments);
 }

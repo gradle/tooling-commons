@@ -29,7 +29,7 @@ class EclipseModelResultSetModelBuilderTest extends Specification {
 
     AsyncConsumerActionExecutor connection = Mock(AsyncConsumerActionExecutor)
     ConnectionParameters parameters = Mock(ConnectionParameters)
-    EclipseModelResultSetModelBuilder modelBuilder = new EclipseModelResultSetModelBuilder(EclipseProject, connection, parameters, [] as Set<CompositeParticipant>)
+    EclipseModelResultSetModelBuilder modelBuilder = new EclipseModelResultSetModelBuilder(EclipseProject, connection, parameters, [:])
 
     def "does not support certain API methods"(String message, Action<ModelBuilder> configurer) {
         when:

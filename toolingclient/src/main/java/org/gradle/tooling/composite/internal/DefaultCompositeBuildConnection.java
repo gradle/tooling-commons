@@ -25,6 +25,7 @@ import org.gradle.tooling.internal.consumer.ConnectionParameters;
 import org.gradle.tooling.internal.consumer.async.AsyncConsumerActionExecutor;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -35,9 +36,9 @@ import java.util.Set;
 public class DefaultCompositeBuildConnection implements CompositeBuildConnection {
     private final AsyncConsumerActionExecutor connection;
     private final ConnectionParameters parameters;
-    private final Set<ProjectConnection> participants;
+    private final Map<DefaultCompositeParticipant, ProjectConnection> participants;
 
-    public DefaultCompositeBuildConnection(AsyncConsumerActionExecutor connection, ConnectionParameters parameters, Set<ProjectConnection> participants) {
+    public DefaultCompositeBuildConnection(AsyncConsumerActionExecutor connection, ConnectionParameters parameters, Map<DefaultCompositeParticipant, ProjectConnection> participants) {
         this.connection = connection;
         this.parameters = parameters;
 
@@ -78,7 +79,7 @@ public class DefaultCompositeBuildConnection implements CompositeBuildConnection
             }
         }
 
-        for (ProjectConnection projectConnection : this.participants) {
+        for (ProjectConnection projectConnection : this.participants.values()) {
             try {
                 projectConnection.close();
             } catch (Throwable throwable) {

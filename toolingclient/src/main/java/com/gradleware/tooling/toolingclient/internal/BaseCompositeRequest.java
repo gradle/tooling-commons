@@ -16,11 +16,15 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
+import java.io.File;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
 
+import com.google.common.collect.Maps;
 import com.gradleware.tooling.toolingclient.CompositeRequest;
 import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
 
@@ -35,9 +39,50 @@ abstract class BaseCompositeRequest<T, SELF extends BaseCompositeRequest<T, SELF
 
     private ImmutableList<GradleBuildIdentifier> participants;
 
+    private final Map<GradleBuildIdentifier, File> perParticipantJavaHome = Maps.newHashMap();
+    private final Map<GradleBuildIdentifier, List<String>> perParticipantArguments = Maps.newHashMap();
+    private final Map<GradleBuildIdentifier, List<String>> perParticipantJvmArguments = Maps.newHashMap();
+
     BaseCompositeRequest(ExecutableToolingClient toolingClient) {
         super(toolingClient);
         this.participants = ImmutableList.of();
+    }
+
+    @Override
+    public CompositeRequest<T> javaHome(GradleBuildIdentifier participant, File javaHome) {
+        if(javaHome != null) {
+            this.perParticipantJavaHome.put(participant, javaHome);
+        }
+        return getThis();
+    }
+
+    @Override
+    public File getParticipantJavaHome(GradleBuildIdentifier participant) {
+        return this.perParticipantJavaHome.get(participant);
+    }
+
+    @Override
+    public CompositeRequest<T> arguments(GradleBuildIdentifier participant, String... arguments) {
+        this.perParticipantArguments.put(participant, Arrays.asList(arguments));
+        return getThis();
+    }
+
+    @Override
+    public List<String> getParticipantArguments(GradleBuildIdentifier participant) {
+        List<String> result = this.perParticipantArguments.get(participant);
+        return result == null ? ImmutableList.<String>of() : ImmutableList.copyOf(result);
+    }
+
+    @Override
+    public CompositeRequest<T> jvmArguments(GradleBuildIdentifier participant, String... jvmArguments) {
+        this.perParticipantJvmArguments.put(participant, Arrays.asList(jvmArguments));
+        return getThis();
+    }
+
+    @Override
+    public List<String> getParticipantJvmArguments(GradleBuildIdentifier participant) {
+        List<String> result = this.perParticipantJvmArguments.get(participant);
+        return result == null ? ImmutableList.<String>of() : ImmutableList.copyOf(result);
     }
 
     @Override

@@ -16,6 +16,7 @@
 
 package org.gradle.tooling.composite.internal;
 
+import com.google.common.collect.Sets;
 import org.gradle.api.Transformer;
 import org.gradle.internal.UncheckedException;
 import org.gradle.internal.classpath.ClassPath;
@@ -43,10 +44,7 @@ import org.gradle.util.CollectionUtils;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -59,14 +57,14 @@ import java.util.concurrent.BlockingQueue;
 public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOperation<EclipseModelResultSetModelBuilder<T>> implements ModelBuilder<Set<ModelResult<T>>> {
     private final Class<T> modelType;
     private final AsyncConsumerActionExecutor connection;
-    private final CompositeModelProducer<EclipseProject> compositeModelProducer;
+    private final Map<DefaultCompositeParticipant, ProjectConnection> participants;
 
     public EclipseModelResultSetModelBuilder(Class<T> modelType, AsyncConsumerActionExecutor connection,
-                                             ConnectionParameters parameters, Set<ProjectConnection> participants) {
+                                             ConnectionParameters parameters, Map<DefaultCompositeParticipant, ProjectConnection> participants) {
         super(parameters);
         this.modelType = modelType;
         this.connection = connection;
-        this.compositeModelProducer = new EclipseProjectCompositeModelProducer(participants);
+        this.participants = participants;
         this.operationParamsBuilder.setEntryPoint("Eclipse ModelBuilder API");
     }
 
@@ -158,7 +156,7 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
 
             @Override
             public T run(ConsumerConnection connection) {
-                return (T) toModelResults(EclipseModelResultSetModelBuilder.this.compositeModelProducer.getModel());
+                return (T) toModelResults(getModel());
             }
         }, new DefaultResultHandler(handler));
     }
@@ -263,6 +261,44 @@ public class EclipseModelResultSetModelBuilder<T> extends AbstractLongRunningOpe
                 message += "\n" + Exceptions.INCOMPATIBLE_VERSION_HINT;
             }
             return message;
+        }
+    }
+
+    private Set<EclipseProject> getModel() {
+        Set<File> processedBuilds = Sets.newCopyOnWriteArraySet();
+        final Set<EclipseProject> eclipseProjects = Sets.newHashSet();
+        for (DefaultCompositeParticipant participant : this.participants.keySet()) {
+
+            ProjectConnection connection = this.participants.get(participant);
+            ModelBuilder<EclipseProject> builder = connection.model(EclipseProject.class);
+            builder.setJavaHome(participant.getJavaHome());
+            builder.setJvmArguments(participant.getJvmArguments());
+            builder.withArguments(participant.getArguments());
+
+            EclipseProject rootProject = determineRootProject(builder.get());
+
+            // Only collect the root project once
+            File rootProjectDirectory = rootProject.getProjectDirectory();
+            if (processedBuilds.add(rootProjectDirectory)) {
+                addWithChildren(rootProject, eclipseProjects);
+            }
+        }
+
+        return Sets.newHashSet(eclipseProjects);
+    }
+
+    private EclipseProject determineRootProject(EclipseProject eclipseProject) {
+        if (eclipseProject.getParent() == null) {
+            return eclipseProject;
+        }
+        return determineRootProject(eclipseProject.getParent());
+    }
+
+    private void addWithChildren(EclipseProject project, Set<EclipseProject> collectedProjects) {
+        collectedProjects.add(project);
+
+        for (EclipseProject childProject : project.getChildren()) {
+            addWithChildren(childProject, collectedProjects);
         }
     }
 }

@@ -121,7 +121,10 @@ public final class FixedRequestAttributes {
 
     public void apply(CompositeRequest<?> request) {
         GradleBuildIdentifier participant = new GradleBuildIdentifier(this.projectDir, this.gradleDistribution);
-        request.addParticipants(participant);
+        CompositeRequest<?> compositeRequest = request.addParticipants(participant);
+        compositeRequest.javaHome(participant, this.javaHome);
+        compositeRequest.arguments(participant, this.arguments.toArray(new String[this.arguments.size()]));
+        compositeRequest.jvmArguments(participant, this.jvmArguments.toArray(new String[this.jvmArguments.size()]));
     }
 
     @Override

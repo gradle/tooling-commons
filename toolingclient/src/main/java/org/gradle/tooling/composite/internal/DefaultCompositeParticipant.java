@@ -16,6 +16,8 @@
 
 package org.gradle.tooling.composite.internal;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableList;
 import org.gradle.tooling.composite.CompositeParticipant;
 import org.gradle.tooling.composite.internal.dist.GradleDistribution;
 import org.gradle.tooling.composite.internal.dist.InstalledGradleDistribution;
@@ -24,6 +26,7 @@ import org.gradle.tooling.composite.internal.dist.VersionBasedGradleDistribution
 
 import java.io.File;
 import java.net.URI;
+import java.util.List;
 
 /**
  * The default implementation of a composite participant.
@@ -33,6 +36,10 @@ import java.net.URI;
 public class DefaultCompositeParticipant implements CompositeParticipant {
     private final File rootProjectDirectory;
     private GradleDistribution gradleDistribution;
+    private File javaHome;
+    private List<String> arguments;
+    private List<String> jvmArguments;
+
 
     public DefaultCompositeParticipant(File rootProjectDirectory) {
         this.rootProjectDirectory = rootProjectDirectory;
@@ -63,6 +70,33 @@ public class DefaultCompositeParticipant implements CompositeParticipant {
     }
 
     @Override
+    public void useJavaHome(File javaHome) {
+        this.javaHome = javaHome;
+    }
+
+    public File getJavaHome() {
+        return this.javaHome;
+    }
+
+    @Override
+    public void useArguments(List<String> arguments) {
+        this.arguments = ImmutableList.copyOf(arguments);
+    }
+
+    List<String> getArguments() {
+        return this.arguments;
+    }
+
+    @Override
+    public void useJvmArguments(List<String> jvmArguments) {
+        this.jvmArguments = ImmutableList.copyOf(jvmArguments);
+    }
+
+    List<String> getJvmArguments() {
+        return this.jvmArguments;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -72,19 +106,20 @@ public class DefaultCompositeParticipant implements CompositeParticipant {
         }
 
         DefaultCompositeParticipant that = (DefaultCompositeParticipant) o;
-
-        if (this.rootProjectDirectory != null ? !this.rootProjectDirectory.equals(that.rootProjectDirectory) : that.rootProjectDirectory != null) {
-            return false;
-        }
-        return this.gradleDistribution != null ? this.gradleDistribution.equals(that.gradleDistribution) : that.gradleDistribution == null;
-
+        return Objects.equal(this.rootProjectDirectory, that.rootProjectDirectory) &&
+                Objects.equal(this.gradleDistribution, that.gradleDistribution) &&
+                Objects.equal(this.javaHome, that.javaHome) &&
+                Objects.equal(this.jvmArguments, that.jvmArguments) &&
+                Objects.equal(this.arguments, that.arguments);
     }
 
     @Override
     public int hashCode() {
-        int result = this.rootProjectDirectory != null ? this.rootProjectDirectory.hashCode() : 0;
-        result = 31 * result + (this.gradleDistribution != null ? this.gradleDistribution.hashCode() : 0);
-        return result;
+        return Objects.hashCode(this.rootProjectDirectory,
+                this.gradleDistribution,
+                this.javaHome,
+                this.jvmArguments,
+                this.arguments);
     }
 
     @Override

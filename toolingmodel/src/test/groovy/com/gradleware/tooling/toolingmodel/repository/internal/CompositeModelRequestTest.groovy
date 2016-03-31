@@ -20,10 +20,7 @@ import com.gradleware.tooling.toolingclient.CompositeModelRequest;
 import com.gradleware.tooling.toolingclient.GradleBuildIdentifier
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.ToolingClient
-import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace
-import com.gradleware.tooling.toolingmodel.repository.internal.CompositeModelRequestTest.FetchMode;
 
-import groovy.transform.NotYetImplemented
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicReference
 import org.gradle.tooling.GradleConnectionException
