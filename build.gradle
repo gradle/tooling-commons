@@ -175,11 +175,16 @@ task minorRelease {
   doLast {
     // update version file
     def nextVersion
-    def matcher = version =~ "^(\\d+)\\.(\\d+)(.*)"
+    def matcher = version =~ /(\d+)\.(\d+)\.?(\d+)?/
     if (matcher.find()) {
-      def nextMinorVersion = Integer.parseInt(matcher.group(2)) + 1
-      nextVersion = matcher.group(1) + "." + nextMinorVersion + matcher.group(3)
-      file('version.txt').text = "$nextVersion${System.getProperty('line.separator')}"
+      def major = matcher.group(1)
+      def minor = matcher.group(2)
+      def service = matcher.group(3)
+      if (service == null) {
+        service = '0'
+      }
+      def nextService = Integer.parseInt(service) + 1
+      file('version.txt').text = "${major}.${minor}.${nextService}${System.getProperty('line.separator')}"
     } else {
       throw new IllegalStateException("Unparseable version: $version.")
     }
