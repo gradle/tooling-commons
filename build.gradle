@@ -129,7 +129,7 @@ subprojects {
     }
   }
 
-  if (path in [':toolingmodel', ':toolingclient', 'toolingutils']) {
+  if (path in [':toolingmodel', ':toolingclient', ':toolingutils']) {
     // Add the license files to all projects consumed by Buildship
     sourceSets {
       main {
