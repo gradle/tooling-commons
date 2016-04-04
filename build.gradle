@@ -1,8 +1,14 @@
-import org.gradle.internal.os.OperatingSystem
+buildscript {
+  repositories { jcenter() }
+  dependencies { classpath 'org.apache.ivy:ivy:2.4.0' }
+}
 
+import org.apache.ivy.osgi.core.ManifestParser
+import org.apache.ivy.osgi.util.VersionRange
+import org.apache.ivy.osgi.util.Version
+import org.gradle.internal.os.OperatingSystem
 import java.text.SimpleDateFormat
 
-// include build receipt plugin and accept its license
 plugins {
   id 'com.gradle.build-receipt' version '1.0'
 }
@@ -23,7 +29,8 @@ if (!project.hasProperty('build.type') || project.property('build.type') != 'rel
 
 // calculate the bundle version, and use a more precise date qualifier when built on a CI server
 ext.bundleVersionQualifier =  calculateVersionQualifier(project, 'v', versionDate)
-ext.bundleVersion = getBundleVersion(version) + '.' +  bundleVersionQualifier
+ext.bundleBaseVersion = getBundleVersion(version)
+ext.bundleVersion = bundleBaseVersion + '.' +  bundleVersionQualifier
 
 description = "Root project of the Commons project of the Gradle Tooling Platform."
 
@@ -122,14 +129,43 @@ subprojects {
     }
   }
 
-  // Add the license files to all projects consumed by Buildship
   if (path in [':toolingmodel', ':toolingclient', 'toolingutils']) {
+    // Add the license files to all projects consumed by Buildship
     sourceSets {
       main {
         resources {
           srcDir rootProject.file('gradle/license')
         }
       }
+    }
+
+    // validate OSGi manifest
+    tasks['check'].doLast {
+      def bundleInfo = ManifestParser.parseManifest(file('META-INF/MANIFEST.MF'))
+
+      // bundle version in manifest should have ${major}.${minor}.${service}.qualifier format
+      assertEquals("OSGi manifest version does not match with ${project.name} module version", "${bundleBaseVersion}.qualifier", "${bundleInfo.version.toString()}")
+
+      // each Tooling API dependency should have the bundle-version="${toolingApiBundleVersion}" constraint
+      bundleInfo.requires.findAll { it.name.startsWith 'org.gradle.toolingapi' }.each { 
+        assertEquals ("OSGi dependency ${it.name} version does not match to module dependency version in ${project.name}",
+                      new VersionRange(false, new Version(getBundleVersion(toolingApiVersion)), false, null), it.version)
+      }
+
+      // for each internal module dependency the version constraint should include the current version and should have an exclusive upper bound for the next minor release
+      // for example, if the the current version is 1.2.3, then the version constraint should be [1.2.3, 1.3.0).
+      def matcher = bundleBaseVersion =~ /(\d+)\.(\d+)\.\d+/
+      if (!matcher.matches()) { throw new RuntimeException("Invalid version format: ${bundleBaseVersion}") }
+      def moduleDependecyVersionRange = new VersionRange(false, new Version(bundleBaseVersion), true, new Version("${matcher.group(1)}.${Integer.parseInt(matcher.group(2)) + 1}.0".toString()))
+      bundleInfo.requires.findAll { it.name.startsWith 'com.gradleware.tooling.' }.each {
+        assertEquals ("OSGi dependency ${it.name} has incorrect version constraint in ${project.name}",
+                      moduleDependecyVersionRange, it.version)
+      }
+
+      // for each exported package the current version should be added as a constraint
+      bundleInfo.capabilities.each { 
+        assertEquals ("OSGi exported package ${it.name} version constraint does not match with module version in ${project.name}",
+                      new Version(bundleBaseVersion), it.version) }
     }
   }
 
@@ -223,5 +259,11 @@ def getBundleVersion(String version) {
     return "$major.$minor.$service"
   } else {
     throw new IllegalArgumentException("Invalid bundle version: $version")
+  }
+}
+
+def assertEquals(String message, Object expected, Object actual) {
+  if (expected != actual) {
+    throw new RuntimeException("${message}. Expected: ${expected}, actual: ${actual}.")
   }
 }
