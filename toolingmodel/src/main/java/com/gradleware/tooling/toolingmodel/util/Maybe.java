@@ -16,6 +16,7 @@
 
 package com.gradleware.tooling.toolingmodel.util;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 
 /**
@@ -100,6 +101,29 @@ public final class Maybe<T> {
     @SuppressWarnings("unchecked")
     private static <T> Maybe<T> typeSafeAbsent() {
         return (Maybe<T>) ABSENT;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Maybe) {
+            Maybe<?> other = (Maybe<?>) obj;
+            return Objects.equal(this.optional, other.optional);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.optional);
+    }
+
+    @Override
+    public String toString() {
+        if (this.optional.isPresent()) {
+            return "Maybe.of(" + this.optional.get() + ")";
+        } else {
+            return "Maybe.absent()";
+        }
     }
 
 }

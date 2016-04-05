@@ -56,4 +56,17 @@ class MaybeTest extends Specification {
     }
   }
 
+  def "has a nice toString representation"() {
+      expect:
+      Maybe.of("Foo").toString() == "Maybe.of(Foo)"
+      Maybe.absent().toString() == "Maybe.absent()"
+  }
+
+  def "equality is based on the content" () {
+      expect:
+      Maybe.of("Foo") == Maybe.of("Foo")
+      Maybe.of(null) != Maybe.of("Foo")
+      Maybe.of("Foo") != Maybe.absent()
+      Maybe.absent() == Maybe.absent()
+  }
 }
