@@ -26,6 +26,8 @@ import com.gradleware.tooling.toolingmodel.OmniBuildInvocations
 import com.gradleware.tooling.toolingmodel.OmniProjectTask
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector
 import com.gradleware.tooling.toolingmodel.Path
+import com.gradleware.tooling.toolingmodel.util.Maybe;
+
 import org.gradle.tooling.model.GradleProject
 import org.junit.Rule
 
@@ -102,51 +104,51 @@ class DefaultOmniBuildInvocationsContainerBuilderTest extends ToolingModelToolin
 
         OmniBuildInvocations invocationsAtRoot = buildInvocations.get(Path.from(':')).get()
         collectNamesOfNonImplicitTaskSelectors(invocationsAtRoot.taskSelectors) == ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta'] as Set
-        assertTaskSelector('alpha', 'ALPHA', true, [':alpha', ':sub2:subSub:alpha'], invocationsAtRoot.taskSelectors)
-        assertTaskSelector('beta', null, true, [':beta', ':sub1:beta', ':sub2:beta'], invocationsAtRoot.taskSelectors)
-        assertTaskSelector('gamma', null, false, [':sub1:gamma'], invocationsAtRoot.taskSelectors)
-        assertTaskSelector('delta', 'DELTA', false, [':sub2:delta', ':sub2:subSub:delta'], invocationsAtRoot.taskSelectors)
-        assertTaskSelector('epsilon', null, true, [':sub1:epsilon', ':sub2:epsilon'], invocationsAtRoot.taskSelectors)
-        assertTaskSelector('zeta', null, false, [':sub2:subSub:zeta'], invocationsAtRoot.taskSelectors)
+        assertTaskSelector('alpha', 'ALPHA', true, Maybe.of("build"), [':alpha', ':sub2:subSub:alpha'], invocationsAtRoot.taskSelectors)
+        assertTaskSelector('beta', null, true, Maybe.of(null), [':beta', ':sub1:beta', ':sub2:beta'], invocationsAtRoot.taskSelectors)
+        assertTaskSelector('gamma', null, false, Maybe.of(null), [':sub1:gamma'], invocationsAtRoot.taskSelectors)
+        assertTaskSelector('delta', 'DELTA', false, Maybe.of(null), [':sub2:delta', ':sub2:subSub:delta'], invocationsAtRoot.taskSelectors)
+        assertTaskSelector('epsilon', null, true, Maybe.of(null), [':sub1:epsilon', ':sub2:epsilon'], invocationsAtRoot.taskSelectors)
+        assertTaskSelector('zeta', null, false, Maybe.of(null), [':sub2:subSub:zeta'], invocationsAtRoot.taskSelectors)
 
         collectNamesOfNonImplicitProjectTasks(invocationsAtRoot.projectTasks) == ['alpha', 'beta'] as Set
-        assertTask('alpha', 'ALPHA', true, ':alpha', invocationsAtRoot.projectTasks)
-        assertTask('beta', null, false, ':beta', invocationsAtRoot.projectTasks)
+        assertTask('alpha', 'ALPHA', true, ':alpha', Maybe.of("build"), invocationsAtRoot.projectTasks)
+        assertTask('beta', null, false, ':beta', Maybe.of(null), invocationsAtRoot.projectTasks)
 
         OmniBuildInvocations invocationsAtSub1 = buildInvocations.get(Path.from(':sub1')).get()
         collectNamesOfNonImplicitTaskSelectors(invocationsAtSub1.taskSelectors) == ['beta', 'gamma', 'epsilon'] as Set
-        assertTaskSelector('beta', 'BETA', true, [':sub1:beta'], invocationsAtSub1.taskSelectors)
-        assertTaskSelector('gamma', null, false, [':sub1:gamma'], invocationsAtSub1.taskSelectors)
-        assertTaskSelector('epsilon', null, false, [':sub1:epsilon'], invocationsAtSub1.taskSelectors)
+        assertTaskSelector('beta', 'BETA', true, Maybe.of("build"), [':sub1:beta'], invocationsAtSub1.taskSelectors)
+        assertTaskSelector('gamma', null, false, Maybe.of(null), [':sub1:gamma'], invocationsAtSub1.taskSelectors)
+        assertTaskSelector('epsilon', null, false, Maybe.of(null), [':sub1:epsilon'], invocationsAtSub1.taskSelectors)
 
         collectNamesOfNonImplicitProjectTasks(invocationsAtSub1.projectTasks) == ['beta', 'gamma', 'epsilon'] as Set
-        assertTask('beta', 'BETA', true, ':sub1:beta', invocationsAtSub1.projectTasks)
-        assertTask('gamma', null, false, ':sub1:gamma', invocationsAtSub1.projectTasks)
-        assertTask('epsilon', null, false, ':sub1:epsilon', invocationsAtSub1.projectTasks)
+        assertTask('beta', 'BETA', true, ':sub1:beta', Maybe.of("build"), invocationsAtSub1.projectTasks)
+        assertTask('gamma', null, false, ':sub1:gamma', Maybe.of(null), invocationsAtSub1.projectTasks)
+        assertTask('epsilon', null, false, ':sub1:epsilon', Maybe.of(null), invocationsAtSub1.projectTasks)
 
         OmniBuildInvocations invocationsAtSub2 = buildInvocations.get(Path.from(':sub2')).get()
         collectNamesOfNonImplicitTaskSelectors(invocationsAtSub2.taskSelectors) == ['alpha', 'beta', 'delta', 'epsilon', 'zeta'] as Set
-        assertTaskSelector('alpha', 'ALPHA_SUB2', false, [':sub2:subSub:alpha'], invocationsAtSub2.taskSelectors)
-        assertTaskSelector('beta', null, false, [':sub2:beta'], invocationsAtSub2.taskSelectors)
-        assertTaskSelector('delta', 'DELTA', false, [':sub2:delta', ':sub2:subSub:delta'], invocationsAtSub2.taskSelectors)
-        assertTaskSelector('epsilon', null, true, [':sub2:epsilon'], invocationsAtSub2.taskSelectors)
-        assertTaskSelector('zeta', null, false, [':sub2:subSub:zeta'], invocationsAtSub2.taskSelectors)
+        assertTaskSelector('alpha', 'ALPHA_SUB2', false, Maybe.of(null), [':sub2:subSub:alpha'], invocationsAtSub2.taskSelectors)
+        assertTaskSelector('beta', null, false, Maybe.of(null), [':sub2:beta'], invocationsAtSub2.taskSelectors)
+        assertTaskSelector('delta', 'DELTA', false, Maybe.of(null), [':sub2:delta', ':sub2:subSub:delta'], invocationsAtSub2.taskSelectors)
+        assertTaskSelector('epsilon', null, true, Maybe.of("build"), [':sub2:epsilon'], invocationsAtSub2.taskSelectors)
+        assertTaskSelector('zeta', null, false, Maybe.of(null), [':sub2:subSub:zeta'], invocationsAtSub2.taskSelectors)
 
         collectNamesOfNonImplicitProjectTasks(invocationsAtSub2.projectTasks) == ['beta', 'delta', 'epsilon'] as Set
-        assertTask('beta', null, false, ':sub2:beta', invocationsAtSub2.projectTasks)
-        assertTask('delta', 'DELTA', false, ':sub2:delta', invocationsAtSub2.projectTasks)
-        assertTask('epsilon', null, true, ':sub2:epsilon', invocationsAtSub2.projectTasks)
+        assertTask('beta', null, false, ':sub2:beta', Maybe.of(null), invocationsAtSub2.projectTasks)
+        assertTask('delta', 'DELTA', false, ':sub2:delta', Maybe.of(null), invocationsAtSub2.projectTasks)
+        assertTask('epsilon', null, true, ':sub2:epsilon', Maybe.of("build"), invocationsAtSub2.projectTasks)
 
         OmniBuildInvocations invocationsAtSubSub = buildInvocations.get(Path.from(':sub2:subSub')).get()
         collectNamesOfNonImplicitTaskSelectors(invocationsAtSubSub.taskSelectors) == ['alpha', 'delta', 'zeta'] as Set
-        assertTaskSelector('alpha', 'ALPHA_SUB2', false, [':sub2:subSub:alpha'], invocationsAtSubSub.taskSelectors)
-        assertTaskSelector('delta', 'DELTA_SUB2', false, [':sub2:subSub:delta'], invocationsAtSubSub.taskSelectors)
-        assertTaskSelector('zeta', null, false, [':sub2:subSub:zeta'], invocationsAtSubSub.taskSelectors)
+        assertTaskSelector('alpha', 'ALPHA_SUB2', false, Maybe.of(null), [':sub2:subSub:alpha'], invocationsAtSubSub.taskSelectors)
+        assertTaskSelector('delta', 'DELTA_SUB2', false, Maybe.of(null), [':sub2:subSub:delta'], invocationsAtSubSub.taskSelectors)
+        assertTaskSelector('zeta', null, false, Maybe.of(null), [':sub2:subSub:zeta'], invocationsAtSubSub.taskSelectors)
 
         collectNamesOfNonImplicitProjectTasks(invocationsAtSubSub.projectTasks) == ['alpha', 'delta', 'zeta'] as Set
-        assertTask('alpha', 'ALPHA_SUB2', false, ':sub2:subSub:alpha', invocationsAtSubSub.projectTasks)
-        assertTask('delta', 'DELTA_SUB2', false, ':sub2:subSub:delta', invocationsAtSubSub.projectTasks)
-        assertTask('zeta', null, false, ':sub2:subSub:zeta', invocationsAtSubSub.projectTasks)
+        assertTask('alpha', 'ALPHA_SUB2', false, ':sub2:subSub:alpha', Maybe.of(null), invocationsAtSubSub.projectTasks)
+        assertTask('delta', 'DELTA_SUB2', false, ':sub2:subSub:delta', Maybe.of(null), invocationsAtSubSub.projectTasks)
+        assertTask('zeta', null, false, ':sub2:subSub:zeta', Maybe.of(null), invocationsAtSubSub.projectTasks)
     }
 
     def "convertFromGradleProjectWithoutTasks"() {
@@ -176,21 +178,24 @@ class DefaultOmniBuildInvocationsContainerBuilderTest extends ToolingModelToolin
         tasks.collect { it.name }.findAll { !ImplicitTasks.ALL.contains(it) } as Set
     }
 
-    private static void assertTaskSelector(String name, String description, boolean isPublic, List<String> taskNames, List<OmniTaskSelector> selectors) {
-        def element = selectors.find { it.name == name }
+    private static void assertTaskSelector(String name, String description, boolean isPublic, Maybe<String> group, List<String> taskNames, List<OmniTaskSelector> selectors) {
+        OmniTaskSelector element = selectors.find { it.name == name }
         assert element != null
         assert element.name == name
         assert element.description == description
-        assert element.isPublic() == isPublic
+        assert element.public == isPublic
+        assert element.group == group
+
         assert element.selectedTaskPaths*.path as List == taskNames
     }
 
-    private static void assertTask(String name, String description, boolean isPublic, String path, List<OmniProjectTask> tasks) {
-        def element = tasks.find { it.name == name }
+    private static void assertTask(String name, String description, boolean isPublic, String path, Maybe<String> group, List<OmniProjectTask> tasks) {
+        OmniProjectTask element = tasks.find { it.name == name }
         assert element != null
         assert element.name == name
         assert element.description == description
         assert element.isPublic() == isPublic
+        assert element.group == group
         assert element.path.path == path
     }
 
