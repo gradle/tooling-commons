@@ -133,6 +133,7 @@ public final class DefaultOmniBuildInvocationsContainerBuilder {
                     taskWithShortesPath.getDescription(),
                     Path.from(project.getPath()),
                     isPublic,
+                    taskWithShortesPath.getGroup(),
                     selectedPaths);
 
             taskSelectors.put(Path.from(project.getPath()), taskSelector);

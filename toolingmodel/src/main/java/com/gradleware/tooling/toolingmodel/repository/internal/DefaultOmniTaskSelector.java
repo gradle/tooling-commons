@@ -16,12 +16,15 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import com.google.common.collect.ImmutableSortedSet;
-import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
-import com.gradleware.tooling.toolingmodel.Path;
+import java.util.SortedSet;
+
 import org.gradle.tooling.model.TaskSelector;
 
-import java.util.SortedSet;
+import com.google.common.collect.ImmutableSortedSet;
+
+import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
+import com.gradleware.tooling.toolingmodel.Path;
+import com.gradleware.tooling.toolingmodel.util.Maybe;
 
 /**
  * Default implementation of the {@link OmniTaskSelector} interface.
@@ -34,6 +37,7 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
     private String description;
     private Path projectPath;
     private boolean isPublic;
+    private Maybe<String> group;
     private ImmutableSortedSet<Path> selectedTaskPaths;
 
     @Override
@@ -73,6 +77,15 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
     }
 
     @Override
+    public Maybe<String> getGroup() {
+        return this.group;
+    }
+
+    public void setGroup(Maybe<String> group) {
+        this.group = group;
+    }
+
+    @Override
     public ImmutableSortedSet<Path> getSelectedTaskPaths() {
         return this.selectedTaskPaths;
     }
@@ -86,17 +99,19 @@ public final class DefaultOmniTaskSelector implements OmniTaskSelector {
         taskSelector.setName(selector.getName());
         taskSelector.setDescription(selector.getDescription());
         taskSelector.setProjectPath(projectPath);
+        taskSelector.setGroup(Maybe.<String>absent());
         setIsPublic(taskSelector, selector);
         taskSelector.setSelectedTaskPaths(ImmutableSortedSet.<Path>of());
         return taskSelector;
     }
 
-    public static DefaultOmniTaskSelector from(String name, String description, Path projectPath, boolean isPublic, SortedSet<Path> selectedTaskPaths) {
+    public static DefaultOmniTaskSelector from(String name, String description, Path projectPath, boolean isPublic, Maybe<String> group, SortedSet<Path> selectedTaskPaths) {
         DefaultOmniTaskSelector taskSelector = new DefaultOmniTaskSelector();
         taskSelector.setName(name);
         taskSelector.setDescription(description);
         taskSelector.setProjectPath(projectPath);
         taskSelector.setPublic(isPublic);
+        taskSelector.setGroup(group);
         taskSelector.setSelectedTaskPaths(selectedTaskPaths);
         return taskSelector;
     }

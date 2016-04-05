@@ -16,10 +16,12 @@
 
 package com.gradleware.tooling.toolingmodel;
 
-import com.gradleware.tooling.toolingutils.ImmutableCollection;
+import java.util.SortedSet;
+
 import org.gradle.api.Nullable;
 
-import java.util.SortedSet;
+import com.gradleware.tooling.toolingmodel.util.Maybe;
+import com.gradleware.tooling.toolingutils.ImmutableCollection;
 
 /**
  * Represents a task selector which is executable by Gradle. A task selector requests to execute all project tasks with a given name in the context of some project and all its
@@ -57,6 +59,13 @@ public interface OmniTaskSelector {
      * @return {@code true} if this task selector is public, {@code false} otherwise
      */
     boolean isPublic();
+
+    /**
+     * Returns the group that the tasks selected by this selector belong to.
+     *
+     * @return the group or {@link Maybe#absent()} if grouping is not supported by the supplying Gradle version.
+     */
+    Maybe<String> getGroup();
 
     /**
      * Returns the tasks selected by this task selector, identified by their unique path.
