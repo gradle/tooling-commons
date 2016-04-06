@@ -23,20 +23,20 @@ import com.google.common.base.Preconditions;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 
 /**
- * Base class for all {@link InspectableSimpleRequest}s.
+ * Base class for all {@link InspectableSingleBuildRequest}s.
  *
  * @param <T> the result type
  * @param <SELF> self reference
  *
  * @author Stefan Oehme
  */
-abstract class BaseSimpleRequest<T, SELF extends BaseSimpleRequest<T, SELF>> extends BaseRequest<T, SELF> implements InspectableSimpleRequest<T> {
+abstract class BaseSingleBuildRequest<T, SELF extends BaseSingleBuildRequest<T, SELF>> extends BaseRequest<T, SELF> implements InspectableSingleBuildRequest<T> {
 
     private File projectDir;
     private File gradleUserHomeDir;
     private GradleDistribution gradleDistribution;
 
-    BaseSimpleRequest(ExecutableToolingClient toolingClient) {
+    BaseSingleBuildRequest(ExecutableToolingClient toolingClient) {
         super(toolingClient);
         this.gradleDistribution = GradleDistribution.fromBuild();
     }
@@ -77,9 +77,9 @@ abstract class BaseSimpleRequest<T, SELF extends BaseSimpleRequest<T, SELF>> ext
     @Override
     <S, S_SELF extends BaseRequest<S, S_SELF>> S_SELF copy(BaseRequest<S, S_SELF> request) {
         S_SELF copy = super.copy(request);
-        if (copy instanceof BaseSimpleRequest) {
+        if (copy instanceof BaseSingleBuildRequest) {
             @SuppressWarnings("rawtypes")
-            BaseSimpleRequest simpleRequest = (BaseSimpleRequest) request;
+            BaseSingleBuildRequest simpleRequest = (BaseSingleBuildRequest) request;
             simpleRequest.projectDir(getProjectDir())
                 .gradleUserHomeDir(getGradleUserHomeDir())
                 .gradleDistribution(getGradleDistribution());

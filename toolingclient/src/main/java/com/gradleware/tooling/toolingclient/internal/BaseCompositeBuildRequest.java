@@ -21,7 +21,7 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
 
-import com.gradleware.tooling.toolingclient.CompositeRequest;
+import com.gradleware.tooling.toolingclient.CompositeBuildRequest;
 import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
 
 /**
@@ -31,23 +31,23 @@ import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
  * @param <SELF> self reference
  * @author Stefan Oehme
  */
-abstract class BaseCompositeRequest<T, SELF extends BaseCompositeRequest<T, SELF>> extends BaseRequest<Set<T>, SELF>implements InspectableCompositeRequest<T> {
+abstract class BaseCompositeBuildRequest<T, SELF extends BaseCompositeBuildRequest<T, SELF>> extends BaseRequest<Set<T>, SELF>implements InspectableCompositeBuildRequest<T> {
 
     private ImmutableList<GradleBuildIdentifier> participants;
 
-    BaseCompositeRequest(ExecutableToolingClient toolingClient) {
+    BaseCompositeBuildRequest(ExecutableToolingClient toolingClient) {
         super(toolingClient);
         this.participants = ImmutableList.of();
     }
 
     @Override
-    public CompositeRequest<T> participants(GradleBuildIdentifier... participants) {
+    public CompositeBuildRequest<T> participants(GradleBuildIdentifier... participants) {
         this.participants = ImmutableList.copyOf(participants);
         return getThis();
     }
 
     @Override
-    public CompositeRequest<T> addParticipants(GradleBuildIdentifier... participants) {
+    public CompositeBuildRequest<T> addParticipants(GradleBuildIdentifier... participants) {
         this.participants = ImmutableList.<GradleBuildIdentifier> builder().addAll(this.participants).addAll(Arrays.asList(participants)).build();
         return getThis();
     }
@@ -60,9 +60,9 @@ abstract class BaseCompositeRequest<T, SELF extends BaseCompositeRequest<T, SELF
     @Override
     <S, S_SELF extends BaseRequest<S, S_SELF>> S_SELF copy(BaseRequest<S, S_SELF> request) {
         S_SELF copy = super.copy(request);
-        if (copy instanceof BaseSimpleRequest) {
+        if (copy instanceof BaseSingleBuildRequest) {
             @SuppressWarnings("rawtypes")
-            BaseCompositeRequest compositeRequest = (BaseCompositeRequest) request;
+            BaseCompositeBuildRequest compositeRequest = (BaseCompositeBuildRequest) request;
             compositeRequest.participants(getParticipants());
         }
         return copy;

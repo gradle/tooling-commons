@@ -18,7 +18,7 @@ package com.gradleware.tooling.toolingclient.internal;
 
 import java.util.Set;
 
-import com.gradleware.tooling.toolingclient.CompositeRequest;
+import com.gradleware.tooling.toolingclient.CompositeBuildRequest;
 import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
 
 /**
@@ -27,7 +27,7 @@ import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
  * @param <T> result type
  * @author Stefan Oehme
  */
-interface InspectableCompositeRequest<T> extends InspectableRequest<Set<T>>, CompositeRequest<T> {
+interface InspectableCompositeBuildRequest<T> extends InspectableRequest<Set<T>>, CompositeBuildRequest<T> {
 
     GradleBuildIdentifier[] getParticipants();
 

@@ -88,6 +88,8 @@ public final class GradleDistribution {
             participant.useDistribution(this.remoteDistributionUri);
         } else if (this.version != null) {
             participant.useGradleVersion(this.version);
+        } else {
+            participant.useBuildDistribution();
         }
     }
 

@@ -23,7 +23,7 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
  *
  * @author Stefan Oehme
  */
-public interface CompositeModelRepository {
+public interface CompositeBuildModelRepository extends ModelRepository {
 
     /**
      * Fetches the {@link OmniEclipseWorkspace} synchronously and broadcasts it through a {@link EclipseWorkspaceUpdateEvent}.

@@ -16,13 +16,14 @@
 
 package com.gradleware.tooling.toolingclient.internal.deduplication;
 
+import java.io.File;
+
 import org.gradle.tooling.model.eclipse.EclipseProject;
-import org.gradle.tooling.model.eclipse.HierarchicalEclipseProject;
 
 /**
  * Keeps track of {@link EclipseProject}s to present a consistent hierarchy.
  *
- * De-duplication and dependency substitution require wrapping the original {@link EclipseProject}
+ * De-duplication requires wrapping the original {@link EclipseProject}
  * tree. The new tree must not point back to the unwrapped projects when calling methods like
  * {@link EclipseProject#getParent()}. This lookup is passed to the wrapper objects to keep track of
  * other wrapped instances.
@@ -31,5 +32,5 @@ import org.gradle.tooling.model.eclipse.HierarchicalEclipseProject;
  */
 public interface RedirectedProjectLookup {
 
-    EclipseProject getRedirectedProject(HierarchicalEclipseProject original);
+    EclipseProject getRedirectedProject(File projectDirectory);
 }

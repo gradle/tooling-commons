@@ -26,10 +26,10 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
-import com.gradleware.tooling.toolingclient.CompositeRequest;
+import com.gradleware.tooling.toolingclient.CompositeBuildRequest;
 import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingclient.SimpleRequest;
+import com.gradleware.tooling.toolingclient.SingleBuildRequest;
 import com.gradleware.tooling.toolingutils.ImmutableCollection;
 
 /**
@@ -110,7 +110,7 @@ public final class FixedRequestAttributes {
         return this.arguments;
     }
 
-    public void apply(SimpleRequest<?> request) {
+    public void apply(SingleBuildRequest<?> request) {
         request.projectDir(this.projectDir);
         request.gradleUserHomeDir(this.gradleUserHome);
         request.gradleDistribution(this.gradleDistribution);
@@ -119,7 +119,7 @@ public final class FixedRequestAttributes {
         request.arguments(this.arguments.toArray(new String[this.arguments.size()]));
     }
 
-    public void apply(CompositeRequest<?> request) {
+    public void apply(CompositeBuildRequest<?> request) {
         GradleBuildIdentifier participant = new GradleBuildIdentifier(this.projectDir, this.gradleDistribution);
         request.addParticipants(participant);
     }

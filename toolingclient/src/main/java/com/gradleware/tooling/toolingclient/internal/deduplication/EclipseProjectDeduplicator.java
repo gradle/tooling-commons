@@ -16,6 +16,7 @@
 
 package com.gradleware.tooling.toolingclient.internal.deduplication;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -24,7 +25,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.gradle.tooling.model.eclipse.EclipseProject;
-import org.gradle.tooling.model.eclipse.HierarchicalEclipseProject;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -78,25 +78,26 @@ class EclipseProjectDeduplicator {
      */
     private static class RenamedEclipseProjectTracker implements RedirectedProjectLookup {
 
-        private final Map<HierarchicalEclipseProject, EclipseProject> originalToRenamed;
+        private final Map<File, EclipseProject> originalToRenamed;
 
         public RenamedEclipseProjectTracker(Set<EclipseProject> originals) {
             this.originalToRenamed = Maps.newHashMap();
             for (EclipseProject eclipseProject : originals) {
-                this.originalToRenamed.put(eclipseProject, new RedirectionAwareEclipseProject(eclipseProject, this));
+                this.originalToRenamed.put(eclipseProject.getProjectDirectory(), new RedirectionAwareEclipseProject(eclipseProject, this));
             }
         }
 
         @Override
-        public EclipseProject getRedirectedProject(HierarchicalEclipseProject original) {
-            return this.originalToRenamed.get(original);
+        public EclipseProject getRedirectedProject(File projectDirectory) {
+            return this.originalToRenamed.get(projectDirectory);
         }
 
         public void renameTo(EclipseProject original, String newName) {
-            if (!this.originalToRenamed.containsKey(original)) {
+            File projectDirectory = original.getProjectDirectory();
+            if (!this.originalToRenamed.containsKey(projectDirectory)) {
                 throw new IllegalArgumentException("Project " + original.getName() + " was not one of the projects to be renamed.");
             } else {
-                this.originalToRenamed.put(original, new RenamedEclipseProject(original, newName, this));
+                this.originalToRenamed.put(projectDirectory, new RenamedEclipseProject(original, newName, this));
             }
         }
 

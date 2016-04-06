@@ -33,7 +33,7 @@ import java.io.OutputStream;
  * @param <T> the type of result produced by the build action
  * @author Etienne Studer
  */
-public interface BuildActionRequest<T> extends SimpleRequest<T> {
+public interface BuildActionRequest<T> extends SingleBuildRequest<T> {
 
     /**
      * {@inheritDoc}

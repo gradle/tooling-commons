@@ -24,7 +24,7 @@ import com.gradleware.tooling.toolingclient.ModelRequest;
  * @param <T> the result type
  * @author Etienne Studer
  */
-interface InspectableModelRequest<T> extends InspectableSimpleRequest<T>, ModelRequest<T> {
+interface InspectableModelRequest<T> extends InspectableSingleBuildRequest<T>, ModelRequest<T> {
 
     /**
      * @return never null, DefaultToolingClient requires a model type to execute the request

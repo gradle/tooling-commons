@@ -32,7 +32,7 @@ public interface ModelRepositoryProvider {
      * @param fixedRequestAttributes the request attributes for which to get the model repository
      * @return the model repository
      */
-    SimpleModelRepository getModelRepository(FixedRequestAttributes fixedRequestAttributes);
+    SingleBuildModelRepository getModelRepository(FixedRequestAttributes fixedRequestAttributes);
 
     /**
      * Returns the {@code CompositeModelReqpository} for the given set
@@ -42,6 +42,6 @@ public interface ModelRepositoryProvider {
      * @param fixedRequestAttributes the list of request attributes for which to get the composite model repository
      * @return the composite model repository
      */
-    CompositeModelRepository getCompositeModelRepository(Set<FixedRequestAttributes> fixedRequestAttributes);
+    CompositeBuildModelRepository getCompositeModelRepository(Set<FixedRequestAttributes> fixedRequestAttributes);
 
 }

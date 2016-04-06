@@ -42,14 +42,18 @@ public class RedirectionAwareEclipseProject extends DelegatingEclipseProject {
         Set<? extends EclipseProject> children = super.getChildren();
         Set<EclipseProject> rendirectedChildren = Sets.newHashSet();
         for (EclipseProject child : children) {
-            rendirectedChildren.add(this.redirectedProjectLookup.getRedirectedProject(child));
+            rendirectedChildren.add(this.redirectedProjectLookup.getRedirectedProject(child.getProjectDirectory()));
         }
         return ImmutableDomainObjectSet.of(rendirectedChildren);
     }
 
     @Override
     public EclipseProject getParent() {
-        return this.redirectedProjectLookup.getRedirectedProject(super.getParent());
+        EclipseProject parent = super.getParent();
+        if (parent == null) {
+            return null;
+        }
+        return this.redirectedProjectLookup.getRedirectedProject(parent.getProjectDirectory());
     }
 
     @Override

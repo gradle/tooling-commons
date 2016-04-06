@@ -48,8 +48,8 @@ import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingclient.BuildActionRequest;
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-import com.gradleware.tooling.toolingclient.CompositeModelRequest;
-import com.gradleware.tooling.toolingclient.CompositeRequest;
+import com.gradleware.tooling.toolingclient.CompositeBuildModelRequest;
+import com.gradleware.tooling.toolingclient.CompositeBuildRequest;
 import com.gradleware.tooling.toolingclient.Consumer;
 import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
@@ -115,9 +115,9 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     }
 
     @Override
-    public <T> CompositeModelRequest<T> newCompositeModelRequest(Class<T> modelType) {
+    public <T> CompositeBuildModelRequest<T> newCompositeModelRequest(Class<T> modelType) {
         Preconditions.checkNotNull(modelType);
-        return new DefaultCompositeModelRequest<T>(this, modelType);
+        return new DefaultCompositeBuildModelRequest<T>(this, modelType);
     }
 
     @Override
@@ -179,14 +179,14 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     }
 
     @Override
-    public <T> LongRunningOperationPromise<Set<T>> execute(InspectableCompositeModelRequest<T> modelRequest) {
+    public <T> LongRunningOperationPromise<Set<T>> execute(InspectableCompositeBuildModelRequest<T> modelRequest) {
         GradleConnection connection = getCompositeConnection(modelRequest);
         ModelBuilder<ModelResults<T>> modelBuilder = mapToModelBuilder(modelRequest, connection);
         return unwrapModelResults(LongRunningOperationPromise.forModelBuilder(modelBuilder));
     }
 
     @Override
-    public <T> Set<T> executeAndWait(InspectableCompositeModelRequest<T> modelRequest) {
+    public <T> Set<T> executeAndWait(InspectableCompositeBuildModelRequest<T> modelRequest) {
         GradleConnection connection = getCompositeConnection(modelRequest);
         ModelBuilder<ModelResults<T>> modelBuilder = mapToModelBuilder(modelRequest, connection);
         ModelResults<T> modelResults = modelBuilder.get();
@@ -224,15 +224,15 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         return results;
     }
 
-    private ProjectConnection getProjectConnection(InspectableSimpleRequest<?> request) {
+    private ProjectConnection getProjectConnection(InspectableSingleBuildRequest<?> request) {
         return getOrCreateProjectConnection(request);
     }
 
-    private GradleConnection getCompositeConnection(InspectableCompositeRequest<?> request) {
+    private GradleConnection getCompositeConnection(InspectableCompositeBuildRequest<?> request) {
         return getOrCreateCompositeConnection(request);
     }
 
-    private ProjectConnection getOrCreateProjectConnection(InspectableSimpleRequest<?> simpleRequest) {
+    private ProjectConnection getOrCreateProjectConnection(InspectableSingleBuildRequest<?> simpleRequest) {
         Preconditions.checkNotNull(simpleRequest);
         ProjectConnection connection;
         int connectionKey = calculateConnectionKey(simpleRequest);
@@ -251,7 +251,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     }
 
 
-    private GradleConnection getOrCreateCompositeConnection(InspectableCompositeRequest<?> compositeRequest) {
+    private GradleConnection getOrCreateCompositeConnection(InspectableCompositeBuildRequest<?> compositeRequest) {
         Preconditions.checkNotNull(compositeRequest);
         GradleConnection connection;
         int connectionKey = calculateCompositeConnectionKey(compositeRequest);
@@ -269,14 +269,14 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         return connection;
     }
 
-    private int calculateConnectionKey(InspectableSimpleRequest<?> modelRequest) {
+    private int calculateConnectionKey(InspectableSingleBuildRequest<?> modelRequest) {
         return Objects.hashCode(
                 modelRequest.getProjectDir(),
                 modelRequest.getGradleUserHomeDir(),
                 modelRequest.getGradleDistribution());
     }
 
-    private int calculateCompositeConnectionKey(InspectableCompositeRequest<?> compositeRequest) {
+    private int calculateCompositeConnectionKey(InspectableCompositeBuildRequest<?> compositeRequest) {
         List<Object> connectionProperties = Lists.newArrayList();
         for (GradleBuildIdentifier identifier : compositeRequest.getParticipants()) {
             connectionProperties.add(identifier.getProjectDir());
@@ -285,7 +285,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         return connectionProperties.hashCode();
     }
 
-    private ProjectConnection openConnection(InspectableSimpleRequest<?> modelRequest) {
+    private ProjectConnection openConnection(InspectableSingleBuildRequest<?> modelRequest) {
         GradleConnector connector = this.connectorFactory.create();
         connector.forProjectDirectory(modelRequest.getProjectDir());
         connector.useGradleUserHomeDir(modelRequest.getGradleUserHomeDir());
@@ -293,7 +293,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         return connector.connect();
     }
 
-    private GradleConnection openCompositeConnection(InspectableCompositeRequest<?> compositeRequest) {
+    private GradleConnection openCompositeConnection(InspectableCompositeBuildRequest<?> compositeRequest) {
         if (compositeRequest.getParticipants().length == 0) {
             throw new IllegalArgumentException("There must be at least one participant in a composite build");
         }
@@ -312,7 +312,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         return mapToLongRunningOperation(modelRequest, modelBuilder);
     }
 
-    private <T> ModelBuilder<ModelResults<T>> mapToModelBuilder(InspectableCompositeModelRequest<T> modelRequest, GradleConnection connection) {
+    private <T> ModelBuilder<ModelResults<T>> mapToModelBuilder(InspectableCompositeBuildModelRequest<T> modelRequest, GradleConnection connection) {
         ModelBuilder<ModelResults<T>> modelBuilder = connection.models(modelRequest.getModelType());
         return mapToLongRunningOperation(modelRequest, modelBuilder);
     }
@@ -344,7 +344,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
             withArguments(request.getArguments()).
             withCancellationToken(request.getCancellationToken());
 
-        if (!(request instanceof CompositeRequest)) {
+        if (!(request instanceof CompositeBuildRequest)) {
             operation.setStandardInput(request.getStandardInput());
         }
         for (ProgressListener progressListener : request.getProgressListeners()) {

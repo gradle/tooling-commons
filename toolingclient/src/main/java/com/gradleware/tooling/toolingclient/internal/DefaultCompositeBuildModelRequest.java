@@ -23,16 +23,16 @@ import com.google.common.base.Preconditions;
 import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
 
 /**
- * Default implementation for {@link com.gradleware.tooling.toolingclient.CompositeModelRequest}.
+ * Default implementation for {@link com.gradleware.tooling.toolingclient.CompositeBuildModelRequest}.
  *
  * @author Stefan Oehme
  * @param <T> the result type
  */
-final class DefaultCompositeModelRequest<T> extends BaseCompositeRequest<T, DefaultCompositeModelRequest<T>> implements InspectableCompositeModelRequest<T> {
+final class DefaultCompositeBuildModelRequest<T> extends BaseCompositeBuildRequest<T, DefaultCompositeBuildModelRequest<T>> implements InspectableCompositeBuildModelRequest<T> {
 
     private final Class<T> modelType;
 
-    DefaultCompositeModelRequest(ExecutableToolingClient toolingClient, Class<T> modelType) {
+    DefaultCompositeBuildModelRequest(ExecutableToolingClient toolingClient, Class<T> modelType) {
         super(toolingClient);
         this.modelType = Preconditions.checkNotNull(modelType);
     }
@@ -53,7 +53,7 @@ final class DefaultCompositeModelRequest<T> extends BaseCompositeRequest<T, Defa
     }
 
     @Override
-    DefaultCompositeModelRequest<T> getThis() {
+    DefaultCompositeBuildModelRequest<T> getThis() {
         return this;
     }
 

@@ -81,9 +81,8 @@ class CompositeModelRepositoryDeduplicationSpec extends ToolingModelToolingClien
         eclipseWorkspace != null
         eclipseWorkspace.openEclipseProjects*.name as Set == ['projectA', 'server', 'projectA-client', 'projectA-client-android', 'api', 'projectB', 'projectB-client', 'projectB-client-android', 'impl'] as Set
         def root = eclipseWorkspace.tryFind { p -> p.name == 'projectA' }.get()
-        def subFromRoot = root.tryFind { p -> p.name == 'projectA-client-android' }.get()
-        def subFromWorkspace = eclipseWorkspace.tryFind { p -> p.name == 'projectA-client-android' }.get()
-        subFromRoot == subFromWorkspace
+        root.tryFind { p -> p.name == 'projectA-client-android' }.get()
+        eclipseWorkspace.tryFind { p -> p.name == 'projectA-client-android' }.get()
 
         where:
         distribution << runWithAllGradleVersions(">=1.0")
@@ -110,8 +109,8 @@ class CompositeModelRepositoryDeduplicationSpec extends ToolingModelToolingClien
         def participantA = new FixedRequestAttributes(projectA.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def participantB = new FixedRequestAttributes(projectB.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def repoProvider = Stub(ModelRepositoryProvider)
-        repoProvider.getModelRepository(participantA) >> new DefaultSimpleModelRepository(participantA, toolingClient, new EventBus())
-        repoProvider.getModelRepository(participantB) >> new DefaultSimpleModelRepository(participantB, toolingClient, new EventBus())
+        repoProvider.getModelRepository(participantA) >> new DefaultSingleBuildModelRepository(participantA, toolingClient, new EventBus())
+        repoProvider.getModelRepository(participantB) >> new DefaultSingleBuildModelRepository(participantB, toolingClient, new EventBus())
         def repository = new DefaultCompositeModelRepository(repoProvider, [participantA, participantB] as Set, toolingClient, new EventBus())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
         repository.fetchEclipseWorkspace(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)

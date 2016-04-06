@@ -36,7 +36,7 @@ class RedirectionAwareEclipseProjectDependency implements EclipseProjectDependen
     @Override
     public HierarchicalEclipseProject getTargetProject() {
         HierarchicalEclipseProject target = this.delegate.getTargetProject();
-        return this.renamedProjectLookup.getRedirectedProject(target);
+        return this.renamedProjectLookup.getRedirectedProject(target.getProjectDirectory());
     }
 
     @Override

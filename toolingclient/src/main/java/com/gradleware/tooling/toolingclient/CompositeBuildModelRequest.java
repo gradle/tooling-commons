@@ -25,6 +25,6 @@ package com.gradleware.tooling.toolingclient;
  * @param <T> the type of model to fetch
  * @author Stefan Oehme
  */
-public interface CompositeModelRequest<T> extends CompositeRequest<T> {
+public interface CompositeBuildModelRequest<T> extends CompositeBuildRequest<T> {
 
 }

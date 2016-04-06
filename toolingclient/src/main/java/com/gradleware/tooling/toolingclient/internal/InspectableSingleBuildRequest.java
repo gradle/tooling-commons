@@ -19,7 +19,7 @@ package com.gradleware.tooling.toolingclient.internal;
 import java.io.File;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingclient.SimpleRequest;
+import com.gradleware.tooling.toolingclient.SingleBuildRequest;
 
 /**
  * Internal interface that allows reading the request configuration.
@@ -27,7 +27,7 @@ import com.gradleware.tooling.toolingclient.SimpleRequest;
  * @param <T> result type
  * @author Stefan Oehme
  */
-interface InspectableSimpleRequest<T> extends InspectableRequest<T>, SimpleRequest<T> {
+interface InspectableSingleBuildRequest<T> extends InspectableRequest<T>, SingleBuildRequest<T> {
 
     File getProjectDir();
 

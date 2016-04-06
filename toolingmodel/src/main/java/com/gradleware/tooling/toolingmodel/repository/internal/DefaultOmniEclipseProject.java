@@ -235,20 +235,21 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     }
 
     public static DefaultOmniEclipseProject from(EclipseProject project, boolean enforceAllTasksPublic) {
-        return from(project, enforceAllTasksPublic, Maps.<EclipseProject, DefaultOmniEclipseProject>newHashMap());
+        return from(project, enforceAllTasksPublic, Maps.<Path, DefaultOmniEclipseProject>newHashMap());
     }
 
-    public static DefaultOmniEclipseProject from(EclipseProject project, boolean enforceAllTasksPublic, Map<EclipseProject, DefaultOmniEclipseProject> knownProjects) {
-        if (knownProjects.containsKey(project)) {
-            return knownProjects.get(project);
+    private static DefaultOmniEclipseProject from(EclipseProject project, boolean enforceAllTasksPublic, Map<Path, DefaultOmniEclipseProject> knownProjects) {
+        Path path = Path.from(project.getGradleProject().getPath());
+        if (knownProjects.containsKey(path)) {
+            return knownProjects.get(path);
         }
 
         DefaultOmniEclipseProject eclipseProject = new DefaultOmniEclipseProject(OmniEclipseProjectComparator.INSTANCE);
-        knownProjects.put(project, eclipseProject);
+        knownProjects.put(path, eclipseProject);
 
         eclipseProject.setName(project.getName());
         eclipseProject.setDescription(project.getDescription());
-        eclipseProject.setPath(Path.from(project.getGradleProject().getPath()));
+        eclipseProject.setPath(path);
         eclipseProject.setProjectDirectory(project.getProjectDirectory());
         eclipseProject.setProjectDependencies(toProjectDependencies(project.getProjectDependencies()));
         eclipseProject.setExternalDependencies(toExternalDependencies(project.getClasspath()));

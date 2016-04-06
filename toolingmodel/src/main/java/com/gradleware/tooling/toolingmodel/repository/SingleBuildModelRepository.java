@@ -27,7 +27,7 @@ import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
  *
  * @author Etienne Studer
  */
-public interface SimpleModelRepository extends ModelRepository {
+public interface SingleBuildModelRepository extends ModelRepository {
 
     /**
      * Fetches the {@link OmniBuildEnvironment} synchronously and broadcasts it through a {@link BuildEnvironmentUpdateEvent}.

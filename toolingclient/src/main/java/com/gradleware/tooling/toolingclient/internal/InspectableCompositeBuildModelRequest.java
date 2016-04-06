@@ -16,15 +16,15 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
-import com.gradleware.tooling.toolingclient.CompositeModelRequest;
+import com.gradleware.tooling.toolingclient.CompositeBuildModelRequest;
 
 /**
- * Internal companion for {@link CompositeModelRequest} that allows reading the configuration values.
+ * Internal companion for {@link CompositeBuildModelRequest} that allows reading the configuration values.
  *
  * @param <T> the result type
  * @author Stefan Oehme
  */
-interface InspectableCompositeModelRequest<T> extends CompositeModelRequest<T>, InspectableCompositeRequest<T> {
+interface InspectableCompositeBuildModelRequest<T> extends CompositeBuildModelRequest<T>, InspectableCompositeBuildRequest<T> {
 
     /**
      * @return never null, DefaultToolingClient requires a model type to execute the request

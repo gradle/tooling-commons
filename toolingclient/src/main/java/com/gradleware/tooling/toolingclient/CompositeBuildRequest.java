@@ -26,7 +26,7 @@ import java.util.Set;
  * @author Stefan Oehme
  * @param <T> the result type
  */
-public interface CompositeRequest<T> extends Request<Set<T>> {
+public interface CompositeBuildRequest<T> extends Request<Set<T>> {
 
     /**
      * Specifies the builds which will participate in the request.
@@ -34,7 +34,7 @@ public interface CompositeRequest<T> extends Request<Set<T>> {
      * @param buildIdentifiers the descriptors of the Gradle builds which will participate in the request
      * @return this
      */
-    CompositeRequest<T> participants(GradleBuildIdentifier... buildIdentifiers);
+    CompositeBuildRequest<T> participants(GradleBuildIdentifier... buildIdentifiers);
 
     /**
      * Specifies additional builds which will participate in the request.
@@ -42,6 +42,6 @@ public interface CompositeRequest<T> extends Request<Set<T>> {
      * @param buildIdentifiers the descriptor of the Gradle builds which will participate in the request
      * @return this
      */
-    CompositeRequest<T> addParticipants(GradleBuildIdentifier... buildIdentifiers);
+    CompositeBuildRequest<T> addParticipants(GradleBuildIdentifier... buildIdentifiers);
 
 }

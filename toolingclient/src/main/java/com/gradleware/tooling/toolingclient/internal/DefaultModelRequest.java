@@ -29,7 +29,7 @@ import com.gradleware.tooling.toolingclient.ModelRequest;
  * @param <T> the result type
  * @author Etienne Studer
  */
-final class DefaultModelRequest<T> extends BaseSimpleRequest<T, DefaultModelRequest<T>> implements InspectableModelRequest<T> {
+final class DefaultModelRequest<T> extends BaseSingleBuildRequest<T, DefaultModelRequest<T>> implements InspectableModelRequest<T> {
 
     // all models provided by an instance of ProjectSensitiveToolingModelBuilder are listed here
     private static final Class<?>[] UNSUPPORTED_MODEL_TYPES = new Class<?>[]{BuildInvocations.class, ProjectPublications.class};

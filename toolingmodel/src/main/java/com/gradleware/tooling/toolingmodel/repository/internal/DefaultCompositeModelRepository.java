@@ -19,7 +19,6 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.gradle.tooling.model.eclipse.EclipseProject;
@@ -29,29 +28,28 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 
-import com.gradleware.tooling.toolingclient.CompositeModelRequest;
+import com.gradleware.tooling.toolingclient.CompositeBuildModelRequest;
 import com.gradleware.tooling.toolingclient.Consumer;
 import com.gradleware.tooling.toolingclient.ToolingClient;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
-import com.gradleware.tooling.toolingmodel.repository.CompositeModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.CompositeBuildModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.EclipseWorkspaceUpdateEvent;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
-import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.SingleBuildModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 /**
- * Default implementation for {@link CompositeModelRepository}.
+ * Default implementation for {@link CompositeBuildModelRepository}.
  *
  * @author Stefan Oehme
  */
-public class DefaultCompositeModelRepository extends BaseModelRepository implements CompositeModelRepository {
+public class DefaultCompositeModelRepository extends BaseModelRepository implements CompositeBuildModelRepository {
 
     private final ModelRepositoryProvider modelRepositoryProvider;
     private final ImmutableSet<FixedRequestAttributes> requestAttributes;
@@ -65,7 +63,7 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
 
     @Override
     public OmniEclipseWorkspace fetchEclipseWorkspace(final TransientRequestAttributes transientAttributes, FetchStrategy fetchStrategy) {
-        CompositeModelRequest<EclipseProject> modelRequest = createModelRequest(EclipseProject.class, this.requestAttributes, transientAttributes);
+        CompositeBuildModelRequest<EclipseProject> modelRequest = createModelRequest(EclipseProject.class, this.requestAttributes, transientAttributes);
         Consumer<OmniEclipseWorkspace> successHandler = new Consumer<OmniEclipseWorkspace>() {
 
             @Override
@@ -77,13 +75,12 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
 
             @Override
             public OmniEclipseWorkspace apply(Set<EclipseProject> eclipseProjects) {
-                final Map<EclipseProject, DefaultOmniEclipseProject> knownProjects = Maps.newHashMap();
                 List<OmniEclipseProject> omniEclipseProjects = FluentIterable.from(eclipseProjects).transform(new Function<EclipseProject, OmniEclipseProject>() {
 
                     @Override
                     public OmniEclipseProject apply(EclipseProject eclipseProject) {
                         boolean isPublicFixRequired = isPublicFixRequired(eclipseProject, transientAttributes);
-                        return DefaultOmniEclipseProject.from(eclipseProject, isPublicFixRequired, knownProjects);
+                        return DefaultOmniEclipseProject.from(eclipseProject, isPublicFixRequired);
                     }
                 }).toList();
                 return DefaultOmniEclipseWorkspace.from(omniEclipseProjects);
@@ -92,8 +89,8 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
         return executeRequest(modelRequest, successHandler, fetchStrategy, OmniEclipseWorkspace.class, converter);
     }
 
-    private <T> CompositeModelRequest<T> createModelRequest(Class<T> model, Set<FixedRequestAttributes> fixedAttributes, TransientRequestAttributes transientAttributes) {
-        CompositeModelRequest<T> request = getToolingClient().newCompositeModelRequest(model);
+    private <T> CompositeBuildModelRequest<T> createModelRequest(Class<T> model, Set<FixedRequestAttributes> fixedAttributes, TransientRequestAttributes transientAttributes) {
+        CompositeBuildModelRequest<T> request = getToolingClient().newCompositeModelRequest(model);
         for (FixedRequestAttributes fixedRequestAttribute : fixedAttributes) {
             fixedRequestAttribute.apply(request);
         }
@@ -125,7 +122,7 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
     }
 
     private boolean targetGradleVersionIsBetween(String minVersion, String maxVersion, FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientRequestAttributes) {
-        SimpleModelRepository simpleRepo = this.modelRepositoryProvider.getModelRepository(fixedAttributes);
+        SingleBuildModelRepository simpleRepo = this.modelRepositoryProvider.getModelRepository(fixedAttributes);
         OmniBuildEnvironment buildEnvironment = simpleRepo.fetchBuildEnvironment(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
         GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
         return gradleVersion.getBaseVersion().compareTo(GradleVersion.version(minVersion)) >= 0 &&
