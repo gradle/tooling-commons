@@ -848,9 +848,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
           OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
           return eclipseGradleBuild.rootEclipseProject
       } else {
-          def repoProvider = Mock(ModelRepositoryProvider)
-          repoProvider.getModelRepository(_) >> new DefaultSingleBuildModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
-          def DefaultCompositeModelRepository repository = new DefaultCompositeModelRepository(repoProvider, [fixedRequestAttributes] as Set, toolingClient, new EventBus())
+          def DefaultCompositeModelRepository repository = new DefaultCompositeModelRepository([fixedRequestAttributes] as Set, toolingClient, new EventBus())
           repository.register(listener)
           def eclipseWorkspace = repository.fetchEclipseWorkspace(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
           eclipseWorkspace.tryFind{p -> p.parent == null}.get()

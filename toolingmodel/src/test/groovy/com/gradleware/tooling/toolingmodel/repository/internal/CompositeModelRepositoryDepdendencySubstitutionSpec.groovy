@@ -83,10 +83,7 @@ class CompositeModelRepositoryDepdendencySubstitutionSpec extends ToolingModelTo
     private getWorkspaceModel(GradleDistribution distribution) {
         def participantA = new FixedRequestAttributes(projectA.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def participantB = new FixedRequestAttributes(projectB.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-        def repoProvider = Stub(ModelRepositoryProvider)
-        repoProvider.getModelRepository(participantA) >> new DefaultSingleBuildModelRepository(participantA, toolingClient, new EventBus())
-        repoProvider.getModelRepository(participantB) >> new DefaultSingleBuildModelRepository(participantB, toolingClient, new EventBus())
-        def repository = new DefaultCompositeModelRepository(repoProvider, [participantA, participantB] as Set, toolingClient, new EventBus())
+        def repository = new DefaultCompositeModelRepository([participantA, participantB] as Set, toolingClient, new EventBus())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
         repository.fetchEclipseWorkspace(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
     }

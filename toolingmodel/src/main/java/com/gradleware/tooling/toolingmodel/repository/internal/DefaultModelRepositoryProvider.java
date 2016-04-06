@@ -90,7 +90,7 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
         CompositeBuildModelRepository modelRepository;
         synchronized (this.compositeModelRepositories) {
             if (!this.compositeModelRepositories.containsKey(fixedRequestAttributes)) {
-                modelRepository = new DefaultCompositeModelRepository(this, fixedRequestAttributes, this.toolingClient, this.eventBusFactory.create());
+                modelRepository = new DefaultCompositeModelRepository(fixedRequestAttributes, this.toolingClient, this.eventBusFactory.create());
                 this.compositeModelRepositories.put(fixedRequestAttributes, modelRepository);
             } else {
                 modelRepository = this.compositeModelRepositories.get(fixedRequestAttributes);
