@@ -220,7 +220,8 @@ task minorRelease {
         service = '0'
       }
       def nextService = Integer.parseInt(service) + 1
-      file('version.txt').text = "${major}.${minor}.${nextService}${System.getProperty('line.separator')}"
+      nextVersion = "${major}.${minor}.${nextService}"
+      file('version.txt').text = "${nextVersion}${System.getProperty('line.separator')}"
     } else {
       throw new IllegalStateException("Unparseable version: $version.")
     }
