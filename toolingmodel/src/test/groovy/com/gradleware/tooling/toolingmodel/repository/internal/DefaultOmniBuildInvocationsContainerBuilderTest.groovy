@@ -26,7 +26,7 @@ import com.gradleware.tooling.toolingmodel.OmniBuildInvocations
 import com.gradleware.tooling.toolingmodel.OmniProjectTask
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector
 import com.gradleware.tooling.toolingmodel.Path
-import com.gradleware.tooling.toolingmodel.util.Maybe;
+import com.gradleware.tooling.toolingmodel.util.Maybe
 
 import org.gradle.tooling.model.GradleProject
 import org.junit.Rule

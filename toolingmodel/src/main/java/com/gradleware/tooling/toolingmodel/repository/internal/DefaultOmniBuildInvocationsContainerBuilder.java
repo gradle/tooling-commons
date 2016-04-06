@@ -118,7 +118,7 @@ public final class DefaultOmniBuildInvocationsContainerBuilder {
 
         for (String selectorName : tasksByNameAndPath.rowKeySet()) {
             SortedMap<Path, OmniProjectTask> tasksByPath = tasksByNameAndPath.row(selectorName);
-            OmniProjectTask taskWithShortesPath = tasksByPath.get(tasksByPath.firstKey());
+            OmniProjectTask taskWithShortestPath = tasksByPath.get(tasksByPath.firstKey());
             boolean isPublic = enforceAllTasksPublic || Iterables.any(tasksByPath.values(), new Predicate<OmniProjectTask>() {
 
                 @Override
@@ -130,10 +130,10 @@ public final class DefaultOmniBuildInvocationsContainerBuilder {
 
             OmniTaskSelector taskSelector = DefaultOmniTaskSelector.from(
                     selectorName,
-                    taskWithShortesPath.getDescription(),
+                    taskWithShortestPath.getDescription(),
                     Path.from(project.getPath()),
                     isPublic,
-                    taskWithShortesPath.getGroup(),
+                    taskWithShortestPath.getGroup(),
                     selectedPaths);
 
             taskSelectors.put(Path.from(project.getPath()), taskSelector);

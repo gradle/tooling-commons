@@ -68,5 +68,6 @@ class MaybeTest extends Specification {
       Maybe.of(null) != Maybe.of("Foo")
       Maybe.of("Foo") != Maybe.absent()
       Maybe.absent() == Maybe.absent()
+      Maybe.absent() != Maybe.of(null)
   }
 }
