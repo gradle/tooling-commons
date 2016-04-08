@@ -206,7 +206,7 @@ task tag {
 }
 
 // bump up the service segment in the version file and commit/push the change
-task minorRelease {
+task incrementVersion {
   dependsOn tag
   doLast {
     // update version file
@@ -226,7 +226,7 @@ task minorRelease {
       throw new IllegalStateException("Unparseable version: $version.")
     }
     // add/commit change
-    execCommand "git", "commit", "-a", "-m", "Increase minor version to $nextVersion"
+    execCommand "git", "commit", "-a", "-m", "Increase version to $nextVersion"
     // push change
     execCommand "git", "push", "origin", "master"
   }
