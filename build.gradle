@@ -205,7 +205,7 @@ task tag {
   }
 }
 
-// bump up the minor version in the version file and commit/push the change
+// bump up the service segment in the version file and commit/push the change
 task minorRelease {
   dependsOn tag
   doLast {
