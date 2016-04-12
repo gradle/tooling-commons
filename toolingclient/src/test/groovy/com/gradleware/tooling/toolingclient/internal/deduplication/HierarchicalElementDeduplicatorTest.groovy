@@ -45,7 +45,7 @@ class HierarchicalElementDeduplicatorTest extends Specification {
         elementName("root:foobar:app") == "app"
     }
 
-    def "deduplicates duplicate ide element names"() {
+    def "deduplicates elements with the same name"() {
         given:
         element("root") {
             element("foo") {
@@ -233,6 +233,24 @@ class HierarchicalElementDeduplicatorTest extends Specification {
         elementName("root:impl:myelement") == "impl-myelement"
         elementName("root:impl:myelement:myelement-foo") == "impl-myelement-foo"
         elementName("root:impl:myelement:myelement-foo:app") == "impl-myelement-foo-app"
+    }
+
+    def "Names are not simplified if that would create a name clash"() {
+        given:
+        element("root"){
+            element("root-myelement") {
+                element("myelement-foo") {
+                }
+            }
+            element("myelement-foo")
+        }
+
+        when:
+        deduplicateNames()
+
+        then:
+        elementName("root:myelement-foo") == "root-myelement-foo"
+        elementName("root:root-myelement:myelement-foo") == "root-myelement-myelement-foo"
     }
 
     List<DummyElement> elements = Lists.newArrayList()
