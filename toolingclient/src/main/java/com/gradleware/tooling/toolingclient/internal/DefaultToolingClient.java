@@ -345,6 +345,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
             withCancellationToken(request.getCancellationToken());
 
         if (!(request instanceof CompositeBuildRequest)) {
+            //stdin is not (yet) supported by composite build
             operation.setStandardInput(request.getStandardInput());
         }
         for (ProgressListener progressListener : request.getProgressListeners()) {
