@@ -108,7 +108,7 @@ public abstract class ToolingClient {
      * @param modelType the type of the model to fetch
      * @return a new instance
      */
-    public abstract <T> CompositeModelRequest<T> newCompositeModelRequest(Class<T> modelType);
+    public abstract <T> CompositeBuildModelRequest<T> newCompositeModelRequest(Class<T> modelType);
 
     /**
      * Stops the tooling client and applies the specified clean-up strategy to any associated resources and processes. May block or may not block, depending on the specified

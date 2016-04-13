@@ -24,7 +24,7 @@ import com.gradleware.tooling.toolingclient.TestConfig;
  *
  * @author Donát Csikós
  */
-interface InspectableTestLaunchRequest extends InspectableSimpleRequest<Void>, TestLaunchRequest {
+interface InspectableTestLaunchRequest extends InspectableSingleBuildRequest<Void>, TestLaunchRequest {
 
     /**
      * @return never null, DefaultToolingClient requires a test configuration to execute the request

@@ -16,7 +16,7 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal
 import com.gradleware.tooling.junit.TestDirectoryProvider
-import com.gradleware.tooling.toolingclient.CompositeModelRequest;
+import com.gradleware.tooling.toolingclient.CompositeBuildModelRequest;
 import com.gradleware.tooling.toolingclient.GradleBuildIdentifier
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.ToolingClient
@@ -161,7 +161,7 @@ class CompositeModelRequestTest extends Specification {
         fetchMode << FetchMode.values()
     }
 
-    private def Set<EclipseProject> getEclipseProjects(CompositeModelRequest<EclipseProject> request, FetchMode fetchMode) {
+    private def Set<EclipseProject> getEclipseProjects(CompositeBuildModelRequest<EclipseProject> request, FetchMode fetchMode) {
         if (fetchMode == FetchMode.SYNC) {
             return request.executeAndWait()
         } else {

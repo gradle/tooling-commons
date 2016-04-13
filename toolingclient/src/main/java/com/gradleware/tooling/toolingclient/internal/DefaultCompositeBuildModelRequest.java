@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,47 +16,44 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
+import java.util.Set;
+
 import com.google.common.base.Preconditions;
 
 import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
-import com.gradleware.tooling.toolingclient.TestConfig;
 
 /**
- * Default implementation of the {@link com.gradleware.tooling.toolingclient.TestLaunchRequest} API.
+ * Default implementation for {@link com.gradleware.tooling.toolingclient.CompositeBuildModelRequest}.
  *
- * @author Donát Csikós
+ * @author Stefan Oehme
+ * @param <T> the result type
  */
-final class DefaultTestLaunchRequest extends BaseSingleBuildRequest<Void, DefaultTestLaunchRequest> implements InspectableTestLaunchRequest {
+final class DefaultCompositeBuildModelRequest<T> extends BaseCompositeBuildRequest<T, DefaultCompositeBuildModelRequest<T>> implements InspectableCompositeBuildModelRequest<T> {
 
-    private final TestConfig tests;
+    private final Class<T> modelType;
 
-    DefaultTestLaunchRequest(ExecutableToolingClient toolingClient, TestConfig tests) {
+    DefaultCompositeBuildModelRequest(ExecutableToolingClient toolingClient, Class<T> modelType) {
         super(toolingClient);
-        this.tests = Preconditions.checkNotNull(tests);
+        this.modelType = Preconditions.checkNotNull(modelType);
     }
 
     @Override
-    public TestConfig getTests() {
-        return this.tests;
+    public Class<T> getModelType() {
+        return this.modelType;
     }
 
     @Override
-    public DefaultTestLaunchRequest deriveForTests(TestConfig tests) {
-        return copy(new DefaultTestLaunchRequest(getToolingClient(), tests));
-    }
-
-    @Override
-    public Void executeAndWait() {
+    public Set<T> executeAndWait() {
         return getToolingClient().executeAndWait(this);
     }
 
     @Override
-    public LongRunningOperationPromise<Void> execute() {
+    public LongRunningOperationPromise<Set<T>> execute() {
         return getToolingClient().execute(this);
     }
 
     @Override
-    DefaultTestLaunchRequest getThis() {
+    DefaultCompositeBuildModelRequest<T> getThis() {
         return this;
     }
 

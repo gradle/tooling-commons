@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,20 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
-import com.gradleware.tooling.toolingclient.ModelRequest;
+import com.gradleware.tooling.toolingclient.CompositeBuildModelRequest;
 
 /**
- * Internal interface that describes the configurable attributes of the model request.
+ * Internal companion for {@link CompositeBuildModelRequest} that allows reading the configuration values.
  *
  * @param <T> the result type
- * @author Etienne Studer
+ * @author Stefan Oehme
  */
-interface InspectableModelRequest<T> extends InspectableSingleBuildRequest<T>, ModelRequest<T> {
+interface InspectableCompositeBuildModelRequest<T> extends CompositeBuildModelRequest<T>, InspectableCompositeBuildRequest<T> {
 
     /**
      * @return never null, DefaultToolingClient requires a model type to execute the request
      * @see DefaultToolingClient#mapToModelBuilder(InspectableModelRequest, org.gradle.tooling.ProjectConnection)
      */
     Class<T> getModelType();
-
-    /**
-     * @return never null, DefaultModelBuilder builder takes care of converting null and empty arrays to null
-     * @see org.gradle.tooling.internal.consumer.DefaultModelBuilder#forTasks(String...)
-     */
-    String[] getTasks();
 
 }

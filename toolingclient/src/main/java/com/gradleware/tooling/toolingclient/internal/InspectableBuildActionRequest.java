@@ -25,7 +25,7 @@ import org.gradle.tooling.BuildAction;
  * @param <T> the result type
  * @author Etienne Studer
  */
-interface InspectableBuildActionRequest<T> extends InspectableSimpleRequest<T>, BuildActionRequest<T> {
+interface InspectableBuildActionRequest<T> extends InspectableSingleBuildRequest<T>, BuildActionRequest<T> {
 
     /**
      * @return never null, DefaultToolingClient requires a build action to execute the request
