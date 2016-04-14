@@ -16,6 +16,7 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,7 +27,6 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
@@ -55,12 +55,15 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
 
     public DefaultCompositeModelRepository(Set<FixedRequestAttributes> requestAttributes, ToolingClient toolingClient, EventBus eventBus) {
         super(toolingClient, eventBus);
-        Preconditions.checkArgument(requestAttributes.size() > 0, "Composite builds need at least one participant");
         this.requestAttributes = ImmutableSet.copyOf(requestAttributes);
     }
 
     @Override
     public OmniEclipseWorkspace fetchEclipseWorkspace(final TransientRequestAttributes transientAttributes, FetchStrategy fetchStrategy) {
+        //TODO push this special handling down to DefaultToolingClient
+        if (this.requestAttributes.isEmpty()) {
+            return DefaultOmniEclipseWorkspace.from(Collections.<OmniEclipseProject>emptyList());
+        }
         final OmniBuildEnvironments buildEnvironments = fetchBuildEnvironments(transientAttributes, fetchStrategy);
         CompositeBuildModelRequest<EclipseProject> modelRequest = createModelRequest(EclipseProject.class, this.requestAttributes, transientAttributes);
         Consumer<OmniEclipseWorkspace> successHandler = new Consumer<OmniEclipseWorkspace>() {
