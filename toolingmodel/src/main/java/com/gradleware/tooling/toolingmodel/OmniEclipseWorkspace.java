@@ -31,18 +31,7 @@ import com.gradleware.tooling.toolingutils.ImmutableCollection;
  * @author Stefan Oehme
  */
 // TODO add description of de-duplication and dependency substitution as soon as it is implemented
-public interface OmniEclipseWorkspace {
-
-    /**
-     * A flattened view of all projects that are currently opened in the workspace. This may be a
-     * subset of all the projects belonging to the underlying Gradle builds. The returned projects
-     * themselves still contain the full hierarchy information, even if their parent or children are
-     * not open.
-     *
-     * @return the open Eclipse projects
-     */
-    @ImmutableCollection
-    List<OmniEclipseProject> getOpenEclipseProjects();
+public interface OmniEclipseWorkspace extends OmniCompositeModel<OmniEclipseProject> {
 
     /**
      * Searches the open projects for a project matching the given specification.

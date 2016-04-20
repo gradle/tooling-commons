@@ -16,7 +16,7 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
-import java.util.Set;
+import org.gradle.tooling.connection.ModelResults;
 
 import com.google.common.base.Preconditions;
 
@@ -43,12 +43,12 @@ final class DefaultCompositeBuildModelRequest<T> extends BaseCompositeBuildReque
     }
 
     @Override
-    public Set<T> executeAndWait() {
+    public ModelResults<T> executeAndWait() {
         return getToolingClient().executeAndWait(this);
     }
 
     @Override
-    public LongRunningOperationPromise<Set<T>> execute() {
+    public LongRunningOperationPromise<ModelResults<T>> execute() {
         return getToolingClient().execute(this);
     }
 

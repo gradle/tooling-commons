@@ -16,7 +16,8 @@
 
 package com.gradleware.tooling.toolingclient;
 
-import java.util.Set;
+
+import org.gradle.tooling.connection.ModelResults;
 
 /**
  * A special request type which is issued against a composition of Gradle builds.
@@ -26,7 +27,7 @@ import java.util.Set;
  * @author Stefan Oehme
  * @param <T> the result type
  */
-public interface CompositeBuildRequest<T> extends Request<Set<T>> {
+public interface CompositeBuildRequest<T> extends Request<ModelResults<T>> {
 
     /**
      * Specifies the builds which will participate in the request.

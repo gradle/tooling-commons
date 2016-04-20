@@ -44,7 +44,7 @@ class EmptyCompositeModelRepositorySpec extends ToolingModelToolingClientSpecifi
 
         then:
         eclipseWorkspace != null
-        eclipseWorkspace.openEclipseProjects.isEmpty()
+        eclipseWorkspace.models.values().isEmpty()
 
         where:
         distribution << runWithAllGradleVersions(">=1.0")

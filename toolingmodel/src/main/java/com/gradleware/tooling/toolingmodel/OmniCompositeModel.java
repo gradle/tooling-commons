@@ -14,21 +14,24 @@
  * limitations under the License.
  */
 
-package com.gradleware.tooling.toolingclient.internal;
+package com.gradleware.tooling.toolingmodel;
 
-import org.gradle.tooling.connection.ModelResults;
+import java.util.Map;
+import java.util.Set;
 
-import com.gradleware.tooling.toolingclient.CompositeBuildRequest;
 import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
 
 /**
- * Internal interface that allows reading the request configuration.
+ * Common functionality for all models retrieved from composite builds.
  *
- * @param <T> result type
- * @author Stefan Oehme
+ *
+ * @param <T>
  */
-interface InspectableCompositeBuildRequest<T> extends InspectableRequest<ModelResults<T>>, CompositeBuildRequest<T> {
+public interface OmniCompositeModel<T> {
 
-    GradleBuildIdentifier[] getParticipants();
+    Map<GradleBuildIdentifier, T> getModels();
 
+    Map<GradleBuildIdentifier, Exception> getFailures();
+
+    Set<GradleBuildIdentifier> getIdentifiers();
 }

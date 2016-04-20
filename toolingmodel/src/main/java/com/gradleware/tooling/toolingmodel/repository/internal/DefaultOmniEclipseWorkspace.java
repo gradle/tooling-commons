@@ -17,15 +17,19 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.gradle.api.specs.Spec;
+import org.gradle.impldep.com.google.common.collect.ImmutableMap;
+import org.gradle.impldep.com.google.common.collect.ImmutableSet;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
+import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
 
@@ -36,25 +40,39 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
  */
 public final class DefaultOmniEclipseWorkspace implements OmniEclipseWorkspace {
 
-    private final ImmutableList<OmniEclipseProject> eclipseProjects;
+    private final Map<GradleBuildIdentifier, OmniEclipseProject> models;
+    private final Map<GradleBuildIdentifier, Exception> failures;
+    private final Set<GradleBuildIdentifier> identifiers;
 
-    private DefaultOmniEclipseWorkspace(List<OmniEclipseProject> eclipseProjects) {
-        this.eclipseProjects = ImmutableList.copyOf(eclipseProjects);
+    private DefaultOmniEclipseWorkspace(Map<GradleBuildIdentifier, OmniEclipseProject> models, Map<GradleBuildIdentifier, Exception> failures) {
+        this.models = ImmutableMap.copyOf(models);
+        this.failures = ImmutableMap.copyOf(failures);
+        this.identifiers = ImmutableSet.<GradleBuildIdentifier>builder().addAll(models.keySet()).addAll(failures.keySet()).build();
     }
 
     @Override
-    public List<OmniEclipseProject> getOpenEclipseProjects() {
-        return this.eclipseProjects;
+    public Map<GradleBuildIdentifier, OmniEclipseProject> getModels() {
+        return this.models;
+    }
+
+    @Override
+    public Map<GradleBuildIdentifier, Exception> getFailures() {
+        return this.failures;
+    }
+
+    @Override
+    public Set<GradleBuildIdentifier> getIdentifiers() {
+        return this.identifiers;
     }
 
     @Override
     public Optional<OmniEclipseProject> tryFind(Spec<? super OmniEclipseProject> predicate) {
-        return Iterables.tryFind(this.eclipseProjects, toPredicate(predicate));
+        return Iterables.tryFind(this.models.values(), toPredicate(predicate));
     }
 
     @Override
     public List<OmniEclipseProject> filter(Spec<? super OmniEclipseProject> predicate) {
-        return FluentIterable.from(this.eclipseProjects).filter(toPredicate(predicate)).toList();
+        return FluentIterable.from(this.models.values()).filter(toPredicate(predicate)).toList();
     }
 
     private <T> Predicate<? super T> toPredicate(final Spec<? super T> spec) {
@@ -66,8 +84,7 @@ public final class DefaultOmniEclipseWorkspace implements OmniEclipseWorkspace {
         };
     }
 
-    public static OmniEclipseWorkspace from(List<OmniEclipseProject> eclipseProjects) {
-        return new DefaultOmniEclipseWorkspace(eclipseProjects);
+    public static OmniEclipseWorkspace from(Map<GradleBuildIdentifier, OmniEclipseProject> models, Map<GradleBuildIdentifier, Exception> failures) {
+        return new DefaultOmniEclipseWorkspace(models, failures);
     }
-
 }

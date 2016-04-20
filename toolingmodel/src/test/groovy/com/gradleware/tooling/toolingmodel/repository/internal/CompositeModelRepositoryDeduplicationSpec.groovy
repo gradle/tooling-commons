@@ -64,7 +64,7 @@ class CompositeModelRepositoryDeduplicationSpec extends ToolingModelToolingClien
 
         then:
         eclipseWorkspace != null
-        eclipseWorkspace.openEclipseProjects*.name as Set == ['projectA', 'server', 'client', 'android', 'projectB', 'api', 'impl'] as Set
+        eclipseWorkspace.models.values()*.name as Set == ['projectA', 'server', 'client', 'android', 'projectB', 'api', 'impl'] as Set
 
         where:
         distribution << runWithAllGradleVersions(">=1.0")
@@ -79,7 +79,7 @@ class CompositeModelRepositoryDeduplicationSpec extends ToolingModelToolingClien
 
         then:
         eclipseWorkspace != null
-        eclipseWorkspace.openEclipseProjects*.name as Set == ['projectA', 'server', 'projectA-client', 'projectA-client-android', 'api', 'projectB', 'projectB-client', 'projectB-client-android', 'impl'] as Set
+        eclipseWorkspace.models.values()*.name as Set == ['projectA', 'server', 'projectA-client', 'projectA-client-android', 'api', 'projectB', 'projectB-client', 'projectB-client-android', 'impl'] as Set
         def root = eclipseWorkspace.tryFind { p -> p.name == 'projectA' }.get()
         root.tryFind { p -> p.name == 'projectA-client-android' }.get()
         eclipseWorkspace.tryFind { p -> p.name == 'projectA-client-android' }.get()
@@ -97,7 +97,7 @@ class CompositeModelRepositoryDeduplicationSpec extends ToolingModelToolingClien
 
         then:
         eclipseWorkspace != null
-        def projectNames = eclipseWorkspace.openEclipseProjects*.name
+        def projectNames = eclipseWorkspace.models.values()*.name
         projectNames.contains('projectA1')
         projectNames.contains('projectA2')
 

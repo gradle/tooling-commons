@@ -27,6 +27,7 @@ import groovy.transform.NotYetImplemented
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicReference
 import org.gradle.tooling.GradleConnectionException
+import org.gradle.tooling.connection.ModelResults
 import org.gradle.tooling.model.GradleProject
 import org.gradle.tooling.model.eclipse.EclipseProject
 import org.junit.Rule
@@ -163,7 +164,7 @@ class CompositeModelRequestTest extends Specification {
 
     private def Set<EclipseProject> getEclipseProjects(CompositeBuildModelRequest<EclipseProject> request, FetchMode fetchMode) {
         if (fetchMode == FetchMode.SYNC) {
-            return request.executeAndWait()
+            return request.executeAndWait().findAll { it.failure == null }.collect { it.model } as Set
         } else {
             def result = new AtomicReference<Set<EclipseProject>>()
             def failure = new AtomicReference<GradleConnectionException>()
@@ -182,7 +183,7 @@ class CompositeModelRequestTest extends Specification {
             if (failure.get()) {
                 throw failure.get()
             } else {
-                return result.get()
+                return result.get().findAll { it.failure == null }.collect { it.model } as Set
             }
         }
     }

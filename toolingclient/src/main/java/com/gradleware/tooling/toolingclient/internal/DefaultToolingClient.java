@@ -18,7 +18,6 @@ package com.gradleware.tooling.toolingclient.internal;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.gradle.internal.Factory;
 import org.gradle.tooling.BuildAction;
@@ -34,7 +33,6 @@ import org.gradle.tooling.TestLauncher;
 import org.gradle.tooling.connection.GradleConnection;
 import org.gradle.tooling.connection.GradleConnectionBuilder;
 import org.gradle.tooling.connection.GradleConnectionBuilder.ParticipantBuilder;
-import org.gradle.tooling.connection.ModelResult;
 import org.gradle.tooling.connection.ModelResults;
 import org.gradle.tooling.internal.consumer.ConnectorServices;
 import org.slf4j.Logger;
@@ -44,7 +42,6 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingclient.BuildActionRequest;
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
@@ -179,29 +176,29 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     }
 
     @Override
-    public <T> LongRunningOperationPromise<Set<T>> execute(InspectableCompositeBuildModelRequest<T> modelRequest) {
+    public <T> LongRunningOperationPromise<ModelResults<T>> execute(InspectableCompositeBuildModelRequest<T> modelRequest) {
         GradleConnection connection = getCompositeConnection(modelRequest);
         ModelBuilder<ModelResults<T>> modelBuilder = mapToModelBuilder(modelRequest, connection);
         return unwrapModelResults(LongRunningOperationPromise.forModelBuilder(modelBuilder));
     }
 
     @Override
-    public <T> Set<T> executeAndWait(InspectableCompositeBuildModelRequest<T> modelRequest) {
+    public <T> ModelResults<T> executeAndWait(InspectableCompositeBuildModelRequest<T> modelRequest) {
         GradleConnection connection = getCompositeConnection(modelRequest);
         ModelBuilder<ModelResults<T>> modelBuilder = mapToModelBuilder(modelRequest, connection);
         ModelResults<T> modelResults = modelBuilder.get();
-        return unwrapModelResults(modelResults);
+        return modelResults;
     }
 
-    private <T> LongRunningOperationPromise<Set<T>> unwrapModelResults(final LongRunningOperationPromise<ModelResults<T>> delegate) {
-        return new LongRunningOperationPromise<Set<T>>() {
+    private <T> LongRunningOperationPromise<ModelResults<T>> unwrapModelResults(final LongRunningOperationPromise<ModelResults<T>> delegate) {
+        return new LongRunningOperationPromise<ModelResults<T>>() {
 
             @Override
-            public LongRunningOperationPromise<Set<T>> onComplete(final Consumer<? super Set<T>> completeHandler) {
+            public LongRunningOperationPromise<ModelResults<T>> onComplete(final Consumer<? super ModelResults<T>> completeHandler) {
                 Consumer<ModelResults<T>> unwrappingHandler = new Consumer<ModelResults<T>>() {
                     @Override
                     public void accept(ModelResults<T> input) {
-                        completeHandler.accept(unwrapModelResults(input));
+                        completeHandler.accept(input);
                     }
                 };
                 delegate.onComplete(unwrappingHandler);
@@ -209,19 +206,11 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
             }
 
             @Override
-            public LongRunningOperationPromise<Set<T>> onFailure(Consumer<? super GradleConnectionException> failureHandler) {
+            public LongRunningOperationPromise<ModelResults<T>> onFailure(Consumer<? super GradleConnectionException> failureHandler) {
                 delegate.onFailure(failureHandler);
                 return this;
             }
         };
-    }
-
-    private <T> Set<T> unwrapModelResults(ModelResults<T> modelResults) {
-        Set<T> results = Sets.newHashSet();
-        for (ModelResult<T> modelResult : modelResults) {
-            results.add(modelResult.getModel());
-        }
-        return results;
     }
 
     private ProjectConnection getProjectConnection(InspectableSingleBuildRequest<?> request) {
