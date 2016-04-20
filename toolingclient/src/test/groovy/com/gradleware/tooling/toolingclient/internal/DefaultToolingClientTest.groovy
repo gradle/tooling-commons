@@ -163,13 +163,14 @@ class DefaultToolingClientTest extends Specification {
     modelRequest.executeAndWait()
 
     then:
-    1 * connectorFactory.create() >> Stub(GradleConnector) {
-      connect() >> Mock(ProjectConnection) {
-        model(_) >> Stub(ModelBuilder)
-        1 * close()
+    2 * connectorFactory.create() >> Stub(GradleConnector) {
+      connect() >> {
+        Mock(ProjectConnection) {
+          model(_) >> Stub(ModelBuilder)
+          1 * close()
+        }
       }
     }
-    1 * connectorFactory.create() >> Stub(GradleConnector)
 
     cleanup:
     toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)

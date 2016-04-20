@@ -124,35 +124,47 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     public <T> T executeAndWait(InspectableModelRequest<T> modelRequest) {
         ProjectConnection connection = getProjectConnection(modelRequest);
         ModelBuilder<T> operation = mapToModelBuilder(modelRequest, connection);
-        return operation.get();
+        try {
+            return operation.get();
+        } finally {
+            closeConnectionIfNecessary(connection);
+        }
     }
 
     @Override
     public <T> LongRunningOperationPromise<T> execute(InspectableModelRequest<T> modelRequest) {
         ProjectConnection connection = getProjectConnection(modelRequest);
         ModelBuilder<T> operation = mapToModelBuilder(modelRequest, connection);
-        return LongRunningOperationPromise.forModelBuilder(operation);
+        return closeConnectionIfNecessary(LongRunningOperationPromise.forModelBuilder(operation), connection);
     }
 
     @Override
     public <T> T executeAndWait(InspectableBuildActionRequest<T> buildActionRequest) {
         ProjectConnection connection = getProjectConnection(buildActionRequest);
         BuildActionExecuter<T> operation = mapToBuildActionExecuter(buildActionRequest, connection);
-        return operation.run();
+        try {
+            return operation.run();
+        } finally {
+            closeConnectionIfNecessary(connection);
+        }
     }
 
     @Override
     public <T> LongRunningOperationPromise<T> execute(InspectableBuildActionRequest<T> buildActionRequest) {
         ProjectConnection connection = getProjectConnection(buildActionRequest);
         BuildActionExecuter<T> operation = mapToBuildActionExecuter(buildActionRequest, connection);
-        return LongRunningOperationPromise.forBuildActionExecuter(operation);
+        return closeConnectionIfNecessary(LongRunningOperationPromise.forBuildActionExecuter(operation), connection);
     }
 
     @Override
     public Void executeAndWait(InspectableBuildLaunchRequest buildLaunchRequest) {
         ProjectConnection connection = getProjectConnection(buildLaunchRequest);
         BuildLauncher operation = mapToBuildLauncher(buildLaunchRequest, connection);
-        operation.run();
+        try {
+            operation.run();
+        } finally {
+            closeConnectionIfNecessary(connection);
+        }
         return null;
     }
 
@@ -160,14 +172,18 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     public LongRunningOperationPromise<Void> execute(InspectableBuildLaunchRequest buildLaunchRequest) {
         ProjectConnection connection = getProjectConnection(buildLaunchRequest);
         BuildLauncher operation = mapToBuildLauncher(buildLaunchRequest, connection);
-        return LongRunningOperationPromise.forBuildLauncher(operation);
+        return closeConnectionIfNecessary(LongRunningOperationPromise.forBuildLauncher(operation), connection);
     }
 
     @Override
     public Void executeAndWait(InspectableTestLaunchRequest testLaunchRequest) {
         ProjectConnection connection = getProjectConnection(testLaunchRequest);
         TestLauncher operation = mapToTestLauncher(testLaunchRequest, connection);
-        operation.run();
+        try {
+            operation.run();
+        } finally {
+            closeConnectionIfNecessary(connection);
+        }
         return null;
     }
 
@@ -175,22 +191,26 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     public LongRunningOperationPromise<Void> execute(InspectableTestLaunchRequest testLaunchRequest) {
         ProjectConnection connection = getProjectConnection(testLaunchRequest);
         TestLauncher operation = mapToTestLauncher(testLaunchRequest, connection);
-        return LongRunningOperationPromise.forTestLauncher(operation);
+        return closeConnectionIfNecessary(LongRunningOperationPromise.forTestLauncher(operation), connection);
     }
 
     @Override
     public <T> LongRunningOperationPromise<Set<T>> execute(InspectableCompositeBuildModelRequest<T> modelRequest) {
         GradleConnection connection = getCompositeConnection(modelRequest);
         ModelBuilder<ModelResults<T>> modelBuilder = mapToModelBuilder(modelRequest, connection);
-        return unwrapModelResults(LongRunningOperationPromise.forModelBuilder(modelBuilder));
+        return closeConnectionIfNecessary(unwrapModelResults(LongRunningOperationPromise.forModelBuilder(modelBuilder)), connection);
     }
 
     @Override
     public <T> Set<T> executeAndWait(InspectableCompositeBuildModelRequest<T> modelRequest) {
         GradleConnection connection = getCompositeConnection(modelRequest);
         ModelBuilder<ModelResults<T>> modelBuilder = mapToModelBuilder(modelRequest, connection);
-        ModelResults<T> modelResults = modelBuilder.get();
-        return unwrapModelResults(modelResults);
+        try {
+            ModelResults<T> modelResults = modelBuilder.get();
+            return unwrapModelResults(modelResults);
+        } finally {
+            closeConnectionIfNecessary(connection);
+        }
     }
 
     private <T> LongRunningOperationPromise<Set<T>> unwrapModelResults(final LongRunningOperationPromise<ModelResults<T>> delegate) {
@@ -234,14 +254,13 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
 
     private ProjectConnection getOrCreateProjectConnection(InspectableSingleBuildRequest<?> simpleRequest) {
         Preconditions.checkNotNull(simpleRequest);
+        if (this.connectionStrategy == ConnectionStrategy.PER_REQUEST) {
+            return openConnection(simpleRequest);
+        }
         ProjectConnection connection;
         int connectionKey = calculateConnectionKey(simpleRequest);
         synchronized (this.connections) {
             connection = this.connections.get(connectionKey);
-            if (connection != null && this.connectionStrategy == ConnectionStrategy.PER_REQUEST) {
-                closeConnection(connection);
-                connection = null;
-            }
             if (connection == null) {
                 connection = openConnection(simpleRequest);
                 this.connections.put(connectionKey, connection);
@@ -253,14 +272,13 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
 
     private GradleConnection getOrCreateCompositeConnection(InspectableCompositeBuildRequest<?> compositeRequest) {
         Preconditions.checkNotNull(compositeRequest);
+        if (this.connectionStrategy == ConnectionStrategy.PER_REQUEST) {
+            return openCompositeConnection(compositeRequest);
+        }
         GradleConnection connection;
         int connectionKey = calculateCompositeConnectionKey(compositeRequest);
         synchronized (this.compositeConnections) {
             connection = this.compositeConnections.get(connectionKey);
-            if (connection != null && this.connectionStrategy == ConnectionStrategy.PER_REQUEST) {
-                closeConnection(connection);
-                connection = null;
-            }
             if (connection == null) {
                 connection = openCompositeConnection(compositeRequest);
                 this.compositeConnections.put(connectionKey, connection);
@@ -398,6 +416,56 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         } catch (Exception e) {
             LOG.warn("Problem closing the composite connection: " + e.getMessage(), e);
         }
+    }
+
+    private <T> void closeConnectionIfNecessary(ProjectConnection connection) {
+        if (DefaultToolingClient.this.connectionStrategy == ConnectionStrategy.PER_REQUEST) {
+            closeConnection(connection);
+        }
+    }
+
+    private <T> void closeConnectionIfNecessary(GradleConnection connection) {
+        if (DefaultToolingClient.this.connectionStrategy == ConnectionStrategy.PER_REQUEST) {
+            closeConnection(connection);
+        }
+    }
+
+    private <T> LongRunningOperationPromise<T> closeConnectionIfNecessary(final LongRunningOperationPromise<T> delegate, final ProjectConnection connection) {
+        return new LongRunningOperationPromise<T>() {
+
+            @Override
+            public LongRunningOperationPromise<T> onComplete(Consumer<? super T> completeHandler) {
+                closeConnectionIfNecessary(connection);
+                delegate.onComplete(completeHandler);
+                return this;
+            }
+
+            @Override
+            public LongRunningOperationPromise<T> onFailure(Consumer<? super GradleConnectionException> failureHandler) {
+                closeConnectionIfNecessary(connection);
+                delegate.onFailure(failureHandler);
+                return this;
+            }
+        };
+    }
+
+    private <T> LongRunningOperationPromise<T> closeConnectionIfNecessary(final LongRunningOperationPromise<T> delegate, final GradleConnection connection) {
+        return new LongRunningOperationPromise<T>() {
+
+            @Override
+            public LongRunningOperationPromise<T> onComplete(Consumer<? super T> completeHandler) {
+                closeConnectionIfNecessary(connection);
+                delegate.onComplete(completeHandler);
+                return this;
+            }
+
+            @Override
+            public LongRunningOperationPromise<T> onFailure(Consumer<? super GradleConnectionException> failureHandler) {
+                closeConnectionIfNecessary(connection);
+                delegate.onFailure(failureHandler);
+                return this;
+            }
+        };
     }
 
     private void expireDaemons() {
