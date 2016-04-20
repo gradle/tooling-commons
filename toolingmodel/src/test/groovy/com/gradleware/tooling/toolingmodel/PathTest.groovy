@@ -28,6 +28,14 @@ class PathTest extends Specification {
         assert path == Path.from(path.getPath())
     }
 
+    def "cannot be constructed from invalid paths"() {
+        when:
+        Path.from('does_not_start_with_colon')
+
+        then:
+        thrown IllegalArgumentException
+    }
+
     def "paths are first compared by length then lexicographically"() {
         setup:
         assert smallerThan(':a:b', ':a:b:c')
@@ -47,6 +55,14 @@ class PathTest extends Specification {
     def "equality"() {
         setup:
         EqualsVerifier.forClass(Path.class).usingGetClass().verify();
+    }
+
+    def "dropLastSegment"() {
+        expect:
+        Path.from(":").dropLastSegment().path == ':'
+        Path.from(":a").dropLastSegment().path == ':'
+        Path.from(":a:b").dropLastSegment().path == ':a'
+        Path.from(":a:b:c").dropLastSegment().path == ':a:b'
     }
 
     private static boolean smallerThan(String reference, String comparedWith) {

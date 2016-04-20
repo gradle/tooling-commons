@@ -27,14 +27,29 @@ import com.gradleware.tooling.toolingmodel.repository.internal.PathComparator;
  */
 public final class Path implements Comparable<Path> {
 
+    private static final String PATH_SEPARATOR = ":";
+    private static final Path ROOT_PATH = new Path(PATH_SEPARATOR);
+
     private final String path;
 
     private Path(String path) {
         this.path = Preconditions.checkNotNull(path);
+        Preconditions.checkArgument(path.startsWith(PATH_SEPARATOR));
     }
 
     public String getPath() {
         return this.path;
+    }
+
+    /**
+     * Returns a copy of this path with the last segment removed. If this path points to the root,
+     * then the root path is returned.
+     *
+     * @return the new path
+     */
+    public Path dropLastSegment() {
+        int lastPathChar = this.path.lastIndexOf(PATH_SEPARATOR);
+        return lastPathChar <= 0 ? ROOT_PATH : new Path(this.path.substring(0, lastPathChar));
     }
 
     @SuppressWarnings("NullableProblems")
