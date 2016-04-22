@@ -26,7 +26,6 @@ import java.util.Set;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -40,8 +39,8 @@ import com.google.common.primitives.Ints;
 /**
  * A generic name de-duplicator for hierarchical elements.
  * <p>
- * Conflicting root elements are de-duplicated by appending a counter. Conflicting sub-elements are
- * de-duplicated by prepending their parent element names, separated by a dash.
+ * Conflicting sub-elements are de-duplicated by prepending their parent element names, separated by a dash.
+ * Conflicting root elements are rejected with an {@link IllegalArgumentException}
  * <p>
  * If a child's simple name already contains the name of its parent, the two prefixes are collapsed to keep names short.
  * For example, an elements with the name segments <code>root:impl:impl-simple</code> would initially get the name
@@ -120,7 +119,7 @@ public class HierarchicalElementDeduplicator<T> {
                     }
                 }
                 if (!deduplicationSuccessful) {
-                    renameTiedElements(notYetRenamed, duplicateName);
+                    throw new IllegalArgumentException("Duplicate root element " + duplicateName);
                 }
             }
         }
@@ -133,13 +132,6 @@ public class HierarchicalElementDeduplicator<T> {
                 return true;
             }
             return false;
-        }
-
-        private void renameTiedElements(Set<T> notYetRenamed, String duplicateName) {
-            List<T> tiedElements = ImmutableList.copyOf(notYetRenamed);
-            for (int i = 0; i < tiedElements.size(); i++) {
-                renameTo(tiedElements.get(i), duplicateName + (i + 1));
-            }
         }
 
         private void renameTo(T element, String newName) {

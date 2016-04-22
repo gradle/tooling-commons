@@ -88,7 +88,7 @@ class CompositeModelRepositoryDeduplicationSpec extends ToolingModelToolingClien
         distribution << runWithAllGradleVersions(">=1.0")
     }
 
-    def "Root-Project names are de-duplicated"(GradleDistribution distribution) {
+    def "Duplicate root project names are rejected"(GradleDistribution distribution) {
         given:
         projectB.file("settings.gradle") << "rootProject.name = 'projectA'"
 
@@ -96,10 +96,8 @@ class CompositeModelRepositoryDeduplicationSpec extends ToolingModelToolingClien
         OmniEclipseWorkspace eclipseWorkspace = getWorkspaceModel(distribution)
 
         then:
-        eclipseWorkspace != null
-        def projectNames = eclipseWorkspace.openEclipseProjects*.name
-        projectNames.contains('projectA1')
-        projectNames.contains('projectA2')
+        def problem = thrown IllegalArgumentException
+        problem.message.contains("Duplicate root project name 'projectA'")
 
         where:
         distribution << runWithAllGradleVersions(">=1.0")

@@ -17,17 +17,14 @@
 package com.gradleware.tooling.toolingclient.internal.deduplication;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.gradle.impldep.com.google.common.collect.Sets;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
@@ -43,14 +40,16 @@ class EclipseProjectDeduplicator {
     }
 
     private void deduplicate(Set<EclipseProject> eclipseProjects, RenamedEclipseProjectTracker renamedElementTracker) {
-        List<EclipseProject> projectsSortedByDir = Lists.newArrayList(eclipseProjects);
-        Collections.sort(projectsSortedByDir, new Comparator<EclipseProject>() {
-            @Override
-            public int compare(EclipseProject left, EclipseProject right) {
-                return left.getProjectDirectory().compareTo(right.getProjectDirectory());
+        Set<String> rootProjectNames = Sets.newHashSet();
+        for (EclipseProject eclipseProject : eclipseProjects) {
+            String name = eclipseProject.getName();
+            if (eclipseProject.getParent() == null && !rootProjectNames.add(name)) {
+                throw new IllegalArgumentException(
+                    String.format("Duplicate root project name '%s'. Duplicate root project names are currently not supported. This will change in future Gradle versions.", name)
+                );
             }
-        });
-        Map<EclipseProject, String> newNames = new HierarchicalElementDeduplicator<EclipseProject>(new EclipseProjectNameDeduplicationStrategy()).deduplicate(projectsSortedByDir);
+        }
+        Map<EclipseProject, String> newNames = new HierarchicalElementDeduplicator<EclipseProject>(new EclipseProjectNameDeduplicationStrategy()).deduplicate(eclipseProjects);
         for (Entry<EclipseProject, String> nameChange : newNames.entrySet()) {
             renamedElementTracker.renameTo(nameChange.getKey(), nameChange.getValue());
         }
