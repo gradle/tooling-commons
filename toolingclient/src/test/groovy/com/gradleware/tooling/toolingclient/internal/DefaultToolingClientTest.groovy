@@ -19,6 +19,7 @@ package com.gradleware.tooling.toolingclient.internal
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingclient.LaunchableConfig
+import com.gradleware.tooling.toolingclient.ModelRequest;
 import com.gradleware.tooling.toolingclient.TestConfig
 import com.gradleware.tooling.toolingclient.ToolingClient
 import com.gradleware.tooling.toolingclient.ToolingClient.ConnectionStrategy
@@ -40,6 +41,7 @@ import org.gradle.tooling.model.gradle.BuildInvocations
 import org.junit.Rule
 import spock.lang.Specification
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -175,6 +177,36 @@ class DefaultToolingClientTest extends Specification {
     cleanup:
     toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
   }
+
+  def "Multiple requests can run in parallel without closing each other."() {
+      given:
+      Factory<GradleConnector> connectorFactory = { GradleConnector.newConnector() }
+      DefaultToolingClient toolingClient = new DefaultToolingClient(connectorFactory, ConnectionStrategy.PER_REQUEST)
+      ModelRequest<BuildEnvironment> modelRequest = toolingClient.newModelRequest(BuildEnvironment.class)
+      modelRequest.projectDir(directoryProvider.testDirectory)
+      modelRequest.gradleDistribution(GradleDistribution.fromBuild())
+      def latch = new CountDownLatch(5)
+      def successCount = new AtomicInteger();
+
+      when:
+      5.times {
+          new Thread({
+              try {
+                  modelRequest.executeAndWait()
+                  successCount.incrementAndGet()
+              } finally {
+                latch.countDown()
+              }
+          }).start()
+      }
+      latch.await()
+
+      then:
+      successCount.get() == 5
+
+      cleanup:
+      toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
+    }
 
   def "progressListenersInvokedForModelRequest"() {
     setup:
