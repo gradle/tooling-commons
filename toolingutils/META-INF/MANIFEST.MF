@@ -3,12 +3,12 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: Gradle Inc.
 Bundle-Name: Gradle Tooling Commons - Tooling Utils
 Bundle-SymbolicName: com.gradleware.tooling.utils
-Bundle-Version: 0.12.0.qualifier
+Bundle-Version: 0.12.1.qualifier
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: com.gradleware.tooling.toolingutils;version="0.12.0",
- com.gradleware.tooling.toolingutils.binding;version="0.12.0",
- com.gradleware.tooling.toolingutils.distribution;version="0.12.0"
+Export-Package: com.gradleware.tooling.toolingutils;version="0.12.1",
+ com.gradleware.tooling.toolingutils.binding;version="0.12.1",
+ com.gradleware.tooling.toolingutils.distribution;version="0.12.1"
 Require-Bundle: org.gradle.toolingapi;bundle-version="2.13.0",
  com.google.guava;bundle-version="[15.0.0,16.0.0)",
  com.google.gson;bundle-version="2.2.4",

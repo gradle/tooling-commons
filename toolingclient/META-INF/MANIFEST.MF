@@ -3,10 +3,10 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: Gradle Inc.
 Bundle-Name: Gradle Tooling Commons - Tooling Client
 Bundle-SymbolicName: com.gradleware.tooling.client
-Bundle-Version: 0.12.0.qualifier
+Bundle-Version: 0.12.1.qualifier
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: com.gradleware.tooling.toolingclient;version="0.12.0"
+Export-Package: com.gradleware.tooling.toolingclient;version="0.12.1"
 Require-Bundle: org.gradle.toolingapi;bundle-version="2.13.0",
  com.google.guava;bundle-version="[15.0.0,16.0.0)",
  org.slf4j.api;bundle-version="1.7.2"
