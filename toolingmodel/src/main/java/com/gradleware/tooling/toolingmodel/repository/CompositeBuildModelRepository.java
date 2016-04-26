@@ -16,7 +16,10 @@
 
 package com.gradleware.tooling.toolingmodel.repository;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
+import org.gradle.tooling.connection.ModelResults;
+
+import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 
 /**
  * Repository for Gradle build models sourced from a composition of several Gradle builds.
@@ -26,12 +29,22 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
 public interface CompositeBuildModelRepository extends ModelRepository {
 
     /**
-     * Fetches the {@link OmniEclipseWorkspace} synchronously and broadcasts it through a {@link EclipseWorkspaceUpdateEvent}.
+     * Fetches the {@link OmniEclipseProject} models synchronously.
      *
      * @param transientRequestAttributes the transient request attributes
      * @param fetchStrategy the fetch strategy
-     * @return the workspace, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is
+     * @return the result, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is
      * not in the cache
      */
-    OmniEclipseWorkspace fetchEclipseWorkspace(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
+    ModelResults<OmniEclipseProject> fetchEclipseProjects(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
+
+    /**
+     * Fetches the {@link OmniBuildEnvironment} models synchronously.
+     *
+     * @param transientRequestAttributes the transient request attributes
+     * @param fetchStrategy the fetch strategy
+     * @return the result, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is
+     * not in the cache
+     */
+    ModelResults<OmniBuildEnvironment> fetchBuildEnvironments(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 }

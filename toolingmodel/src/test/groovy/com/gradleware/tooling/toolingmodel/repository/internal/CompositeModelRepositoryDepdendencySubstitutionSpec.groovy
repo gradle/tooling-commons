@@ -19,6 +19,8 @@ package com.gradleware.tooling.toolingmodel.repository.internal
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
+import org.gradle.tooling.connection.ModelResult
+import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.junit.Rule
 import spock.lang.Ignore;
 
@@ -31,7 +33,6 @@ import com.gradleware.tooling.spock.VerboseUnroll
 import com.gradleware.tooling.testing.GradleVersionParameterization
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider
@@ -68,11 +69,12 @@ class CompositeModelRepositoryDepdendencySubstitutionSpec extends ToolingModelTo
 
     def "External dependencies are substituted for other projects in the composite"(GradleDistribution distribution) {
         when:
-        OmniEclipseWorkspace eclipseWorkspace = getWorkspaceModel(distribution)
+        ModelResult<OmniEclipseProject> eclipseProjects= fetchEclipseProjects(distribution)
 
         then:
-        eclipseWorkspace != null
-        OmniEclipseProject eclipseProjectA = eclipseWorkspace.tryFind { it.name == 'projectA' }.get()
+        eclipseProjects != null
+        OmniEclipseProject eclipseProjectA = eclipseProjects[0].model
+        eclipseProjectA.name == 'projectA'
         eclipseProjectA.projectDependencies.size() == 1
         eclipseProjectA.projectDependencies[0].targetProjectDir == projectB.testDirectory
 
@@ -80,12 +82,12 @@ class CompositeModelRepositoryDepdendencySubstitutionSpec extends ToolingModelTo
         distribution << runWithAllGradleVersions(">=2.14")
     }
 
-    private getWorkspaceModel(GradleDistribution distribution) {
+    private fetchEclipseProjects(GradleDistribution distribution) {
         def participantA = new FixedRequestAttributes(projectA.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def participantB = new FixedRequestAttributes(projectB.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def repository = new DefaultCompositeModelRepository([participantA, participantB] as Set, toolingClient, new EventBus())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        repository.fetchEclipseWorkspace(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+        repository.fetchEclipseProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
     }
 
     private static ImmutableList<GradleDistribution> runWithAllGradleVersions(String versionPattern) {

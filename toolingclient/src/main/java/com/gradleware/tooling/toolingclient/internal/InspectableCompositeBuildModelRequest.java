@@ -16,6 +16,8 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
+import org.gradle.tooling.connection.ModelResults;
+
 import com.gradleware.tooling.toolingclient.CompositeBuildModelRequest;
 
 /**
@@ -24,7 +26,7 @@ import com.gradleware.tooling.toolingclient.CompositeBuildModelRequest;
  * @param <T> the result type
  * @author Stefan Oehme
  */
-interface InspectableCompositeBuildModelRequest<T> extends CompositeBuildModelRequest<T>, InspectableCompositeBuildRequest<T> {
+interface InspectableCompositeBuildModelRequest<T> extends CompositeBuildModelRequest<T>, InspectableCompositeBuildRequest<ModelResults<T>> {
 
     /**
      * @return never null, DefaultToolingClient requires a model type to execute the request

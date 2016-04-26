@@ -20,7 +20,6 @@ import com.gradleware.tooling.toolingclient.CompositeBuildModelRequest;
 import com.gradleware.tooling.toolingclient.GradleBuildIdentifier
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.ToolingClient
-import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace
 import com.gradleware.tooling.toolingmodel.repository.internal.CompositeModelRequestTest.FetchMode;
 
 import groovy.transform.NotYetImplemented
@@ -75,7 +74,7 @@ class CompositeModelRequestTest extends Specification {
         thrown IllegalArgumentException
 
         where:
-        modelType << [GradleProject, String]
+        modelType << [Serializable, String]
         fetchMode << FetchMode.values()
     }
 
@@ -122,19 +121,47 @@ class CompositeModelRequestTest extends Specification {
         fetchMode << FetchMode.values()
     }
 
-    def "Can query workspace model if more than one root is specified"(FetchMode fetchMode) {
+
+    def "If one project is broken, models from other projects are still returned"(FetchMode fetchMode) {
         setup:
         def projectA = directoryProvider.createDir("a")
         def projectB = directoryProvider.createDir("b")
         directoryProvider.createFile("a", "build.gradle") << """
-            project(':sub1a'); project('sub2a')
+            throw new Exception()
         """
         directoryProvider.createFile("a", "settings.gradle") << """
             rootProject.name = 'project-a'
             include 'sub1a', 'sub2a'
         """
-        directoryProvider.createFile("b", "build.gradle") << """
-            project(':sub1b'); project('sub2b')
+        directoryProvider.createFile("b", "settings.gradle") << """
+            rootProject.name = 'project-b'
+            include 'sub1b', 'sub2b'
+        """
+
+        def request = toolingClient.newCompositeModelRequest(EclipseProject)
+        request.addParticipants(new GradleBuildIdentifier(projectA, GradleDistribution.fromBuild()))
+        request.addParticipants(new GradleBuildIdentifier(projectB, GradleDistribution.fromBuild()))
+
+        when:
+        def projects = getEclipseProjects(request, fetchMode)
+
+        then:
+        projects.size() == 3
+        projects.find { it.name == 'project-b'}
+        projects.find { it.name == 'sub1b'}
+        projects.find { it.name == 'sub2b'}
+
+        where:
+        fetchMode << FetchMode.values()
+    }
+
+    def "Can query workspace model if more than one root is specified"(FetchMode fetchMode) {
+        setup:
+        def projectA = directoryProvider.createDir("a")
+        def projectB = directoryProvider.createDir("b")
+        directoryProvider.createFile("a", "settings.gradle") << """
+            rootProject.name = 'project-a'
+            include 'sub1a', 'sub2a'
         """
         directoryProvider.createFile("b", "settings.gradle") << """
             rootProject.name = 'project-b'
@@ -163,7 +190,7 @@ class CompositeModelRequestTest extends Specification {
 
     private def Set<EclipseProject> getEclipseProjects(CompositeBuildModelRequest<EclipseProject> request, FetchMode fetchMode) {
         if (fetchMode == FetchMode.SYNC) {
-            return request.executeAndWait()
+            return request.executeAndWait().findAll { !it.failure }.collect { it.model }.toSet()
         } else {
             def result = new AtomicReference<Set<EclipseProject>>()
             def failure = new AtomicReference<GradleConnectionException>()
@@ -175,7 +202,7 @@ class CompositeModelRequestTest extends Specification {
                 latch.countDown()
             }
             promise.onComplete { projects ->
-                result.set(projects)
+                result.set(projects.findAll { !it.failure }.collect { it.model }.toSet())
                 latch.countDown()
             }
             latch.await()

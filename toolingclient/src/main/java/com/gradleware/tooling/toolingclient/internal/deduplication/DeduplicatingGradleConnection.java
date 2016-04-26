@@ -119,17 +119,24 @@ public class DeduplicatingGradleConnection implements GradleConnection {
             public Iterator<ModelResult<EclipseProject>> iterator() {
                 Set<EclipseProject> projects = Sets.newHashSet();
                 for (ModelResult<EclipseProject> result : this.delegate) {
-                    projects.add(result.getModel());
+                    if (result.getFailure() == null) {
+                        projects.add(result.getModel());
+                    }
                 }
                 Set<EclipseProject> deduplicatedProjects = new EclipseProjectDeduplicator().deduplicate(projects);
                 Map<File, EclipseProject> deduplicatedProjectsByProjectDir = Maps.newHashMap();
                 for (EclipseProject deduplicatedProject : deduplicatedProjects) {
                     deduplicatedProjectsByProjectDir.put(deduplicatedProject.getProjectDirectory(), deduplicatedProject);
                 }
+
                 Set<ModelResult<EclipseProject>> deduplicatedResults = Sets.newHashSet();
                 for (ModelResult<EclipseProject> result : this.delegate) {
-                    EclipseProject deduplicatedProject = deduplicatedProjectsByProjectDir.get(result.getModel().getProjectDirectory());
-                    deduplicatedResults.add(new DeduplicatedModelResult(result, deduplicatedProject));
+                    if (result.getFailure() == null) {
+                        EclipseProject deduplicatedProject = deduplicatedProjectsByProjectDir.get(result.getModel().getProjectDirectory());
+                        deduplicatedResults.add(new DeduplicatedModelResult(result, deduplicatedProject));
+                    } else {
+                        deduplicatedResults.add(result);
+                    }
                 }
                 return deduplicatedResults.iterator();
             }

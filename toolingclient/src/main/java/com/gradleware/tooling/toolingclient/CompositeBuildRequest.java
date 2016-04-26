@@ -16,8 +16,6 @@
 
 package com.gradleware.tooling.toolingclient;
 
-import java.util.Set;
-
 /**
  * A special request type which is issued against a composition of Gradle builds.
  * <p/>
@@ -26,7 +24,7 @@ import java.util.Set;
  * @author Stefan Oehme
  * @param <T> the result type
  */
-public interface CompositeBuildRequest<T> extends Request<Set<T>> {
+public interface CompositeBuildRequest<T> extends Request<T> {
 
     /**
      * Specifies the builds which will participate in the request.

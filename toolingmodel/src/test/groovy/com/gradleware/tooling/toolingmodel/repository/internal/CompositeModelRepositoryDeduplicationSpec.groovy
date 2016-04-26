@@ -16,9 +16,9 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal
 
-import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
+import org.gradle.tooling.connection.ModelResults
 import org.junit.Rule
 
 import com.google.common.collect.ImmutableList
@@ -29,10 +29,9 @@ import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
 import com.gradleware.tooling.spock.VerboseUnroll
 import com.gradleware.tooling.testing.GradleVersionParameterization
 import com.gradleware.tooling.toolingclient.GradleDistribution
-import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
-import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
@@ -60,11 +59,11 @@ class CompositeModelRepositoryDeduplicationSpec extends ToolingModelToolingClien
 
     def "Workspace contains all projects from all participants"(GradleDistribution distribution) {
         when:
-        OmniEclipseWorkspace eclipseWorkspace = getWorkspaceModel(distribution)
+        Set<OmniEclipseProject> eclipseProjects = fetchEclipseProjects(distribution)
 
         then:
-        eclipseWorkspace != null
-        eclipseWorkspace.openEclipseProjects*.name as Set == ['projectA', 'server', 'client', 'android', 'projectB', 'api', 'impl'] as Set
+        eclipseProjects != null
+        eclipseProjects*.name as Set == ['projectA', 'server', 'client', 'android', 'projectB', 'api', 'impl'] as Set
 
         where:
         distribution << runWithAllGradleVersions(">=1.0")
@@ -75,14 +74,13 @@ class CompositeModelRepositoryDeduplicationSpec extends ToolingModelToolingClien
         projectB.file("settings.gradle") << "include 'client:android'"
 
         when:
-        OmniEclipseWorkspace eclipseWorkspace = getWorkspaceModel(distribution)
+        Set<OmniEclipseProject> eclipseProjects = fetchEclipseProjects(distribution)
 
         then:
-        eclipseWorkspace != null
-        eclipseWorkspace.openEclipseProjects*.name as Set == ['projectA', 'server', 'projectA-client', 'projectA-client-android', 'api', 'projectB', 'projectB-client', 'projectB-client-android', 'impl'] as Set
-        def root = eclipseWorkspace.tryFind { p -> p.name == 'projectA' }.get()
+        eclipseProjects*.name as Set == ['projectA', 'server', 'projectA-client', 'projectA-client-android', 'api', 'projectB', 'projectB-client', 'projectB-client-android', 'impl'] as Set
+        OmniEclipseProject root = eclipseProjects.find { p -> p.name == 'projectA' }
         root.tryFind { p -> p.name == 'projectA-client-android' }.get()
-        eclipseWorkspace.tryFind { p -> p.name == 'projectA-client-android' }.get()
+        eclipseProjects.find { p -> p.name == 'projectA-client-android' }
 
         where:
         distribution << runWithAllGradleVersions(">=1.0")
@@ -93,7 +91,7 @@ class CompositeModelRepositoryDeduplicationSpec extends ToolingModelToolingClien
         projectB.file("settings.gradle") << "rootProject.name = 'projectA'"
 
         when:
-        OmniEclipseWorkspace eclipseWorkspace = getWorkspaceModel(distribution)
+        Set<OmniEclipseProject> eclipseProjects = fetchEclipseProjects(distribution)
 
         then:
         def problem = thrown IllegalArgumentException
@@ -103,12 +101,12 @@ class CompositeModelRepositoryDeduplicationSpec extends ToolingModelToolingClien
         distribution << runWithAllGradleVersions(">=1.0")
     }
 
-    private getWorkspaceModel(GradleDistribution distribution) {
+    private Set<OmniEclipseProject> fetchEclipseProjects(GradleDistribution distribution) {
         def participantA = new FixedRequestAttributes(projectA.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def participantB = new FixedRequestAttributes(projectB.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def repository = new DefaultCompositeModelRepository([participantA, participantB] as Set, toolingClient, new EventBus())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        repository.fetchEclipseWorkspace(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+        repository.fetchEclipseProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED).collect { it.model }
     }
 
     private static ImmutableList<GradleDistribution> runWithAllGradleVersions(String versionPattern) {

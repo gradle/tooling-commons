@@ -21,6 +21,7 @@ import com.gradleware.tooling.toolingmodel.util.Maybe;
 import com.gradleware.tooling.toolingutils.ImmutableCollection;
 import org.gradle.api.Nullable;
 import org.gradle.api.specs.Spec;
+import org.gradle.tooling.model.ProjectIdentifier;
 
 import java.io.File;
 import java.util.List;
@@ -121,6 +122,12 @@ public interface OmniGradleProject extends HierarchicalModel<OmniGradleProject> 
      * @return the build directory
      */
     Maybe<File> getBuildDirectory();
+
+    /**
+     * The identifier of this project, which can be used to correlate other models with it.
+     * @return the project identifier, never null
+     */
+    ProjectIdentifier getProjectIdentifier();
 
     /**
      * Returns the build script of this project.

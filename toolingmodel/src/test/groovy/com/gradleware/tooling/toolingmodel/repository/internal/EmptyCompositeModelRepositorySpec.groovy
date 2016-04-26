@@ -19,6 +19,7 @@ package com.gradleware.tooling.toolingmodel.repository.internal
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
+import org.gradle.tooling.connection.ModelResults;
 import org.junit.Rule
 
 import com.google.common.collect.ImmutableList
@@ -29,7 +30,7 @@ import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
 import com.gradleware.tooling.spock.VerboseUnroll
 import com.gradleware.tooling.testing.GradleVersionParameterization
 import com.gradleware.tooling.toolingclient.GradleDistribution
-import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider
@@ -40,20 +41,20 @@ class EmptyCompositeModelRepositorySpec extends ToolingModelToolingClientSpecifi
 
     def "An empty workspace is returned"(GradleDistribution distribution) {
         when:
-        OmniEclipseWorkspace eclipseWorkspace = getWorkspaceModel(distribution)
+        ModelResults<OmniEclipseProject> eclipseProjects = fetchEclipseProjects(distribution)
 
         then:
-        eclipseWorkspace != null
-        eclipseWorkspace.openEclipseProjects.isEmpty()
+        eclipseProjects != null
+        eclipseProjects.size() == 0
 
         where:
         distribution << runWithAllGradleVersions(">=1.0")
     }
 
-    private getWorkspaceModel(GradleDistribution distribution) {
+    private fetchEclipseProjects(GradleDistribution distribution) {
         def repository = new DefaultCompositeModelRepository([] as Set, toolingClient, new EventBus())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        repository.fetchEclipseWorkspace(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+        repository.fetchEclipseProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
     }
 
     private static ImmutableList<GradleDistribution> runWithAllGradleVersions(String versionPattern) {

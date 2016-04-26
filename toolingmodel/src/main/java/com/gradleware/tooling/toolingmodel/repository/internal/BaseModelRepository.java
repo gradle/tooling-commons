@@ -42,7 +42,7 @@ public abstract class BaseModelRepository implements ModelRepository {
 
     private final ToolingClient toolingClient;
     private final EventBus eventBus;
-    private final Cache<Class<?>, Object> cache;
+    private final Cache<Object, Object> cache;
 
     public BaseModelRepository(ToolingClient toolingClient, EventBus eventBus) {
         this.toolingClient = Preconditions.checkNotNull(toolingClient);
@@ -83,7 +83,7 @@ public abstract class BaseModelRepository implements ModelRepository {
         this.eventBus.post(event);
     }
 
-    protected <T, U> U executeRequest(final Request<T> request, final Consumer<U> newCacheEntryHandler, FetchStrategy fetchStrategy, Class<U> cacheKey,
+    protected <T, U> U executeRequest(final Request<T> request, final Consumer<U> newCacheEntryHandler, FetchStrategy fetchStrategy, Class<?> cacheKey,
             final Converter<T, U> resultConverter) {
         return executeRequest(new Supplier<T>() {
 
@@ -97,12 +97,13 @@ public abstract class BaseModelRepository implements ModelRepository {
         }, newCacheEntryHandler, fetchStrategy, cacheKey, resultConverter);
     }
 
-    protected <T, U> U executeRequest(final Supplier<T> operation, final Consumer<U> newCacheEntryHandler, FetchStrategy fetchStrategy, Class<U> cacheKey,
+    protected <T, U> U executeRequest(final Supplier<T> operation, final Consumer<U> newCacheEntryHandler, FetchStrategy fetchStrategy, Class<?> cacheKey,
             final Converter<T, U> resultConverter) {
         // if model is only accessed from the cache, we can return immediately
         if (FetchStrategy.FROM_CACHE_ONLY == fetchStrategy) {
-            Object result = this.cache.getIfPresent(cacheKey);
-            return cacheKey.cast(result);
+            @SuppressWarnings("unchecked")
+            U result = (U) this.cache.getIfPresent(cacheKey);
+            return result;
         }
 
         // if model must be reloaded, we can invalidate the cache entry and then proceed as for
@@ -131,10 +132,11 @@ public abstract class BaseModelRepository implements ModelRepository {
         return value;
     }
 
-    private <U> U getFromCache(Class<U> cacheKey, Callable<U> cacheValueLoader) {
+    private <U> U getFromCache(Class<?> cacheKey, Callable<U> cacheValueLoader) {
         try {
-            Object result = this.cache.get(cacheKey, cacheValueLoader);
-            return cacheKey.cast(result);
+            @SuppressWarnings("unchecked")
+            U result = (U) this.cache.get(cacheKey, cacheValueLoader);
+            return result;
         } catch (UncheckedExecutionException e) {
             Throwable cause = e.getCause();
             if (cause instanceof RuntimeException) {

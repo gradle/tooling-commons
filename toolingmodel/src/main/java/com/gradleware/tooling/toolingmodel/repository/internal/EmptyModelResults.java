@@ -14,25 +14,27 @@
  * limitations under the License.
  */
 
-package com.gradleware.tooling.toolingmodel.repository;
+package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
+import java.util.Iterator;
+
+import org.gradle.impldep.com.google.common.collect.Iterators;
+import org.gradle.tooling.connection.ModelResult;
+import org.gradle.tooling.connection.ModelResults;
 
 /**
- * Event that is broadcast when {@link OmniEclipseWorkspace} has been updated.
+ * An empty model result, when there are no builds in the composite. Workaround for the fact that
+ * composite build currently fails when it is empty.
+ *
+ * @param <T> the type of models contained
  *
  * @author Stefan Oehme
  */
-public final class EclipseWorkspaceUpdateEvent {
+public class EmptyModelResults<T> implements ModelResults<T> {
 
-    private final OmniEclipseWorkspace eclipseWorkspace;
-
-    public EclipseWorkspaceUpdateEvent(OmniEclipseWorkspace eclipseWorkspace) {
-        this.eclipseWorkspace = eclipseWorkspace;
+    @Override
+    public Iterator<ModelResult<T>> iterator() {
+        return Iterators.emptyIterator();
     }
 
-    public OmniEclipseWorkspace getEclipseWorkspace() {
-        return this.eclipseWorkspace;
-    }
 }
-

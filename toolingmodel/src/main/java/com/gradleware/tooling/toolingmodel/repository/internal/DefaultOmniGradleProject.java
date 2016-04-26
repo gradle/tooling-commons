@@ -16,9 +16,19 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
+import java.io.File;
+import java.util.Comparator;
+import java.util.List;
+
+import org.gradle.api.specs.Spec;
+import org.gradle.tooling.model.GradleProject;
+import org.gradle.tooling.model.ProjectIdentifier;
+import org.gradle.tooling.model.gradle.GradleScript;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+
 import com.gradleware.tooling.toolingmodel.OmniBuildInvocations;
 import com.gradleware.tooling.toolingmodel.OmniBuildInvocationsContainer;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
@@ -27,13 +37,6 @@ import com.gradleware.tooling.toolingmodel.OmniProjectTask;
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
 import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
-import org.gradle.api.specs.Spec;
-import org.gradle.tooling.model.GradleProject;
-import org.gradle.tooling.model.gradle.GradleScript;
-
-import java.io.File;
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * Default implementation of the {@link OmniGradleProject} interface.
@@ -47,6 +50,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
     private String description;
     private Path path;
     private Maybe<File> projectDirectory;
+    private ProjectIdentifier projectIdentifier;
     private Maybe<File> buildDirectory;
     private Maybe<OmniGradleScript> buildScript;
     private ImmutableList<OmniProjectTask> projectTasks;
@@ -90,6 +94,16 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
 
     private void setProjectDirectory(Maybe<File> projectDirectory) {
         this.projectDirectory = projectDirectory;
+    }
+
+
+    @Override
+    public ProjectIdentifier getProjectIdentifier() {
+        return this.projectIdentifier;
+    }
+
+    private void setProjectIdentifier(ProjectIdentifier projectIdentifier) {
+        this.projectIdentifier = projectIdentifier;
     }
 
     @Override
@@ -177,6 +191,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
         gradleProject.setName(project.getName());
         gradleProject.setDescription(project.getDescription());
         gradleProject.setPath(Path.from(project.getPath()));
+        gradleProject.setProjectIdentifier(project.getProjectIdentifier());
         setProjectDirectory(gradleProject, project);
         setBuildDirectory(gradleProject, project);
         setBuildScript(gradleProject, project);

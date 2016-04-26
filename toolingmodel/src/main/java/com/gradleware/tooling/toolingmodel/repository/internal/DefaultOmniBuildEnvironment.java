@@ -19,6 +19,8 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniGradleEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniJavaEnvironment;
+
+import org.gradle.tooling.model.BuildIdentifier;
 import org.gradle.tooling.model.build.BuildEnvironment;
 
 /**
@@ -30,10 +32,12 @@ public final class DefaultOmniBuildEnvironment implements OmniBuildEnvironment {
 
     private final OmniGradleEnvironment gradle;
     private final OmniJavaEnvironment java;
+    private final BuildIdentifier buildIdentifier;
 
-    private DefaultOmniBuildEnvironment(OmniGradleEnvironment gradle, OmniJavaEnvironment java) {
+    private DefaultOmniBuildEnvironment(OmniGradleEnvironment gradle, OmniJavaEnvironment java, BuildIdentifier buildIdentifier) {
         this.gradle = gradle;
         this.java = java;
+        this.buildIdentifier = buildIdentifier;
     }
 
     @Override
@@ -46,10 +50,16 @@ public final class DefaultOmniBuildEnvironment implements OmniBuildEnvironment {
         return this.java;
     }
 
+    @Override
+    public BuildIdentifier getBuildIdentifier() {
+        return this.buildIdentifier;
+    }
+
     public static DefaultOmniBuildEnvironment from(BuildEnvironment buildEnvironment) {
         return new DefaultOmniBuildEnvironment(
                 DefaultOmniGradleEnvironment.from(buildEnvironment.getGradle()),
-                DefaultOmniJavaEnvironment.from(buildEnvironment.getJava()));
+                DefaultOmniJavaEnvironment.from(buildEnvironment.getJava()),
+                buildEnvironment.getBuildIdentifier());
     }
 
 }

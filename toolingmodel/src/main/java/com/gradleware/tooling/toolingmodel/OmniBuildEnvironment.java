@@ -16,6 +16,8 @@
 
 package com.gradleware.tooling.toolingmodel;
 
+import org.gradle.tooling.model.BuildIdentifier;
+
 /**
  * Provides information about the build environment.
  *
@@ -37,5 +39,11 @@ public interface OmniBuildEnvironment extends BuildScopedModel {
      * @return the Java environment
      */
     OmniJavaEnvironment getJava();
+
+    /**
+     * The identifier of the build that this model was fetched from.
+     * @return the build identifier, never null
+     */
+    BuildIdentifier getBuildIdentifier();
 
 }

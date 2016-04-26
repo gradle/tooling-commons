@@ -16,6 +16,8 @@
 
 package com.gradleware.tooling.toolingclient;
 
+import org.gradle.tooling.connection.ModelResults;
+
 /**
  * A {@code CompositeModelRequest} allows you to fetch a snapshot of some model for a composite build. Instances of {@code CompositeModelRequest} are not thread-safe. <p/> You use
  * a {@code CompositeModelRequest} as follows: <ul> <li>Create an instance by calling {@link ToolingClient#newCompositeModelRequest(Class)}.</li> <li>Configure the request as
@@ -25,6 +27,6 @@ package com.gradleware.tooling.toolingclient;
  * @param <T> the type of model to fetch
  * @author Stefan Oehme
  */
-public interface CompositeBuildModelRequest<T> extends CompositeBuildRequest<T> {
+public interface CompositeBuildModelRequest<T> extends CompositeBuildRequest<ModelResults<T>> {
 
 }

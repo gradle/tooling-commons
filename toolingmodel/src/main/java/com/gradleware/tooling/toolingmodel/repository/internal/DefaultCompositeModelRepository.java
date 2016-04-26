@@ -16,30 +16,27 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 
+import org.gradle.tooling.connection.ModelResult;
+import org.gradle.tooling.connection.ModelResults;
 import org.gradle.tooling.model.BuildIdentifier;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.util.GradleVersion;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 
 import com.gradleware.tooling.toolingclient.CompositeBuildModelRequest;
 import com.gradleware.tooling.toolingclient.Consumer;
+import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingclient.ToolingClient;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
 import com.gradleware.tooling.toolingmodel.repository.CompositeBuildModelRepository;
-import com.gradleware.tooling.toolingmodel.repository.EclipseWorkspaceUpdateEvent;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
@@ -59,54 +56,31 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
     }
 
     @Override
-    public OmniEclipseWorkspace fetchEclipseWorkspace(final TransientRequestAttributes transientAttributes, FetchStrategy fetchStrategy) {
-        //TODO push this special handling down to DefaultToolingClient
-        if (this.requestAttributes.isEmpty()) {
-            return DefaultOmniEclipseWorkspace.from(Collections.<OmniEclipseProject>emptyList());
-        }
-        final OmniBuildEnvironments buildEnvironments = fetchBuildEnvironments(transientAttributes, fetchStrategy);
+    public ModelResults<OmniEclipseProject> fetchEclipseProjects(final TransientRequestAttributes transientAttributes, FetchStrategy fetchStrategy) {
+        final HashMap<BuildIdentifier, OmniBuildEnvironment> buildEnvironmentsById = getBuildEnvironmentsById(transientAttributes, FetchStrategy.FORCE_RELOAD);
         CompositeBuildModelRequest<EclipseProject> modelRequest = createModelRequest(EclipseProject.class, this.requestAttributes, transientAttributes);
-        Consumer<OmniEclipseWorkspace> successHandler = new Consumer<OmniEclipseWorkspace>() {
+        Converter<EclipseProject, OmniEclipseProject> converter = new BaseConverter<EclipseProject, OmniEclipseProject>() {
 
             @Override
-            public void accept(OmniEclipseWorkspace result) {
-                postEvent(new EclipseWorkspaceUpdateEvent(result));
+            public OmniEclipseProject apply(EclipseProject eclipseProject) {
+                OmniBuildEnvironment buildEnvironment = buildEnvironmentsById.get(eclipseProject.getGradleProject().getProjectIdentifier().getBuildIdentifier());
+                return DefaultOmniEclipseProject.from(eclipseProject, isPublicFixRequired(buildEnvironment));
             }
         };
-        Converter<Set<EclipseProject>, OmniEclipseWorkspace> converter = new BaseConverter<Set<EclipseProject>, OmniEclipseWorkspace>() {
-
-            @Override
-            public OmniEclipseWorkspace apply(Set<EclipseProject> eclipseProjects) {
-                List<OmniEclipseProject> omniEclipseProjects = FluentIterable.from(eclipseProjects).transform(new Function<EclipseProject, OmniEclipseProject>() {
-
-                    @Override
-                    public OmniEclipseProject apply(EclipseProject eclipseProject) {
-                        boolean isPublicFixRequired = isPublicFixRequired(buildEnvironments, eclipseProject);
-                        return DefaultOmniEclipseProject.from(eclipseProject, isPublicFixRequired);
-                    }
-                }).toList();
-                return DefaultOmniEclipseWorkspace.from(omniEclipseProjects);
-            }
-        };
-        return executeRequest(modelRequest, successHandler, fetchStrategy, OmniEclipseWorkspace.class, converter);
+        return executeRequest(modelRequest, fetchStrategy, OmniEclipseProject.class, converter);
     }
 
-    private OmniBuildEnvironments fetchBuildEnvironments(TransientRequestAttributes transientAttributes, FetchStrategy fetchStrategy) {
+    @Override
+    public ModelResults<OmniBuildEnvironment> fetchBuildEnvironments(TransientRequestAttributes transientAttributes, FetchStrategy fetchStrategy) {
         CompositeBuildModelRequest<BuildEnvironment> modelRequest = createModelRequest(BuildEnvironment.class, this.requestAttributes, transientAttributes);
-        Consumer<OmniBuildEnvironments> newCacheEntryHandler = new Consumer<OmniBuildEnvironments>() {
+        Converter<BuildEnvironment, OmniBuildEnvironment> converter = new BaseConverter<BuildEnvironment, OmniBuildEnvironment>() {
 
             @Override
-            public void accept(OmniBuildEnvironments input) {
+            public OmniBuildEnvironment apply(BuildEnvironment buildEnvironment) {
+                return DefaultOmniBuildEnvironment.from(buildEnvironment);
             }
         };
-        Converter<Set<BuildEnvironment>, OmniBuildEnvironments> resultConverter = new BaseConverter<Set<BuildEnvironment>, DefaultCompositeModelRepository.OmniBuildEnvironments>() {
-
-            @Override
-            public OmniBuildEnvironments apply(Set<BuildEnvironment> input) {
-                return OmniBuildEnvironments.from(input);
-            }
-        };
-        return executeRequest(modelRequest, newCacheEntryHandler, fetchStrategy, OmniBuildEnvironments.class, resultConverter);
+        return executeRequest(modelRequest, fetchStrategy, OmniBuildEnvironment.class, converter);
     }
 
     private <T> CompositeBuildModelRequest<T> createModelRequest(Class<T> model, Set<FixedRequestAttributes> fixedAttributes, TransientRequestAttributes transientAttributes) {
@@ -118,40 +92,41 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
         return request;
     }
 
-    boolean isPublicFixRequired(OmniBuildEnvironments buildEnvironments, EclipseProject eclipseProject) {
-        OmniBuildEnvironment buildEnvironment = buildEnvironments.get(eclipseProject.getGradleProject().getProjectIdentifier().getBuildIdentifier());
-        return targetGradleVersionIsBetween("2.1", "2.2.1", buildEnvironment);
+    protected <T, U> ModelResults<U> executeRequest(Request<ModelResults<T>> request, FetchStrategy fetchStrategy, Class<?> cacheKey, Converter<T, U> resultConverter) {
+        // TODO push this special handling down to DefaultToolingClient
+        if (this.requestAttributes.isEmpty()) {
+            return new EmptyModelResults<U>();
+        }
+        Consumer<ModelResults<U>> dontSendEvents = new Consumer<ModelResults<U>>() {
+
+            @Override
+            public void accept(ModelResults<U> input) {
+            }
+        };
+        return super.executeRequest(request, dontSendEvents, fetchStrategy, cacheKey, new ModelResultsConverter<T, U>(resultConverter));
+    }
+
+    private HashMap<BuildIdentifier, OmniBuildEnvironment> getBuildEnvironmentsById(final TransientRequestAttributes transientAttributes, FetchStrategy fetchStrategy) {
+        ModelResults<OmniBuildEnvironment> buildEnvironments = fetchBuildEnvironments(transientAttributes, fetchStrategy);
+        final HashMap<BuildIdentifier, OmniBuildEnvironment> buildEnvironmentsById = Maps.newHashMap();
+        for (ModelResult<OmniBuildEnvironment> modelResult : buildEnvironments) {
+            if (modelResult.getFailure() == null) {
+                buildEnvironmentsById.put(modelResult.getModel().getBuildIdentifier(), modelResult.getModel());
+            }
+        }
+        return buildEnvironmentsById;
+    }
+
+    private boolean isPublicFixRequired(OmniBuildEnvironment buildEnvironment) {
+        if (buildEnvironment == null) {
+            return false;
+        } else {
+            return targetGradleVersionIsBetween("2.1", "2.2.1", buildEnvironment);
+        }
     }
 
     private boolean targetGradleVersionIsBetween(String minVersion, String maxVersion, OmniBuildEnvironment buildEnvironment) {
         GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
-        return gradleVersion.getBaseVersion().compareTo(GradleVersion.version(minVersion)) >= 0 &&
-                gradleVersion.getBaseVersion().compareTo(GradleVersion.version(maxVersion)) <= 0;
+        return gradleVersion.getBaseVersion().compareTo(GradleVersion.version(minVersion)) >= 0 && gradleVersion.getBaseVersion().compareTo(GradleVersion.version(maxVersion)) <= 0;
     }
-
-    /**
-     * A container for {@link OmniBuildEnvironment} models in a composite.
-     * @author Stefan Oehme
-     */
-    private static class OmniBuildEnvironments {
-
-        public static OmniBuildEnvironments from(Set<BuildEnvironment> environments) {
-            Map<BuildIdentifier, OmniBuildEnvironment>environmentsByBuild = Maps.newHashMap();
-            for (BuildEnvironment buildEnvironment : environments) {
-                environmentsByBuild.put(buildEnvironment.getBuildIdentifier(), DefaultOmniBuildEnvironment.from(buildEnvironment));
-            }
-            return new OmniBuildEnvironments(environmentsByBuild);
-        }
-
-        private final Map<BuildIdentifier, OmniBuildEnvironment> environmentsByBuild;
-
-        private OmniBuildEnvironments(Map<BuildIdentifier, OmniBuildEnvironment> environmentsByBuild) {
-            this.environmentsByBuild = environmentsByBuild;
-        }
-
-        public OmniBuildEnvironment get(BuildIdentifier build) {
-            return this.environmentsByBuild.get(build);
-        }
-    }
-
 }

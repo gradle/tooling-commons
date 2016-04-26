@@ -16,9 +16,20 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal
 
+import java.util.concurrent.atomic.AtomicReference
+
+import org.gradle.api.JavaVersion
+import org.gradle.api.specs.Spec
+import org.gradle.tooling.GradleConnectionException
+import org.gradle.tooling.GradleConnector
+import org.gradle.tooling.ProgressListener
+import org.gradle.util.GradleVersion
+import org.junit.Rule
+
 import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
 import com.google.common.eventbus.Subscribe
+
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.junit.TestFile
 import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
@@ -29,7 +40,7 @@ import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
 import com.gradleware.tooling.toolingmodel.OmniBuildInvocationsContainer
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure
 import com.gradleware.tooling.toolingmodel.OmniGradleProject
@@ -37,24 +48,12 @@ import com.gradleware.tooling.toolingmodel.Path
 import com.gradleware.tooling.toolingmodel.repository.BuildEnvironmentUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.BuildInvocationsUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.EclipseGradleBuildUpdateEvent
-import com.gradleware.tooling.toolingmodel.repository.EclipseWorkspaceUpdateEvent;
 import com.gradleware.tooling.toolingmodel.repository.Environment
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildStructureUpdateEvent
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildUpdateEvent
-import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
-import org.gradle.api.JavaVersion;
-import com.gradleware.tooling.toolingmodel.repository.internal.DefaultModelRepositoryTest.RepositoryType;
-import org.gradle.api.specs.Spec
-import org.gradle.tooling.GradleConnectionException
-import org.gradle.tooling.GradleConnector
-import org.gradle.tooling.ProgressListener
-import org.gradle.util.GradleVersion
-import org.junit.Rule
-
-import java.util.concurrent.atomic.AtomicReference
 
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
 class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification {
@@ -190,6 +189,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     buildEnvironment.java != null
     buildEnvironment.java.javaHome != null
     buildEnvironment.java.jvmArguments.size() > 0
+    buildEnvironment.buildIdentifier
 
     def event = publishedEvent.get()
     event != null
@@ -312,6 +312,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     gradleBuild.rootProject.name == 'my root project'
     gradleBuild.rootProject.description == 'a sample root project'
     gradleBuild.rootProject.path == Path.from(':')
+    gradleBuild.rootProject.projectIdentifier
     if (higherOrEqual('2.4', distribution)) {
       assert gradleBuild.rootProject.projectDirectory.get().absolutePath == directoryProvider.testDirectory.absolutePath
     } else {
@@ -681,7 +682,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
-  def "fetchEclipseGradleBuild - when exception is thrown"(GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
+  def "fetchEclipseGradleBuild - when exception is thrown"(GradleDistribution distribution, Environment environment) {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -693,16 +694,10 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
       public void listen(EclipseGradleBuildUpdateEvent event) {
         publishedEvent.set(event)
       }
-
-      @SuppressWarnings("GroovyUnusedDeclaration")
-      @Subscribe
-      public void listen(EclipseWorkspaceUpdateEvent event) {
-          publishedEvent.set(event)
-      }
     }
 
     when:
-    fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment, repositoryType, listener)
+    fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment, RepositoryType.SIMPLE, listener)
 
     then:
     thrown(GradleConnectionException)
@@ -710,7 +705,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     publishedEvent.get() == null
 
     where:
-    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.0")
+    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
   }
 
   def "fetchBuildInvocations - send event after cache update"(GradleDistribution distribution, Environment environment) {
@@ -848,10 +843,10 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
           OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
           return eclipseGradleBuild.rootEclipseProject
       } else {
-          def DefaultCompositeModelRepository repository = new DefaultCompositeModelRepository([fixedRequestAttributes] as Set, toolingClient, new EventBus())
+          DefaultCompositeModelRepository repository = new DefaultCompositeModelRepository([fixedRequestAttributes] as Set, toolingClient, new EventBus())
           repository.register(listener)
-          def eclipseWorkspace = repository.fetchEclipseWorkspace(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-          eclipseWorkspace.tryFind{p -> p.parent == null}.get()
+          def projects = repository.fetchEclipseProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+          projects.collect { it.model }.find { it.parent == null }
       }
   }
 
