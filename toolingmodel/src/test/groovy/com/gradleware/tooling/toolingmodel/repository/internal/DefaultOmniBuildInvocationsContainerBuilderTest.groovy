@@ -96,7 +96,7 @@ class DefaultOmniBuildInvocationsContainerBuilderTest extends ToolingModelToolin
         def gradleProject = modelRequest.executeAndWait()
 
         when:
-        DefaultOmniBuildInvocationsContainer buildInvocations = DefaultOmniBuildInvocationsContainerBuilder.build(gradleProject, false)
+        DefaultOmniBuildInvocationsContainer buildInvocations = DefaultOmniBuildInvocationsContainerBuilder.build(gradleProject)
 
         then:
         buildInvocations != null
@@ -159,7 +159,7 @@ class DefaultOmniBuildInvocationsContainerBuilderTest extends ToolingModelToolin
         def gradleProject = modelRequest.executeAndWait()
 
         when:
-        DefaultOmniBuildInvocationsContainer buildInvocations = DefaultOmniBuildInvocationsContainerBuilder.build(gradleProject, false)
+        DefaultOmniBuildInvocationsContainer buildInvocations = DefaultOmniBuildInvocationsContainerBuilder.build(gradleProject)
 
         then:
         buildInvocations != null

@@ -16,10 +16,11 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
+import org.gradle.tooling.model.Task;
+
 import com.gradleware.tooling.toolingmodel.OmniProjectTask;
 import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
-import org.gradle.tooling.model.Task;
 
 /**
  * Default implementation of the {@link OmniProjectTask} interface.
@@ -79,12 +80,12 @@ public final class DefaultOmniProjectTask implements OmniProjectTask {
         this.group = group;
     }
 
-    public static DefaultOmniProjectTask from(Task task, boolean enforceAllTasksPublic) {
+    public static DefaultOmniProjectTask from(Task task) {
         DefaultOmniProjectTask projectTask = new DefaultOmniProjectTask();
         projectTask.setName(task.getName());
         projectTask.setDescription(task.getDescription());
         projectTask.setPath(Path.from(task.getPath()));
-        setIsPublic(projectTask, task, enforceAllTasksPublic);
+        setIsPublic(projectTask, task);
         setGroup(projectTask, task);
         return projectTask;
     }
@@ -92,16 +93,14 @@ public final class DefaultOmniProjectTask implements OmniProjectTask {
     /**
      * GradleTask#isPublic is only available in Gradle versions >= 2.1.
      * <p/>
-     * For versions 2.1 and 2.2.x, GradleTask#isPublic always returns {@code false} and needs to be corrected to {@code true}.
      *
      * @param projectTask the task to populate
      * @param task the task model
-     * @param enforceAllTasksPublic flag to signal whether all tasks should be treated as public regardless of what the model says
      */
-    private static void setIsPublic(DefaultOmniProjectTask projectTask, Task task, boolean enforceAllTasksPublic) {
+    private static void setIsPublic(DefaultOmniProjectTask projectTask, Task task) {
         try {
             boolean isPublic = task.isPublic();
-            projectTask.setPublic(enforceAllTasksPublic || isPublic);
+            projectTask.setPublic(isPublic);
         } catch (Exception ignore) {
             projectTask.setPublic(true);
         }

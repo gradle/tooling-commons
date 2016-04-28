@@ -16,18 +16,13 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import java.util.HashMap;
 import java.util.Set;
 
-import org.gradle.tooling.connection.ModelResult;
 import org.gradle.tooling.connection.ModelResults;
-import org.gradle.tooling.model.BuildIdentifier;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
-import org.gradle.util.GradleVersion;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 
 import com.gradleware.tooling.toolingclient.CompositeBuildModelRequest;
@@ -57,14 +52,12 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
 
     @Override
     public ModelResults<OmniEclipseProject> fetchEclipseProjects(final TransientRequestAttributes transientAttributes, FetchStrategy fetchStrategy) {
-        final HashMap<BuildIdentifier, OmniBuildEnvironment> buildEnvironmentsById = getBuildEnvironmentsById(transientAttributes, FetchStrategy.FORCE_RELOAD);
         CompositeBuildModelRequest<EclipseProject> modelRequest = createModelRequest(EclipseProject.class, this.requestAttributes, transientAttributes);
         Converter<EclipseProject, OmniEclipseProject> converter = new BaseConverter<EclipseProject, OmniEclipseProject>() {
 
             @Override
             public OmniEclipseProject apply(EclipseProject eclipseProject) {
-                OmniBuildEnvironment buildEnvironment = buildEnvironmentsById.get(eclipseProject.getGradleProject().getProjectIdentifier().getBuildIdentifier());
-                return DefaultOmniEclipseProject.from(eclipseProject, isPublicFixRequired(buildEnvironment));
+                return DefaultOmniEclipseProject.from(eclipseProject);
             }
         };
         return executeRequest(modelRequest, fetchStrategy, OmniEclipseProject.class, converter);
@@ -104,29 +97,5 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
             }
         };
         return super.executeRequest(request, dontSendEvents, fetchStrategy, cacheKey, new ModelResultsConverter<T, U>(resultConverter));
-    }
-
-    private HashMap<BuildIdentifier, OmniBuildEnvironment> getBuildEnvironmentsById(final TransientRequestAttributes transientAttributes, FetchStrategy fetchStrategy) {
-        ModelResults<OmniBuildEnvironment> buildEnvironments = fetchBuildEnvironments(transientAttributes, fetchStrategy);
-        final HashMap<BuildIdentifier, OmniBuildEnvironment> buildEnvironmentsById = Maps.newHashMap();
-        for (ModelResult<OmniBuildEnvironment> modelResult : buildEnvironments) {
-            if (modelResult.getFailure() == null) {
-                buildEnvironmentsById.put(modelResult.getModel().getBuildIdentifier(), modelResult.getModel());
-            }
-        }
-        return buildEnvironmentsById;
-    }
-
-    private boolean isPublicFixRequired(OmniBuildEnvironment buildEnvironment) {
-        if (buildEnvironment == null) {
-            return false;
-        } else {
-            return targetGradleVersionIsBetween("2.1", "2.2.1", buildEnvironment);
-        }
-    }
-
-    private boolean targetGradleVersionIsBetween(String minVersion, String maxVersion, OmniBuildEnvironment buildEnvironment) {
-        GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
-        return gradleVersion.getBaseVersion().compareTo(GradleVersion.version(minVersion)) >= 0 && gradleVersion.getBaseVersion().compareTo(GradleVersion.version(maxVersion)) <= 0;
     }
 }

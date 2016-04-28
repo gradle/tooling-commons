@@ -16,9 +16,20 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
+import java.util.Map;
+
+import org.gradle.tooling.BuildAction;
+import org.gradle.tooling.model.GradleProject;
+import org.gradle.tooling.model.build.BuildEnvironment;
+import org.gradle.tooling.model.eclipse.EclipseProject;
+import org.gradle.tooling.model.gradle.BuildInvocations;
+import org.gradle.tooling.model.gradle.GradleBuild;
+import org.gradle.util.GradleVersion;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.eventbus.EventBus;
+
 import com.gradleware.tooling.toolingclient.BuildActionRequest;
 import com.gradleware.tooling.toolingclient.Consumer;
 import com.gradleware.tooling.toolingclient.ModelRequest;
@@ -40,15 +51,6 @@ import com.gradleware.tooling.toolingmodel.repository.GradleBuildStructureUpdate
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildUpdateEvent;
 import com.gradleware.tooling.toolingmodel.repository.SingleBuildModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
-import org.gradle.tooling.BuildAction;
-import org.gradle.tooling.model.GradleProject;
-import org.gradle.tooling.model.build.BuildEnvironment;
-import org.gradle.tooling.model.eclipse.EclipseProject;
-import org.gradle.tooling.model.gradle.BuildInvocations;
-import org.gradle.tooling.model.gradle.GradleBuild;
-import org.gradle.util.GradleVersion;
-
-import java.util.Map;
 
 /**
  * Repository for Gradle build models.
@@ -138,9 +140,6 @@ public final class DefaultSingleBuildModelRepository extends BaseModelRepository
         Preconditions.checkNotNull(transientRequestAttributes);
         Preconditions.checkNotNull(fetchStrategy);
 
-        // in versions 2.1 and 2.2.1, all projects tasks are falsely set to public = false in the Tooling API
-        final boolean requiresIsPublicFix = targetGradleVersionIsBetween("2.1", "2.2.1", transientRequestAttributes);
-
         ModelRequest<GradleProject> request = createModelRequestForBuildModel(GradleProject.class, transientRequestAttributes);
         Consumer<OmniGradleBuild> successHandler = new Consumer<OmniGradleBuild>() {
             @Override
@@ -152,7 +151,7 @@ public final class DefaultSingleBuildModelRepository extends BaseModelRepository
 
             @Override
             public OmniGradleBuild apply(GradleProject gradleProject) {
-                return DefaultOmniGradleBuild.from(gradleProject, requiresIsPublicFix);
+                return DefaultOmniGradleBuild.from(gradleProject);
             }
 
         };
@@ -168,8 +167,6 @@ public final class DefaultSingleBuildModelRepository extends BaseModelRepository
         Preconditions.checkNotNull(transientRequestAttributes);
         Preconditions.checkNotNull(fetchStrategy);
 
-        final boolean requiresIsPublicFix = targetGradleVersionIsBetween("2.1", "2.2.1", transientRequestAttributes);
-
         ModelRequest<EclipseProject> request = createModelRequestForBuildModel(EclipseProject.class, transientRequestAttributes);
         Consumer<OmniEclipseGradleBuild> successHandler = new Consumer<OmniEclipseGradleBuild>() {
             @Override
@@ -181,7 +178,7 @@ public final class DefaultSingleBuildModelRepository extends BaseModelRepository
 
             @Override
             public OmniEclipseGradleBuild apply(EclipseProject eclipseProject) {
-                return DefaultOmniEclipseGradleBuild.from(eclipseProject, requiresIsPublicFix);
+                return DefaultOmniEclipseGradleBuild.from(eclipseProject);
             }
 
         };
@@ -269,13 +266,6 @@ public final class DefaultSingleBuildModelRepository extends BaseModelRepository
             // in all other environments, BuildActions are supported as of Gradle version >= 1.8
             return targetGradleVersionIsEqualOrHigherThan("1.8", transientRequestAttributes);
         }
-    }
-
-    private boolean targetGradleVersionIsBetween(String minVersion, String maxVersion, TransientRequestAttributes transientRequestAttributes) {
-        OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
-        GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
-        return gradleVersion.getBaseVersion().compareTo(GradleVersion.version(minVersion)) >= 0 &&
-                gradleVersion.getBaseVersion().compareTo(GradleVersion.version(maxVersion)) <= 0;
     }
 
     private boolean targetGradleVersionIsEqualOrHigherThan(String refVersion, TransientRequestAttributes transientRequestAttributes) {

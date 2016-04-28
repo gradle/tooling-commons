@@ -57,9 +57,9 @@ public final class DefaultOmniBuildInvocationsContainerBuilder {
      * @param enforceAllTasksPublic if set to true {@code true}, all tasks should be made public
      * @return the build invocations container
      */
-    public static DefaultOmniBuildInvocationsContainer build(GradleProject project, boolean enforceAllTasksPublic) {
-        ImmutableMultimap<Path, OmniProjectTask> tasks = getAllProjectTasksByProjectPath(project, enforceAllTasksPublic);
-        ImmutableMultimap<Path, OmniTaskSelector> taskSelectors = getAllTaskSelectorsByProjectPath(project, enforceAllTasksPublic);
+    public static DefaultOmniBuildInvocationsContainer build(GradleProject project) {
+        ImmutableMultimap<Path, OmniProjectTask> tasks = getAllProjectTasksByProjectPath(project);
+        ImmutableMultimap<Path, OmniTaskSelector> taskSelectors = getAllTaskSelectorsByProjectPath(project);
         ImmutableSortedMap<Path, OmniBuildInvocations> buildInvocationsPerProject = buildBuildInvocationsMapping(project, tasks, taskSelectors);
         return DefaultOmniBuildInvocationsContainer.from(buildInvocationsPerProject);
     }
@@ -98,28 +98,28 @@ public final class DefaultOmniBuildInvocationsContainerBuilder {
         return projectPaths.build();
     }
 
-    private static ImmutableMultimap<Path, OmniProjectTask> getAllProjectTasksByProjectPath(GradleProject project, boolean enforceAllTasksPublic) {
+    private static ImmutableMultimap<Path, OmniProjectTask> getAllProjectTasksByProjectPath(GradleProject project) {
         Builder<Path, OmniProjectTask> tasks = ImmutableMultimap.builder();
 
         for (GradleTask task : project.getTasks()) {
-            tasks.put(Path.from(project.getPath()), DefaultOmniProjectTask.from(task, enforceAllTasksPublic));
+            tasks.put(Path.from(project.getPath()), DefaultOmniProjectTask.from(task));
         }
 
         for (GradleProject child : project.getChildren()) {
-            tasks.putAll(getAllProjectTasksByProjectPath(child, enforceAllTasksPublic));
+            tasks.putAll(getAllProjectTasksByProjectPath(child));
         }
 
         return tasks.build();
     }
 
-    private static ImmutableMultimap<Path, OmniTaskSelector> getAllTaskSelectorsByProjectPath(GradleProject project, boolean enforceAllTasksPublic) {
+    private static ImmutableMultimap<Path, OmniTaskSelector> getAllTaskSelectorsByProjectPath(GradleProject project) {
         Builder<Path, OmniTaskSelector> taskSelectors = ImmutableMultimap.builder();
-        TreeBasedTable<String, Path, OmniProjectTask> tasksByNameAndPath = getAllProjectTasksByNameAndPath(project, enforceAllTasksPublic);
+        TreeBasedTable<String, Path, OmniProjectTask> tasksByNameAndPath = getAllProjectTasksByNameAndPath(project);
 
         for (String selectorName : tasksByNameAndPath.rowKeySet()) {
             SortedMap<Path, OmniProjectTask> tasksByPath = tasksByNameAndPath.row(selectorName);
             OmniProjectTask taskWithShortestPath = tasksByPath.get(tasksByPath.firstKey());
-            boolean isPublic = enforceAllTasksPublic || Iterables.any(tasksByPath.values(), new Predicate<OmniProjectTask>() {
+            boolean isPublic = Iterables.any(tasksByPath.values(), new Predicate<OmniProjectTask>() {
 
                 @Override
                 public boolean apply(OmniProjectTask input) {
@@ -140,21 +140,21 @@ public final class DefaultOmniBuildInvocationsContainerBuilder {
         }
 
         for (GradleProject childProject : project.getChildren()) {
-            taskSelectors.putAll(getAllTaskSelectorsByProjectPath(childProject, enforceAllTasksPublic));
+            taskSelectors.putAll(getAllTaskSelectorsByProjectPath(childProject));
         }
 
         return taskSelectors.build();
     }
 
-    private static TreeBasedTable<String, Path, OmniProjectTask> getAllProjectTasksByNameAndPath(GradleProject project, boolean enforceAllTasksPublic) {
+    private static TreeBasedTable<String, Path, OmniProjectTask> getAllProjectTasksByNameAndPath(GradleProject project) {
         TreeBasedTable<String, Path, OmniProjectTask> tasks = TreeBasedTable.create(Ordering.natural(), Path.Comparator.INSTANCE);
         for (GradleTask task : project.getTasks()) {
-            OmniProjectTask projectTask = DefaultOmniProjectTask.from(task, enforceAllTasksPublic);
+            OmniProjectTask projectTask = DefaultOmniProjectTask.from(task);
             tasks.put(projectTask.getName(), projectTask.getPath(), projectTask);
         }
 
         for (GradleProject childProject : project.getChildren()) {
-            tasks.putAll(getAllProjectTasksByNameAndPath(childProject, enforceAllTasksPublic));
+            tasks.putAll(getAllProjectTasksByNameAndPath(childProject));
         }
         return tasks;
     }

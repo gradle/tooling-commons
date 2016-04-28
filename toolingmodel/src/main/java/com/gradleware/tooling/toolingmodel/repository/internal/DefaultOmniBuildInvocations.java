@@ -65,7 +65,7 @@ public final class DefaultOmniBuildInvocations implements OmniBuildInvocations {
         return FluentIterable.from(projectTasks).transform(new Function<Task, OmniProjectTask>() {
             @Override
             public OmniProjectTask apply(Task input) {
-                return DefaultOmniProjectTask.from(input, false);
+                return DefaultOmniProjectTask.from(input);
             }
         }).toList();
     }

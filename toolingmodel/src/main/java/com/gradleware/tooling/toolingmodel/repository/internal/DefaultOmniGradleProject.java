@@ -181,8 +181,8 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
         return this.hierarchyHelper.tryFind(predicate);
     }
 
-    public static DefaultOmniGradleProject from(GradleProject project, boolean enforceAllTasksPublic) {
-        OmniBuildInvocationsContainer buildInvocationsContainer = DefaultOmniBuildInvocationsContainerBuilder.build(project, enforceAllTasksPublic);
+    public static DefaultOmniGradleProject from(GradleProject project) {
+        OmniBuildInvocationsContainer buildInvocationsContainer = DefaultOmniBuildInvocationsContainerBuilder.build(project);
         return convert(project, buildInvocationsContainer);
     }
 

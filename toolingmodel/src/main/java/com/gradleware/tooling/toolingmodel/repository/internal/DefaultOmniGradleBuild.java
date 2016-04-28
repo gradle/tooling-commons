@@ -39,9 +39,9 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
         return this.rootProject;
     }
 
-    public static DefaultOmniGradleBuild from(GradleProject gradleRootProject, boolean enforceAllTasksPublic) {
+    public static DefaultOmniGradleBuild from(GradleProject gradleRootProject) {
         Preconditions.checkState(gradleRootProject.getParent() == null, "Provided Gradle project is not the root project.");
-        return new DefaultOmniGradleBuild(DefaultOmniGradleProject.from(gradleRootProject, enforceAllTasksPublic));
+        return new DefaultOmniGradleBuild(DefaultOmniGradleProject.from(gradleRootProject));
     }
 
 }
