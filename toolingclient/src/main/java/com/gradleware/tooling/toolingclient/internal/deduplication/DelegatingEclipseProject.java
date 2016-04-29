@@ -27,6 +27,7 @@ import org.gradle.tooling.model.eclipse.EclipseJavaSourceSettings;
 import org.gradle.tooling.model.eclipse.EclipseLinkedResource;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
+import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
 import org.gradle.tooling.model.eclipse.EclipseProjectNature;
 import org.gradle.tooling.model.eclipse.EclipseSourceDirectory;
 
@@ -40,6 +41,11 @@ public class DelegatingEclipseProject implements EclipseProject {
 
     public DelegatingEclipseProject(EclipseProject delegate) {
         this.delegate = delegate;
+    }
+
+    @Override
+    public EclipseProjectIdentifier getIdentifier() {
+        return this.delegate.getIdentifier();
     }
 
     @Override

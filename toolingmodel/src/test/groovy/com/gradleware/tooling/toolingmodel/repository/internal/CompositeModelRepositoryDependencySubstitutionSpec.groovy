@@ -16,13 +16,10 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal
 
-import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
-import org.gradle.tooling.connection.ModelResult
-import org.gradle.tooling.model.eclipse.EclipseProject;
+import org.gradle.util.GradleVersion;
 import org.junit.Rule
-import spock.lang.Ignore;
 
 import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
@@ -32,15 +29,13 @@ import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
 import com.gradleware.tooling.spock.VerboseUnroll
 import com.gradleware.tooling.testing.GradleVersionParameterization
 import com.gradleware.tooling.toolingclient.GradleDistribution
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
-import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 
-@Ignore("Not yet implemented")
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
-class CompositeModelRepositoryDepdendencySubstitutionSpec extends ToolingModelToolingClientSpecification {
+class CompositeModelRepositoryDependencySubstitutionSpec extends ToolingModelToolingClientSpecification {
 
     @Rule
     TestDirectoryProvider projectA = new TestDirectoryProvider("projectA");
@@ -57,37 +52,47 @@ class CompositeModelRepositoryDepdendencySubstitutionSpec extends ToolingModelTo
             }
         '''
 
+        projectB.createFile('settings.gradle') << '''
+            rootProject.name = "junit"
+        '''
         projectB.createFile('build.gradle') << '''
             apply plugin: 'java'
-            apply plugin: 'maven'
-            group = 'junit'
-            uploadArchives.repositories.mavenDeployer {
-                pom.artifactId = 'junit'
-            }
+            group "junit"
         '''
     }
 
     def "External dependencies are substituted for other projects in the composite"(GradleDistribution distribution) {
         when:
-        ModelResult<OmniEclipseProject> eclipseProjects= fetchEclipseProjects(distribution)
+        Set<OmniEclipseProject> eclipseProjects= fetchEclipseProjects(distribution, distribution)
 
         then:
-        eclipseProjects != null
-        OmniEclipseProject eclipseProjectA = eclipseProjects[0].model
-        eclipseProjectA.name == 'projectA'
+        eclipseProjects.size() == 2
+        OmniEclipseProject eclipseProjectA = eclipseProjects.find { it.name == "projectA" }
+        OmniEclipseProject eclipseProjectB = eclipseProjects.find { it.name == "junit" }
         eclipseProjectA.projectDependencies.size() == 1
-        eclipseProjectA.projectDependencies[0].targetProjectDir == projectB.testDirectory
+        eclipseProjectA.projectDependencies[0].getTarget() == eclipseProjectB.identifier
 
         where:
         distribution << runWithAllGradleVersions(">=2.14")
     }
 
-    private fetchEclipseProjects(GradleDistribution distribution) {
-        def participantA = new FixedRequestAttributes(projectA.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-        def participantB = new FixedRequestAttributes(projectB.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def "Dependency substitution is deactivated if projects have different Gradle versions"() {
+        when:
+        Set<OmniEclipseProject> eclipseProjects= fetchEclipseProjects(GradleDistribution.forVersion(GradleVersion.current().version), GradleDistribution.forVersion('2.13'))
+
+        then:
+        eclipseProjects.size() == 2
+        OmniEclipseProject eclipseProjectA = eclipseProjects.find { it.name == "projectA" }
+        OmniEclipseProject eclipseProjectB = eclipseProjects.find { it.name == "junit" }
+        eclipseProjectA.projectDependencies.size() == 0
+    }
+
+    private Set<OmniEclipseProject> fetchEclipseProjects(GradleDistribution distributionA, GradleDistribution distributionB) {
+        def participantA = new FixedRequestAttributes(projectA.testDirectory, null, distributionA, null, ImmutableList.of(), ImmutableList.of())
+        def participantB = new FixedRequestAttributes(projectB.testDirectory, null, distributionB, null, ImmutableList.of(), ImmutableList.of())
         def repository = new DefaultCompositeModelRepository([participantA, participantB] as Set, toolingClient, new EventBus())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        repository.fetchEclipseProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+        repository.fetchEclipseProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED).findAll { !it.failure }.collect { it.model }
     }
 
     private static ImmutableList<GradleDistribution> runWithAllGradleVersions(String versionPattern) {

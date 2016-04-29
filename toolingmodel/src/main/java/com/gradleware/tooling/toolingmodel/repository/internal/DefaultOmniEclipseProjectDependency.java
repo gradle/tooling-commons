@@ -16,10 +16,10 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import java.io.File;
 import java.util.List;
 
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
+import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
 
 import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
@@ -31,20 +31,20 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
  */
 public final class DefaultOmniEclipseProjectDependency extends AbstractOmniClasspathEntry implements OmniEclipseProjectDependency {
 
-    private final File targetProjectDir;
+    private final EclipseProjectIdentifier target;
     private final String path;
     private final boolean exported;
 
-    private DefaultOmniEclipseProjectDependency(File targetProjectDir, String path, boolean exported, List<OmniClasspathAttribute> classpathAttributes) {
+    private DefaultOmniEclipseProjectDependency(EclipseProjectIdentifier target, String path, boolean exported, List<OmniClasspathAttribute> classpathAttributes) {
         super(classpathAttributes);
-        this.targetProjectDir = targetProjectDir;
+        this.target = target;
         this.path = path;
         this.exported = exported;
     }
 
     @Override
-    public File getTargetProjectDir() {
-        return this.targetProjectDir;
+    public EclipseProjectIdentifier getTarget() {
+        return this.target;
     }
 
     @Override
@@ -59,7 +59,7 @@ public final class DefaultOmniEclipseProjectDependency extends AbstractOmniClass
 
     public static DefaultOmniEclipseProjectDependency from(EclipseProjectDependency projectDependency) {
         return new DefaultOmniEclipseProjectDependency(
-                projectDependency.getTargetProject().getProjectDirectory(),
+                projectDependency.getTarget(),
                 projectDependency.getPath(),
                 getIsExported(projectDependency),
                 getClasspathAttributes(projectDependency));

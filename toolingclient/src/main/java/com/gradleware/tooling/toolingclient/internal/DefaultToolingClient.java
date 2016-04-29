@@ -33,8 +33,12 @@ import org.gradle.tooling.TestLauncher;
 import org.gradle.tooling.connection.GradleConnection;
 import org.gradle.tooling.connection.GradleConnectionBuilder;
 import org.gradle.tooling.connection.GradleConnectionBuilder.ParticipantBuilder;
+import org.gradle.tooling.connection.ModelResult;
 import org.gradle.tooling.connection.ModelResults;
+import org.gradle.tooling.internal.connection.GradleConnectionBuilderInternal;
 import org.gradle.tooling.internal.consumer.ConnectorServices;
+import org.gradle.tooling.model.build.BuildEnvironment;
+import org.gradle.util.GradleVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -278,6 +282,46 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     }
 
     private GradleConnection openCompositeConnection(InspectableCompositeBuildRequest<?> compositeRequest) {
+        GradleConnection actualConnection = createIntegratedCompositeIfPossible(compositeRequest);
+        return new DeduplicatingGradleConnection(actualConnection);
+    }
+
+    private GradleConnection createIntegratedCompositeIfPossible(InspectableCompositeBuildRequest<?> compositeRequest) {
+        GradleConnectionBuilder connectionBuilder = configureBasicCompositeConnection(compositeRequest);
+        GradleConnection aggregateConnection = connectionBuilder.build();
+
+        if (!(connectionBuilder instanceof GradleConnectionBuilderInternal)) {
+            return aggregateConnection;
+        }
+
+        if (allParticipantsHaveCurrentVersion(aggregateConnection, compositeRequest)) {
+            ((GradleConnectionBuilderInternal) connectionBuilder).integratedComposite(true);
+            return connectionBuilder.build();
+        } else {
+            return aggregateConnection;
+        }
+    }
+
+    private boolean allParticipantsHaveCurrentVersion(GradleConnection aggregateConnection, InspectableCompositeBuildRequest<?> compositeRequest) {
+        String currentVersion = GradleVersion.current().getVersion();
+
+        ModelResults<BuildEnvironment> results = fetchBuildEnvironments(aggregateConnection, compositeRequest);
+
+        for (ModelResult<BuildEnvironment> result : results) {
+            if (result.getFailure() != null) {
+                return false;
+            }
+            BuildEnvironment buildEnvironment = result.getModel();
+            String gradleVersion = buildEnvironment.getGradle().getGradleVersion();
+            if (!currentVersion.equals(gradleVersion)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private GradleConnectionBuilder configureBasicCompositeConnection(InspectableCompositeBuildRequest<?> compositeRequest) {
         if (compositeRequest.getParticipants().length == 0) {
             throw new IllegalArgumentException("There must be at least one participant in a composite build");
         }
@@ -286,8 +330,13 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
             ParticipantBuilder participantBuilder = connectionBuilder.addParticipant(identifier.getProjectDir());
             identifier.getGradleDistribution().apply(participantBuilder);
         }
-        GradleConnection actualConnection = connectionBuilder.build();
-        return new DeduplicatingGradleConnection(actualConnection);
+        return connectionBuilder;
+    }
+
+    private ModelResults<BuildEnvironment> fetchBuildEnvironments(GradleConnection aggregateConnection, InspectableCompositeBuildRequest<?> compositeRequest) {
+        ModelBuilder<ModelResults<BuildEnvironment>> builder = aggregateConnection.models(BuildEnvironment.class);
+        mapToLongRunningOperation(compositeRequest, builder);
+        return builder.get();
     }
 
     private <T> ModelBuilder<T> mapToModelBuilder(InspectableModelRequest<T> modelRequest, ProjectConnection connection) {

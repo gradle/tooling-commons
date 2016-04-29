@@ -18,9 +18,10 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import java.util.Iterator;
 
-import org.gradle.impldep.com.google.common.collect.Iterators;
 import org.gradle.tooling.connection.ModelResult;
 import org.gradle.tooling.connection.ModelResults;
+
+import com.google.common.collect.Iterators;
 
 /**
  * An empty model result, when there are no builds in the composite. Workaround for the fact that

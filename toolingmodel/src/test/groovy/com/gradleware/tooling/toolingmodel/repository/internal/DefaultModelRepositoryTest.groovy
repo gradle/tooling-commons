@@ -544,7 +544,8 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     rootProject.externalDependencies == []
 
     // verify source directories
-    def apiSourceDirectories = rootProject.tryFind({ it.name == 'api' } as Spec).get().sourceDirectories
+    def apiProject = rootProject.tryFind({ it.name == 'api' } as Spec).get()
+    def apiSourceDirectories = apiProject.sourceDirectories
     apiSourceDirectories.size() == 3
     apiSourceDirectories[0].path == 'src/main/java'
     apiSourceDirectories[0].directory == apiProjectDir.file('src/main/java')
@@ -555,16 +556,16 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     rootProject.tryFind({ it.name == 'impl' } as Spec).get().sourceDirectories == []
 
     // verify project dependencies
-    rootProject.tryFind({ it.name == 'api' } as Spec).get().projectDependencies == []
+    apiProject.projectDependencies == []
     def implProjectDependencies = rootProject.tryFind({ it.name == 'impl' } as Spec).get().projectDependencies
     implProjectDependencies.size() == 1
     def apiProjectDependency = implProjectDependencies[0]
-    apiProjectDependency.targetProjectDir.name == 'api'
+    apiProjectDependency.target == apiProject.identifier
     apiProjectDependency.exported == higherOrEqual('2.5', distribution) ? false : true
     apiProjectDependency.classpathAttributes == []
 
     // verify external dependencies
-    def apiExternalDependencies = rootProject.tryFind({ it.name == 'api' } as Spec).get().externalDependencies
+    def apiExternalDependencies = apiProject.externalDependencies
     apiExternalDependencies.size() == 1
     def guavaDependency = apiExternalDependencies[0]
     guavaDependency.file != null

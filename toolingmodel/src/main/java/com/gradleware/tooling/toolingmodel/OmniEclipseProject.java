@@ -20,6 +20,7 @@ import com.google.common.base.Optional;
 import com.gradleware.tooling.toolingutils.ImmutableCollection;
 import org.gradle.api.Nullable;
 import org.gradle.api.specs.Spec;
+import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
 
 import java.io.File;
 import java.util.List;
@@ -84,6 +85,12 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
      */
     @Override
     Optional<OmniEclipseProject> tryFind(Spec<? super OmniEclipseProject> predicate);
+
+    /**
+     * Returns the identifier of this project, which is used to correlate it with other models.
+     * @return the identifier, never null
+     */
+    EclipseProjectIdentifier getIdentifier();
 
     /**
      * Returns the name of this project. Note that the name is not a unique identifier for the project.

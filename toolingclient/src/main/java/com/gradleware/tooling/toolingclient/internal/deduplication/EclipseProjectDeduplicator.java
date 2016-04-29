@@ -16,19 +16,20 @@
 
 package com.gradleware.tooling.toolingclient.internal.deduplication;
 
-import java.io.File;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.gradle.impldep.com.google.common.collect.Sets;
 import org.gradle.tooling.model.eclipse.EclipseProject;
+import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * De-duplicates {@link EclipseProject} names.
+ *
  * @author Stefan Oehme
  */
 class EclipseProjectDeduplicator {
@@ -44,9 +45,8 @@ class EclipseProjectDeduplicator {
         for (EclipseProject eclipseProject : eclipseProjects) {
             String name = eclipseProject.getName();
             if (eclipseProject.getParent() == null && !rootProjectNames.add(name)) {
-                throw new IllegalArgumentException(
-                    String.format("Duplicate root project name '%s'. Duplicate root project names are currently not supported. This will change in future Gradle versions.", name)
-                );
+                throw new IllegalArgumentException(String
+                        .format("Duplicate root project name '%s'. Duplicate root project names are currently not supported. This will change in future Gradle versions.", name));
             }
         }
         Map<EclipseProject, String> newNames = new HierarchicalElementDeduplicator<EclipseProject>(new EclipseProjectNameDeduplicationStrategy()).deduplicate(eclipseProjects);
@@ -57,6 +57,7 @@ class EclipseProjectDeduplicator {
 
     /**
      * Adapts {@link EclipseProject}s to the generic de-duplication algorithm.
+     *
      * @author Stefan Oehme
      */
     private static class EclipseProjectNameDeduplicationStrategy implements NameDeduplicationAdapter<EclipseProject> {
@@ -73,30 +74,31 @@ class EclipseProjectDeduplicator {
     }
 
     /**
-     * Keeps track of renamed {@link EclipseProject}s, so that their hierarchy and dependencies stay consistent under renaming.
+     * Keeps track of renamed {@link EclipseProject}s, so that their hierarchy and dependencies stay
+     * consistent under renaming.
      */
     private static class RenamedEclipseProjectTracker implements RedirectedProjectLookup {
 
-        private final Map<File, EclipseProject> originalToRenamed;
+        private final Map<EclipseProjectIdentifier, EclipseProject> originalToRenamed;
 
         public RenamedEclipseProjectTracker(Set<EclipseProject> originals) {
             this.originalToRenamed = Maps.newHashMap();
             for (EclipseProject eclipseProject : originals) {
-                this.originalToRenamed.put(eclipseProject.getProjectDirectory(), new RedirectionAwareEclipseProject(eclipseProject, this));
+                this.originalToRenamed.put(eclipseProject.getIdentifier(), new RedirectionAwareEclipseProject(eclipseProject, this));
             }
         }
 
         @Override
-        public EclipseProject getRedirectedProject(File projectDirectory) {
-            return this.originalToRenamed.get(projectDirectory);
+        public EclipseProject getRedirectedProject(EclipseProjectIdentifier id) {
+            return this.originalToRenamed.get(id);
         }
 
         public void renameTo(EclipseProject original, String newName) {
-            File projectDirectory = original.getProjectDirectory();
-            if (!this.originalToRenamed.containsKey(projectDirectory)) {
+            EclipseProjectIdentifier id = original.getIdentifier();
+            if (!this.originalToRenamed.containsKey(id)) {
                 throw new IllegalArgumentException("Project " + original.getName() + " was not one of the projects to be renamed.");
             } else {
-                this.originalToRenamed.put(projectDirectory, new RenamedEclipseProject(original, newName, this));
+                this.originalToRenamed.put(id, new RenamedEclipseProject(original, newName, this));
             }
         }
 

@@ -16,16 +16,17 @@
 
 package com.gradleware.tooling.toolingclient.internal.deduplication;
 
-import java.io.File;
-
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.UnsupportedMethodException;
 import org.gradle.tooling.model.eclipse.ClasspathAttribute;
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
+import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
 import org.gradle.tooling.model.eclipse.HierarchicalEclipseProject;
 
 /**
- * Redirects the {@link #getTargetProject()} method to point to a renamed or dependency-substituted project.
+ * Redirects the {@link #getTargetProject()} method to point to a renamed or dependency-substituted
+ * project.
+ *
  * @author Stefan Oehme
  */
 class RedirectionAwareEclipseProjectDependency implements EclipseProjectDependency {
@@ -39,19 +40,9 @@ class RedirectionAwareEclipseProjectDependency implements EclipseProjectDependen
     }
 
     @Override
+    @Deprecated
     public HierarchicalEclipseProject getTargetProject() {
-        HierarchicalEclipseProject target = this.delegate.getTargetProject();
-        return this.renamedProjectLookup.getRedirectedProject(target.getProjectDirectory());
-    }
-
-    @Override
-    public DomainObjectSet<? extends ClasspathAttribute> getClasspathAttributes() throws UnsupportedMethodException {
-        return this.delegate.getClasspathAttributes();
-    }
-
-    @Override
-    public File getTargetProjectDirectory() {
-        return this.renamedProjectLookup.getRedirectedProject(this.delegate.getTargetProjectDirectory()).getProjectDirectory();
+        return this.renamedProjectLookup.getRedirectedProject(this.delegate.getTarget());
     }
 
     @Override
@@ -62,6 +53,16 @@ class RedirectionAwareEclipseProjectDependency implements EclipseProjectDependen
     @Override
     public boolean isExported() {
         return this.delegate.isExported();
+    }
+
+    @Override
+    public DomainObjectSet<? extends ClasspathAttribute> getClasspathAttributes() throws UnsupportedMethodException {
+        return this.delegate.getClasspathAttributes();
+    }
+
+    @Override
+    public EclipseProjectIdentifier getTarget() {
+        return this.renamedProjectLookup.getRedirectedProject(this.delegate.getTarget()).getIdentifier();
     }
 
     @Override

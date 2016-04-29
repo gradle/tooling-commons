@@ -30,6 +30,7 @@ import org.gradle.tooling.model.eclipse.EclipseJavaSourceSettings;
 import org.gradle.tooling.model.eclipse.EclipseLinkedResource;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
+import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
 import org.gradle.tooling.model.eclipse.EclipseProjectNature;
 import org.gradle.tooling.model.eclipse.EclipseSourceDirectory;
 import org.gradle.tooling.model.java.InstalledJdk;
@@ -63,6 +64,7 @@ import com.gradleware.tooling.toolingmodel.Path;
 public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 
     private final HierarchyHelper<OmniEclipseProject> hierarchyHelper;
+    private EclipseProjectIdentifier identifier;
     private String name;
     private String description;
     private Path path;
@@ -78,6 +80,11 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 
     private DefaultOmniEclipseProject(Comparator<? super OmniEclipseProject> comparator) {
         this.hierarchyHelper = new HierarchyHelper<OmniEclipseProject>(this, Preconditions.checkNotNull(comparator));
+    }
+
+    @Override
+    public EclipseProjectIdentifier getIdentifier() {
+        return this.identifier;
     }
 
     @Override
@@ -248,6 +255,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         DefaultOmniEclipseProject eclipseProject = new DefaultOmniEclipseProject(OmniEclipseProjectComparator.INSTANCE);
         knownProjects.put(path, eclipseProject);
 
+        eclipseProject.identifier = project.getIdentifier();
         eclipseProject.setName(project.getName());
         eclipseProject.setDescription(project.getDescription());
         eclipseProject.setPath(path);

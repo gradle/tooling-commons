@@ -16,9 +16,8 @@
 
 package com.gradleware.tooling.toolingclient.internal.deduplication;
 
-import java.io.File;
-
 import org.gradle.tooling.model.eclipse.EclipseProject;
+import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
 
 /**
  * Keeps track of {@link EclipseProject}s to present a consistent hierarchy.
@@ -32,5 +31,5 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
  */
 public interface RedirectedProjectLookup {
 
-    EclipseProject getRedirectedProject(File projectDirectory);
+    EclipseProject getRedirectedProject(EclipseProjectIdentifier id);
 }

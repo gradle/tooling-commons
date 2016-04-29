@@ -142,7 +142,6 @@ public final class GradleVersionSpec {
         }
 
         return new Spec<GradleVersion>() {
-
             @Override
             public boolean isSatisfiedBy(GradleVersion element) {
                 for (Spec<GradleVersion> spec : specs) {
