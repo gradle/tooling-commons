@@ -360,7 +360,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     mySecondTaskOfSub1.name == 'mySecondTaskOfSub1'
     mySecondTaskOfSub1.description == '2nd task of sub1'
     mySecondTaskOfSub1.path.path == ':sub1:mySecondTaskOfSub1'
-    !mySecondTaskOfSub1.isPublic()
+    mySecondTaskOfSub1.isPublic() == !higherOrEqual('2.1', distribution)
     if (higherOrEqual('2.5', distribution)) {
       assert mySecondTaskOfSub1.group.get() == null
     } else {
