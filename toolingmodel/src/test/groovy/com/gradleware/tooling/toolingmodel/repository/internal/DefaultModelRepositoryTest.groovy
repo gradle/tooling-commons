@@ -751,8 +751,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     mySecondTaskOfSub1.name == 'mySecondTaskOfSub1'
     mySecondTaskOfSub1.description == '2nd task of sub1'
     mySecondTaskOfSub1.path.path == ':sub1:mySecondTaskOfSub1'
-    mySecondTaskOfSub1.isPublic() == (!higherOrEqual('2.1', distribution) || !higherOrEqual('2.3', distribution) && environment == Environment.ECLIPSE)
-    // only 'authentic' build invocations know the task is private prior to version 2.3
+    mySecondTaskOfSub1.isPublic() == !higherOrEqual('2.3', distribution)
 
     def projectSub2 = buildInvocations.get(Path.from(':sub2')).get()
     def sub2ExplicitTaskSelectors = projectSub2.taskSelectors.findAll { !ImplicitTasks.ALL.contains(it.name) }
