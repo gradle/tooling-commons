@@ -54,7 +54,6 @@ public final class DefaultOmniBuildInvocationsContainerBuilder {
      * Converts a {@link GradleProject} to a {@link DefaultOmniBuildInvocationsContainer}.
      *
      * @param project the Gradle project to convert
-     * @param enforceAllTasksPublic if set to true {@code true}, all tasks should be made public
      * @return the build invocations container
      */
     public static DefaultOmniBuildInvocationsContainer build(GradleProject project) {
