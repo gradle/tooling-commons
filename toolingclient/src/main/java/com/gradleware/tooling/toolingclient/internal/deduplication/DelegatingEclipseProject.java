@@ -19,10 +19,10 @@ package com.gradleware.tooling.toolingclient.internal.deduplication;
 import java.io.File;
 
 import org.gradle.tooling.model.DomainObjectSet;
-import org.gradle.tooling.model.ExternalDependency;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.UnsupportedMethodException;
 import org.gradle.tooling.model.eclipse.EclipseBuildCommand;
+import org.gradle.tooling.model.eclipse.EclipseExternalDependency;
 import org.gradle.tooling.model.eclipse.EclipseJavaSourceSettings;
 import org.gradle.tooling.model.eclipse.EclipseLinkedResource;
 import org.gradle.tooling.model.eclipse.EclipseProject;
@@ -93,7 +93,7 @@ public class DelegatingEclipseProject implements EclipseProject {
     }
 
     @Override
-    public DomainObjectSet<? extends ExternalDependency> getClasspath() {
+    public DomainObjectSet<? extends EclipseExternalDependency> getClasspath() {
         return this.delegate.getClasspath();
     }
 

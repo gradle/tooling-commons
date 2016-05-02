@@ -16,6 +16,11 @@
 
 package com.gradleware.tooling.toolingclient.internal.deduplication;
 
+import java.io.File;
+
+import org.gradle.tooling.model.DomainObjectSet;
+import org.gradle.tooling.model.UnsupportedMethodException;
+import org.gradle.tooling.model.eclipse.ClasspathAttribute;
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
 import org.gradle.tooling.model.eclipse.HierarchicalEclipseProject;
 
@@ -37,6 +42,16 @@ class RedirectionAwareEclipseProjectDependency implements EclipseProjectDependen
     public HierarchicalEclipseProject getTargetProject() {
         HierarchicalEclipseProject target = this.delegate.getTargetProject();
         return this.renamedProjectLookup.getRedirectedProject(target.getProjectDirectory());
+    }
+
+    @Override
+    public DomainObjectSet<? extends ClasspathAttribute> getClasspathAttributes() throws UnsupportedMethodException {
+        return this.delegate.getClasspathAttributes();
+    }
+
+    @Override
+    public File getTargetProjectDirectory() {
+        return this.renamedProjectLookup.getRedirectedProject(this.delegate.getTargetProjectDirectory()).getProjectDirectory();
     }
 
     @Override

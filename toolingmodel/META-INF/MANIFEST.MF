@@ -10,7 +10,7 @@ Export-Package: com.gradleware.tooling.toolingmodel;version="0.13.0",
  com.gradleware.tooling.toolingmodel.buildaction;version="0.13.0",
  com.gradleware.tooling.toolingmodel.repository;version="0.13.0",
  com.gradleware.tooling.toolingmodel.util;version="0.13.0"
-Require-Bundle: org.gradle.toolingapi;bundle-version="2.13.0";visibility:=reexport,
+Require-Bundle: org.gradle.toolingapi;bundle-version="2.14.0";visibility:=reexport,
  com.gradleware.tooling.utils;bundle-version="[0.13.0,0.14.0)",
  com.gradleware.tooling.client;bundle-version="[0.13.0,0.14.0)",
  com.google.guava;bundle-version="[15.0.0,16.0.0)";visibility:=reexport,

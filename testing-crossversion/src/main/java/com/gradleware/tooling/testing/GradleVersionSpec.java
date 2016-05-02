@@ -16,13 +16,13 @@
 
 package com.gradleware.tooling.testing;
 
-import com.google.common.base.Preconditions;
-import org.gradle.api.specs.Spec;
-import org.gradle.api.specs.Specs;
-import org.gradle.util.GradleVersion;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.gradle.api.specs.Spec;
+import org.gradle.util.GradleVersion;
+
+import com.google.common.base.Preconditions;
 
 /**
  * A specification that matches against Gradle version patterns.
@@ -93,7 +93,7 @@ public final class GradleVersionSpec {
         }
 
         // AND-combined patterns
-        List<Spec<GradleVersion>> specs = new ArrayList<Spec<GradleVersion>>();
+        final List<Spec<GradleVersion>> specs = new ArrayList<Spec<GradleVersion>>();
         String[] patterns = trimmed.split("\\s+");
         for (String value : patterns) {
             if (value.startsWith(NOT_EQUALS)) {
@@ -141,7 +141,18 @@ public final class GradleVersionSpec {
             }
         }
 
-        return Specs.intersect(specs);
+        return new Spec<GradleVersion>() {
+
+            @Override
+            public boolean isSatisfiedBy(GradleVersion element) {
+                for (Spec<GradleVersion> spec : specs) {
+                    if (!spec.isSatisfiedBy(element)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        };
     }
 
 }
