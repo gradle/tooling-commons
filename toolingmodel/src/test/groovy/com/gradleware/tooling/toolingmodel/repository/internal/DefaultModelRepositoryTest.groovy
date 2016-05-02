@@ -360,7 +360,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     mySecondTaskOfSub1.name == 'mySecondTaskOfSub1'
     mySecondTaskOfSub1.description == '2nd task of sub1'
     mySecondTaskOfSub1.path.path == ':sub1:mySecondTaskOfSub1'
-    mySecondTaskOfSub1.isPublic() == !higherOrEqual('2.3', distribution)
+    mySecondTaskOfSub1.isPublic() == (!higherOrEqual('2.1', distribution) || higherOrEqual('2.3', distribution))
     if (higherOrEqual('2.5', distribution)) {
       assert mySecondTaskOfSub1.group.get() == null
     } else {
@@ -376,7 +376,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     myTaskSelector.name == 'myTask'
     myTaskSelector.description == 'another task of sub2'
     myTaskSelector.projectPath.path == ':sub2'
-    myTaskSelector.isPublic()
+    myTaskSelector.isPublic() == (!higherOrEqual('2.1', distribution) || higherOrEqual('2.3', distribution))
     myTaskSelector.selectedTaskPaths*.path as List == [':sub2:myTask', ':sub2:subSub1:myTask']
 
     def event = publishedEvent.get()
@@ -478,7 +478,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     myTaskSelector.name == 'myTask'
     myTaskSelector.description == 'another task of sub2'
     myTaskSelector.projectPath.path == ':sub2'
-    myTaskSelector.isPublic()
+    myTaskSelector.isPublic() == (!higherOrEqual('2.1', distribution) || higherOrEqual('2.3', distribution))
     myTaskSelector.selectedTaskPaths*.path as List == [':sub2:myTask', ':sub2:subSub1:myTask']
 
     where:
@@ -743,7 +743,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     myFirstTaskOfSub1.name == 'myFirstTaskOfSub1'
     myFirstTaskOfSub1.description == '1st task of sub1'
     myFirstTaskOfSub1.path.path == ':sub1:myFirstTaskOfSub1'
-    myFirstTaskOfSub1.isPublic()
+    myFirstTaskOfSub1.isPublic() (!higherOrEqual('2.1', distribution) || higherOrEqual('2.3', distribution))
 
     def mySecondTaskOfSub1 = sub1ExplicitTasks[1]
     mySecondTaskOfSub1.name == 'mySecondTaskOfSub1'
