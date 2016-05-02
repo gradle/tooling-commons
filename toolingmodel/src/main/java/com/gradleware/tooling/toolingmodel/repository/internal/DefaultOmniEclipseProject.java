@@ -16,6 +16,24 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
+import java.io.File;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
+import org.gradle.api.JavaVersion;
+import org.gradle.api.specs.Spec;
+import org.gradle.tooling.model.DomainObjectSet;
+import org.gradle.tooling.model.eclipse.EclipseBuildCommand;
+import org.gradle.tooling.model.eclipse.EclipseExternalDependency;
+import org.gradle.tooling.model.eclipse.EclipseJavaSourceSettings;
+import org.gradle.tooling.model.eclipse.EclipseLinkedResource;
+import org.gradle.tooling.model.eclipse.EclipseProject;
+import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
+import org.gradle.tooling.model.eclipse.EclipseProjectNature;
+import org.gradle.tooling.model.eclipse.EclipseSourceDirectory;
+import org.gradle.tooling.model.java.InstalledJdk;
+
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -36,23 +54,6 @@ import com.gradleware.tooling.toolingmodel.OmniJavaRuntime;
 import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings;
 import com.gradleware.tooling.toolingmodel.OmniJavaVersion;
 import com.gradleware.tooling.toolingmodel.Path;
-import org.gradle.api.JavaVersion;
-import org.gradle.api.specs.Spec;
-import org.gradle.tooling.model.DomainObjectSet;
-import org.gradle.tooling.model.ExternalDependency;
-import org.gradle.tooling.model.eclipse.EclipseBuildCommand;
-import org.gradle.tooling.model.eclipse.EclipseJavaSourceSettings;
-import org.gradle.tooling.model.eclipse.EclipseLinkedResource;
-import org.gradle.tooling.model.eclipse.EclipseProject;
-import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
-import org.gradle.tooling.model.eclipse.EclipseProjectNature;
-import org.gradle.tooling.model.eclipse.EclipseSourceDirectory;
-import org.gradle.tooling.model.java.InstalledJdk;
-
-import java.io.File;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Default implementation of the {@link OmniEclipseProject} interface.
@@ -280,17 +281,17 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         }).toList();
     }
 
-    private static ImmutableList<OmniExternalDependency> toExternalDependencies(DomainObjectSet<? extends ExternalDependency> externalDependencies) {
+    private static ImmutableList<OmniExternalDependency> toExternalDependencies(DomainObjectSet<? extends EclipseExternalDependency> externalDependencies) {
         // filter out invalid external dependencies
         // Gradle versions <= 1.10 return external dependencies from dependent projects that are not valid, i.e. all fields are null except the file with name 'unresolved dependency...'
-        return FluentIterable.from(externalDependencies).filter(new Predicate<ExternalDependency>() {
+        return FluentIterable.from(externalDependencies).filter(new Predicate<EclipseExternalDependency>() {
             @Override
-            public boolean apply(ExternalDependency input) {
+            public boolean apply(EclipseExternalDependency input) {
                 return input.getFile().exists();
             }
-        }).transform(new Function<ExternalDependency, OmniExternalDependency>() {
+        }).transform(new Function<EclipseExternalDependency, OmniExternalDependency>() {
             @Override
-            public OmniExternalDependency apply(ExternalDependency input) {
+            public OmniExternalDependency apply(EclipseExternalDependency input) {
                 return DefaultOmniExternalDependency.from(input);
             }
         }).toList();

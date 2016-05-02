@@ -16,20 +16,24 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
+import java.io.File;
+import java.util.List;
+
+import org.gradle.tooling.model.ExternalDependency;
+import org.gradle.tooling.model.GradleModuleVersion;
+import org.gradle.tooling.model.eclipse.EclipseExternalDependency;
+
+import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
 import com.gradleware.tooling.toolingmodel.OmniGradleModuleVersion;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
-import org.gradle.tooling.model.ExternalDependency;
-import org.gradle.tooling.model.GradleModuleVersion;
-
-import java.io.File;
 
 /**
  * Default implementation of the {@link OmniExternalDependency} interface.
  *
  * @author Etienne Studer
  */
-public final class DefaultOmniExternalDependency implements OmniExternalDependency {
+public final class DefaultOmniExternalDependency extends AbstractOmniClasspathEntry implements OmniExternalDependency {
 
     private final File file;
     private final File source;
@@ -37,7 +41,8 @@ public final class DefaultOmniExternalDependency implements OmniExternalDependen
     private final Maybe<OmniGradleModuleVersion> gradleModuleVersion;
     private final boolean exported;
 
-    private DefaultOmniExternalDependency(File file, File source, File javadoc, Maybe<OmniGradleModuleVersion> gradleModuleVersion, boolean exported) {
+    private DefaultOmniExternalDependency(File file, File source, File javadoc, Maybe<OmniGradleModuleVersion> gradleModuleVersion, boolean exported, List<OmniClasspathAttribute> classpathAttributes) {
+        super(classpathAttributes);
         this.file = file;
         this.source = source;
         this.javadoc = javadoc;
@@ -70,13 +75,14 @@ public final class DefaultOmniExternalDependency implements OmniExternalDependen
         return this.exported;
     }
 
-    public static DefaultOmniExternalDependency from(ExternalDependency externalDependency) {
+    public static DefaultOmniExternalDependency from(EclipseExternalDependency externalDependency) {
         return new DefaultOmniExternalDependency(
                 externalDependency.getFile(),
                 externalDependency.getSource(),
                 externalDependency.getJavadoc(),
                 getGradleModuleVersion(externalDependency),
-                getIsExported(externalDependency));
+                getIsExported(externalDependency),
+                getClasspathAttributes(externalDependency));
     }
 
     /**

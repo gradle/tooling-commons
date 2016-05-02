@@ -26,7 +26,7 @@ import java.io.File;
  *
  * @author Etienne Studer
  */
-public interface OmniExternalDependency {
+public interface OmniExternalDependency extends OmniClasspathEntry {
 
     /**
      * Returns the file for this dependency.

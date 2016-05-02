@@ -23,7 +23,7 @@ import java.io.File;
  *
  * @author Etienne Studer
  */
-public interface OmniEclipseProjectDependency {
+public interface OmniEclipseProjectDependency extends OmniClasspathEntry {
 
     /**
      * Returns the directory of the target project of this dependency.

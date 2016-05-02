@@ -360,7 +360,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     mySecondTaskOfSub1.name == 'mySecondTaskOfSub1'
     mySecondTaskOfSub1.description == '2nd task of sub1'
     mySecondTaskOfSub1.path.path == ':sub1:mySecondTaskOfSub1'
-    mySecondTaskOfSub1.isPublic() == (!higherOrEqual('2.1', distribution) || higherOrEqual('2.3', distribution))
+    !mySecondTaskOfSub1.isPublic()
     if (higherOrEqual('2.5', distribution)) {
       assert mySecondTaskOfSub1.group.get() == null
     } else {
@@ -561,6 +561,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     def apiProjectDependency = implProjectDependencies[0]
     apiProjectDependency.targetProjectDir.name == 'api'
     apiProjectDependency.exported == higherOrEqual('2.5', distribution) ? false : true
+    apiProjectDependency.classpathAttributes == []
 
     // verify external dependencies
     def apiExternalDependencies = rootProject.tryFind({ it.name == 'api' } as Spec).get().externalDependencies
@@ -570,6 +571,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     guavaDependency.source != null
     guavaDependency.javadoc == null
     guavaDependency.exported == higherOrEqual('2.5', distribution) ? false : true
+    guavaDependency.classpathAttributes == []
     if (higherOrEqual('1.1', distribution)) {
       assert guavaDependency.gradleModuleVersion.get().group == 'com.google.guava'
       assert guavaDependency.gradleModuleVersion.get().name == 'guava'
@@ -743,7 +745,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     myFirstTaskOfSub1.name == 'myFirstTaskOfSub1'
     myFirstTaskOfSub1.description == '1st task of sub1'
     myFirstTaskOfSub1.path.path == ':sub1:myFirstTaskOfSub1'
-    myFirstTaskOfSub1.isPublic() (!higherOrEqual('2.1', distribution) || higherOrEqual('2.3', distribution))
+    myFirstTaskOfSub1.isPublic() == (!higherOrEqual('2.1', distribution) || higherOrEqual('2.3', distribution))
 
     def mySecondTaskOfSub1 = sub1ExplicitTasks[1]
     mySecondTaskOfSub1.name == 'mySecondTaskOfSub1'

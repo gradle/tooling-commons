@@ -17,9 +17,11 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import java.io.File;
+import java.util.List;
 
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
 
+import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
 
 /**
@@ -27,13 +29,14 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
  *
  * @author Etienne Studer
  */
-public final class DefaultOmniEclipseProjectDependency implements OmniEclipseProjectDependency {
+public final class DefaultOmniEclipseProjectDependency extends AbstractOmniClasspathEntry implements OmniEclipseProjectDependency {
 
     private final File targetProjectDir;
     private final String path;
     private final boolean exported;
 
-    private DefaultOmniEclipseProjectDependency(File targetProjectDir, String path, boolean exported) {
+    private DefaultOmniEclipseProjectDependency(File targetProjectDir, String path, boolean exported, List<OmniClasspathAttribute> classpathAttributes) {
+        super(classpathAttributes);
         this.targetProjectDir = targetProjectDir;
         this.path = path;
         this.exported = exported;
@@ -58,7 +61,8 @@ public final class DefaultOmniEclipseProjectDependency implements OmniEclipsePro
         return new DefaultOmniEclipseProjectDependency(
                 projectDependency.getTargetProject().getProjectDirectory(),
                 projectDependency.getPath(),
-                getIsExported(projectDependency));
+                getIsExported(projectDependency),
+                getClasspathAttributes(projectDependency));
     }
 
     /**
