@@ -78,7 +78,7 @@ class CompositeModelRepositoryDependencySubstitutionSpec extends ToolingModelToo
 
     def "Dependency substitution is deactivated if projects have different Gradle versions"() {
         when:
-        Set<OmniEclipseProject> eclipseProjects= fetchEclipseProjects(GradleDistribution.fromBuild(), GradleDistribution.forVersion('2.13'))
+        Set<OmniEclipseProject> eclipseProjects= fetchEclipseProjects(GradleDistribution.forVersion(GradleVersion.current().version), GradleDistribution.forVersion('2.13'))
 
         then:
         eclipseProjects.size() == 2
