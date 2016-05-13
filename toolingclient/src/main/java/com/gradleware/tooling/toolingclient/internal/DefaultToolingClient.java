@@ -38,7 +38,6 @@ import org.gradle.tooling.connection.ModelResults;
 import org.gradle.tooling.internal.connection.GradleConnectionBuilderInternal;
 import org.gradle.tooling.internal.consumer.ConnectorServices;
 import org.gradle.tooling.model.build.BuildEnvironment;
-import org.gradle.util.GradleVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -294,7 +293,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
             return aggregateConnection;
         }
 
-        if (allParticipantsHaveCurrentVersion(aggregateConnection, compositeRequest)) {
+        if (allParticipantsHaveSameVersion(aggregateConnection, compositeRequest)) {
             ((GradleConnectionBuilderInternal) connectionBuilder).integratedComposite(true);
             return connectionBuilder.build();
         } else {
@@ -302,19 +301,21 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         }
     }
 
-    private boolean allParticipantsHaveCurrentVersion(GradleConnection aggregateConnection, InspectableCompositeBuildRequest<?> compositeRequest) {
-        String currentVersion = GradleVersion.current().getVersion();
+    private boolean allParticipantsHaveSameVersion(GradleConnection aggregateConnection, InspectableCompositeBuildRequest<?> compositeRequest) {
 
         ModelResults<BuildEnvironment> results = fetchBuildEnvironments(aggregateConnection, compositeRequest);
 
+        String commonVersion = null;
         for (ModelResult<BuildEnvironment> result : results) {
             if (result.getFailure() != null) {
                 return false;
             }
             BuildEnvironment buildEnvironment = result.getModel();
             String gradleVersion = buildEnvironment.getGradle().getGradleVersion();
-            if (!currentVersion.equals(gradleVersion)) {
+            if (commonVersion != null && !commonVersion.equals(gradleVersion)) {
                 return false;
+            } else {
+                commonVersion = gradleVersion;
             }
         }
 
