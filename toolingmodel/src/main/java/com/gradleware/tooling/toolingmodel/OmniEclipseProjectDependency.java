@@ -28,7 +28,7 @@ public interface OmniEclipseProjectDependency extends OmniClasspathEntry {
     /**
      * Returns the id of the target project of this dependency.
      *
-     * @return the directory of the target project of this dependency
+     * @return the id of the target project of this dependency
      */
     EclipseProjectIdentifier getTarget();
 
