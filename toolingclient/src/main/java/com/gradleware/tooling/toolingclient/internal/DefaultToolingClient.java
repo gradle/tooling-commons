@@ -38,6 +38,7 @@ import org.gradle.tooling.connection.ModelResults;
 import org.gradle.tooling.internal.connection.GradleConnectionBuilderInternal;
 import org.gradle.tooling.internal.consumer.ConnectorServices;
 import org.gradle.tooling.model.build.BuildEnvironment;
+import org.gradle.util.GradleVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -293,17 +294,17 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
             return aggregateConnection;
         }
 
-        String commonGradleVersion = getCommonGradleVersion(aggregateConnection, compositeRequest);
-        if (commonGradleVersion == null) {
+        GradleVersion commonGradleVersion = getCommonGradleVersion(aggregateConnection, compositeRequest);
+        if (commonGradleVersion == null || commonGradleVersion.compareTo(GradleVersion.version("2.14-rc-1")) < 0) {
             return aggregateConnection;
         } else {
             ((GradleConnectionBuilderInternal) connectionBuilder).integratedComposite(true);
-            ((GradleConnectionBuilderInternal) connectionBuilder).useGradleVersion(commonGradleVersion);
+            ((GradleConnectionBuilderInternal) connectionBuilder).useGradleVersion(commonGradleVersion.getVersion());
             return connectionBuilder.build();
         }
     }
 
-    private String getCommonGradleVersion(GradleConnection aggregateConnection, InspectableCompositeBuildRequest<?> compositeRequest) {
+    private GradleVersion getCommonGradleVersion(GradleConnection aggregateConnection, InspectableCompositeBuildRequest<?> compositeRequest) {
         ModelResults<BuildEnvironment> results = fetchBuildEnvironments(aggregateConnection, compositeRequest);
 
         String commonVersion = null;
@@ -320,7 +321,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
             commonVersion = gradleVersion;
         }
 
-        return commonVersion;
+        return GradleVersion.version(commonVersion);
     }
 
     private GradleConnectionBuilder configureBasicCompositeConnection(InspectableCompositeBuildRequest<?> compositeRequest) {
