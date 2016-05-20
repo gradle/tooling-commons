@@ -16,6 +16,8 @@
 
 package com.gradleware.tooling.toolingclient;
 
+import java.io.File;
+
 /**
  * A special request type which is issued against a composition of Gradle builds.
  * <p/>
@@ -25,6 +27,14 @@ package com.gradleware.tooling.toolingclient;
  * @param <T> the result type
  */
 public interface CompositeBuildRequest<T> extends Request<T> {
+
+    /**
+     * Specifies the user's Gradle home directory to use. Defaults to {@code ~/.gradle}.
+     *
+     * @param gradleUserHomeDir the user's Gradle home directory to use
+     * @return this
+     */
+    CompositeBuildRequest<T> gradleUserHomeDir(File gradleUserHomeDir);
 
     /**
      * Specifies the builds which will participate in the request.

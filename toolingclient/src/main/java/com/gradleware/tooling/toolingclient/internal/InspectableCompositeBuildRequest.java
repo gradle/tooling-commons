@@ -16,6 +16,8 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
+import java.io.File;
+
 import com.gradleware.tooling.toolingclient.CompositeBuildRequest;
 import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
 
@@ -26,6 +28,8 @@ import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
  * @author Stefan Oehme
  */
 interface InspectableCompositeBuildRequest<T> extends InspectableRequest<T>, CompositeBuildRequest<T> {
+
+    File getGradleUserHomeDir();
 
     GradleBuildIdentifier[] getParticipants();
 

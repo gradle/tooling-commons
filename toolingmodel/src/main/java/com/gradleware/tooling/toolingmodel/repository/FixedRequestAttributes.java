@@ -120,6 +120,7 @@ public final class FixedRequestAttributes {
     }
 
     public void apply(CompositeBuildRequest<?> request) {
+        request.gradleUserHomeDir(this.gradleUserHome);
         GradleBuildIdentifier participant = new GradleBuildIdentifier(this.projectDir, this.gradleDistribution);
         request.addParticipants(participant);
     }

@@ -270,6 +270,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
             connectionProperties.add(identifier.getProjectDir());
             connectionProperties.add(identifier.getGradleDistribution());
         }
+        connectionProperties.add(compositeRequest.getGradleUserHomeDir());
         return connectionProperties.hashCode();
     }
 
@@ -329,6 +330,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
             throw new IllegalArgumentException("There must be at least one participant in a composite build");
         }
         GradleConnectionBuilder connectionBuilder = GradleConnector.newGradleConnection();
+        connectionBuilder.useGradleUserHomeDir(compositeRequest.getGradleUserHomeDir());
         for (GradleBuildIdentifier identifier : compositeRequest.getParticipants()) {
             ParticipantBuilder participantBuilder = connectionBuilder.addParticipant(identifier.getProjectDir());
             identifier.getGradleDistribution().apply(participantBuilder);

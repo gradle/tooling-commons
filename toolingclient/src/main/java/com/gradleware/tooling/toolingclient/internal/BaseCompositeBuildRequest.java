@@ -16,6 +16,7 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
+import java.io.File;
 import java.util.Arrays;
 
 import com.google.common.collect.ImmutableList;
@@ -33,10 +34,22 @@ import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
 abstract class BaseCompositeBuildRequest<T, SELF extends BaseCompositeBuildRequest<T, SELF>> extends BaseRequest<T, SELF>implements InspectableCompositeBuildRequest<T> {
 
     private ImmutableList<GradleBuildIdentifier> participants;
+    private File gradleUserHomeDir;
 
     BaseCompositeBuildRequest(ExecutableToolingClient toolingClient) {
         super(toolingClient);
         this.participants = ImmutableList.of();
+    }
+
+    @Override
+    public CompositeBuildRequest<T> gradleUserHomeDir(File gradleUserHomeDir) {
+        this.gradleUserHomeDir = gradleUserHomeDir;
+        return this;
+    }
+
+    @Override
+    public File getGradleUserHomeDir() {
+        return this.gradleUserHomeDir;
     }
 
     @Override
