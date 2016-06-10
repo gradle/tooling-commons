@@ -19,6 +19,7 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 import java.io.File;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import org.gradle.api.specs.Spec;
 import org.gradle.tooling.model.GradleProject;
@@ -28,6 +29,7 @@ import org.gradle.tooling.model.gradle.GradleScript;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 
 import com.gradleware.tooling.toolingmodel.OmniBuildInvocations;
 import com.gradleware.tooling.toolingmodel.OmniBuildInvocationsContainer;
@@ -182,12 +184,21 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
     }
 
     public static DefaultOmniGradleProject from(GradleProject project) {
-        OmniBuildInvocationsContainer buildInvocationsContainer = DefaultOmniBuildInvocationsContainerBuilder.build(project);
-        return convert(project, buildInvocationsContainer);
+        return from(project, Maps.<Path, DefaultOmniGradleProject>newHashMap());
     }
 
-    private static DefaultOmniGradleProject convert(GradleProject project, OmniBuildInvocationsContainer buildInvocationsContainer) {
+    public static DefaultOmniGradleProject from(GradleProject project, Map<Path, DefaultOmniGradleProject> knownProjects) {
+        OmniBuildInvocationsContainer buildInvocationsContainer = DefaultOmniBuildInvocationsContainerBuilder.build(project);
+        return convert(project, buildInvocationsContainer, knownProjects);
+    }
+
+    private static DefaultOmniGradleProject convert(GradleProject project, OmniBuildInvocationsContainer buildInvocationsContainer, Map<Path, DefaultOmniGradleProject> knownProjects) {
+        Path path = Path.from(project.getPath());
+        if (knownProjects.containsKey(path)) {
+            return knownProjects.get(path);
+        }
         DefaultOmniGradleProject gradleProject = new DefaultOmniGradleProject(OmniGradleProjectComparator.INSTANCE);
+        knownProjects.put(path, gradleProject);
         gradleProject.setName(project.getName());
         gradleProject.setDescription(project.getDescription());
         gradleProject.setPath(Path.from(project.getPath()));
@@ -200,7 +211,7 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
         gradleProject.setTaskSelectors(buildInvocations.getTaskSelectors());
 
         for (GradleProject child : project.getChildren()) {
-            DefaultOmniGradleProject gradleProjectChild = convert(child, buildInvocationsContainer);
+            DefaultOmniGradleProject gradleProjectChild = convert(child, buildInvocationsContainer, knownProjects);
             gradleProject.addChild(gradleProjectChild);
         }
 
