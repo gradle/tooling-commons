@@ -24,6 +24,7 @@ import java.util.Map;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.specs.Spec;
 import org.gradle.tooling.model.DomainObjectSet;
+import org.gradle.tooling.model.ProjectIdentifier;
 import org.gradle.tooling.model.eclipse.EclipseBuildCommand;
 import org.gradle.tooling.model.eclipse.EclipseExternalDependency;
 import org.gradle.tooling.model.eclipse.EclipseJavaSourceSettings;
@@ -243,22 +244,22 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     }
 
     public static DefaultOmniEclipseProject from(EclipseProject project) {
-        return from(project, Maps.<Path, DefaultOmniEclipseProject>newHashMap(), Maps.<Path, DefaultOmniGradleProject>newHashMap());
+        return from(project, Maps.<EclipseProjectIdentifier, DefaultOmniEclipseProject>newHashMap(), Maps.<ProjectIdentifier, DefaultOmniGradleProject>newHashMap());
     }
 
-    public static DefaultOmniEclipseProject from(EclipseProject project, Map<Path, DefaultOmniEclipseProject> knownProjects, Map<Path, DefaultOmniGradleProject> knownGradleProjects) {
-        Path path = Path.from(project.getGradleProject().getPath());
-        if (knownProjects.containsKey(path)) {
-            return knownProjects.get(path);
+    public static DefaultOmniEclipseProject from(EclipseProject project, Map<EclipseProjectIdentifier, DefaultOmniEclipseProject> knownProjects, Map<ProjectIdentifier, DefaultOmniGradleProject> knownGradleProjects) {
+        EclipseProjectIdentifier id = project.getIdentifier();
+        if (knownProjects.containsKey(id)) {
+            return knownProjects.get(id);
         }
 
         DefaultOmniEclipseProject eclipseProject = new DefaultOmniEclipseProject(OmniEclipseProjectComparator.INSTANCE);
-        knownProjects.put(path, eclipseProject);
+        knownProjects.put(id, eclipseProject);
 
         eclipseProject.identifier = project.getIdentifier();
         eclipseProject.setName(project.getName());
         eclipseProject.setDescription(project.getDescription());
-        eclipseProject.setPath(path);
+        eclipseProject.setPath(Path.from(project.getGradleProject().getPath()));
         eclipseProject.setProjectDirectory(project.getProjectDirectory());
         eclipseProject.setProjectDependencies(toProjectDependencies(project.getProjectDependencies()));
         eclipseProject.setExternalDependencies(toExternalDependencies(project.getClasspath()));

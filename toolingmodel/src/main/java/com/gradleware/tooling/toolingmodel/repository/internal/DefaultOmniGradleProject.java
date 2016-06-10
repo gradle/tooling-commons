@@ -184,21 +184,21 @@ public final class DefaultOmniGradleProject implements OmniGradleProject {
     }
 
     public static DefaultOmniGradleProject from(GradleProject project) {
-        return from(project, Maps.<Path, DefaultOmniGradleProject>newHashMap());
+        return from(project, Maps.<ProjectIdentifier, DefaultOmniGradleProject>newHashMap());
     }
 
-    public static DefaultOmniGradleProject from(GradleProject project, Map<Path, DefaultOmniGradleProject> knownProjects) {
+    public static DefaultOmniGradleProject from(GradleProject project, Map<ProjectIdentifier, DefaultOmniGradleProject> knownProjects) {
         OmniBuildInvocationsContainer buildInvocationsContainer = DefaultOmniBuildInvocationsContainerBuilder.build(project);
         return convert(project, buildInvocationsContainer, knownProjects);
     }
 
-    private static DefaultOmniGradleProject convert(GradleProject project, OmniBuildInvocationsContainer buildInvocationsContainer, Map<Path, DefaultOmniGradleProject> knownProjects) {
-        Path path = Path.from(project.getPath());
-        if (knownProjects.containsKey(path)) {
-            return knownProjects.get(path);
+    private static DefaultOmniGradleProject convert(GradleProject project, OmniBuildInvocationsContainer buildInvocationsContainer, Map<ProjectIdentifier, DefaultOmniGradleProject> knownProjects) {
+        ProjectIdentifier id = project.getProjectIdentifier();
+        if (knownProjects.containsKey(id)) {
+            return knownProjects.get(id);
         }
         DefaultOmniGradleProject gradleProject = new DefaultOmniGradleProject(OmniGradleProjectComparator.INSTANCE);
-        knownProjects.put(path, gradleProject);
+        knownProjects.put(id, gradleProject);
         gradleProject.setName(project.getName());
         gradleProject.setDescription(project.getDescription());
         gradleProject.setPath(Path.from(project.getPath()));
