@@ -119,6 +119,7 @@ abstract class ModelRepositorySpec extends ToolingModelToolingClientSpecificatio
         directoryProviderMultiProjectBuild.createFile('impl', 'build.gradle') << '''
             dependencies {
                 compile project(':api')
+                compile 'log4j:log4j:1.2.17'
             }
         '''
 

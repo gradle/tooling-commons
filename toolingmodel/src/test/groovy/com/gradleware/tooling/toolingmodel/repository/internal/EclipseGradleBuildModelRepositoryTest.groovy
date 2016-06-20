@@ -178,6 +178,7 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         // verify project dependencies
         apiProject.projectDependencies == []
         def implProjectDependencies = rootProject.tryFind({ it.name == 'impl' } as Spec).get().projectDependencies
+        def implExternalDependencies = rootProject.tryFind({ it.name == 'impl' } as Spec).get().externalDependencies
         implProjectDependencies.size() == 1
         def apiProjectDependency = implProjectDependencies[0]
         apiProjectDependency.target == apiProject.identifier
@@ -198,9 +199,12 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         guavaDependency.gradleModuleVersion.get().version == '18.0'
 
         if (higherOrEqual('2.5', distribution)) {
-            assert rootProject.tryFind({ it.name == 'impl' } as Spec).get().externalDependencies[0].file == guavaDependency.file
+            assert implExternalDependencies.size() == 2
+            assert implExternalDependencies.find { it.file == guavaDependency.file }
+            assert implExternalDependencies.find { it.file.absolutePath.contains('log4j') }
         } else {
-            assert rootProject.tryFind({ it.name == 'impl' } as Spec).get().externalDependencies.isEmpty()
+            assert implExternalDependencies.size() == 1
+            assert implExternalDependencies.find { it.file.absolutePath.contains('log4j') }
         }
 
         where:
@@ -646,7 +650,7 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
             assert eclipseProject.projectDependencies[0].classpathAttributes[0].value == 'customValue'
             assert eclipseProject.externalDependencies[0].classpathAttributes.size() == 1
             assert eclipseProject.externalDependencies[0].classpathAttributes[0].name == 'javadoc_location'
-            assert eclipseProject.externalDependencies[0].classpathAttributes[0].value.contains('guava-18')
+            assert eclipseProject.externalDependencies[0].classpathAttributes[0].value.contains('log4j')
         } else {
             assert eclipseProject.projectDependencies[0].classpathAttributes.isEmpty()
             assert eclipseProject.externalDependencies[0].classpathAttributes.isEmpty()
@@ -667,11 +671,11 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
                     file {
                         whenMerged { classpath ->
                             def api = classpath.entries.find {  it.path.contains('api') }
-                            def guava = classpath.entries.find {  it.path.contains('guava') }
+                            def log4j = classpath.entries.find {  it.path.contains('log4j') }
                             api.accessRules.add(new AccessRule('0', 'accessibleFilesPattern1'))
                             api.accessRules.add(new AccessRule('1', 'nonAccessibleFilesPattern1'))
-                            guava.accessRules.add(new AccessRule('0', 'accessibleFilesPattern2'))
-                            guava.accessRules.add(new AccessRule('1', 'nonAccessibleFilesPattern2'))
+                            log4j.accessRules.add(new AccessRule('0', 'accessibleFilesPattern2'))
+                            log4j.accessRules.add(new AccessRule('1', 'nonAccessibleFilesPattern2'))
 
                         }
                     }
