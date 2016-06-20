@@ -193,14 +193,11 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         guavaDependency.javadoc == null
         guavaDependency.exported == higherOrEqual('2.5', distribution) ? false : true
         guavaDependency.classpathAttributes == []
-        if (higherOrEqual('1.1', distribution)) {
-            assert guavaDependency.gradleModuleVersion.get().group == 'com.google.guava'
-            assert guavaDependency.gradleModuleVersion.get().name == 'guava'
-            assert guavaDependency.gradleModuleVersion.get().version == '18.0'
-        } else {
-            assert !guavaDependency.gradleModuleVersion.isPresent()
-        }
-        rootProject.tryFind({ it.name == 'impl' } as Spec).get().externalDependencies == []
+        guavaDependency.gradleModuleVersion.get().group == 'com.google.guava'
+        guavaDependency.gradleModuleVersion.get().name == 'guava'
+        guavaDependency.gradleModuleVersion.get().version == '18.0'
+        rootProject.tryFind({ it.name == 'impl' } as Spec).get().externalDependencies.size() == 1
+        rootProject.tryFind({ it.name == 'impl' } as Spec).get().externalDependencies[0].file == guavaDependency.file
 
         where:
         [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
