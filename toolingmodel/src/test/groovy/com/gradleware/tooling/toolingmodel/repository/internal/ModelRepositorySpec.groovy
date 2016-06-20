@@ -99,20 +99,24 @@ abstract class ModelRepositorySpec extends ToolingModelToolingClientSpecificatio
             include 'impl'
         '''
 
+        directoryProviderMultiProjectBuild.createFile('build.gradle') << '''
+            subprojects {
+                apply plugin: 'java'
+                repositories {
+                    mavenCentral()
+                }
+            }
+        '''
+
         directoryProviderMultiProjectBuild.createDir('api')
         directoryProviderMultiProjectBuild.createFile('api', 'build.gradle') << '''
-            apply plugin: 'java'
-            repositories {
-                mavenCentral()
-                dependencies {
-                    compile 'com.google.guava:guava:18.0'
-                }
+            dependencies {
+                compile 'com.google.guava:guava:18.0'
             }
         '''
 
         directoryProviderMultiProjectBuild.createDir('impl')
         directoryProviderMultiProjectBuild.createFile('impl', 'build.gradle') << '''
-            apply plugin: 'java'
             dependencies {
                 compile project(':api')
             }

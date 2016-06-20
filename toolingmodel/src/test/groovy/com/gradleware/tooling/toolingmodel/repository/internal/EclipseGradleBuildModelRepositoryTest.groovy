@@ -467,7 +467,7 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
                     }
                 }
             }
-         """
+        """
         new TestFile(this.directoryProvider.testDirectory, 'sub1/src/main/java').mkdirs()
         new TestFile(this.directoryProvider.testDirectory, 'sub1/src/main/resources').mkdirs()
 
@@ -609,6 +609,94 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
             assert output.get().path == 'bin/classes'
         } else {
             assert !output.isPresent()
+        }
+
+        where:
+        [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+    }
+
+    def "dependency classpath attributes"(GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
+        def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderMultiProjectBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+        def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+        new TestFile(directoryProviderMultiProjectBuild.testDirectory, 'impl/build.gradle') << """
+            apply plugin: 'eclipse'
+            eclipse {
+                classpath {
+                    downloadSources = false
+                    downloadJavadoc = true
+                    file {
+                        whenMerged { classpath ->
+                            classpath.entries.find {  it.path.contains('api') }.entryAttributes.customKey = 'customValue'
+                        }
+                    }
+                }
+            }
+        """
+
+        when:
+        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment, repositoryType)
+
+        then:
+        def eclipseProject = rootProject.tryFind({ it.name == 'impl' } as Spec).get()
+
+        if (higherOrEqual('3.0', distribution)) {
+            assert eclipseProject.projectDependencies[0].classpathAttributes.size() == 1
+            assert eclipseProject.projectDependencies[0].classpathAttributes[0].name == 'customKey'
+            assert eclipseProject.projectDependencies[0].classpathAttributes[0].value == 'customValue'
+            assert eclipseProject.externalDependencies[0].classpathAttributes.size() == 1
+            assert eclipseProject.externalDependencies[0].classpathAttributes[0].name == 'javadoc_location'
+            assert eclipseProject.externalDependencies[0].classpathAttributes[0].value.contains('guava-18')
+        } else {
+            assert eclipseProject.projectDependencies[0].classpathAttributes.isEmpty()
+            assert eclipseProject.externalDependencies[0].classpathAttributes.isEmpty()
+        }
+
+        where:
+        [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+    }
+
+    def "dependency access rules"(GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
+        def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderMultiProjectBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+        def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+        new TestFile(directoryProviderMultiProjectBuild.testDirectory, 'impl/build.gradle') << """
+            import org.gradle.plugins.ide.eclipse.model.AccessRule
+            apply plugin: 'eclipse'
+            eclipse {
+                classpath {
+                    file {
+                        whenMerged { classpath ->
+                            def api = classpath.entries.find {  it.path.contains('api') }
+                            def guava = classpath.entries.find {  it.path.contains('guava') }
+                            api.accessRules.add(new AccessRule('0', 'accessibleFilesPattern1'))
+                            api.accessRules.add(new AccessRule('1', 'nonAccessibleFilesPattern1'))
+                            guava.accessRules.add(new AccessRule('0', 'accessibleFilesPattern2'))
+                            guava.accessRules.add(new AccessRule('1', 'nonAccessibleFilesPattern2'))
+
+                        }
+                    }
+                }
+            }
+        """
+
+        when:
+        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment, repositoryType)
+
+        then:
+        def eclipseProject = rootProject.tryFind({ it.name == 'impl' } as Spec).get()
+
+        if (higherOrEqual('3.0', distribution)) {
+            assert eclipseProject.projectDependencies[0].accessRules.size() == 2
+            assert eclipseProject.projectDependencies[0].accessRules[0].kind == 0
+            assert eclipseProject.projectDependencies[0].accessRules[0].pattern == 'accessibleFilesPattern1'
+            assert eclipseProject.projectDependencies[0].accessRules[1].kind == 1
+            assert eclipseProject.projectDependencies[0].accessRules[1].pattern == 'nonAccessibleFilesPattern1'
+            assert eclipseProject.externalDependencies[0].accessRules[0].kind == 0
+            assert eclipseProject.externalDependencies[0].accessRules[0].pattern == 'accessibleFilesPattern2'
+            assert eclipseProject.externalDependencies[0].accessRules[1].kind == 1
+            assert eclipseProject.externalDependencies[0].accessRules[1].pattern == 'nonAccessibleFilesPattern2'
+        } else {
+            assert eclipseProject.projectDependencies[0].accessRules.isEmpty()
+            assert eclipseProject.externalDependencies[0].accessRules.isEmpty()
         }
 
         where:
