@@ -16,14 +16,17 @@
 
 package com.gradleware.tooling.toolingmodel;
 
+import org.gradle.api.Nullable;
+
 import java.io.File;
+import java.util.List;
 
 /**
  * Describes a source directory in an Eclipse project.
  *
  * @author Etienne Studer
  */
-public interface OmniEclipseSourceDirectory {
+public interface OmniEclipseSourceDirectory extends OmniClasspathEntry {
 
     /**
      * Returns the source directory.
@@ -39,4 +42,27 @@ public interface OmniEclipseSourceDirectory {
      */
     String getPath();
 
+
+    /**
+     * Returns the exclude patterns of this source directory.
+     *
+     * @return the exclude patterns
+     */
+    List<String> getExcludes();
+
+    /**
+     * Returns the include patterns of this directory.
+     *
+     * @return the include patterns
+     */
+    List<String> getIncludes();
+
+    /**
+     * Returns the output path of this source directory. If the source folder does not specify output
+     * than this method returns {@code null}.
+     *
+     * @return the output path
+     */
+    @Nullable
+    String getOutput();
 }

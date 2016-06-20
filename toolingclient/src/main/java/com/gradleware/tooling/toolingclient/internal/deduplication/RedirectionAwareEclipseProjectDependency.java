@@ -18,10 +18,7 @@ package com.gradleware.tooling.toolingclient.internal.deduplication;
 
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.UnsupportedMethodException;
-import org.gradle.tooling.model.eclipse.ClasspathAttribute;
-import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
-import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
-import org.gradle.tooling.model.eclipse.HierarchicalEclipseProject;
+import org.gradle.tooling.model.eclipse.*;
 
 /**
  * Redirects the {@link #getTargetProject()} method to point to a renamed or dependency-substituted
@@ -58,6 +55,11 @@ class RedirectionAwareEclipseProjectDependency implements EclipseProjectDependen
     @Override
     public DomainObjectSet<? extends ClasspathAttribute> getClasspathAttributes() throws UnsupportedMethodException {
         return this.delegate.getClasspathAttributes();
+    }
+
+    @Override
+    public DomainObjectSet<? extends AccessRule> getAccessRules() throws UnsupportedMethodException {
+        return this.delegate.getAccessRules();
     }
 
     @Override

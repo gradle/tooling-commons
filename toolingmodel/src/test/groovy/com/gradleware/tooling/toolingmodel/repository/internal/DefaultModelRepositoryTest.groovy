@@ -512,7 +512,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
 
       where:
       [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.2")
-    }
+  }
 
   @SuppressWarnings("GroovyTrivialConditional")
   def "fetchEclipseGradleBuild - sources and project/external dependencies "(GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
@@ -682,7 +682,317 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     }
 
     where:
-     [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+  }
+
+  def "fetchEclipseGradleBuild - classpath containers"(GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
+    given:
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    new TestFile(this.directoryProvider.testDirectory, 'sub1/build.gradle') << """
+      apply plugin: 'java'
+      apply plugin: 'eclipse'
+      eclipse {
+        classpath {
+          containers 'firstContainerPath', 'secondContainerPath'
+        }
+      }
+    """
+
+    when:
+    def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment, repositoryType)
+
+    then:
+    def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
+    def classpathContainers = eclipseProject.classpathContainers
+    if (higherOrEqual('3.0', distribution)) {
+      assert classpathContainers.get().find { it.path == 'firstContainerPath' }
+      assert classpathContainers.get().find { it.path == 'secondContainerPath' }
+    } else {
+      assert !classpathContainers.isPresent()
+    }
+
+    where:
+    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+  }
+
+  def "fetchEclipseGradleBuild - classpath container with classpath attributes"(GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
+    given:
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    new TestFile(this.directoryProvider.testDirectory, 'sub1/build.gradle') << """
+      apply plugin: 'java'
+      apply plugin: 'eclipse'
+      eclipse {
+        classpath {
+          containers 'customContainer'
+          file {
+            whenMerged { classpath ->
+              classpath.entries.find { it.path == 'customContainer' }.entryAttributes.customKey = 'customValue'
+            }
+          }
+        }
+      }
+    """
+
+    when:
+    def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment, repositoryType)
+
+    then:
+    def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
+    def classpathContainers = eclipseProject.classpathContainers
+    if (higherOrEqual('3.0', distribution)) {
+      def attributes = classpathContainers.get().find { it.path == 'customContainer' }.classpathAttributes
+      assert attributes.size() == 1
+      assert attributes[0].name == 'customKey'
+      assert attributes[0].value == 'customValue'
+    }
+
+    where:
+    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+  }
+
+  def "fetchEclipseGradleBuild - classpath container with access rules"(GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
+    given:
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    new TestFile(this.directoryProvider.testDirectory, 'sub1/build.gradle') << """
+      import org.gradle.plugins.ide.eclipse.model.AccessRule
+      apply plugin: 'java'
+      apply plugin: 'eclipse'
+      eclipse {
+        classpath {
+          containers 'customContainer'
+          file {
+            whenMerged { classpath ->
+              def container = classpath.entries.find { it.kind == 'con' && it.path == 'customContainer' }
+              container.accessRules.add(new AccessRule('0', 'accessibleFilesPattern'))
+              container.accessRules.add(new AccessRule('1', 'nonAccessibleFilesPattern'))
+            }
+          }
+        }
+      }
+    """
+
+    when:
+    def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment, repositoryType)
+
+    then:
+    def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
+    def classpathContainers = eclipseProject.classpathContainers
+    if (higherOrEqual('3.0', distribution)) {
+      def accessRules = classpathContainers.get().find { it.path == 'customContainer' }.accessRules
+      assert accessRules.size() == 2
+      assert accessRules[0].kind == 0
+      assert accessRules[0].pattern == 'accessibleFilesPattern'
+      assert accessRules[1].kind == 1
+      assert accessRules[1].pattern == 'nonAccessibleFilesPattern'
+    }
+
+    where:
+    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+  }
+
+  def "fetchEclipseGradleBuild - source directory excludes and includes"(GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
+    given:
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    new TestFile(this.directoryProvider.testDirectory, 'sub1/build.gradle') << """
+      apply plugin: 'java'
+      sourceSets {
+        main {
+          java {
+             exclude 'excludePattern'
+             include 'includePattern'
+          }
+        }
+      }
+    """
+    new TestFile(this.directoryProvider.testDirectory, 'sub1/src/main/java').mkdirs()
+
+
+    when:
+    def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment, repositoryType)
+
+    then:
+    def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
+    def sourceDir = eclipseProject.sourceDirectories.find { it.path == 'src/main/java' }
+    if (higherOrEqual('3.0', distribution)) {
+      assert sourceDir.excludes.size() == 1
+      assert sourceDir.excludes[0] == 'excludePattern'
+      assert sourceDir.includes.size() == 1
+      assert sourceDir.includes[0] == 'includePattern'
+    } else {
+      assert sourceDir.excludes.isEmpty()
+      assert sourceDir.includes.isEmpty()
+    }
+
+    where:
+    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+  }
+
+  def "fetchEclipseGradleBuild - source directory classpath attributes"(GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
+    given:
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    new TestFile(this.directoryProvider.testDirectory, 'sub1/build.gradle') << """
+      apply plugin: 'java'
+      apply plugin: 'eclipse'
+      eclipse {
+        classpath {
+          file {
+            whenMerged { classpath ->
+              classpath.entries.find { it.kind == 'src' && it.path == 'src/main/java' }.entryAttributes.customKey = 'customValue'
+            }
+          }
+        }
+      }
+    """
+    new TestFile(this.directoryProvider.testDirectory, 'sub1/src/main/java').mkdirs()
+    new TestFile(this.directoryProvider.testDirectory, 'sub1/src/main/resources').mkdirs()
+
+    when:
+    def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment, repositoryType)
+
+    then:
+    def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
+    def javaDir = eclipseProject.sourceDirectories.find { it.path == 'src/main/java' }
+    def resourcesDir = eclipseProject.sourceDirectories.find { it.path == 'src/main/resources' }
+    if (higherOrEqual('3.0', distribution)) {
+      assert javaDir.classpathAttributes.size() == 1
+      assert javaDir.classpathAttributes[0].name == 'customKey'
+      assert javaDir.classpathAttributes[0].value == 'customValue'
+      assert resourcesDir.classpathAttributes.isEmpty()
+    } else {
+      assert javaDir.classpathAttributes.isEmpty()
+      assert resourcesDir.classpathAttributes.isEmpty()
+    }
+
+    where:
+    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+  }
+
+  def "fetchEclipseGradleBuild - source directory access rules"(GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
+    given:
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    new TestFile(this.directoryProvider.testDirectory, 'sub1/build.gradle') << """
+      import org.gradle.plugins.ide.eclipse.model.AccessRule
+      apply plugin: 'java'
+      apply plugin: 'eclipse'
+      eclipse {
+        classpath {
+          file {
+            whenMerged { classpath ->
+              def sourceDir = classpath.entries.find { it.kind == 'src' && it.path == 'src/main/java' }
+              sourceDir.accessRules.add(new AccessRule('0', 'accessibleFilesPattern'))
+              sourceDir.accessRules.add(new AccessRule('1', 'nonAccessibleFilesPattern'))
+            }
+          }
+        }
+      }
+    """
+    new TestFile(this.directoryProvider.testDirectory, 'sub1/src/main/java').mkdirs()
+    new TestFile(this.directoryProvider.testDirectory, 'sub1/src/main/resources').mkdirs()
+
+    when:
+    def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment, repositoryType)
+
+    then:
+    def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
+    def javaDir = eclipseProject.sourceDirectories.find { it.path == 'src/main/java' }
+    def resourcesDir = eclipseProject.sourceDirectories.find { it.path == 'src/main/resources' }
+    if (higherOrEqual('3.0', distribution)) {
+      assert javaDir.accessRules.size() == 2
+      assert javaDir.accessRules[0].kind == 0
+      assert javaDir.accessRules[0].pattern == 'accessibleFilesPattern'
+      assert javaDir.accessRules[1].kind == 1
+      assert javaDir.accessRules[1].pattern == 'nonAccessibleFilesPattern'
+      assert resourcesDir.classpathAttributes.isEmpty()
+    } else {
+      assert javaDir.classpathAttributes.isEmpty()
+      assert resourcesDir.classpathAttributes.isEmpty()
+    }
+
+    where:
+    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+  }
+
+  def "fetchEclipseGradleBuild - source directory output"(GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
+    given:
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    new TestFile(this.directoryProvider.testDirectory, 'sub1/build.gradle') << """
+      import org.gradle.plugins.ide.eclipse.model.AccessRule
+      apply plugin: 'java'
+      apply plugin: 'eclipse'
+      eclipse {
+        classpath {
+          file {
+            whenMerged { classpath ->
+              def sourceDir = classpath.entries.find { it.kind == 'src' && it.path == 'src/main/java' }
+              sourceDir.output = 'mainClasses'
+            }
+          }
+        }
+      }
+    """
+    new TestFile(this.directoryProvider.testDirectory, 'sub1/src/main/java').mkdirs()
+    new TestFile(this.directoryProvider.testDirectory, 'sub1/src/main/resources').mkdirs()
+
+    when:
+    def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment, repositoryType)
+
+    then:
+    def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
+    def javaDir = eclipseProject.sourceDirectories.find { it.path == 'src/main/java' }
+    def resourcesDir = eclipseProject.sourceDirectories.find { it.path == 'src/main/resources' }
+    if (higherOrEqual('3.0', distribution)) {
+      assert javaDir.output == 'mainClasses'
+      assert resourcesDir.output == null
+    } else {
+      assert javaDir.output == null
+      assert resourcesDir.output == null
+    }
+
+    where:
+    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+  }
+
+  def "fetchEclipseGradleBuild - output location"(GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
+    given:
+    def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+    def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+    new TestFile(this.directoryProvider.testDirectory, 'sub1/build.gradle') << """
+      import org.gradle.plugins.ide.eclipse.model.AccessRule
+      apply plugin: 'java'
+      apply plugin: 'eclipse'
+      eclipse {
+        classpath {
+          file {
+            whenMerged { classpath ->
+              classpath.entries.removeAll { it.kind == 'output' }
+              classpath.entries.add(new org.gradle.plugins.ide.eclipse.model.Output('bin/classes'))
+            }
+          }
+        }
+      }
+    """
+
+    when:
+    def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment, repositoryType)
+
+    then:
+    def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
+    def output = eclipseProject.getOutputLocation()
+    if (higherOrEqual('3.0', distribution)) {
+      assert output.get().path == 'bin/classes'
+    } else {
+      assert !output.isPresent()
+    }
+
+    where:
+    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
   }
 
   def "fetchEclipseGradleBuild - when exception is thrown"(GradleDistribution distribution, Environment environment) {
@@ -878,7 +1188,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
   }
 
   private static ImmutableList<List<Object>> fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(String versionPattern) {
-    GradleVersionParameterization.Default.INSTANCE.getPermutations(versionPattern, Environment.values() as List, RepositoryType.values() as List)
+      GradleVersionParameterization.Default.INSTANCE.getPermutations(versionPattern, Environment.values() as List, RepositoryType.values() as List)
   }
 
 }

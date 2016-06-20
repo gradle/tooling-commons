@@ -16,26 +16,6 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import java.io.File;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-
-import org.gradle.api.JavaVersion;
-import org.gradle.api.specs.Spec;
-import org.gradle.tooling.model.DomainObjectSet;
-import org.gradle.tooling.model.ProjectIdentifier;
-import org.gradle.tooling.model.eclipse.EclipseBuildCommand;
-import org.gradle.tooling.model.eclipse.EclipseExternalDependency;
-import org.gradle.tooling.model.eclipse.EclipseJavaSourceSettings;
-import org.gradle.tooling.model.eclipse.EclipseLinkedResource;
-import org.gradle.tooling.model.eclipse.EclipseProject;
-import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
-import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
-import org.gradle.tooling.model.eclipse.EclipseProjectNature;
-import org.gradle.tooling.model.eclipse.EclipseSourceDirectory;
-import org.gradle.tooling.model.java.InstalledJdk;
-
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -43,19 +23,18 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import com.gradleware.tooling.toolingmodel.*;
+import org.gradle.api.JavaVersion;
+import org.gradle.api.specs.Spec;
+import org.gradle.tooling.model.DomainObjectSet;
+import org.gradle.tooling.model.ProjectIdentifier;
+import org.gradle.tooling.model.eclipse.*;
+import org.gradle.tooling.model.java.InstalledJdk;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseBuildCommand;
-import com.gradleware.tooling.toolingmodel.OmniEclipseLinkedResource;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature;
-import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
-import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
-import com.gradleware.tooling.toolingmodel.OmniGradleProject;
-import com.gradleware.tooling.toolingmodel.OmniJavaRuntime;
-import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings;
-import com.gradleware.tooling.toolingmodel.OmniJavaVersion;
-import com.gradleware.tooling.toolingmodel.Path;
+import java.io.File;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Default implementation of the {@link OmniEclipseProject} interface.
@@ -78,6 +57,8 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     private Optional<List<OmniEclipseBuildCommand>> buildCommands;
     private Optional<OmniJavaSourceSettings> javaSourceSettings;
     private OmniGradleProject gradleProject;
+    private Optional<List<OmniEclipseClasspathContainer>> classpathContainers;
+    private Optional<OmniEclipseOutputLocation> outputLocation;
 
     private DefaultOmniEclipseProject(Comparator<? super OmniEclipseProject> comparator) {
         this.hierarchyHelper = new HierarchyHelper<OmniEclipseProject>(this, Preconditions.checkNotNull(comparator));
@@ -205,6 +186,24 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     }
 
     @Override
+    public Optional<List<OmniEclipseClasspathContainer>> getClasspathContainers() {
+        return this.classpathContainers;
+    }
+
+    private void setClasspathContainers(Optional<List<OmniEclipseClasspathContainer>> classpathContainers) {
+        this.classpathContainers = classpathContainers;
+    }
+
+    @Override
+    public Optional<OmniEclipseOutputLocation> getOutputLocation() {
+        return this.outputLocation;
+    }
+
+    public void setOutputLocation(Optional<OmniEclipseOutputLocation> outputLocation) {
+        this.outputLocation = outputLocation;
+    }
+
+    @Override
     public OmniEclipseProject getRoot() {
         return this.hierarchyHelper.getRoot();
     }
@@ -272,6 +271,8 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         setProjectNatures(eclipseProject, project);
         setBuildCommands(eclipseProject, project);
         setJavaSourceSettings(eclipseProject, project);
+        setClasspathContainers(eclipseProject, project);
+        setOutputLocation(eclipseProject, project);
 
         for (EclipseProject child : project.getChildren()) {
             DefaultOmniEclipseProject eclipseChildProject = from(child, knownProjects, knownGradleProjects);
@@ -316,6 +317,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     }
 
     private static ImmutableList<OmniEclipseSourceDirectory> toSourceDirectories(DomainObjectSet<? extends EclipseSourceDirectory> sourceDirectories) {
+
         return FluentIterable.from(sourceDirectories).transform(new Function<EclipseSourceDirectory, OmniEclipseSourceDirectory>() {
             @Override
             public OmniEclipseSourceDirectory apply(EclipseSourceDirectory input) {
@@ -390,6 +392,30 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         }
     }
 
+    /**
+     * EclipseProject#getClasspathContainers() is only available in Gradle versions >= 3.0.
+     *
+     * @param eclipseProject the project to populate
+     * @param project the project model
+     */
+    private static void setClasspathContainers(DefaultOmniEclipseProject eclipseProject, EclipseProject project) {
+        try {
+            ImmutableList<OmniEclipseClasspathContainer> classpathContainers = toClasspathContainers(project.getClasspathContainers());
+            eclipseProject.setClasspathContainers(Optional.<List<OmniEclipseClasspathContainer>>of(classpathContainers));
+        } catch (Exception ignore) {
+            eclipseProject.setClasspathContainers(Optional.<List<OmniEclipseClasspathContainer>>absent());
+        }
+    }
+
+    private static ImmutableList<OmniEclipseClasspathContainer> toClasspathContainers(DomainObjectSet<? extends EclipseClasspathContainer> classpathContainers) {
+        return FluentIterable.from(classpathContainers).transform(new Function<EclipseClasspathContainer, OmniEclipseClasspathContainer>() {
+            @Override
+            public OmniEclipseClasspathContainer apply(EclipseClasspathContainer input) {
+                return DefaultOmniEclipseClasspathContainer.from(input);
+            }
+        }).toList();
+    }
+
     private static OmniJavaSourceSettings toOmniJavaSourceSettings(final EclipseJavaSourceSettings javaSourceSettings) {
         // the source language level is always present on the source settings
         OmniJavaVersion sourceLanguageLevel = toOmniJavaVersion(javaSourceSettings.getSourceLanguageLevel());
@@ -438,6 +464,22 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 
     private static OmniJavaVersion toOmniJavaVersion(JavaVersion javaVersion) {
         return DefaultOmniJavaVersion.from(javaVersion);
+    }
+
+    /**
+     * EclipseProject#getOutputLocation() is only available in Gradle versions >= 3.0.
+     *
+     * @param eclipseProject the project to populate
+     * @param project the project model
+     */
+    private static void setOutputLocation(DefaultOmniEclipseProject eclipseProject, EclipseProject project) {
+
+        try {
+            String outputPath = project.getOutputLocation().getPath();
+            eclipseProject.setOutputLocation(Optional.<OmniEclipseOutputLocation>of(new DefaultOmniEclipseOutputLocation(outputPath)));
+        } catch (Exception ignore) {
+            eclipseProject.setOutputLocation(Optional.<OmniEclipseOutputLocation>absent());
+        }
     }
 
     /**

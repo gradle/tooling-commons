@@ -19,6 +19,7 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 import java.io.File;
 import java.util.List;
 
+import com.gradleware.tooling.toolingmodel.OmniAccessRule;
 import org.gradle.tooling.model.ExternalDependency;
 import org.gradle.tooling.model.GradleModuleVersion;
 import org.gradle.tooling.model.eclipse.EclipseExternalDependency;
@@ -41,8 +42,8 @@ public final class DefaultOmniExternalDependency extends AbstractOmniClasspathEn
     private final Maybe<OmniGradleModuleVersion> gradleModuleVersion;
     private final boolean exported;
 
-    private DefaultOmniExternalDependency(File file, File source, File javadoc, Maybe<OmniGradleModuleVersion> gradleModuleVersion, boolean exported, List<OmniClasspathAttribute> classpathAttributes) {
-        super(classpathAttributes);
+    private DefaultOmniExternalDependency(File file, File source, File javadoc, Maybe<OmniGradleModuleVersion> gradleModuleVersion, boolean exported, List<OmniClasspathAttribute> classpathAttributes, List<OmniAccessRule> accessRules) {
+        super(classpathAttributes, accessRules);
         this.file = file;
         this.source = source;
         this.javadoc = javadoc;
@@ -82,7 +83,8 @@ public final class DefaultOmniExternalDependency extends AbstractOmniClasspathEn
                 externalDependency.getJavadoc(),
                 getGradleModuleVersion(externalDependency),
                 getIsExported(externalDependency),
-                getClasspathAttributes(externalDependency));
+                getClasspathAttributes(externalDependency),
+                getAccessRules(externalDependency));
     }
 
     /**

@@ -18,8 +18,10 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import java.util.List;
 
+import com.gradleware.tooling.toolingmodel.OmniAccessRule;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.UnsupportedMethodException;
+import org.gradle.tooling.model.eclipse.AccessRule;
 import org.gradle.tooling.model.eclipse.ClasspathAttribute;
 import org.gradle.tooling.model.eclipse.EclipseClasspathEntry;
 
@@ -38,14 +40,21 @@ import com.gradleware.tooling.toolingmodel.OmniClasspathEntry;
 abstract class AbstractOmniClasspathEntry implements OmniClasspathEntry {
 
     private List<OmniClasspathAttribute> classpathAttributes;
+    private final List<OmniAccessRule> accessRules;
 
-    AbstractOmniClasspathEntry(List<OmniClasspathAttribute> classpathAttributes) {
+    AbstractOmniClasspathEntry(List<OmniClasspathAttribute> classpathAttributes, List<OmniAccessRule> accessRules) {
         this.classpathAttributes = ImmutableList.copyOf(classpathAttributes);
+        this.accessRules = accessRules;
     }
 
     @Override
     public List<OmniClasspathAttribute> getClasspathAttributes() {
         return this.classpathAttributes;
+    }
+
+    @Override
+    public List<OmniAccessRule> getAccessRules() {
+        return this.accessRules;
     }
 
     protected static List<OmniClasspathAttribute> getClasspathAttributes(EclipseClasspathEntry entry) {
@@ -58,6 +67,21 @@ abstract class AbstractOmniClasspathEntry implements OmniClasspathEntry {
         Builder<OmniClasspathAttribute> builder = ImmutableList.builder();
         for (ClasspathAttribute attribute : attributes) {
             builder.add(DefaultOmniClasspathAttribute.from(attribute));
+        }
+        return builder.build();
+    }
+
+    protected static List<OmniAccessRule> getAccessRules(EclipseClasspathEntry entry) {
+        DomainObjectSet<? extends AccessRule> accessRules;
+        try {
+            accessRules = entry.getAccessRules();
+        } catch (UnsupportedMethodException e) {
+            return ImmutableList.of();
+        }
+
+        Builder<OmniAccessRule> builder = ImmutableList.builder();
+        for (AccessRule accessRule : accessRules) {
+            builder.add(DefaultOmniAccessRule.from(accessRule));
         }
         return builder.build();
     }

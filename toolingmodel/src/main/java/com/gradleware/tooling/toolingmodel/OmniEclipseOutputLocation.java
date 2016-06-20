@@ -16,26 +16,17 @@
 
 package com.gradleware.tooling.toolingmodel;
 
-import java.util.List;
-
 /**
- * A classpath entry in an Eclipse Java project.
+ * The output location of an Eclipse project.
  *
- * @author Stefan Oehme
+ * @author Donat Csikos
  */
-public interface OmniClasspathEntry {
+public interface OmniEclipseOutputLocation {
 
     /**
-     * Returns the classpath attributes of this entry.
+     * Returns the project-relative path to the output location.
      *
-     * @return the attributes, never null
+     * @return The path to the output location. Does not return null.
      */
-    List<OmniClasspathAttribute> getClasspathAttributes();
-
-    /**
-     * Returns the access rules of this entry.
-     *
-     * @return the access rules, never null
-     */
-    List<OmniAccessRule> getAccessRules();
+    String getPath();
 }

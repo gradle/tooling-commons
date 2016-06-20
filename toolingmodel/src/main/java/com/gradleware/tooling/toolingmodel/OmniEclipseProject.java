@@ -191,4 +191,21 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
      */
     OmniGradleProject getGradleProject();
 
+    /**
+     * Returns the classpath containers of this project.
+     * <p>
+     * If the target Gradle version doesn't support retrieving the classpath containers then the method returns {@code Optional#absent()}
+     *
+     * @return the classpath containers
+     */
+    Optional<List<OmniEclipseClasspathContainer>> getClasspathContainers();
+
+    /**
+     * returns the output location of this project.
+     * * <p>
+     * If the target Gradle version doesn't support retrieving the output location then the method returns {@code Optional#absent()}
+     *
+     * @return the output location
+     */
+    Optional<OmniEclipseOutputLocation> getOutputLocation();
 }

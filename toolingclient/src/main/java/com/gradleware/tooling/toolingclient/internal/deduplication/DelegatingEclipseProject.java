@@ -21,15 +21,7 @@ import java.io.File;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.UnsupportedMethodException;
-import org.gradle.tooling.model.eclipse.EclipseBuildCommand;
-import org.gradle.tooling.model.eclipse.EclipseExternalDependency;
-import org.gradle.tooling.model.eclipse.EclipseJavaSourceSettings;
-import org.gradle.tooling.model.eclipse.EclipseLinkedResource;
-import org.gradle.tooling.model.eclipse.EclipseProject;
-import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
-import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
-import org.gradle.tooling.model.eclipse.EclipseProjectNature;
-import org.gradle.tooling.model.eclipse.EclipseSourceDirectory;
+import org.gradle.tooling.model.eclipse.*;
 
 /**
  * @author Stefan Oehme
@@ -111,6 +103,16 @@ public class DelegatingEclipseProject implements EclipseProject {
     @Override
     public DomainObjectSet<? extends EclipseBuildCommand> getBuildCommands() throws UnsupportedMethodException {
         return this.delegate.getBuildCommands();
+    }
+
+    @Override
+    public DomainObjectSet<? extends EclipseClasspathContainer> getClasspathContainers() throws UnsupportedMethodException {
+        return this.delegate.getClasspathContainers();
+    }
+
+    @Override
+    public EclipseOutputLocation getOutputLocation() throws UnsupportedMethodException {
+        return this.delegate.getOutputLocation();
     }
 
     @Override

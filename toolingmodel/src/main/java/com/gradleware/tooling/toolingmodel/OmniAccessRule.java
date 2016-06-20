@@ -16,26 +16,24 @@
 
 package com.gradleware.tooling.toolingmodel;
 
-import java.util.List;
-
 /**
- * A classpath entry in an Eclipse Java project.
+ * An access rule defined on a classpath entry.
  *
- * @author Stefan Oehme
+ * @author Donat Csikos
  */
-public interface OmniClasspathEntry {
+public interface OmniAccessRule {
 
     /**
-     * Returns the classpath attributes of this entry.
+     * Returns the access rule type.
      *
-     * @return the attributes, never null
+     * @return the access rule type
      */
-    List<OmniClasspathAttribute> getClasspathAttributes();
+    int getKind();
 
     /**
-     * Returns the access rules of this entry.
+     * Returns the file pattern of this access rule.
      *
-     * @return the access rules, never null
+     * @return the access rule file pattern
      */
-    List<OmniAccessRule> getAccessRules();
+    String getPattern();
 }
