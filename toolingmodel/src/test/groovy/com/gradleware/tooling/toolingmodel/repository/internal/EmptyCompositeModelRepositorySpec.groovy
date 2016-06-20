@@ -48,7 +48,7 @@ class EmptyCompositeModelRepositorySpec extends ToolingModelToolingClientSpecifi
         eclipseProjects.size() == 0
 
         where:
-        distribution << runWithAllGradleVersions(">=1.0")
+        distribution << runWithAllGradleVersions(">=1.2")
     }
 
     private fetchEclipseProjects(GradleDistribution distribution) {

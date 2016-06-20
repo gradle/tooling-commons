@@ -155,7 +155,7 @@ class DefaultOmniBuildInvocationsContainerBuilderTest extends ToolingModelToolin
         given:
         def modelRequest = toolingClient.newModelRequest(GradleProject.class)
         modelRequest.projectDir(directoryProviderProjectsWithoutTasks.testDirectory)
-        modelRequest.gradleDistribution(GradleDistribution.forVersion('1.0'))
+        modelRequest.gradleDistribution(GradleDistribution.forVersion('1.2'))
         def gradleProject = modelRequest.executeAndWait()
 
         when:

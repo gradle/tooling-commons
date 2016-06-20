@@ -199,7 +199,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     model == buildEnvironment
 
     where:
-    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.2")
   }
 
   def "fetchGradleBuildStructure - send event after cache update"(GradleDistribution distribution, Environment environment) {
@@ -254,7 +254,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     model == gradleBuildStructure
 
     where:
-    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.2")
   }
 
   def "fetchGradleBuildStructure - when exception is thrown"(GradleDistribution distribution, Environment environment) {
@@ -282,7 +282,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     publishedEvent.get() == null
 
     where:
-    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.2")
   }
 
   def "fetchGradleBuild - send event after cache update"(GradleDistribution distribution, Environment environment) {
@@ -387,7 +387,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     model == gradleBuild
 
     where:
-    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.2")
   }
 
   def "fetchGradleBuild - when exception is thrown"(GradleDistribution distribution, Environment environment) {
@@ -415,7 +415,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     publishedEvent.get() == null
 
     where:
-    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.2")
   }
 
   def "fetchEclipseGradleBuild - projects have correct structure and tasks" (GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
@@ -482,7 +482,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     myTaskSelector.selectedTaskPaths*.path as List == [':sub2:myTask', ':sub2:subSub1:myTask']
 
     where:
-    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.0")
+    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
   }
 
   def "fetchEclipseGradleBuild - send event after cache update"(GradleDistribution distribution, Environment environment) {
@@ -511,7 +511,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
       model == eclipseGradleBuild
 
       where:
-      [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+      [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.2")
     }
 
   @SuppressWarnings("GroovyTrivialConditional")
@@ -583,7 +583,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     rootProject.tryFind({ it.name == 'impl' } as Spec).get().externalDependencies == []
 
     where:
-    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.0")
+    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
   }
 
   def "fetchEclipseGradleBuild - build commands and natures"(GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
@@ -622,7 +622,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     }
 
     where:
-    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.0")
+    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
   }
 
   def "fetchEclipseGradleBuild - source version settings for non-JVM projects"(GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
@@ -638,7 +638,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     !eclipseProject.javaSourceSettings.isPresent()
 
     where:
-    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.0")
+    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
   }
 
   def "fetchEclipseGradleBuild - source version settings for JVM projects"(GradleDistribution distribution, Environment environment, RepositoryType repositoryType) {
@@ -682,7 +682,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     }
 
     where:
-    [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.0")
+     [distribution, environment, repositoryType] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
   }
 
   def "fetchEclipseGradleBuild - when exception is thrown"(GradleDistribution distribution, Environment environment) {
@@ -708,7 +708,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     publishedEvent.get() == null
 
     where:
-    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.2")
   }
 
   def "fetchBuildInvocations - send event after cache update"(GradleDistribution distribution, Environment environment) {
@@ -774,7 +774,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
     model == buildInvocations
 
     where:
-    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.0")
+    [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.2")
   }
 
   def "fetchBuildInvocations - when exception is thrown"(GradleDistribution distribution, Environment environment) {
@@ -878,7 +878,7 @@ class DefaultModelRepositoryTest extends ToolingModelToolingClientSpecification 
   }
 
   private static ImmutableList<List<Object>> fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(String versionPattern) {
-      GradleVersionParameterization.Default.INSTANCE.getPermutations(versionPattern, Environment.values() as List, RepositoryType.values() as List)
+    GradleVersionParameterization.Default.INSTANCE.getPermutations(versionPattern, Environment.values() as List, RepositoryType.values() as List)
   }
 
 }

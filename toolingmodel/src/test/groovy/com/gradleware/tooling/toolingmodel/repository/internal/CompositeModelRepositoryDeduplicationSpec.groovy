@@ -66,7 +66,7 @@ class CompositeModelRepositoryDeduplicationSpec extends ToolingModelToolingClien
         eclipseProjects*.name as Set == ['projectA', 'server', 'client', 'android', 'projectB', 'api', 'impl'] as Set
 
         where:
-        distribution << runWithAllGradleVersions(">=1.0")
+        distribution << runWithAllGradleVersions(">=1.2")
     }
 
     def "Sub-Project names are de-duplicated"(GradleDistribution distribution) {
@@ -83,7 +83,7 @@ class CompositeModelRepositoryDeduplicationSpec extends ToolingModelToolingClien
         eclipseProjects.find { p -> p.name == 'projectA-client-android' }
 
         where:
-        distribution << runWithAllGradleVersions(">=1.0")
+        distribution << runWithAllGradleVersions(">=1.2")
     }
 
     def "Duplicate root project names are rejected"(GradleDistribution distribution) {
@@ -98,7 +98,7 @@ class CompositeModelRepositoryDeduplicationSpec extends ToolingModelToolingClien
         problem.message.contains("Duplicate root project name 'projectA'")
 
         where:
-        distribution << runWithAllGradleVersions(">=1.0")
+        distribution << runWithAllGradleVersions(">=1.2")
     }
 
     private Set<OmniEclipseProject> fetchEclipseProjects(GradleDistribution distribution) {
