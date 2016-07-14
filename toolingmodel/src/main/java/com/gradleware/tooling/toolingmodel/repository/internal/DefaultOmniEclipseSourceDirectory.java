@@ -16,13 +16,13 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
+import com.google.common.base.Optional;
 import com.gradleware.tooling.toolingmodel.OmniAccessRule;
 import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
 import org.gradle.tooling.model.eclipse.EclipseSourceDirectory;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -34,11 +34,14 @@ public final class DefaultOmniEclipseSourceDirectory extends AbstractOmniClasspa
 
     private final File directory;
     private final String path;
-    private final List<String> excludes;
-    private final List<String> includes;
+    private final Optional<List<String>> excludes;
+    private final Optional<List<String>> includes;
     private final String output;
 
-    private DefaultOmniEclipseSourceDirectory(File directory, String path, List<String> excludes, List<String> includes, String output, List<OmniClasspathAttribute> attributes, List<OmniAccessRule> accessRules) {
+    private DefaultOmniEclipseSourceDirectory(File directory, String path,
+                                              Optional<List<String>> excludes, Optional<List<String>> includes,
+                                              String output, List<OmniClasspathAttribute> attributes,
+                                              List<OmniAccessRule> accessRules) {
         super(attributes, accessRules);
         this.directory = directory;
         this.path = path;
@@ -58,12 +61,12 @@ public final class DefaultOmniEclipseSourceDirectory extends AbstractOmniClasspa
     }
 
     @Override
-    public List<String> getExcludes() {
+    public Optional<List<String>> getExcludes() {
         return this.excludes;
     }
 
     @Override
-    public List<String> getIncludes() {
+    public Optional<List<String>> getIncludes() {
         return this.includes;
     }
 
@@ -84,24 +87,20 @@ public final class DefaultOmniEclipseSourceDirectory extends AbstractOmniClasspa
                 getAccessRules(sourceDirectory));
     }
 
-    private static List<String> getExcludes(EclipseSourceDirectory sourceDirectory) {
-        List<String> excludes;
+    private static Optional<List<String>> getExcludes(EclipseSourceDirectory sourceDirectory) {
         try {
-            excludes = sourceDirectory.getExcludes();
+            return Optional.of(sourceDirectory.getExcludes());
         } catch(Exception ignore) {
-            excludes = Collections.emptyList();
+            return Optional.absent();
         }
-        return excludes;
     }
 
-    private static List<String> getIncludes(EclipseSourceDirectory sourceDirectory) {
-        List<String> includes;
+    private static Optional<List<String>> getIncludes(EclipseSourceDirectory sourceDirectory) {
         try {
-            includes = sourceDirectory.getIncludes();
+            return Optional.of(sourceDirectory.getIncludes());
         } catch(Exception ignore) {
-            includes = Collections.emptyList();
+            return Optional.absent();
         }
-        return includes;
     }
 
     private static String getOutput(EclipseSourceDirectory sourceDirectory) {

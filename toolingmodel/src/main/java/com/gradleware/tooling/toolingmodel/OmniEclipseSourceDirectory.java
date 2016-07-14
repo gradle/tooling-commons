@@ -16,6 +16,7 @@
 
 package com.gradleware.tooling.toolingmodel;
 
+import com.google.common.base.Optional;
 import org.gradle.api.Nullable;
 
 import java.io.File;
@@ -48,14 +49,14 @@ public interface OmniEclipseSourceDirectory extends OmniClasspathEntry {
      *
      * @return the exclude patterns
      */
-    List<String> getExcludes();
+    Optional<List<String>> getExcludes();
 
     /**
      * Returns the include patterns of this directory.
      *
      * @return the include patterns
      */
-    List<String> getIncludes();
+    Optional<List<String>> getIncludes();
 
     /**
      * Returns the output path of this source directory. If the source folder does not specify output

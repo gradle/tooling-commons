@@ -443,13 +443,13 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
         def sourceDir = eclipseProject.sourceDirectories.find { it.path == 'src/main/java' }
         if (higherOrEqual('3.0', distribution)) {
-            assert sourceDir.excludes.size() == 1
-            assert sourceDir.excludes[0] == 'excludePattern'
-            assert sourceDir.includes.size() == 1
-            assert sourceDir.includes[0] == 'includePattern'
+            assert sourceDir.excludes.get().size() == 1
+            assert sourceDir.excludes.get()[0] == 'excludePattern'
+            assert sourceDir.includes.get().size() == 1
+            assert sourceDir.includes.get()[0] == 'includePattern'
         } else {
-            assert sourceDir.excludes.isEmpty()
-            assert sourceDir.includes.isEmpty()
+            assert !sourceDir.excludes.isPresent()
+            assert !sourceDir.includes.isPresent()
         }
 
         where:
