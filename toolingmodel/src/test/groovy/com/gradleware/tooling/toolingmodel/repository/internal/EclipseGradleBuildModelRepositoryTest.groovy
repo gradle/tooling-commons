@@ -332,7 +332,9 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         def classpathContainers = eclipseProject.classpathContainers
         if (higherOrEqual('3.0', distribution)) {
             assert classpathContainers.get().find { it.path == 'firstContainerPath' }
+            assert !classpathContainers.get().find { it.path == 'firstContainerPath' }.exported
             assert classpathContainers.get().find { it.path == 'secondContainerPath' }
+            assert !classpathContainers.get().find { it.path == 'secondContainerPath' }.exported
         } else {
             assert !classpathContainers.isPresent()
         }

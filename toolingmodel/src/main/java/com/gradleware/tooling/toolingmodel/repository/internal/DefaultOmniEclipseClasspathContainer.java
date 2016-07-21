@@ -34,10 +34,12 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseClasspathContainer;
 public class DefaultOmniEclipseClasspathContainer extends AbstractOmniClasspathEntry implements OmniEclipseClasspathContainer {
 
     private final String path;
+    private final boolean isExported;
 
-    private DefaultOmniEclipseClasspathContainer(String path, Optional<List<OmniClasspathAttribute>> attributes, Optional<List<OmniAccessRule>> accessRules) {
+    private DefaultOmniEclipseClasspathContainer(String path, boolean isExported, Optional<List<OmniClasspathAttribute>> attributes, Optional<List<OmniAccessRule>> accessRules) {
         super(attributes, accessRules);
         this.path = path;
+        this.isExported = isExported;
     }
 
     @Override
@@ -45,9 +47,15 @@ public class DefaultOmniEclipseClasspathContainer extends AbstractOmniClasspathE
         return this.path;
     }
 
+    @Override
+    public boolean isExported() {
+        return this.isExported;
+    }
+
     public static DefaultOmniEclipseClasspathContainer from(EclipseClasspathContainer container) {
         return new DefaultOmniEclipseClasspathContainer(
                 container.getPath(),
+                container.isExported(),
                 getClasspathAttributes(container),
                 getAccessRules(container));
     }

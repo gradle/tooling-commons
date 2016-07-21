@@ -29,4 +29,11 @@ public interface OmniEclipseClasspathContainer extends OmniClasspathEntry {
      * @return the classpath container path, never null
      */
     String getPath();
+
+    /**
+     * Returns if the container is exported to dependent project.
+     *
+     * @return true if the container is exported
+     */
+    boolean isExported();
 }
