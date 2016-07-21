@@ -183,7 +183,6 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         def apiProjectDependency = implProjectDependencies[0]
         apiProjectDependency.target == apiProject.identifier
         apiProjectDependency.exported == higherOrEqual('2.5', distribution) ? false : true
-        apiProjectDependency.classpathAttributes == []
 
         // verify external dependencies
         def apiExternalDependencies = apiProject.externalDependencies
@@ -193,7 +192,7 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         guavaDependency.source != null
         guavaDependency.javadoc == null
         guavaDependency.exported == higherOrEqual('2.5', distribution) ? false : true
-        guavaDependency.classpathAttributes == []
+
         guavaDependency.gradleModuleVersion.get().group == 'com.google.guava'
         guavaDependency.gradleModuleVersion.get().name == 'guava'
         guavaDependency.gradleModuleVersion.get().version == '18.0'
@@ -205,6 +204,19 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         } else {
             assert implExternalDependencies.size() == 1
             assert implExternalDependencies.find { it.file.absolutePath.contains('log4j') }
+        }
+
+        // verify classpath attributes
+        if (higherOrEqual('3.0', distribution)) {
+            assert apiProjectDependency.classpathAttributes.get() == []
+            assert apiProjectDependency.accessRules.get() == []
+            assert guavaDependency.classpathAttributes.get() == []
+            assert guavaDependency.accessRules.get() == []
+        } else {
+            assert !apiProjectDependency.classpathAttributes.isPresent()
+            assert !guavaDependency.classpathAttributes.isPresent()
+            assert !apiProjectDependency.accessRules.isPresent()
+            assert !guavaDependency.accessRules.isPresent()
         }
 
         where:
@@ -370,9 +382,9 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         def classpathContainers = eclipseProject.classpathContainers
         if (higherOrEqual('3.0', distribution)) {
             def attributes = classpathContainers.get().find { it.path == 'customContainer' }.classpathAttributes
-            assert attributes.size() == 1
-            assert attributes[0].name == 'customKey'
-            assert attributes[0].value == 'customValue'
+            assert attributes.get().size() == 1
+            assert attributes.get()[0].name == 'customKey'
+            assert attributes.get()[0].value == 'customValue'
         }
 
         where:
@@ -409,11 +421,11 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         def classpathContainers = eclipseProject.classpathContainers
         if (higherOrEqual('3.0', distribution)) {
             def accessRules = classpathContainers.get().find { it.path == 'customContainer' }.accessRules
-            assert accessRules.size() == 2
-            assert accessRules[0].kind == 0
-            assert accessRules[0].pattern == 'accessibleFilesPattern'
-            assert accessRules[1].kind == 1
-            assert accessRules[1].pattern == 'nonAccessibleFilesPattern'
+            assert accessRules.get().size() == 2
+            assert accessRules.get()[0].kind == 0
+            assert accessRules.get()[0].pattern == 'accessibleFilesPattern'
+            assert accessRules.get()[1].kind == 1
+            assert accessRules.get()[1].pattern == 'nonAccessibleFilesPattern'
         }
 
         where:
@@ -486,13 +498,13 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         def javaDir = eclipseProject.sourceDirectories.find { it.path == 'src/main/java' }
         def resourcesDir = eclipseProject.sourceDirectories.find { it.path == 'src/main/resources' }
         if (higherOrEqual('3.0', distribution)) {
-            assert javaDir.classpathAttributes.size() == 1
-            assert javaDir.classpathAttributes[0].name == 'customKey'
-            assert javaDir.classpathAttributes[0].value == 'customValue'
-            assert resourcesDir.classpathAttributes.isEmpty()
+            assert javaDir.classpathAttributes.get().size() == 1
+            assert javaDir.classpathAttributes.get()[0].name == 'customKey'
+            assert javaDir.classpathAttributes.get()[0].value == 'customValue'
+            assert resourcesDir.classpathAttributes.get().isEmpty()
         } else {
-            assert javaDir.classpathAttributes.isEmpty()
-            assert resourcesDir.classpathAttributes.isEmpty()
+            assert !javaDir.classpathAttributes.isPresent()
+            assert !resourcesDir.classpathAttributes.isPresent()
         }
 
         where:
@@ -530,15 +542,15 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         def javaDir = eclipseProject.sourceDirectories.find { it.path == 'src/main/java' }
         def resourcesDir = eclipseProject.sourceDirectories.find { it.path == 'src/main/resources' }
         if (higherOrEqual('3.0', distribution)) {
-            assert javaDir.accessRules.size() == 2
-            assert javaDir.accessRules[0].kind == 0
-            assert javaDir.accessRules[0].pattern == 'accessibleFilesPattern'
-            assert javaDir.accessRules[1].kind == 1
-            assert javaDir.accessRules[1].pattern == 'nonAccessibleFilesPattern'
-            assert resourcesDir.classpathAttributes.isEmpty()
+            assert javaDir.accessRules.get().size() == 2
+            assert javaDir.accessRules.get()[0].kind == 0
+            assert javaDir.accessRules.get()[0].pattern == 'accessibleFilesPattern'
+            assert javaDir.accessRules.get()[1].kind == 1
+            assert javaDir.accessRules.get()[1].pattern == 'nonAccessibleFilesPattern'
+            assert resourcesDir.classpathAttributes.get().isEmpty()
         } else {
-            assert javaDir.classpathAttributes.isEmpty()
-            assert resourcesDir.classpathAttributes.isEmpty()
+            assert !javaDir.classpathAttributes.isPresent()
+            assert !resourcesDir.classpathAttributes.isPresent()
         }
 
         where:
@@ -647,15 +659,15 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         def eclipseProject = rootProject.tryFind({ it.name == 'impl' } as Spec).get()
 
         if (higherOrEqual('3.0', distribution)) {
-            assert eclipseProject.projectDependencies[0].classpathAttributes.size() == 1
-            assert eclipseProject.projectDependencies[0].classpathAttributes[0].name == 'customKey'
-            assert eclipseProject.projectDependencies[0].classpathAttributes[0].value == 'customValue'
-            assert eclipseProject.externalDependencies[0].classpathAttributes.size() == 1
-            assert eclipseProject.externalDependencies[0].classpathAttributes[0].name == 'javadoc_location'
-            assert eclipseProject.externalDependencies[0].classpathAttributes[0].value.contains('log4j')
+            assert eclipseProject.projectDependencies[0].classpathAttributes.get().size() == 1
+            assert eclipseProject.projectDependencies[0].classpathAttributes.get()[0].name == 'customKey'
+            assert eclipseProject.projectDependencies[0].classpathAttributes.get()[0].value == 'customValue'
+            assert eclipseProject.externalDependencies[0].classpathAttributes.get().size() == 1
+            assert eclipseProject.externalDependencies[0].classpathAttributes.get()[0].name == 'javadoc_location'
+            assert eclipseProject.externalDependencies[0].classpathAttributes.get()[0].value.contains('log4j')
         } else {
-            assert eclipseProject.projectDependencies[0].classpathAttributes.isEmpty()
-            assert eclipseProject.externalDependencies[0].classpathAttributes.isEmpty()
+            assert !eclipseProject.projectDependencies[0].classpathAttributes.isPresent()
+            assert !eclipseProject.externalDependencies[0].classpathAttributes.isPresent()
         }
 
         where:
@@ -692,18 +704,18 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         def eclipseProject = rootProject.tryFind({ it.name == 'impl' } as Spec).get()
 
         if (higherOrEqual('3.0', distribution)) {
-            assert eclipseProject.projectDependencies[0].accessRules.size() == 2
-            assert eclipseProject.projectDependencies[0].accessRules[0].kind == 0
-            assert eclipseProject.projectDependencies[0].accessRules[0].pattern == 'accessibleFilesPattern1'
-            assert eclipseProject.projectDependencies[0].accessRules[1].kind == 1
-            assert eclipseProject.projectDependencies[0].accessRules[1].pattern == 'nonAccessibleFilesPattern1'
-            assert eclipseProject.externalDependencies[0].accessRules[0].kind == 0
-            assert eclipseProject.externalDependencies[0].accessRules[0].pattern == 'accessibleFilesPattern2'
-            assert eclipseProject.externalDependencies[0].accessRules[1].kind == 1
-            assert eclipseProject.externalDependencies[0].accessRules[1].pattern == 'nonAccessibleFilesPattern2'
+            assert eclipseProject.projectDependencies[0].accessRules.get().size() == 2
+            assert eclipseProject.projectDependencies[0].accessRules.get()[0].kind == 0
+            assert eclipseProject.projectDependencies[0].accessRules.get()[0].pattern == 'accessibleFilesPattern1'
+            assert eclipseProject.projectDependencies[0].accessRules.get()[1].kind == 1
+            assert eclipseProject.projectDependencies[0].accessRules.get()[1].pattern == 'nonAccessibleFilesPattern1'
+            assert eclipseProject.externalDependencies[0].accessRules.get()[0].kind == 0
+            assert eclipseProject.externalDependencies[0].accessRules.get()[0].pattern == 'accessibleFilesPattern2'
+            assert eclipseProject.externalDependencies[0].accessRules.get()[1].kind == 1
+            assert eclipseProject.externalDependencies[0].accessRules.get()[1].pattern == 'nonAccessibleFilesPattern2'
         } else {
-            assert eclipseProject.projectDependencies[0].accessRules.isEmpty()
-            assert eclipseProject.externalDependencies[0].accessRules.isEmpty()
+            assert !eclipseProject.projectDependencies[0].accessRules.isPresent()
+            assert !eclipseProject.externalDependencies[0].accessRules.isPresent()
         }
 
         where:
