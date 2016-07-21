@@ -40,8 +40,8 @@ public final class DefaultOmniEclipseSourceDirectory extends AbstractOmniClasspa
 
     private DefaultOmniEclipseSourceDirectory(File directory, String path,
                                               Optional<List<String>> excludes, Optional<List<String>> includes,
-                                              String output, List<OmniClasspathAttribute> attributes,
-                                              List<OmniAccessRule> accessRules) {
+                                              String output, Optional<List<OmniClasspathAttribute>> attributes,
+                                              Optional<List<OmniAccessRule>> accessRules) {
         super(attributes, accessRules);
         this.directory = directory;
         this.path = path;
@@ -75,7 +75,7 @@ public final class DefaultOmniEclipseSourceDirectory extends AbstractOmniClasspa
         return this.output;
     }
 
-    public static DefaultOmniEclipseSourceDirectory from(EclipseSourceDirectory sourceDirectory) {  
+    public static DefaultOmniEclipseSourceDirectory from(EclipseSourceDirectory sourceDirectory) {
 
         return new DefaultOmniEclipseSourceDirectory(
                 sourceDirectory.getDirectory(),

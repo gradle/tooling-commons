@@ -18,6 +18,8 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import java.util.List;
 
+import com.google.common.base.Optional;
+
 import com.gradleware.tooling.toolingmodel.OmniAccessRule;
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
 import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
@@ -36,8 +38,8 @@ public final class DefaultOmniEclipseProjectDependency extends AbstractOmniClass
     private final String path;
     private final boolean exported;
 
-    private DefaultOmniEclipseProjectDependency(EclipseProjectIdentifier target, String path, boolean exported, List<OmniClasspathAttribute> classpathAttributes, List<OmniAccessRule> accessRules) {
-        super(classpathAttributes, accessRules);
+    private DefaultOmniEclipseProjectDependency(EclipseProjectIdentifier target, String path, boolean exported, Optional<List<OmniClasspathAttribute>> attributes, Optional<List<OmniAccessRule>> accessRules) {
+        super(attributes, accessRules);
         this.target = target;
         this.path = path;
         this.exported = exported;

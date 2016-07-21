@@ -18,6 +18,8 @@ package com.gradleware.tooling.toolingmodel;
 
 import java.util.List;
 
+import com.google.common.base.Optional;
+
 /**
  * A classpath entry in an Eclipse Java project.
  *
@@ -30,12 +32,12 @@ public interface OmniClasspathEntry {
      *
      * @return the attributes, never null
      */
-    List<OmniClasspathAttribute> getClasspathAttributes();
+    Optional<List<OmniClasspathAttribute>> getClasspathAttributes();
 
     /**
      * Returns the access rules of this entry.
      *
      * @return the access rules, never null
      */
-    List<OmniAccessRule> getAccessRules();
+    Optional<List<OmniAccessRule>> getAccessRules();
 }
