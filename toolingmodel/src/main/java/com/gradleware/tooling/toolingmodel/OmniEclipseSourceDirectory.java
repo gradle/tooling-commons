@@ -18,7 +18,6 @@ package com.gradleware.tooling.toolingmodel;
 
 import com.google.common.base.Optional;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
-import org.gradle.api.Nullable;
 
 import java.io.File;
 import java.util.List;
