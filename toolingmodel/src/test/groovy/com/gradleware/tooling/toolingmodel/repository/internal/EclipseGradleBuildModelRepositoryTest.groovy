@@ -587,11 +587,11 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         def javaDir = eclipseProject.sourceDirectories.find { it.path == 'src/main/java' }
         def resourcesDir = eclipseProject.sourceDirectories.find { it.path == 'src/main/resources' }
         if (higherOrEqual('3.0', distribution)) {
-            assert javaDir.output == 'mainClasses'
-            assert resourcesDir.output == null
+            assert javaDir.output.get() == 'mainClasses'
+            assert resourcesDir.output.get() == null
         } else {
-            assert javaDir.output == null
-            assert resourcesDir.output == null
+            assert !javaDir.output.isPresent()
+            assert !resourcesDir.output.isPresent()
         }
 
         where:

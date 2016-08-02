@@ -20,6 +20,7 @@ import com.google.common.base.Optional;
 import com.gradleware.tooling.toolingmodel.OmniAccessRule;
 import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
+import com.gradleware.tooling.toolingmodel.util.Maybe;
 import org.gradle.tooling.model.eclipse.EclipseSourceDirectory;
 
 import java.io.File;
@@ -36,11 +37,11 @@ public final class DefaultOmniEclipseSourceDirectory extends AbstractOmniClasspa
     private final String path;
     private final Optional<List<String>> excludes;
     private final Optional<List<String>> includes;
-    private final String output;
+    private final Maybe<String> output;
 
     private DefaultOmniEclipseSourceDirectory(File directory, String path,
                                               Optional<List<String>> excludes, Optional<List<String>> includes,
-                                              String output, Optional<List<OmniClasspathAttribute>> attributes,
+                                              Maybe<String> output, Optional<List<OmniClasspathAttribute>> attributes,
                                               Optional<List<OmniAccessRule>> accessRules) {
         super(attributes, accessRules);
         this.directory = directory;
@@ -71,7 +72,7 @@ public final class DefaultOmniEclipseSourceDirectory extends AbstractOmniClasspa
     }
 
     @Override
-    public String getOutput() {
+    public Maybe<String> getOutput() {
         return this.output;
     }
 
@@ -103,11 +104,11 @@ public final class DefaultOmniEclipseSourceDirectory extends AbstractOmniClasspa
         }
     }
 
-    private static String getOutput(EclipseSourceDirectory sourceDirectory) {
+    private static Maybe<String> getOutput(EclipseSourceDirectory sourceDirectory) {
         try {
-            return sourceDirectory.getOutput();
+            return Maybe.of(sourceDirectory.getOutput());
         } catch (Exception ignore) {
-            return null;
+            return Maybe.absent();
         }
     }
 
