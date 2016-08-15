@@ -59,7 +59,6 @@ import com.gradleware.tooling.toolingclient.ModelRequest;
 import com.gradleware.tooling.toolingclient.TestConfig;
 import com.gradleware.tooling.toolingclient.TestLaunchRequest;
 import com.gradleware.tooling.toolingclient.ToolingClient;
-import com.gradleware.tooling.toolingclient.internal.deduplication.DeduplicatingGradleConnection;
 
 /**
  * Internal implementation of the {@link ToolingClient} API.
@@ -243,14 +242,14 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     private GradleConnection getOrCreateCompositeConnection(InspectableCompositeBuildRequest<?> compositeRequest) {
         Preconditions.checkNotNull(compositeRequest);
         if (this.connectionStrategy == ConnectionStrategy.PER_REQUEST) {
-            return openCompositeConnection(compositeRequest);
+            return createIntegratedCompositeIfPossible(compositeRequest);
         }
         GradleConnection connection;
         int connectionKey = calculateCompositeConnectionKey(compositeRequest);
         synchronized (this.compositeConnections) {
             connection = this.compositeConnections.get(connectionKey);
             if (connection == null) {
-                connection = openCompositeConnection(compositeRequest);
+                connection = createIntegratedCompositeIfPossible(compositeRequest);
                 this.compositeConnections.put(connectionKey, connection);
             }
         }
@@ -280,11 +279,6 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         connector.useGradleUserHomeDir(modelRequest.getGradleUserHomeDir());
         modelRequest.getGradleDistribution().apply(connector);
         return connector.connect();
-    }
-
-    private GradleConnection openCompositeConnection(InspectableCompositeBuildRequest<?> compositeRequest) {
-        GradleConnection actualConnection = createIntegratedCompositeIfPossible(compositeRequest);
-        return new DeduplicatingGradleConnection(actualConnection);
     }
 
     private GradleConnection createIntegratedCompositeIfPossible(InspectableCompositeBuildRequest<?> compositeRequest) {
