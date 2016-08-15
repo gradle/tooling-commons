@@ -62,23 +62,10 @@ class DefaultModelRepositoryProviderTest extends ToolingModelToolingClientSpecif
         def attributesTwo = new FixedRequestAttributes(projectA.testDirectory, null, GradleDistribution.forVersion('1.12'), null, ImmutableList.of(), ImmutableList.of())
         def attributesThree = new FixedRequestAttributes(projectB.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
 
-        assert modelRepositoryProvider.getCompositeModelRepository(Sets.newHashSet(attributesOne)).is(modelRepositoryProvider.getCompositeModelRepository(Sets.newHashSet(attributesOne)))
-        assert modelRepositoryProvider.getCompositeModelRepository(Sets.newHashSet(attributesTwo)).is(modelRepositoryProvider.getCompositeModelRepository(Sets.newHashSet(attributesTwo)))
-        assert !modelRepositoryProvider.getCompositeModelRepository(Sets.newHashSet(attributesOne)).is(modelRepositoryProvider.getCompositeModelRepository(Sets.newHashSet(attributesTwo)))
-        assert !modelRepositoryProvider.getCompositeModelRepository(Sets.newHashSet(attributesOne)).is(modelRepositoryProvider.getCompositeModelRepository(Sets.newHashSet(attributesThree)))
-    }
-
-    def "Composite with multiple root projects"() {
-        setup:
-        def modelRepositoryProvider = new DefaultModelRepositoryProvider(toolingClient)
-
-        def attributesOne = new FixedRequestAttributes(projectA.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
-        def attributesTwo = new FixedRequestAttributes(projectA.testDirectory, null, GradleDistribution.forVersion('1.12'), null, ImmutableList.of(), ImmutableList.of())
-        def attributesThree = new FixedRequestAttributes(projectB.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
-
-        assert modelRepositoryProvider.getCompositeModelRepository(Sets.newHashSet(attributesOne, attributesThree)).is(modelRepositoryProvider.getCompositeModelRepository(Sets.newHashSet(attributesOne, attributesThree)))
-        assert !modelRepositoryProvider.getCompositeModelRepository(Sets.newHashSet(attributesOne, attributesThree)).is(modelRepositoryProvider.getCompositeModelRepository(Sets.newHashSet(attributesTwo, attributesThree)))
-        assert !modelRepositoryProvider.getCompositeModelRepository(Sets.newHashSet(attributesOne)).is(modelRepositoryProvider.getCompositeModelRepository(Sets.newHashSet(attributesOne, attributesThree)))
+        assert modelRepositoryProvider.getCompositeModelRepository(attributesOne).is(modelRepositoryProvider.getCompositeModelRepository(attributesOne))
+        assert modelRepositoryProvider.getCompositeModelRepository(attributesTwo).is(modelRepositoryProvider.getCompositeModelRepository(attributesTwo))
+        assert !modelRepositoryProvider.getCompositeModelRepository(attributesOne).is(modelRepositoryProvider.getCompositeModelRepository(attributesTwo))
+        assert !modelRepositoryProvider.getCompositeModelRepository(attributesOne).is(modelRepositoryProvider.getCompositeModelRepository(attributesThree))
     }
 
 }

@@ -16,19 +16,9 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import java.util.Map;
-import java.util.Set;
-
-import org.gradle.tooling.connection.ModelResults;
-import org.gradle.tooling.model.ProjectIdentifier;
-import org.gradle.tooling.model.build.BuildEnvironment;
-import org.gradle.tooling.model.eclipse.EclipseProject;
-import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
-
-import com.google.common.collect.ImmutableSet;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
-
 import com.gradleware.tooling.toolingclient.CompositeBuildModelRequest;
 import com.gradleware.tooling.toolingclient.Consumer;
 import com.gradleware.tooling.toolingclient.Request;
@@ -39,6 +29,13 @@ import com.gradleware.tooling.toolingmodel.repository.CompositeBuildModelReposit
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
+import org.gradle.tooling.connection.ModelResults;
+import org.gradle.tooling.model.ProjectIdentifier;
+import org.gradle.tooling.model.build.BuildEnvironment;
+import org.gradle.tooling.model.eclipse.EclipseProject;
+import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
+
+import java.util.Map;
 
 /**
  * Default implementation for {@link CompositeBuildModelRepository}.
@@ -47,16 +44,16 @@ import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
  */
 public class DefaultCompositeModelRepository extends BaseModelRepository implements CompositeBuildModelRepository {
 
-    private final ImmutableSet<FixedRequestAttributes> requestAttributes;
+    private final FixedRequestAttributes requestAttribute;
 
-    public DefaultCompositeModelRepository(Set<FixedRequestAttributes> requestAttributes, ToolingClient toolingClient, EventBus eventBus) {
+    public DefaultCompositeModelRepository(FixedRequestAttributes requestAttribute, ToolingClient toolingClient, EventBus eventBus) {
         super(toolingClient, eventBus);
-        this.requestAttributes = ImmutableSet.copyOf(requestAttributes);
+        this.requestAttribute = Preconditions.checkNotNull(requestAttribute);
     }
 
     @Override
     public ModelResults<OmniEclipseProject> fetchEclipseProjects(final TransientRequestAttributes transientAttributes, FetchStrategy fetchStrategy) {
-        CompositeBuildModelRequest<EclipseProject> modelRequest = createModelRequest(EclipseProject.class, this.requestAttributes, transientAttributes);
+        CompositeBuildModelRequest<EclipseProject> modelRequest = createModelRequest(EclipseProject.class, this.requestAttribute, transientAttributes);
         final Map<EclipseProjectIdentifier, DefaultOmniEclipseProject> knownEclipseProjects = Maps.newHashMap();
         final Map<ProjectIdentifier, DefaultOmniGradleProject> knownGradleProjects = Maps.newHashMap();
         Converter<EclipseProject, OmniEclipseProject> converter = new BaseConverter<EclipseProject, OmniEclipseProject>() {
@@ -71,7 +68,7 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
 
     @Override
     public ModelResults<OmniBuildEnvironment> fetchBuildEnvironments(TransientRequestAttributes transientAttributes, FetchStrategy fetchStrategy) {
-        CompositeBuildModelRequest<BuildEnvironment> modelRequest = createModelRequest(BuildEnvironment.class, this.requestAttributes, transientAttributes);
+        CompositeBuildModelRequest<BuildEnvironment> modelRequest = createModelRequest(BuildEnvironment.class, this.requestAttribute, transientAttributes);
         Converter<BuildEnvironment, OmniBuildEnvironment> converter = new BaseConverter<BuildEnvironment, OmniBuildEnvironment>() {
 
             @Override
@@ -82,20 +79,14 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
         return executeRequest(modelRequest, fetchStrategy, OmniBuildEnvironment.class, converter);
     }
 
-    private <T> CompositeBuildModelRequest<T> createModelRequest(Class<T> model, Set<FixedRequestAttributes> fixedAttributes, TransientRequestAttributes transientAttributes) {
+    private <T> CompositeBuildModelRequest<T> createModelRequest(Class<T> model, FixedRequestAttributes fixedAttribute, TransientRequestAttributes transientAttributes) {
         CompositeBuildModelRequest<T> request = getToolingClient().newCompositeModelRequest(model);
-        for (FixedRequestAttributes fixedRequestAttribute : fixedAttributes) {
-            fixedRequestAttribute.apply(request);
-        }
+        fixedAttribute.apply(request);
         transientAttributes.apply(request);
         return request;
     }
 
     protected <T, U> ModelResults<U> executeRequest(Request<ModelResults<T>> request, FetchStrategy fetchStrategy, Class<?> cacheKey, Converter<T, U> resultConverter) {
-        // TODO push this special handling down to DefaultToolingClient
-        if (this.requestAttributes.isEmpty()) {
-            return new EmptyModelResults<U>();
-        }
         Consumer<ModelResults<U>> dontSendEvents = new Consumer<ModelResults<U>>() {
 
             @Override

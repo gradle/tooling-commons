@@ -755,7 +755,7 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
             OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
             return eclipseGradleBuild.rootEclipseProject
         } else {
-            DefaultCompositeModelRepository repository = new DefaultCompositeModelRepository([fixedRequestAttributes] as Set, toolingClient, new EventBus())
+            DefaultCompositeModelRepository repository = new DefaultCompositeModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
             repository.register(listener)
             def projects = repository.fetchEclipseProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
             projects.collect { it.model }.find { it.parent == null }

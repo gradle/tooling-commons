@@ -16,21 +16,18 @@
 
 package com.gradleware.tooling.toolingmodel.repository;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
-import org.gradle.api.Nullable;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingclient.CompositeBuildRequest;
-import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.SingleBuildRequest;
 import com.gradleware.tooling.toolingutils.ImmutableCollection;
+import org.gradle.api.Nullable;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Container to hold those attributes of a {@link com.gradleware.tooling.toolingclient.Request} that must not change between request invocations if the semantics of how the build
@@ -121,8 +118,8 @@ public final class FixedRequestAttributes {
 
     public void apply(CompositeBuildRequest<?> request) {
         request.gradleUserHomeDir(this.gradleUserHome);
-        GradleBuildIdentifier participant = new GradleBuildIdentifier(this.projectDir, this.gradleDistribution);
-        request.addParticipants(participant);
+        request.projectDir(this.projectDir);
+        request.gradleDistribution(this.gradleDistribution);
     }
 
     @Override

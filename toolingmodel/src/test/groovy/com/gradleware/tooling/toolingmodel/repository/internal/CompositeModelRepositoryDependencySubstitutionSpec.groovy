@@ -33,8 +33,10 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProject
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
+import spock.lang.Ignore
 
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
+@Ignore("TODO (donat) re-implement when composites defined in settings.gradle can be imported")
 class CompositeModelRepositoryDependencySubstitutionSpec extends ToolingModelToolingClientSpecification {
 
     @Rule

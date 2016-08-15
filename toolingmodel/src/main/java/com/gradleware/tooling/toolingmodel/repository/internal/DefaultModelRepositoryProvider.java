@@ -16,22 +16,14 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import java.util.Map;
-import java.util.Set;
-
-import org.gradle.internal.Factory;
-
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
-
 import com.gradleware.tooling.toolingclient.ToolingClient;
-import com.gradleware.tooling.toolingmodel.repository.CompositeBuildModelRepository;
-import com.gradleware.tooling.toolingmodel.repository.Environment;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
-import com.gradleware.tooling.toolingmodel.repository.SingleBuildModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.*;
+import org.gradle.internal.Factory;
+
+import java.util.Map;
 
 /**
  * Internal implementation of the {@code ModelRepositoryProvider} API.
@@ -44,7 +36,7 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
     private final Environment environment;
     private final Factory<EventBus> eventBusFactory;
     private final Map<FixedRequestAttributes, SingleBuildModelRepository> modelRepositories;
-    private final Map<ImmutableSet<FixedRequestAttributes>, CompositeBuildModelRepository> compositeModelRepositories;
+    private final Map<FixedRequestAttributes, CompositeBuildModelRepository> compositeModelRepositories;
 
     public DefaultModelRepositoryProvider(ToolingClient toolingClient) {
         this(toolingClient, Environment.STANDALONE);
@@ -69,8 +61,8 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
     }
 
     @Override
-    public CompositeBuildModelRepository getCompositeModelRepository(Set<FixedRequestAttributes> fixedRequestAttributes) {
-        return getOrCreateCompositeModelRepository(ImmutableSet.copyOf(fixedRequestAttributes));
+    public CompositeBuildModelRepository getCompositeModelRepository(FixedRequestAttributes fixedRequestAttribute) {
+        return getOrCreateCompositeModelRepository(fixedRequestAttribute);
     }
 
     private SingleBuildModelRepository getOrCreateModelRepository(FixedRequestAttributes fixedRequestAttributes) {
@@ -86,7 +78,7 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
         return modelRepository;
     }
 
-    private CompositeBuildModelRepository getOrCreateCompositeModelRepository(ImmutableSet<FixedRequestAttributes> fixedRequestAttributes) {
+    private CompositeBuildModelRepository getOrCreateCompositeModelRepository(FixedRequestAttributes fixedRequestAttributes) {
         CompositeBuildModelRepository modelRepository;
         synchronized (this.compositeModelRepositories) {
             if (!this.compositeModelRepositories.containsKey(fixedRequestAttributes)) {

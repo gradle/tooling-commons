@@ -16,13 +16,10 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
-import java.io.File;
-import java.util.Arrays;
-
-import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingclient.CompositeBuildRequest;
-import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+
+import java.io.File;
 
 /**
  * Internal base class for all composite requests.
@@ -33,12 +30,12 @@ import com.gradleware.tooling.toolingclient.GradleBuildIdentifier;
  */
 abstract class BaseCompositeBuildRequest<T, SELF extends BaseCompositeBuildRequest<T, SELF>> extends BaseRequest<T, SELF>implements InspectableCompositeBuildRequest<T> {
 
-    private ImmutableList<GradleBuildIdentifier> participants;
     private File gradleUserHomeDir;
+    private File projectDir;
+    private GradleDistribution gradleDistribution;
 
     BaseCompositeBuildRequest(ExecutableToolingClient toolingClient) {
         super(toolingClient);
-        this.participants = ImmutableList.of();
     }
 
     @Override
@@ -48,25 +45,30 @@ abstract class BaseCompositeBuildRequest<T, SELF extends BaseCompositeBuildReque
     }
 
     @Override
+    public CompositeBuildRequest<T> projectDir(File projectDir) {
+        this.projectDir = projectDir;
+        return this;
+    }
+
+    @Override
+    public File getProjectDir() {
+        return this.projectDir;
+    }
+
+    @Override
+    public CompositeBuildRequest<T> gradleDistribution(GradleDistribution gradleDistribution) {
+        this.gradleDistribution = gradleDistribution;
+        return this;
+    }
+
+    @Override
+    public GradleDistribution getGradleDistribution() {
+        return this.gradleDistribution;
+    }
+
+    @Override
     public File getGradleUserHomeDir() {
         return this.gradleUserHomeDir;
-    }
-
-    @Override
-    public CompositeBuildRequest<T> participants(GradleBuildIdentifier... participants) {
-        this.participants = ImmutableList.copyOf(participants);
-        return getThis();
-    }
-
-    @Override
-    public CompositeBuildRequest<T> addParticipants(GradleBuildIdentifier... participants) {
-        this.participants = ImmutableList.<GradleBuildIdentifier> builder().addAll(this.participants).addAll(Arrays.asList(participants)).build();
-        return getThis();
-    }
-
-    @Override
-    public GradleBuildIdentifier[] getParticipants() {
-        return this.participants.toArray(new GradleBuildIdentifier[0]);
     }
 
     @Override
@@ -75,7 +77,8 @@ abstract class BaseCompositeBuildRequest<T, SELF extends BaseCompositeBuildReque
         if (copy instanceof BaseSingleBuildRequest) {
             @SuppressWarnings("rawtypes")
             BaseCompositeBuildRequest compositeRequest = (BaseCompositeBuildRequest) request;
-            compositeRequest.participants(getParticipants());
+            compositeRequest.projectDir(this.projectDir);
+            compositeRequest.gradleDistribution(this.gradleDistribution);
         }
         return copy;
     }

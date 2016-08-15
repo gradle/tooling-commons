@@ -37,19 +37,18 @@ public interface CompositeBuildRequest<T> extends Request<T> {
     CompositeBuildRequest<T> gradleUserHomeDir(File gradleUserHomeDir);
 
     /**
-     * Specifies the builds which will participate in the request.
+     * Specifies the working directory to use.
      *
-     * @param buildIdentifiers the descriptors of the Gradle builds which will participate in the request
+     * @param projectDir the working directory
      * @return this
      */
-    CompositeBuildRequest<T> participants(GradleBuildIdentifier... buildIdentifiers);
+    CompositeBuildRequest<T> projectDir(File projectDir);
 
     /**
-     * Specifies additional builds which will participate in the request.
+     * Specifies the Gradle distribution to use. Defaults to a project-specific Gradle version.
      *
-     * @param buildIdentifiers the descriptor of the Gradle builds which will participate in the request
+     * @param gradleDistribution the Gradle distribution to use
      * @return this
      */
-    CompositeBuildRequest<T> addParticipants(GradleBuildIdentifier... buildIdentifiers);
-
+    Request<T> gradleDistribution(GradleDistribution gradleDistribution);
 }
