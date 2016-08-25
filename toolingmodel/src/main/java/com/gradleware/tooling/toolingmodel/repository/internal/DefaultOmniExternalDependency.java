@@ -22,6 +22,7 @@ import java.util.List;
 import com.google.common.base.Optional;
 
 import com.gradleware.tooling.toolingmodel.OmniAccessRule;
+import com.gradleware.tooling.toolingmodel.repository.internal.compatibility.ForwardCompatibilityClasspathEntry;
 import org.gradle.tooling.model.ExternalDependency;
 import org.gradle.tooling.model.GradleModuleVersion;
 import org.gradle.tooling.model.eclipse.EclipseExternalDependency;
@@ -79,6 +80,7 @@ public final class DefaultOmniExternalDependency extends AbstractOmniClasspathEn
     }
 
     public static DefaultOmniExternalDependency from(EclipseExternalDependency externalDependency) {
+        ForwardCompatibilityClasspathEntry compatibilityDependency = ForwardCompatibilityConverter.convert(externalDependency, ForwardCompatibilityClasspathEntry.class);
         return new DefaultOmniExternalDependency(
                 externalDependency.getFile(),
                 externalDependency.getSource(),
@@ -86,7 +88,7 @@ public final class DefaultOmniExternalDependency extends AbstractOmniClasspathEn
                 getGradleModuleVersion(externalDependency),
                 getIsExported(externalDependency),
                 getClasspathAttributes(externalDependency),
-                getAccessRules(externalDependency));
+                getAccessRules(compatibilityDependency));
     }
 
     /**

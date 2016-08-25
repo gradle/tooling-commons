@@ -16,15 +16,13 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import java.util.List;
-
-import org.gradle.tooling.model.eclipse.EclipseClasspathContainer;
-
 import com.google.common.base.Optional;
-
 import com.gradleware.tooling.toolingmodel.OmniAccessRule;
 import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
 import com.gradleware.tooling.toolingmodel.OmniEclipseClasspathContainer;
+import com.gradleware.tooling.toolingmodel.repository.internal.compatibility.ForwardCompatibilityEclipseClasspathContainer;
+
+import java.util.List;
 
 /**
  * Default implementation of the {@link OmniEclipseClasspathContainer} interface.
@@ -52,7 +50,7 @@ public class DefaultOmniEclipseClasspathContainer extends AbstractOmniClasspathE
         return this.isExported;
     }
 
-    public static DefaultOmniEclipseClasspathContainer from(EclipseClasspathContainer container) {
+    public static DefaultOmniEclipseClasspathContainer from(ForwardCompatibilityEclipseClasspathContainer container) {
         return new DefaultOmniEclipseClasspathContainer(
                 container.getPath(),
                 container.isExported(),

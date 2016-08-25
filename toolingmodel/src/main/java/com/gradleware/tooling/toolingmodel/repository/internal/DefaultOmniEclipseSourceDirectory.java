@@ -20,6 +20,7 @@ import com.google.common.base.Optional;
 import com.gradleware.tooling.toolingmodel.OmniAccessRule;
 import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
+import com.gradleware.tooling.toolingmodel.repository.internal.compatibility.ForwardCompatibilityEclipseSourceDirectory;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
 import org.gradle.tooling.model.eclipse.EclipseSourceDirectory;
 
@@ -77,18 +78,18 @@ public final class DefaultOmniEclipseSourceDirectory extends AbstractOmniClasspa
     }
 
     public static DefaultOmniEclipseSourceDirectory from(EclipseSourceDirectory sourceDirectory) {
-
+        ForwardCompatibilityEclipseSourceDirectory compatibilityDirectory = ForwardCompatibilityConverter.convert(sourceDirectory, ForwardCompatibilityEclipseSourceDirectory.class);
         return new DefaultOmniEclipseSourceDirectory(
                 sourceDirectory.getDirectory(),
                 sourceDirectory.getPath(),
-                getExcludes(sourceDirectory),
-                getIncludes(sourceDirectory),
-                getOutput(sourceDirectory),
-                getClasspathAttributes(sourceDirectory),
-                getAccessRules(sourceDirectory));
+                getExcludes(compatibilityDirectory),
+                getIncludes(compatibilityDirectory),
+                getOutput(compatibilityDirectory),
+                getClasspathAttributes(compatibilityDirectory),
+                getAccessRules(compatibilityDirectory));
     }
 
-    private static Optional<List<String>> getExcludes(EclipseSourceDirectory sourceDirectory) {
+    private static Optional<List<String>> getExcludes(ForwardCompatibilityEclipseSourceDirectory sourceDirectory) {
         try {
             return Optional.of(sourceDirectory.getExcludes());
         } catch(Exception ignore) {
@@ -96,7 +97,7 @@ public final class DefaultOmniEclipseSourceDirectory extends AbstractOmniClasspa
         }
     }
 
-    private static Optional<List<String>> getIncludes(EclipseSourceDirectory sourceDirectory) {
+    private static Optional<List<String>> getIncludes(ForwardCompatibilityEclipseSourceDirectory sourceDirectory) {
         try {
             return Optional.of(sourceDirectory.getIncludes());
         } catch(Exception ignore) {
@@ -104,7 +105,7 @@ public final class DefaultOmniEclipseSourceDirectory extends AbstractOmniClasspa
         }
     }
 
-    private static Maybe<String> getOutput(EclipseSourceDirectory sourceDirectory) {
+    private static Maybe<String> getOutput(ForwardCompatibilityEclipseSourceDirectory sourceDirectory) {
         try {
             return Maybe.of(sourceDirectory.getOutput());
         } catch (Exception ignore) {

@@ -24,6 +24,8 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.gradleware.tooling.toolingmodel.*;
+import com.gradleware.tooling.toolingmodel.repository.internal.compatibility.ForwardCompatibilityEclipseClasspathContainer;
+import com.gradleware.tooling.toolingmodel.repository.internal.compatibility.ForwardCompatibilityEclipseProject;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.specs.Spec;
 import org.gradle.tooling.model.DomainObjectSet;
@@ -271,8 +273,10 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         setProjectNatures(eclipseProject, project);
         setBuildCommands(eclipseProject, project);
         setJavaSourceSettings(eclipseProject, project);
-        setClasspathContainers(eclipseProject, project);
-        setOutputLocation(eclipseProject, project);
+
+        ForwardCompatibilityEclipseProject compatibilityProject = ForwardCompatibilityConverter.convert(project, ForwardCompatibilityEclipseProject.class);
+        setClasspathContainers(eclipseProject, compatibilityProject);
+        setOutputLocation(eclipseProject, compatibilityProject);
 
         for (EclipseProject child : project.getChildren()) {
             DefaultOmniEclipseProject eclipseChildProject = from(child, knownProjects, knownGradleProjects);
@@ -394,11 +398,10 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 
     /**
      * EclipseProject#getClasspathContainers() is only available in Gradle versions >= 3.0.
-     *
      * @param eclipseProject the project to populate
      * @param project the project model
      */
-    private static void setClasspathContainers(DefaultOmniEclipseProject eclipseProject, EclipseProject project) {
+    private static void setClasspathContainers(DefaultOmniEclipseProject eclipseProject, ForwardCompatibilityEclipseProject project) {
         try {
             ImmutableList<OmniEclipseClasspathContainer> classpathContainers = toClasspathContainers(project.getClasspathContainers());
             eclipseProject.setClasspathContainers(Optional.<List<OmniEclipseClasspathContainer>>of(classpathContainers));
@@ -407,10 +410,10 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         }
     }
 
-    private static ImmutableList<OmniEclipseClasspathContainer> toClasspathContainers(DomainObjectSet<? extends EclipseClasspathContainer> classpathContainers) {
-        return FluentIterable.from(classpathContainers).transform(new Function<EclipseClasspathContainer, OmniEclipseClasspathContainer>() {
+    private static ImmutableList<OmniEclipseClasspathContainer> toClasspathContainers(DomainObjectSet<? extends ForwardCompatibilityEclipseClasspathContainer> classpathContainers) {
+        return FluentIterable.from(classpathContainers).transform(new Function<ForwardCompatibilityEclipseClasspathContainer, OmniEclipseClasspathContainer>() {
             @Override
-            public OmniEclipseClasspathContainer apply(EclipseClasspathContainer input) {
+            public OmniEclipseClasspathContainer apply(ForwardCompatibilityEclipseClasspathContainer input) {
                 return DefaultOmniEclipseClasspathContainer.from(input);
             }
         }).toList();
@@ -468,15 +471,12 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 
     /**
      * EclipseProject#getOutputLocation() is only available in Gradle versions >= 3.0.
-     *
      * @param eclipseProject the project to populate
-     * @param project the project model
+     * @param project
      */
-    private static void setOutputLocation(DefaultOmniEclipseProject eclipseProject, EclipseProject project) {
-
+    private static void setOutputLocation(DefaultOmniEclipseProject eclipseProject, ForwardCompatibilityEclipseProject project) {
         try {
-            String outputPath = project.getOutputLocation().getPath();
-            eclipseProject.setOutputLocation(Optional.<OmniEclipseOutputLocation>of(new DefaultOmniEclipseOutputLocation(outputPath)));
+            eclipseProject.setOutputLocation(Optional.<OmniEclipseOutputLocation>of(new DefaultOmniEclipseOutputLocation(project.getOutputLocation().getPath())));
         } catch (Exception ignore) {
             eclipseProject.setOutputLocation(Optional.<OmniEclipseOutputLocation>absent());
         }

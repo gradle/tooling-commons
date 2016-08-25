@@ -19,9 +19,10 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 import java.util.List;
 
 import com.gradleware.tooling.toolingmodel.OmniAccessRule;
+import com.gradleware.tooling.toolingmodel.repository.internal.compatibility.ForwardCompatibilityAccessRule;
+import com.gradleware.tooling.toolingmodel.repository.internal.compatibility.ForwardCompatibilityClasspathEntry;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.UnsupportedMethodException;
-import org.gradle.tooling.model.eclipse.AccessRule;
 import org.gradle.tooling.model.eclipse.ClasspathAttribute;
 import org.gradle.tooling.model.eclipse.EclipseClasspathEntry;
 
@@ -72,8 +73,22 @@ abstract class AbstractOmniClasspathEntry implements OmniClasspathEntry {
         return Optional.<List<OmniClasspathAttribute>>of(builder.build());
     }
 
-    protected static Optional<List<OmniAccessRule>> getAccessRules(EclipseClasspathEntry entry) {
-        DomainObjectSet<? extends AccessRule> accessRules;
+    protected static Optional<List<OmniClasspathAttribute>> getClasspathAttributes(ForwardCompatibilityClasspathEntry entry) {
+        DomainObjectSet<? extends ClasspathAttribute> attributes;
+        try {
+            attributes = entry.getClasspathAttributes();
+        } catch (UnsupportedMethodException e) {
+            return Optional.absent();
+        }
+        Builder<OmniClasspathAttribute> builder = ImmutableList.builder();
+        for (ClasspathAttribute attribute : attributes) {
+            builder.add(DefaultOmniClasspathAttribute.from(attribute));
+        }
+        return Optional.<List<OmniClasspathAttribute>>of(builder.build());
+    }
+
+    protected static Optional<List<OmniAccessRule>> getAccessRules(ForwardCompatibilityClasspathEntry entry) {
+        DomainObjectSet<? extends ForwardCompatibilityAccessRule> accessRules;
         try {
             accessRules = entry.getAccessRules();
         } catch (UnsupportedMethodException e) {
@@ -81,7 +96,7 @@ abstract class AbstractOmniClasspathEntry implements OmniClasspathEntry {
         }
 
         Builder<OmniAccessRule> builder = ImmutableList.builder();
-        for (AccessRule accessRule : accessRules) {
+        for (ForwardCompatibilityAccessRule accessRule : accessRules) {
             builder.add(DefaultOmniAccessRule.from(accessRule));
         }
         return Optional.<List<OmniAccessRule>>of(builder.build());
