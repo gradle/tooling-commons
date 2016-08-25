@@ -5,27 +5,19 @@ import org.gradle.internal.os.OperatingSystem
  class Constants {
 
     static URL getEclipseSdkDownloadUrl() {
-        OperatingSystem os =  OperatingSystem.current()
-        String osInUrl
-        String wsInUrl
-        if (os.isWindows()) {
-            osInUrl = 'win32'
-            wsInUrl = 'win32'
-        } else if (os.isLinux())  {
-            osInUrl = 'linux'
-            wsInUrl = 'gtk'
-        } else if (os.isMacOsX()) {
-            osInUrl = 'macosx'
-            wsInUrl = 'cocoa'
+        def os = OperatingSystem.current()
+        def arch = System.getProperty("os.arch").contains("64") ? "64" : "32"
+        def downloadUrl
+        if (os.windows) {
+            downloadUrl = "http://builds.gradle.org:8000/eclipse/sdk/eclipse-sdk-4.4.2-windows-${arch}.zip"
+        } else if (os.macOsX) {
+            downloadUrl = "http://builds.gradle.org:8000/eclipse/sdk/eclipse-sdk-4.4.2-macosx-${arch}.tar.gz"
+        } else if (os.linux) {
+            downloadUrl = "http://builds.gradle.org:8000/eclipse/sdk/eclipse-sdk-4.4.2-linux-${arch}.tar.gz"
         } else {
             throw new RuntimeException("Unsupported operating system: ${os.familyName}")
         }
-        def archInUrl = OperatingSystem.current().nativePrefix == "x86" ? "" : "-x86_64";
-        if (OperatingSystem.current().isWindows()) {
-            return new URL("http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops4/R-4.4.2-201502041700/eclipse-SDK-4.4.2-win32${archInUrl}.zip&r=1")
-        } else {
-            return new URL("http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops4/R-4.4.2-201502041700/eclipse-SDK-4.4.2-${osInUrl}-${wsInUrl}${archInUrl}.tar.gz&r=1");
-        }
+        return new URL(downloadUrl)
     }
 
     static File getEclipseSdkArchive() {
