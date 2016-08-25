@@ -212,7 +212,7 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
             assert apiProjectDependency.accessRules.get() == []
             assert guavaDependency.classpathAttributes.get() == []
             assert guavaDependency.accessRules.get() == []
-        } else if (higherOrEqual('2.14.1', distribution)) {
+        } else if (higherOrEqual('2.14', distribution)) {
             assert apiProjectDependency.classpathAttributes.get() == []
             assert !apiProjectDependency.accessRules.isPresent()
             assert guavaDependency.classpathAttributes.get() == []
@@ -670,7 +670,7 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
             assert eclipseProject.externalDependencies[0].classpathAttributes.get().size() == 1
             assert eclipseProject.externalDependencies[0].classpathAttributes.get()[0].name == 'javadoc_location'
             assert eclipseProject.externalDependencies[0].classpathAttributes.get()[0].value.contains('log4j')
-        } else if (higherOrEqual('2.14.1', distribution)) {
+        } else if (higherOrEqual('2.14', distribution)) {
             assert eclipseProject.projectDependencies[0].classpathAttributes.get().size() == 0
             assert eclipseProject.externalDependencies[0].classpathAttributes.get().size() == 0
         } else {
