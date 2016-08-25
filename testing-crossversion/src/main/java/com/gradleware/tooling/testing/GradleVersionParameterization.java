@@ -140,7 +140,7 @@ public final class GradleVersionParameterization {
         public static final String CROSS_VERSION_SYSTEM_PROPERTY_NAME = "com.gradleware.tooling.integtest.versions";
 
         /**
-         * A {@code GradleVersionParameterization} instance that reads the applicable version range from a properties file <i>/all-released-versions.properties</i>. If the system
+         * A {@code GradleVersionParameterization} instance that reads the applicable version range from {@code PublishedGradleVersions}. If the system
          * property <i>com.gradleware.tooling.integtest.versions</i> is not set, the default value <i>latest</i> is used, meaning the current Gradle version and the latest Gradle
          * version are applied.
          */

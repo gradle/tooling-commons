@@ -18,17 +18,13 @@ package com.gradleware.tooling.testing;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
+import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
 import org.gradle.util.GradleVersion;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -37,9 +33,6 @@ import java.util.Set;
  * @author Etienne Studer
  */
 public final class ReleasedGradleVersions {
-
-    public static final String RELEASED_GRADLE_VERSIONS_PROPERTIES_FILENAME = "/all-released-versions.properties";
-    public static final String VERSIONS_PROPERTY_KEY = "versions";
 
     private final ImmutableList<GradleVersion> versions;
 
@@ -56,15 +49,13 @@ public final class ReleasedGradleVersions {
     }
 
     /**
-     * Creates a new instances from a properties file called <i>all-released-versions.properties</i> that is expected to be on the classpath. The properties file must have the
-     * comma-separated version strings listed under the property key named <i>versions</i>.
+     * Creates a new instances from {@code PublishedGradleVersions}.
      *
      * @return the new instance
      */
     public static ReleasedGradleVersions create() {
-        Properties properties = loadFromPropertiesFile(RELEASED_GRADLE_VERSIONS_PROPERTIES_FILENAME);
-        String[] versionStrings = getProperty(properties).split("\\s+");
-        return createFrom(ImmutableSet.copyOf(versionStrings));
+        PublishedGradleVersions publishedGradleVersions = PublishedGradleVersions.create(PublishedGradleVersions.LookupStrategy.REMOTE);
+        return createFromGradleVersions(ImmutableSet.copyOf(publishedGradleVersions.getVersions()));
     }
 
     /**
@@ -74,47 +65,22 @@ public final class ReleasedGradleVersions {
      * @return the new instance
      */
     public static ReleasedGradleVersions createFrom(Set<String> versionStrings) {
-        Preconditions.checkNotNull(versionStrings);
-        Preconditions.checkState(!versionStrings.isEmpty());
-
-        // transform version strings to GradleVersion instances and order them from newest to oldest
-        ImmutableList<GradleVersion> versions = Ordering.natural().reverse().immutableSortedCopy(Iterables.transform(versionStrings, new Function<String, GradleVersion>() {
+        return createFromGradleVersions(FluentIterable.from(versionStrings).transform(new Function<String, GradleVersion>() {
             @Override
             public GradleVersion apply(String version) {
                 return GradleVersion.version(version);
             }
-        }));
+        }).toSet());
+    }
+
+    private static ReleasedGradleVersions createFromGradleVersions(Set<GradleVersion> versionStrings) {
+        Preconditions.checkNotNull(versionStrings);
+        Preconditions.checkState(!versionStrings.isEmpty());
+
+        // order version strings from newest to oldest
+        ImmutableList<GradleVersion> versions = Ordering.natural().reverse().immutableSortedCopy(versionStrings);
 
         return new ReleasedGradleVersions(versions);
-    }
-
-    public static Properties loadFromPropertiesFile(String filename) {
-        URL resource = ReleasedGradleVersions.class.getResource(filename);
-        if (resource == null) {
-            throw new RuntimeException("Cannot find resource '" + filename + "' on the classpath");
-        }
-
-        Properties properties = null;
-        try {
-            properties = new Properties();
-            InputStream stream = resource.openStream();
-            try {
-                properties.load(stream);
-            } finally {
-                stream.close();
-            }
-        } catch (IOException e) {
-            Throwables.propagate(e);
-        }
-        return properties;
-    }
-
-    private static String getProperty(Properties properties) {
-        if (!properties.containsKey(VERSIONS_PROPERTY_KEY)) {
-            throw new RuntimeException("Properties file must contain key: " + VERSIONS_PROPERTY_KEY);
-        }
-
-        return properties.getProperty(VERSIONS_PROPERTY_KEY);
     }
 
 }

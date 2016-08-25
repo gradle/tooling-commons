@@ -26,6 +26,7 @@ if (hasProperty('GRADLE_REPO_URL')) {
 
 dependencies {
   compile project(':toolingclient')
+  compile project(':toolingutils')
   compile "org.gradle:gradle-tooling-api:$toolingApiVersion"
   compile "com.google.guava:guava:$guavaVersion"
   testCompile "org.spockframework:spock-core:$spockVersion"
