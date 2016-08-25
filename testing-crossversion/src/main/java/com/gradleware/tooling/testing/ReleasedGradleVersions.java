@@ -18,6 +18,7 @@ package com.gradleware.tooling.testing;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -55,7 +56,13 @@ public final class ReleasedGradleVersions {
      */
     public static ReleasedGradleVersions create() {
         PublishedGradleVersions publishedGradleVersions = PublishedGradleVersions.create(PublishedGradleVersions.LookupStrategy.REMOTE);
-        return createFromGradleVersions(ImmutableSet.copyOf(publishedGradleVersions.getVersions()));
+        ImmutableSet<GradleVersion> nonMilestoneReleases = FluentIterable.from(publishedGradleVersions.getVersions()).filter(new Predicate<GradleVersion>() {
+            @Override
+            public boolean apply(GradleVersion version) {
+                return !version.getVersion().contains("-milestone-");
+            }
+        }).toSet();
+        return createFromGradleVersions(nonMilestoneReleases);
     }
 
     /**
