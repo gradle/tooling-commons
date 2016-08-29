@@ -7,6 +7,8 @@ import org.apache.ivy.osgi.core.ManifestParser
 import org.apache.ivy.osgi.util.VersionRange
 import org.apache.ivy.osgi.util.Version
 import org.gradle.internal.os.OperatingSystem
+import org.apache.ivy.osgi.core.BundleInfo
+
 import java.text.SimpleDateFormat
 
 plugins {
@@ -145,22 +147,10 @@ subprojects {
 
       // bundle version in manifest should have ${major}.${minor}.${service}.qualifier format
       assertEquals("OSGi manifest version does not match with ${project.name} module version", "${bundleBaseVersion}.qualifier", "${bundleInfo.version.toString()}")
-
-      // each Tooling API dependency should have the bundle-version="${toolingApiBundleVersion}" constraint
-      bundleInfo.requires.findAll { it.name.startsWith 'org.gradle.toolingapi' }.each { 
-        assertEquals ("OSGi dependency ${it.name} version does not match to module dependency version in ${project.name}",
-                      new VersionRange(false, new Version(getBundleVersion(toolingApiVersion)), false, null), it.version)
-      }
-
-      // for each internal module dependency the version constraint should include the current version and should have an exclusive upper bound for the next minor release
-      // for example, if the the current version is 1.2.3, then the version constraint should be [1.2.3, 1.3.0).
-      def matcher = bundleBaseVersion =~ /(\d+)\.(\d+)\.\d+/
-      if (!matcher.matches()) { throw new RuntimeException("Invalid version format: ${bundleBaseVersion}") }
-      def moduleDependecyVersionRange = new VersionRange(false, new Version(bundleBaseVersion), true, new Version("${matcher.group(1)}.${Integer.parseInt(matcher.group(2)) + 1}.0".toString()))
-      bundleInfo.requires.findAll { it.name.startsWith 'com.gradleware.tooling.' }.each {
-        assertEquals ("OSGi dependency ${it.name} has incorrect version constraint in ${project.name}",
-                      moduleDependecyVersionRange, it.version)
-      }
+      assertOsgiDependencyRange(bundleInfo, 'com.gradleware.tooling.utils', bundleBaseVersion)
+      assertOsgiDependencyRange(bundleInfo, 'com.gradleware.tooling.client', bundleBaseVersion)
+      assertOsgiDependencyRange(bundleInfo, 'com.gradleware.tooling.model', bundleBaseVersion)
+      assertOsgiDependencyRange(bundleInfo, 'org.gradle.toolingapi', getBundleVersion(toolingApiVersion))
 
       // for each exported package the current version should be added as a constraint
       bundleInfo.capabilities.each { 
@@ -235,6 +225,17 @@ task incrementVersion {
 private ExecResult execCommand(Object... args) {
   exec {
     commandLine args
+  }
+}
+
+// for each internal module dependency the version constraint should include the current version and should have an exclusive upper bound for the next minor release
+// for example, if the the current version is 1.2.3, then the version constraint should be [1.2.3, 1.3.0).
+def assertOsgiDependencyRange(BundleInfo bundleInfo, String name, String version) {
+  def matcher = version =~ /(\d+)\.(\d+)\.\d+/
+  if (!matcher.matches()) { throw new RuntimeException("Invalid version format: ${version}") }
+  def versionRange = new VersionRange(false, new Version(version), true, new Version("${matcher.group(1)}.${Integer.parseInt(matcher.group(2)) + 1}.0".toString()))
+  bundleInfo.requires.findAll { it.name == name }.each {
+    assertEquals ("OSGi dependency ${it.name} version does not match to module dependency version in ${project.name}", versionRange, it.version)
   }
 }
 
