@@ -147,6 +147,8 @@ subprojects {
 
       // bundle version in manifest should have ${major}.${minor}.${service}.qualifier format
       assertEquals("OSGi manifest version does not match with ${project.name} module version", "${bundleBaseVersion}.qualifier", "${bundleInfo.version.toString()}")
+
+      // validate dependency version ranges
       assertOsgiDependencyRange(bundleInfo, 'com.gradleware.tooling.utils', bundleBaseVersion)
       assertOsgiDependencyRange(bundleInfo, 'com.gradleware.tooling.client', bundleBaseVersion)
       assertOsgiDependencyRange(bundleInfo, 'com.gradleware.tooling.model', bundleBaseVersion)
