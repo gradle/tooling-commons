@@ -16,17 +16,17 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
+import java.io.File;
 import java.util.List;
+
+import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
 
 import com.google.common.base.Optional;
 
 import com.gradleware.tooling.toolingmodel.OmniAccessRule;
-import com.gradleware.tooling.toolingmodel.repository.internal.compatibility.ForwardCompatibilityClasspathEntry;
-import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
-import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
-
 import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
+import com.gradleware.tooling.toolingmodel.repository.internal.compatibility.ForwardCompatibilityClasspathEntry;
 
 /**
  * Default implementation of the {@link OmniEclipseProjectDependency} interface.
@@ -35,20 +35,20 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
  */
 public final class DefaultOmniEclipseProjectDependency extends AbstractOmniClasspathEntry implements OmniEclipseProjectDependency {
 
-    private final EclipseProjectIdentifier target;
+    private final File targetProjectDir;
     private final String path;
     private final boolean exported;
 
-    private DefaultOmniEclipseProjectDependency(EclipseProjectIdentifier target, String path, boolean exported, Optional<List<OmniClasspathAttribute>> attributes, Optional<List<OmniAccessRule>> accessRules) {
+    private DefaultOmniEclipseProjectDependency(File targetProjectDir, String path, boolean exported, Optional<List<OmniClasspathAttribute>> attributes, Optional<List<OmniAccessRule>> accessRules) {
         super(attributes, accessRules);
-        this.target = target;
+        this.targetProjectDir = targetProjectDir;
         this.path = path;
         this.exported = exported;
     }
 
     @Override
-    public EclipseProjectIdentifier getTarget() {
-        return this.target;
+    public File getTargetProjectDir() {
+        return this.targetProjectDir;
     }
 
     @Override
@@ -61,10 +61,11 @@ public final class DefaultOmniEclipseProjectDependency extends AbstractOmniClass
         return this.exported;
     }
 
+    @SuppressWarnings("deprecation")
     public static DefaultOmniEclipseProjectDependency from(EclipseProjectDependency projectDependency) {
         ForwardCompatibilityClasspathEntry compatibilityDependency = ForwardCompatibilityConverter.convert(projectDependency, ForwardCompatibilityClasspathEntry.class);
         return new DefaultOmniEclipseProjectDependency(
-                projectDependency.getTarget(),
+                projectDependency.getTargetProject().getProjectDirectory(),
                 projectDependency.getPath(),
                 getIsExported(projectDependency),
                 getClasspathAttributes(projectDependency),

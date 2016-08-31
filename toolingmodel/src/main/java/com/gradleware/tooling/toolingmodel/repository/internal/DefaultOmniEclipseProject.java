@@ -29,7 +29,6 @@ import com.gradleware.tooling.toolingmodel.repository.internal.compatibility.For
 import org.gradle.api.JavaVersion;
 import org.gradle.api.specs.Spec;
 import org.gradle.tooling.model.DomainObjectSet;
-import org.gradle.tooling.model.ProjectIdentifier;
 import org.gradle.tooling.model.eclipse.*;
 import org.gradle.tooling.model.java.InstalledJdk;
 
@@ -46,7 +45,6 @@ import java.util.Map;
 public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 
     private final HierarchyHelper<OmniEclipseProject> hierarchyHelper;
-    private EclipseProjectIdentifier identifier;
     private String name;
     private String description;
     private Path path;
@@ -64,11 +62,6 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
 
     private DefaultOmniEclipseProject(Comparator<? super OmniEclipseProject> comparator) {
         this.hierarchyHelper = new HierarchyHelper<OmniEclipseProject>(this, Preconditions.checkNotNull(comparator));
-    }
-
-    @Override
-    public EclipseProjectIdentifier getIdentifier() {
-        return this.identifier;
     }
 
     @Override
@@ -245,19 +238,18 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     }
 
     public static DefaultOmniEclipseProject from(EclipseProject project) {
-        return from(project, Maps.<EclipseProjectIdentifier, DefaultOmniEclipseProject>newHashMap(), Maps.<ProjectIdentifier, DefaultOmniGradleProject>newHashMap());
+        return from(project, Maps.<Path, DefaultOmniEclipseProject>newHashMap(), Maps.<Path, DefaultOmniGradleProject>newHashMap());
     }
 
-    public static DefaultOmniEclipseProject from(EclipseProject project, Map<EclipseProjectIdentifier, DefaultOmniEclipseProject> knownProjects, Map<ProjectIdentifier, DefaultOmniGradleProject> knownGradleProjects) {
-        EclipseProjectIdentifier id = project.getIdentifier();
-        if (knownProjects.containsKey(id)) {
-            return knownProjects.get(id);
+    public static DefaultOmniEclipseProject from(EclipseProject project, Map<Path, DefaultOmniEclipseProject> knownProjects, Map<Path, DefaultOmniGradleProject> knownGradleProjects) {
+        Path path = Path.from(project.getGradleProject().getPath());
+        if (knownProjects.containsKey(path)) {
+            return knownProjects.get(path);
         }
 
         DefaultOmniEclipseProject eclipseProject = new DefaultOmniEclipseProject(OmniEclipseProjectComparator.INSTANCE);
-        knownProjects.put(id, eclipseProject);
+        knownProjects.put(path, eclipseProject);
 
-        eclipseProject.identifier = project.getIdentifier();
         eclipseProject.setName(project.getName());
         eclipseProject.setDescription(project.getDescription());
         eclipseProject.setPath(Path.from(project.getGradleProject().getPath()));

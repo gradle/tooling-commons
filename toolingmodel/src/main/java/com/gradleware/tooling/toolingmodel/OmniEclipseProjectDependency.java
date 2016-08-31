@@ -16,7 +16,7 @@
 
 package com.gradleware.tooling.toolingmodel;
 
-import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
+import java.io.File;
 
 /**
  * Describes a dependency on another Eclipse project.
@@ -26,11 +26,11 @@ import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
 public interface OmniEclipseProjectDependency extends OmniClasspathEntry {
 
     /**
-     * Returns the id of the target project of this dependency.
+     * Returns the directory of the target project of this dependency.
      *
-     * @return the id of the target project of this dependency
+     * @return the directory of the target project of this dependency
      */
-    EclipseProjectIdentifier getTarget();
+    File getTargetProjectDir();
 
     /**
      * Returns the path to use for this project dependency.

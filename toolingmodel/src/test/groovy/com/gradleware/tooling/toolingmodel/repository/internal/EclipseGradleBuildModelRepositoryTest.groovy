@@ -181,7 +181,7 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         def implExternalDependencies = rootProject.tryFind({ it.name == 'impl' } as Spec).get().externalDependencies
         implProjectDependencies.size() == 1
         def apiProjectDependency = implProjectDependencies[0]
-        apiProjectDependency.target == apiProject.identifier
+        apiProjectDependency.targetProjectDir == apiProject.projectDirectory
         apiProjectDependency.exported == higherOrEqual('2.5', distribution) ? false : true
 
         // verify external dependencies
