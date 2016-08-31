@@ -16,17 +16,15 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import java.io.File;
-import java.util.List;
-
-import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
-
 import com.google.common.base.Optional;
-
 import com.gradleware.tooling.toolingmodel.OmniAccessRule;
 import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
 import com.gradleware.tooling.toolingmodel.repository.internal.compatibility.ForwardCompatibilityClasspathEntry;
+import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
+
+import java.io.File;
+import java.util.List;
 
 /**
  * Default implementation of the {@link OmniEclipseProjectDependency} interface.

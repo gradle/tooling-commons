@@ -16,16 +16,9 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import java.util.Map;
-
-import org.gradle.tooling.connection.ModelResults;
-import org.gradle.tooling.model.build.BuildEnvironment;
-import org.gradle.tooling.model.eclipse.EclipseProject;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
-
 import com.gradleware.tooling.toolingclient.CompositeBuildModelRequest;
 import com.gradleware.tooling.toolingclient.Consumer;
 import com.gradleware.tooling.toolingclient.Request;
@@ -37,6 +30,12 @@ import com.gradleware.tooling.toolingmodel.repository.CompositeBuildModelReposit
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
+import org.gradle.tooling.connection.ModelResults;
+import org.gradle.tooling.model.ProjectIdentifier;
+import org.gradle.tooling.model.build.BuildEnvironment;
+import org.gradle.tooling.model.eclipse.EclipseProject;
+
+import java.util.Map;
 
 /**
  * Default implementation for {@link CompositeBuildModelRepository}.
@@ -56,7 +55,7 @@ public class DefaultCompositeModelRepository extends BaseModelRepository impleme
     public ModelResults<OmniEclipseProject> fetchEclipseProjects(final TransientRequestAttributes transientAttributes, FetchStrategy fetchStrategy) {
         CompositeBuildModelRequest<EclipseProject> modelRequest = createModelRequest(EclipseProject.class, this.requestAttribute, transientAttributes);
         final Map<Path, DefaultOmniEclipseProject> knownEclipseProjects = Maps.newHashMap();
-        final Map<Path, DefaultOmniGradleProject> knownGradleProjects = Maps.newHashMap();
+        final Map<ProjectIdentifier, DefaultOmniGradleProject> knownGradleProjects = Maps.newHashMap();
         Converter<EclipseProject, OmniEclipseProject> converter = new BaseConverter<EclipseProject, OmniEclipseProject>() {
 
             @Override

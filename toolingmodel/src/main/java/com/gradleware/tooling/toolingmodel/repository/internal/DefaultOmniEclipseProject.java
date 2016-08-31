@@ -29,6 +29,7 @@ import com.gradleware.tooling.toolingmodel.repository.internal.compatibility.For
 import org.gradle.api.JavaVersion;
 import org.gradle.api.specs.Spec;
 import org.gradle.tooling.model.DomainObjectSet;
+import org.gradle.tooling.model.ProjectIdentifier;
 import org.gradle.tooling.model.eclipse.*;
 import org.gradle.tooling.model.java.InstalledJdk;
 
@@ -238,10 +239,10 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     }
 
     public static DefaultOmniEclipseProject from(EclipseProject project) {
-        return from(project, Maps.<Path, DefaultOmniEclipseProject>newHashMap(), Maps.<Path, DefaultOmniGradleProject>newHashMap());
+        return from(project, Maps.<Path, DefaultOmniEclipseProject>newHashMap(), Maps.<ProjectIdentifier, DefaultOmniGradleProject>newHashMap());
     }
 
-    public static DefaultOmniEclipseProject from(EclipseProject project, Map<Path, DefaultOmniEclipseProject> knownProjects, Map<Path, DefaultOmniGradleProject> knownGradleProjects) {
+    public static DefaultOmniEclipseProject from(EclipseProject project, Map<Path, DefaultOmniEclipseProject> knownProjects, Map<ProjectIdentifier, DefaultOmniGradleProject> knownGradleProjects) {
         Path path = Path.from(project.getGradleProject().getPath());
         if (knownProjects.containsKey(path)) {
             return knownProjects.get(path);
