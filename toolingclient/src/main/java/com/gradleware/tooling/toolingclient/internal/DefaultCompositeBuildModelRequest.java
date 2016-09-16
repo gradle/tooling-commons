@@ -28,7 +28,7 @@ import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
  * @author Stefan Oehme
  * @param <T> the result type
  */
-final class DefaultCompositeBuildModelRequest<T> extends BaseCompositeBuildRequest<ModelResults<T>, DefaultCompositeBuildModelRequest<T>> implements InspectableCompositeBuildModelRequest<T> {
+final class DefaultCompositeBuildModelRequest<T> extends BaseBuildRequest<ModelResults<T>, DefaultCompositeBuildModelRequest<T>> implements InspectableCompositeBuildModelRequest<T> {
 
     private final Class<T> modelType;
 

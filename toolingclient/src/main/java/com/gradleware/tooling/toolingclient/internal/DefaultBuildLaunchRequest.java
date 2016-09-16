@@ -25,7 +25,7 @@ import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
  *
  * @author Etienne Studer
  */
-final class DefaultBuildLaunchRequest extends BaseSingleBuildRequest<Void, DefaultBuildLaunchRequest> implements InspectableBuildLaunchRequest {
+final class DefaultBuildLaunchRequest extends BaseBuildRequest<Void, DefaultBuildLaunchRequest> implements InspectableBuildLaunchRequest {
 
     private final LaunchableConfig launchables;
 

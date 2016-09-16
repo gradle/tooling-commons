@@ -27,6 +27,6 @@ import org.gradle.tooling.connection.ModelResults;
  * @param <T> the type of model to fetch
  * @author Stefan Oehme
  */
-public interface CompositeBuildModelRequest<T> extends CompositeBuildRequest<ModelResults<T>> {
+public interface CompositeBuildModelRequest<T> extends BuildRequest<ModelResults<T>> {
 
 }

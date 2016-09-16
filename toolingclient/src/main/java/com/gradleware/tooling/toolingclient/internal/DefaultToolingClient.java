@@ -191,15 +191,15 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         }
     }
 
-    private ProjectConnection getProjectConnection(InspectableSingleBuildRequest<?> request) {
+    private ProjectConnection getProjectConnection(InspectableBuildRequest<?> request) {
         return getOrCreateProjectConnection(request);
     }
 
-    private GradleConnection getCompositeConnection(InspectableCompositeBuildRequest<?> request) {
+    private GradleConnection getCompositeConnection(InspectableCompositeBuildModelRequest<?> request) {
         return getOrCreateCompositeConnection(request);
     }
 
-    private ProjectConnection getOrCreateProjectConnection(InspectableSingleBuildRequest<?> simpleRequest) {
+    private ProjectConnection getOrCreateProjectConnection(InspectableBuildRequest<?> simpleRequest) {
         Preconditions.checkNotNull(simpleRequest);
         if (this.connectionStrategy == ConnectionStrategy.PER_REQUEST) {
             return openConnection(simpleRequest);
@@ -217,7 +217,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     }
 
 
-    private GradleConnection getOrCreateCompositeConnection(InspectableCompositeBuildRequest<?> compositeRequest) {
+    private GradleConnection getOrCreateCompositeConnection(InspectableCompositeBuildModelRequest<?> compositeRequest) {
         Preconditions.checkNotNull(compositeRequest);
         if (this.connectionStrategy == ConnectionStrategy.PER_REQUEST) {
             return createIntegratedCompositeIfPossible(compositeRequest);
@@ -234,14 +234,14 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         return connection;
     }
 
-    private int calculateConnectionKey(InspectableSingleBuildRequest<?> modelRequest) {
+    private int calculateConnectionKey(InspectableBuildRequest<?> modelRequest) {
         return Objects.hashCode(
                 modelRequest.getProjectDir(),
                 modelRequest.getGradleUserHomeDir(),
                 modelRequest.getGradleDistribution());
     }
 
-    private int calculateCompositeConnectionKey(InspectableCompositeBuildRequest<?> compositeRequest) {
+    private int calculateCompositeConnectionKey(InspectableCompositeBuildModelRequest<?> compositeRequest) {
         List<Object> connectionProperties = Lists.newArrayList();
         connectionProperties.add(compositeRequest.getProjectDir());
         connectionProperties.add(compositeRequest.getGradleDistribution());
@@ -249,7 +249,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         return connectionProperties.hashCode();
     }
 
-    private ProjectConnection openConnection(InspectableSingleBuildRequest<?> modelRequest) {
+    private ProjectConnection openConnection(InspectableBuildRequest<?> modelRequest) {
         GradleConnector connector = this.connectorFactory.create();
         connector.forProjectDirectory(modelRequest.getProjectDir());
         connector.useGradleUserHomeDir(modelRequest.getGradleUserHomeDir());
@@ -257,7 +257,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         return connector.connect();
     }
 
-    private GradleConnection createIntegratedCompositeIfPossible(InspectableCompositeBuildRequest<?> compositeRequest) {
+    private GradleConnection createIntegratedCompositeIfPossible(InspectableCompositeBuildModelRequest<?> compositeRequest) {
         GradleConnectionBuilder connectionBuilder = configureBasicCompositeConnection(compositeRequest);
         GradleConnection aggregateConnection = connectionBuilder.build();
 
@@ -275,7 +275,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         }
     }
 
-    private GradleVersion getCommonGradleVersion(GradleConnection aggregateConnection, InspectableCompositeBuildRequest<?> compositeRequest) {
+    private GradleVersion getCommonGradleVersion(GradleConnection aggregateConnection, InspectableCompositeBuildModelRequest<?> compositeRequest) {
         ModelResults<BuildEnvironment> results = fetchBuildEnvironments(aggregateConnection, compositeRequest);
 
         String commonVersion = null;
@@ -295,7 +295,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         return GradleVersion.version(commonVersion);
     }
 
-    private GradleConnectionBuilder configureBasicCompositeConnection(InspectableCompositeBuildRequest<?> compositeRequest) {
+    private GradleConnectionBuilder configureBasicCompositeConnection(InspectableCompositeBuildModelRequest<?> compositeRequest) {
         GradleConnectionBuilder connectionBuilder = GradleConnector.newGradleConnection();
         connectionBuilder.useGradleUserHomeDir(compositeRequest.getGradleUserHomeDir());
         ParticipantBuilder participantBuilder = connectionBuilder.addParticipant(compositeRequest.getProjectDir());
@@ -303,7 +303,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         return connectionBuilder;
     }
 
-    private ModelResults<BuildEnvironment> fetchBuildEnvironments(GradleConnection aggregateConnection, InspectableCompositeBuildRequest<?> compositeRequest) {
+    private ModelResults<BuildEnvironment> fetchBuildEnvironments(GradleConnection aggregateConnection, InspectableCompositeBuildModelRequest<?> compositeRequest) {
         ModelBuilder<ModelResults<BuildEnvironment>> builder = aggregateConnection.models(BuildEnvironment.class);
         mapToLongRunningOperation(compositeRequest, builder);
         return builder.get();
@@ -346,12 +346,10 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
             setJvmArguments(request.getJvmArguments()).
             withArguments(request.getArguments()).
             withCancellationToken(request.getCancellationToken());
-
-        if (!(request instanceof CompositeBuildRequest)) {
-            //stdin is not (yet) supported by composite build
-            operation.setStandardInput(request.getStandardInput());
-        }
-        for (ProgressListener progressListener : request.getProgressListeners()) {
+            if (!(request instanceof CompositeBuildModelRequest)) {
+                operation.setStandardInput(request.getStandardInput());
+            }
+            for (ProgressListener progressListener : request.getProgressListeners()) {
             operation.addProgressListener(progressListener);
         }
         for (org.gradle.tooling.events.ProgressListener progressListener : request.getTypedProgressListeners()) {

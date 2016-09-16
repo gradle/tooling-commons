@@ -25,7 +25,7 @@ import java.io.File;
  *
  * @param <T> the result type
  */
-public interface SingleBuildRequest<T> extends Request<T> {
+public interface BuildRequest<T> extends Request<T> {
 
     /**
      * Specifies the working directory to use.

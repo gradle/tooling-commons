@@ -31,7 +31,7 @@ import java.io.OutputStream;
  * @param <T> the type of model to fetch
  * @author Etienne Studer
  */
-public interface ModelRequest<T> extends SingleBuildRequest<T> {
+public interface ModelRequest<T> extends BuildRequest<T> {
 
     /**
      * {@inheritDoc}

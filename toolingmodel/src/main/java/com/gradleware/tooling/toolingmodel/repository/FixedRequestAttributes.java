@@ -19,9 +19,8 @@ package com.gradleware.tooling.toolingmodel.repository;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingclient.CompositeBuildRequest;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingclient.SingleBuildRequest;
+import com.gradleware.tooling.toolingclient.BuildRequest;
 import com.gradleware.tooling.toolingutils.ImmutableCollection;
 import org.gradle.api.Nullable;
 
@@ -107,19 +106,13 @@ public final class FixedRequestAttributes {
         return this.arguments;
     }
 
-    public void apply(SingleBuildRequest<?> request) {
+    public void apply(BuildRequest<?> request) {
         request.projectDir(this.projectDir);
         request.gradleUserHomeDir(this.gradleUserHome);
         request.gradleDistribution(this.gradleDistribution);
         request.javaHomeDir(this.javaHome);
         request.jvmArguments(this.jvmArguments.toArray(new String[this.jvmArguments.size()]));
         request.arguments(this.arguments.toArray(new String[this.arguments.size()]));
-    }
-
-    public void apply(CompositeBuildRequest<?> request) {
-        request.gradleUserHomeDir(this.gradleUserHome);
-        request.projectDir(this.projectDir);
-        request.gradleDistribution(this.gradleDistribution);
     }
 
     @Override

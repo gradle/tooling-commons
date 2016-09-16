@@ -16,10 +16,10 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
-import com.gradleware.tooling.toolingclient.CompositeBuildRequest;
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-
 import java.io.File;
+
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+import com.gradleware.tooling.toolingclient.BuildRequest;
 
 /**
  * Internal interface that allows reading the request configuration.
@@ -27,11 +27,12 @@ import java.io.File;
  * @param <T> result type
  * @author Stefan Oehme
  */
-interface InspectableCompositeBuildRequest<T> extends InspectableRequest<T>, CompositeBuildRequest<T> {
-
-    File getGradleUserHomeDir();
+interface InspectableBuildRequest<T> extends InspectableRequest<T>, BuildRequest<T> {
 
     File getProjectDir();
 
+    File getGradleUserHomeDir();
+
     GradleDistribution getGradleDistribution();
+
 }
