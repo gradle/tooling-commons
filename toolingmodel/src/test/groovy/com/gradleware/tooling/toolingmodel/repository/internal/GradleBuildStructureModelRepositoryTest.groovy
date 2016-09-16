@@ -37,7 +37,7 @@ class GradleBuildStructureModelRepositoryTest extends ModelRepositorySpec {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        def repository = new DefaultSingleBuildModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
         AtomicReference<GradleBuildStructureUpdateEvent> publishedEvent = new AtomicReference<>();
         AtomicReference<OmniGradleBuildStructure> modelInRepository = new AtomicReference<>();
@@ -92,7 +92,7 @@ class GradleBuildStructureModelRepositoryTest extends ModelRepositorySpec {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildStructure.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        def repository = new DefaultSingleBuildModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
         AtomicReference<GradleBuildStructureUpdateEvent> publishedEvent = new AtomicReference<>();
         repository.register(new Object() {

@@ -53,19 +53,4 @@ class DefaultModelRepositoryProviderTest extends ToolingModelToolingClientSpecif
         assert !modelRepositoryProvider.getModelRepository(attributesOne).is(modelRepositoryProvider.getModelRepository(attributesTwo))
         assert !modelRepositoryProvider.getModelRepository(attributesOne).is(modelRepositoryProvider.getModelRepository(attributesThree))
     }
-
-    def "Composite with one root project"() {
-        setup:
-        def modelRepositoryProvider = new DefaultModelRepositoryProvider(toolingClient)
-
-        def attributesOne = new FixedRequestAttributes(projectA.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
-        def attributesTwo = new FixedRequestAttributes(projectA.testDirectory, null, GradleDistribution.forVersion('1.12'), null, ImmutableList.of(), ImmutableList.of())
-        def attributesThree = new FixedRequestAttributes(projectB.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
-
-        assert modelRepositoryProvider.getCompositeModelRepository(attributesOne).is(modelRepositoryProvider.getCompositeModelRepository(attributesOne))
-        assert modelRepositoryProvider.getCompositeModelRepository(attributesTwo).is(modelRepositoryProvider.getCompositeModelRepository(attributesTwo))
-        assert !modelRepositoryProvider.getCompositeModelRepository(attributesOne).is(modelRepositoryProvider.getCompositeModelRepository(attributesTwo))
-        assert !modelRepositoryProvider.getCompositeModelRepository(attributesOne).is(modelRepositoryProvider.getCompositeModelRepository(attributesThree))
-    }
-
 }

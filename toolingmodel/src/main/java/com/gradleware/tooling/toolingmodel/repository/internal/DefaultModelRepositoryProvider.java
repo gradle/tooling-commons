@@ -20,7 +20,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 import com.gradleware.tooling.toolingclient.ToolingClient;
-import com.gradleware.tooling.toolingmodel.repository.*;
+import com.gradleware.tooling.toolingmodel.repository.Environment;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import org.gradle.internal.Factory;
 
 import java.util.Map;
@@ -35,8 +38,7 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
     private final ToolingClient toolingClient;
     private final Environment environment;
     private final Factory<EventBus> eventBusFactory;
-    private final Map<FixedRequestAttributes, SingleBuildModelRepository> modelRepositories;
-    private final Map<FixedRequestAttributes, CompositeBuildModelRepository> compositeModelRepositories;
+    private final Map<FixedRequestAttributes, ModelRepository> modelRepositories;
 
     public DefaultModelRepositoryProvider(ToolingClient toolingClient) {
         this(toolingClient, Environment.STANDALONE);
@@ -51,41 +53,22 @@ public final class DefaultModelRepositoryProvider implements ModelRepositoryProv
         this.environment = Preconditions.checkNotNull(environment);
         this.eventBusFactory = Preconditions.checkNotNull(eventBusFactory);
         this.modelRepositories = Maps.newHashMap();
-        this.compositeModelRepositories = Maps.newHashMap();
     }
 
     @Override
-    public SingleBuildModelRepository getModelRepository(FixedRequestAttributes fixedRequestAttributes) {
+    public ModelRepository getModelRepository(FixedRequestAttributes fixedRequestAttributes) {
         Preconditions.checkNotNull(fixedRequestAttributes);
         return getOrCreateModelRepository(fixedRequestAttributes);
     }
 
-    @Override
-    public CompositeBuildModelRepository getCompositeModelRepository(FixedRequestAttributes fixedRequestAttribute) {
-        return getOrCreateCompositeModelRepository(fixedRequestAttribute);
-    }
-
-    private SingleBuildModelRepository getOrCreateModelRepository(FixedRequestAttributes fixedRequestAttributes) {
-        SingleBuildModelRepository modelRepository;
+    private ModelRepository getOrCreateModelRepository(FixedRequestAttributes fixedRequestAttributes) {
+        ModelRepository modelRepository;
         synchronized (this.modelRepositories) {
             if (!this.modelRepositories.containsKey(fixedRequestAttributes)) {
-                modelRepository = new DefaultSingleBuildModelRepository(fixedRequestAttributes, this.toolingClient, this.eventBusFactory.create(), this.environment);
+                modelRepository = new DefaultModelRepository(fixedRequestAttributes, this.toolingClient, this.eventBusFactory.create(), this.environment);
                 this.modelRepositories.put(fixedRequestAttributes, modelRepository);
             } else {
                 modelRepository = this.modelRepositories.get(fixedRequestAttributes);
-            }
-        }
-        return modelRepository;
-    }
-
-    private CompositeBuildModelRepository getOrCreateCompositeModelRepository(FixedRequestAttributes fixedRequestAttributes) {
-        CompositeBuildModelRepository modelRepository;
-        synchronized (this.compositeModelRepositories) {
-            if (!this.compositeModelRepositories.containsKey(fixedRequestAttributes)) {
-                modelRepository = new DefaultCompositeModelRepository(fixedRequestAttributes, this.toolingClient, this.eventBusFactory.create());
-                this.compositeModelRepositories.put(fixedRequestAttributes, modelRepository);
-            } else {
-                modelRepository = this.compositeModelRepositories.get(fixedRequestAttributes);
             }
         }
         return modelRepository;

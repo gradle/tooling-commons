@@ -37,7 +37,7 @@ class BasicModelRepositoryTest extends ModelRepositorySpec {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        def repository = new DefaultSingleBuildModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
+        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
 
         AtomicReference<BuildEnvironmentUpdateEvent> publishedEvent = new AtomicReference<>();
         def listener = new Object() {

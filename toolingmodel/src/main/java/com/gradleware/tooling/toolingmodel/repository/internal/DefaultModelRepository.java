@@ -18,8 +18,13 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import java.util.Map;
 
+import com.google.common.collect.Maps;
+import com.gradleware.tooling.toolingclient.*;
+import com.gradleware.tooling.toolingmodel.*;
 import org.gradle.tooling.BuildAction;
+import org.gradle.tooling.connection.ModelResults;
 import org.gradle.tooling.model.GradleProject;
+import org.gradle.tooling.model.ProjectIdentifier;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.gradle.BuildInvocations;
@@ -30,15 +35,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.eventbus.EventBus;
 
-import com.gradleware.tooling.toolingclient.BuildActionRequest;
-import com.gradleware.tooling.toolingclient.Consumer;
-import com.gradleware.tooling.toolingclient.ModelRequest;
-import com.gradleware.tooling.toolingclient.ToolingClient;
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.OmniBuildInvocationsContainer;
-import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 import com.gradleware.tooling.toolingmodel.buildaction.BuildActionFactory;
 import com.gradleware.tooling.toolingmodel.buildaction.ModelForAllProjectsBuildAction;
 import com.gradleware.tooling.toolingmodel.repository.BuildEnvironmentUpdateEvent;
@@ -49,7 +45,7 @@ import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildStructureUpdateEvent;
 import com.gradleware.tooling.toolingmodel.repository.GradleBuildUpdateEvent;
-import com.gradleware.tooling.toolingmodel.repository.SingleBuildModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 /**
@@ -59,16 +55,16 @@ import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
  *
  * @author Etienne Studer
  */
-public final class DefaultSingleBuildModelRepository extends BaseModelRepository implements SingleBuildModelRepository {
+public final class DefaultModelRepository extends BaseModelRepository implements ModelRepository {
 
     private final FixedRequestAttributes fixedRequestAttributes;
     private final Environment environment;
 
-    public DefaultSingleBuildModelRepository(FixedRequestAttributes fixedRequestAttributes, ToolingClient toolingClient, EventBus eventBus) {
+    public DefaultModelRepository(FixedRequestAttributes fixedRequestAttributes, ToolingClient toolingClient, EventBus eventBus) {
         this(fixedRequestAttributes, toolingClient, eventBus, Environment.STANDALONE);
     }
 
-    public DefaultSingleBuildModelRepository(FixedRequestAttributes fixedRequestAttributes, ToolingClient toolingClient, EventBus eventBus, Environment environment) {
+    public DefaultModelRepository(FixedRequestAttributes fixedRequestAttributes, ToolingClient toolingClient, EventBus eventBus, Environment environment) {
         super(toolingClient, eventBus);
         this.fixedRequestAttributes = Preconditions.checkNotNull(fixedRequestAttributes);
         this.environment = environment;
@@ -230,6 +226,34 @@ public final class DefaultSingleBuildModelRepository extends BaseModelRepository
         return executeRequest(request, successHandler, fetchStrategy, OmniBuildInvocationsContainer.class, converter);
     }
 
+    @Override
+    public ModelResults<OmniEclipseProject> fetchEclipseProjects(final TransientRequestAttributes transientAttributes, FetchStrategy fetchStrategy) {
+        CompositeBuildModelRequest<EclipseProject> modelRequest = createCompositeModelRequest(EclipseProject.class, this.fixedRequestAttributes, transientAttributes);
+        final Map<Path, DefaultOmniEclipseProject> knownEclipseProjects = Maps.newHashMap();
+        final Map<ProjectIdentifier, DefaultOmniGradleProject> knownGradleProjects = Maps.newHashMap();
+        Converter<EclipseProject, OmniEclipseProject> converter = new BaseConverter<EclipseProject, OmniEclipseProject>() {
+
+            @Override
+            public OmniEclipseProject apply(EclipseProject eclipseProject) {
+                return DefaultOmniEclipseProject.from(eclipseProject, knownEclipseProjects, knownGradleProjects);
+            }
+        };
+        return executeRequest(modelRequest, fetchStrategy, OmniEclipseProject.class, converter);
+    }
+
+    @Override
+    public ModelResults<OmniBuildEnvironment> fetchBuildEnvironments(TransientRequestAttributes transientAttributes, FetchStrategy fetchStrategy) {
+        CompositeBuildModelRequest<BuildEnvironment> modelRequest = createCompositeModelRequest(BuildEnvironment.class, this.fixedRequestAttributes, transientAttributes);
+        Converter<BuildEnvironment, OmniBuildEnvironment> converter = new BaseConverter<BuildEnvironment, OmniBuildEnvironment>() {
+
+            @Override
+            public OmniBuildEnvironment apply(BuildEnvironment buildEnvironment) {
+                return DefaultOmniBuildEnvironment.from(buildEnvironment);
+            }
+        };
+        return executeRequest(modelRequest, fetchStrategy, OmniBuildEnvironment.class, converter);
+    }
+
     private OmniBuildInvocationsContainer deriveBuildInvocationsFromOtherModel(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         // for fetch strategy FORCE_RELOAD, we re-fetch the GradleBuild model and derive the build invocations from it
         if (fetchStrategy == FetchStrategy.FORCE_RELOAD) {
@@ -297,6 +321,13 @@ public final class DefaultSingleBuildModelRepository extends BaseModelRepository
         BuildActionRequest<T> request = getToolingClient().newBuildActionRequest(buildAction);
         this.fixedRequestAttributes.apply(request);
         transientRequestAttributes.apply(request);
+        return request;
+    }
+
+    private <T> CompositeBuildModelRequest<T> createCompositeModelRequest(Class<T> model, FixedRequestAttributes fixedAttribute, TransientRequestAttributes transientAttributes) {
+        CompositeBuildModelRequest<T> request = getToolingClient().newCompositeModelRequest(model);
+        fixedAttribute.apply(request);
+        transientAttributes.apply(request);
         return request;
     }
 

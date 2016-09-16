@@ -16,14 +16,8 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal
 
-import org.gradle.tooling.GradleConnector
-import org.gradle.tooling.ProgressListener
-import org.gradle.util.GradleVersion;
-import org.junit.Rule
-
 import com.google.common.collect.ImmutableList
 import com.google.common.eventbus.EventBus
-
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
 import com.gradleware.tooling.spock.VerboseUnroll
@@ -33,11 +27,14 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProject
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
+import org.gradle.tooling.GradleConnector
+import org.gradle.tooling.ProgressListener
+import org.junit.Rule
 import spock.lang.Ignore
 
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
 @Ignore("TODO (donat) re-implement when composites defined in settings.gradle can be imported")
-class CompositeModelRepositoryDependencySubstitutionSpec extends ToolingModelToolingClientSpecification {
+class ModelRepositoryDependencySubstitutionSpec extends ToolingModelToolingClientSpecification {
 
     @Rule
     TestDirectoryProvider projectA = new TestDirectoryProvider("projectA");
@@ -103,7 +100,7 @@ class CompositeModelRepositoryDependencySubstitutionSpec extends ToolingModelToo
     private Set<OmniEclipseProject> fetchEclipseProjects(GradleDistribution distributionA, GradleDistribution distributionB) {
         def participantA = new FixedRequestAttributes(projectA.testDirectory, null, distributionA, null, ImmutableList.of(), ImmutableList.of())
         def participantB = new FixedRequestAttributes(projectB.testDirectory, null, distributionB, null, ImmutableList.of(), ImmutableList.of())
-        def repository = new DefaultCompositeModelRepository([participantA, participantB] as Set, toolingClient, new EventBus())
+        def repository = new DefaultModelRepository([participantA, participantB] as Set, toolingClient, new EventBus())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
         repository.fetchEclipseProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED).findAll { !it.failure }.collect { it.model }
     }

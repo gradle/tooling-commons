@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,25 @@
 package com.gradleware.tooling.toolingmodel.repository;
 
 /**
- * Provider of {@code ModelRepository} instances for given sets of {@code FixedRequestAttributes}.
+ * Repository for Gradle build models. Listeners can be registered to get notified about model
+ * updates. It is left to the implementation through which channel the events are broadcast.
  *
  * @author Etienne Studer
  */
-public interface ModelRepositoryProvider {
+public interface ObservableModelRepository {
 
     /**
-     * Returns the {@code ModelRepository} for the given {@code FixedRequestAttributes}. For the
-     * same set of request attributes the same model repository instance is returned each time.
+     * Registers the given {@code listener} to receive model change events.
      *
-     * @param fixedRequestAttributes the request attributes for which to get the model repository
-     * @return the model repository
+     * @param listener listener to subscribe to receiving events
      */
-    ModelRepository getModelRepository(FixedRequestAttributes fixedRequestAttributes);
+    void register(Object listener);
+
+    /**
+     * Unregisters the given {@code listener} from receiving model change events.
+     *
+     * @param listener listener to unsubscribe from receiving events
+     */
+    void unregister(Object listener);
+
 }

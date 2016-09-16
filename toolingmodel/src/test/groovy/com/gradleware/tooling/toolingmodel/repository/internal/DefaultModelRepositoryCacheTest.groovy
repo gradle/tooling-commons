@@ -47,7 +47,7 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
     // request attributes and model repository for testing
     fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, GradleDistribution.fromBuild(), null, ImmutableList.of(), ImmutableList.of())
     transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-    repository = new DefaultSingleBuildModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
+    repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
   }
 
   def "fetchBuildEnvironment"() {
@@ -186,7 +186,7 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, GradleDistribution.forVersion('2.2'), null, ImmutableList.of(), ImmutableList.of())
     def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-    def repository = new DefaultSingleBuildModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), Environment.ECLIPSE)
+    def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), Environment.ECLIPSE)
 
     when:
     def lookUp = repository.fetchBuildInvocations(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)

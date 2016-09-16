@@ -31,14 +31,15 @@ import com.gradleware.tooling.toolingclient.Consumer;
 import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingclient.ToolingClient;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.ObservableModelRepository;
+import org.gradle.tooling.connection.ModelResults;
 
 /**
- * Common base class for {@code ModelRepository} implementations. Model updates are broadcast via Google Guava's {@link EventBus}.
+ * Common base class for {@code ObservableModelRepository} implementations. Model updates are broadcast via Google Guava's {@link EventBus}.
  *
  * @author Etienne Studer
  */
-public abstract class BaseModelRepository implements ModelRepository {
+public abstract class BaseModelRepository implements ObservableModelRepository {
 
     private final ToolingClient toolingClient;
     private final EventBus eventBus;
@@ -95,6 +96,16 @@ public abstract class BaseModelRepository implements ModelRepository {
                 return request.executeAndWait();
             }
         }, newCacheEntryHandler, fetchStrategy, cacheKey, resultConverter);
+    }
+
+    protected <T, U> ModelResults<U> executeRequest(Request<ModelResults<T>> request, FetchStrategy fetchStrategy, Class<?> cacheKey, Converter<T, U> resultConverter) {
+        Consumer<ModelResults<U>> dontSendEvents = new Consumer<ModelResults<U>>() {
+
+            @Override
+            public void accept(ModelResults<U> input) {
+            }
+        };
+        return executeRequest(request, dontSendEvents, fetchStrategy, cacheKey, new ModelResultsConverter<T, U>(resultConverter));
     }
 
     protected <T, U> U executeRequest(final Supplier<T> operation, final Consumer<U> newCacheEntryHandler, FetchStrategy fetchStrategy, Class<?> cacheKey,

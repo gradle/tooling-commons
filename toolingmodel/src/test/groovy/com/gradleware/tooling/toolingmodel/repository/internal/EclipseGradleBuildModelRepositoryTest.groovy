@@ -109,7 +109,7 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        def repository = new DefaultSingleBuildModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
         AtomicReference<EclipseGradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
         AtomicReference<OmniEclipseGradleBuild> modelInRepository = new AtomicReference<>();
@@ -758,12 +758,12 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
 
     private fetchRootEclipseProject(FixedRequestAttributes fixedRequestAttributes, TransientRequestAttributes transientRequestAttributes, Environment environment, RepositoryType repositoryType, Object listener = new Object()) {
         if (repositoryType == RepositoryType.SIMPLE) {
-            def repository = new DefaultSingleBuildModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+            def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
             repository.register(listener)
             OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
             return eclipseGradleBuild.rootEclipseProject
         } else {
-            DefaultCompositeModelRepository repository = new DefaultCompositeModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
+            DefaultModelRepository repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
             repository.register(listener)
             def projects = repository.fetchEclipseProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
             projects.collect { it.model }.find { it.parent == null }
