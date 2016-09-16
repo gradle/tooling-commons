@@ -15,25 +15,22 @@
  */
 
 package com.gradleware.tooling.toolingmodel.repository.internal
+
 import com.gradleware.tooling.junit.TestDirectoryProvider
-import com.gradleware.tooling.toolingclient.CompositeBuildModelRequest;
+import com.gradleware.tooling.toolingclient.CompositeBuildModelRequest
 import com.gradleware.tooling.toolingclient.GradleBuildIdentifier
-import com.gradleware.tooling.toolingclient.GradleDistribution;
+import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingclient.ToolingClient
-import com.gradleware.tooling.toolingmodel.repository.internal.CompositeModelRequestTest.FetchMode;
-
-import groovy.transform.NotYetImplemented
-import spock.lang.Ignore
-
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.atomic.AtomicReference
-import org.gradle.tooling.GradleConnectionException
-import org.gradle.tooling.model.GradleProject
+import org.gradle.tooling.UnknownModelException
+import org.gradle.tooling.connection.ModelResults
 import org.gradle.tooling.model.eclipse.EclipseProject
 import org.junit.Rule
+import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.atomic.AtomicReference
 
 class CompositeModelRequestTest extends Specification {
 
@@ -65,22 +62,25 @@ class CompositeModelRequestTest extends Specification {
         fetchMode << FetchMode.values()
     }
 
-    @Ignore('TODO (donat) check it out why this fails')
-    def "Querying an invalid model throws IllegalArgumentException"(Class<?> modelType, FetchMode fetchMode){
+    def "Querying an invalid model throws exception"(Class<?> modelType, FetchMode fetchMode, Class<?> exception){
         setup:
-        def request = toolingClient.newCompositeModelRequest(modelType)
-                .projectDir(directoryProvider.createDir("sample-project"))
-                .gradleDistribution(GradleDistribution.fromBuild())
+        def projectDir = directoryProvider.createDir("sample-project")
 
         when:
+        def request = toolingClient.newCompositeModelRequest(modelType)
+                .projectDir(projectDir)
+                .gradleDistribution(GradleDistribution.fromBuild())
         getEclipseProjects(request, fetchMode)
 
         then:
-        thrown IllegalArgumentException
+        thrown exception
 
         where:
-        modelType << [Serializable, String]
-        fetchMode << FetchMode.values()
+        modelType    | fetchMode       | exception
+        Serializable | FetchMode.SYNC  | UnknownModelException
+        Serializable | FetchMode.ASYNC | UnknownModelException
+        String       | FetchMode.SYNC  | IllegalArgumentException
+        String       | FetchMode.ASYNC | IllegalArgumentException
     }
 
     def "Can query project models for a single-module project"(FetchMode fetchMode) {
@@ -198,10 +198,12 @@ class CompositeModelRequestTest extends Specification {
 
     private def Set<EclipseProject> getEclipseProjects(CompositeBuildModelRequest<EclipseProject> request, FetchMode fetchMode) {
         if (fetchMode == FetchMode.SYNC) {
-            return request.executeAndWait().findAll { !it.failure }.collect { it.model }.toSet()
+            ModelResults<EclipseProject> results = request.executeAndWait()
+            results.each { result -> result.each { if (it.failure) throw it.failure } }
+            return results.findAll { println it; !it.failure }.collect { it.model }.toSet()
         } else {
             def result = new AtomicReference<Set<EclipseProject>>()
-            def failure = new AtomicReference<GradleConnectionException>()
+            def failure = new AtomicReference<Exception>()
             def promise = request.execute()
             def latch = new CountDownLatch(1)
 
@@ -211,6 +213,8 @@ class CompositeModelRequestTest extends Specification {
             }
             promise.onComplete { projects ->
                 result.set(projects.findAll { !it.failure }.collect { it.model }.toSet())
+                def projectWithError = projects.find { it.failure }
+                if (projectWithError) failure.set(projectWithError.failure)
                 latch.countDown()
             }
             latch.await()
