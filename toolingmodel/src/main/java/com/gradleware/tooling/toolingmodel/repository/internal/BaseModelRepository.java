@@ -16,30 +16,29 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.UncheckedExecutionException;
-
 import com.gradleware.tooling.toolingclient.Consumer;
 import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingclient.ToolingClient;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.ObservableModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import org.gradle.tooling.connection.ModelResults;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
- * Common base class for {@code ObservableModelRepository} implementations. Model updates are broadcast via Google Guava's {@link EventBus}.
+ * Base class for {@code ModelRepository} implementations. Model updates are broadcast via Google Guava's {@link EventBus}.
  *
  * @author Etienne Studer
  */
-public abstract class BaseModelRepository implements ObservableModelRepository {
+public abstract class BaseModelRepository implements ModelRepository {
 
     private final ToolingClient toolingClient;
     private final EventBus eventBus;

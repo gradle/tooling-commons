@@ -21,16 +21,32 @@ import org.gradle.tooling.connection.ModelResults;
 
 /**
  * Repository for Gradle build models sourced from a Gradle build.
+ * <p/>
+ * Listeners can be registered to get notified about model updates. It is left to the implementation through which
+ * channel the events are broadcast.
  *
  * @author Etienne Studer
  */
-public interface ModelRepository extends ObservableModelRepository {
+public interface ModelRepository {
+
+    /**
+     *
+     * @param listener listener to subscribe to receiving events
+     */
+    void register(Object listener);
+
+    /**
+     * Unregisters the given {@code listener} from receiving model change events.
+     *
+     * @param listener listener to unsubscribe from receiving events
+     */
+    void unregister(Object listener);
 
     /**
      * Fetches the {@link OmniBuildEnvironment} synchronously and broadcasts it through a {@link BuildEnvironmentUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
-     * @param fetchStrategy the fetch strategy
+     * @param fetchStrategy              the fetch strategy
      * @return the build environment, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
      */
     OmniBuildEnvironment fetchBuildEnvironment(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
@@ -39,7 +55,7 @@ public interface ModelRepository extends ObservableModelRepository {
      * Fetches the {@link OmniGradleBuildStructure} synchronously and broadcasts it through a {@link GradleBuildStructureUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
-     * @param fetchStrategy the fetch strategy
+     * @param fetchStrategy              the fetch strategy
      * @return the gradle build, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
      */
     OmniGradleBuildStructure fetchGradleBuildStructure(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
@@ -48,7 +64,7 @@ public interface ModelRepository extends ObservableModelRepository {
      * Fetches the {@link OmniGradleBuild} synchronously and broadcasts it through a {@link GradleBuildUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
-     * @param fetchStrategy the fetch strategy
+     * @param fetchStrategy              the fetch strategy
      * @return the gradle project, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
      */
     OmniGradleBuild fetchGradleBuild(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
@@ -57,7 +73,7 @@ public interface ModelRepository extends ObservableModelRepository {
      * Fetches the {@link OmniEclipseGradleBuild} synchronously and broadcasts it through a {@link EclipseGradleBuildUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
-     * @param fetchStrategy the fetch strategy
+     * @param fetchStrategy              the fetch strategy
      * @return the eclipse project, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
      */
     OmniEclipseGradleBuild fetchEclipseGradleBuild(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
@@ -66,7 +82,7 @@ public interface ModelRepository extends ObservableModelRepository {
      * Fetches the {@link OmniBuildInvocationsContainer} synchronously and broadcasts it through a {@link BuildInvocationsUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
-     * @param fetchStrategy the fetch strategy
+     * @param fetchStrategy              the fetch strategy
      * @return the build invocations container, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
      */
     OmniBuildInvocationsContainer fetchBuildInvocations(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
@@ -75,7 +91,7 @@ public interface ModelRepository extends ObservableModelRepository {
      * Fetches the {@link OmniEclipseProject} models synchronously.
      *
      * @param transientRequestAttributes the transient request attributes
-     * @param fetchStrategy the fetch strategy
+     * @param fetchStrategy              the fetch strategy
      * @return the result, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is
      * not in the cache
      */
@@ -85,7 +101,7 @@ public interface ModelRepository extends ObservableModelRepository {
      * Fetches the {@link OmniBuildEnvironment} models synchronously.
      *
      * @param transientRequestAttributes the transient request attributes
-     * @param fetchStrategy the fetch strategy
+     * @param fetchStrategy              the fetch strategy
      * @return the result, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is
      * not in the cache
      */
