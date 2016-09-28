@@ -25,6 +25,7 @@ import com.gradleware.tooling.toolingmodel.Path
 import com.gradleware.tooling.toolingmodel.repository.Environment
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
+import com.gradleware.tooling.toolingmodel.repository.ModelRepository
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
@@ -37,7 +38,7 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
 
   FixedRequestAttributes fixedRequestAttributes
   TransientRequestAttributes transientRequestAttributes
-  BaseModelRepository repository
+  ModelRepository repository
 
   def setup() {
     // Gradle projects for testing
