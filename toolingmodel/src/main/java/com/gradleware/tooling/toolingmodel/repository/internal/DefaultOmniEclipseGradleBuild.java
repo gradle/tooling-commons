@@ -16,12 +16,15 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import org.gradle.tooling.model.eclipse.EclipseProject;
-
 import com.google.common.base.Preconditions;
-
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
+import org.gradle.tooling.model.eclipse.EclipseProject;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Default implementation of the {@link OmniEclipseGradleBuild} interface.
@@ -32,8 +35,11 @@ public final class DefaultOmniEclipseGradleBuild implements OmniEclipseGradleBui
 
     private final OmniEclipseProject rootEclipseProject;
 
-    private DefaultOmniEclipseGradleBuild(OmniEclipseProject rootEclipseProject) {
+    private final ImmutableList<OmniEclipseProject> includedRootEclipseProjects;
+
+    private DefaultOmniEclipseGradleBuild(OmniEclipseProject rootEclipseProject, List<OmniEclipseProject> includedRootEclipseProjects) {
         this.rootEclipseProject = rootEclipseProject;
+        this.includedRootEclipseProjects = ImmutableList.copyOf(includedRootEclipseProjects);
     }
 
     @Override
@@ -41,9 +47,25 @@ public final class DefaultOmniEclipseGradleBuild implements OmniEclipseGradleBui
         return this.rootEclipseProject;
     }
 
+    @Override
+    public List<OmniEclipseProject> getIncludedRootProjects() {
+        return this.includedRootEclipseProjects;
+    }
+
     public static DefaultOmniEclipseGradleBuild from(EclipseProject eclipseRootProject) {
         Preconditions.checkState(eclipseRootProject.getParent() == null, "Provided Eclipse project is not the root project.");
-        return new DefaultOmniEclipseGradleBuild(DefaultOmniEclipseProject.from(eclipseRootProject));
+        return new DefaultOmniEclipseGradleBuild(DefaultOmniEclipseProject.from(eclipseRootProject), Collections.<OmniEclipseProject>emptyList());
+    }
+
+    public static DefaultOmniEclipseGradleBuild from(EclipseProject eclipseRootProject, List<EclipseProject> includedRootProjects) {
+        Preconditions.checkState(eclipseRootProject.getParent() == null, "Provided Eclipse project is not the root project.");
+        DefaultOmniEclipseProject root = DefaultOmniEclipseProject.from(eclipseRootProject);
+        List<OmniEclipseProject> included = Lists.newArrayList();
+        for (EclipseProject includedRootProject : includedRootProjects) {
+            Preconditions.checkState(includedRootProject.getParent() == null, "Included Gradle project is not a root project.");
+            included.add(DefaultOmniEclipseProject.from(includedRootProject));
+        }
+        return new DefaultOmniEclipseGradleBuild(root, included);
     }
 
 }

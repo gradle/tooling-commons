@@ -37,7 +37,9 @@ import org.gradle.tooling.model.gradle.BuildInvocations;
 import org.gradle.tooling.model.gradle.GradleBuild;
 import org.gradle.util.GradleVersion;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -209,22 +211,46 @@ public final class DefaultModelRepository implements ModelRepository {
         Preconditions.checkNotNull(transientRequestAttributes);
         Preconditions.checkNotNull(fetchStrategy);
 
-        ModelRequest<EclipseProject> request = createModelRequestForBuildModel(EclipseProject.class, transientRequestAttributes);
-        Consumer<OmniEclipseGradleBuild> successHandler = new Consumer<OmniEclipseGradleBuild>() {
-            @Override
-            public void accept(OmniEclipseGradleBuild result) {
-                DefaultModelRepository.this.eventBus.post(new EclipseGradleBuildUpdateEvent(result));
-            }
-        };
-        Converter<EclipseProject, OmniEclipseGradleBuild> converter = new BaseConverter<EclipseProject, OmniEclipseGradleBuild>() {
+        if (!supportsCompositeBuilds(transientRequestAttributes)) {
+            ModelRequest<EclipseProject> request = createModelRequestForBuildModel(EclipseProject.class, transientRequestAttributes);
+            Consumer<OmniEclipseGradleBuild> successHandler = new Consumer<OmniEclipseGradleBuild>() {
+                @Override
+                public void accept(OmniEclipseGradleBuild result) {
+                    DefaultModelRepository.this.eventBus.post(new EclipseGradleBuildUpdateEvent(result));
+                }
+            };
+            Converter<EclipseProject, OmniEclipseGradleBuild> converter = new BaseConverter<EclipseProject, OmniEclipseGradleBuild>() {
 
-            @Override
-            public OmniEclipseGradleBuild apply(EclipseProject eclipseProject) {
-                return DefaultOmniEclipseGradleBuild.from(eclipseProject);
-            }
-
-        };
+                @Override
+                public OmniEclipseGradleBuild apply(EclipseProject eclipseProject) {
+                    return DefaultOmniEclipseGradleBuild.from(eclipseProject);
+                }
+            };
         return executeRequest(request, successHandler, fetchStrategy, OmniEclipseGradleBuild.class, converter);
+        } else {
+            BuildActionRequest<Collection<EclipseProject>> request = createBuildActionRequestForCompositeModel(EclipseProject.class, transientRequestAttributes);
+            Consumer<OmniEclipseGradleBuild> successHandler = new Consumer<OmniEclipseGradleBuild>() {
+                @Override
+                public void accept(OmniEclipseGradleBuild result) {
+                    DefaultModelRepository.this.eventBus.post(new EclipseGradleBuildUpdateEvent(result));
+                }
+            };
+            Converter<Collection<EclipseProject>, OmniEclipseGradleBuild> converter = new BaseConverter<Collection<EclipseProject>, OmniEclipseGradleBuild>() {
+
+                @Override
+                public OmniEclipseGradleBuild apply(Collection<EclipseProject> eclipseProjects) {
+                    if (eclipseProjects.isEmpty()) {
+                        throw new RuntimeException("At least one element is expected in the result");
+                    }
+                    ArrayList<EclipseProject> includedProjects = Lists.newArrayList(eclipseProjects);
+                    EclipseProject rootProject = includedProjects.remove(0); // TODO (donat) find a better way to separate root project and included projects
+                    return DefaultOmniEclipseGradleBuild.from(rootProject, includedProjects);
+                }
+
+            };
+            return executeRequest(request, successHandler, fetchStrategy, OmniGradleBuild.class, converter);
+        }
+
     }
 
     /*
