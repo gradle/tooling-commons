@@ -9,7 +9,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.gradleware.tooling.toolingutils;version="0.17.0",
  com.gradleware.tooling.toolingutils.binding;version="0.17.0",
  com.gradleware.tooling.toolingutils.distribution;version="0.17.0"
-Require-Bundle: org.gradle.toolingapi;bundle-version="[2.14.1,2.15.0)",
+Require-Bundle: org.gradle.toolingapi;bundle-version="[3.3.0,3.4.0)",
  com.google.guava;bundle-version="[15.0.0,16.0.0)",
  com.google.gson;bundle-version="2.2.4",
  org.slf4j.api;bundle-version="1.7.2"
