@@ -18,24 +18,15 @@ package com.gradleware.tooling.toolingclient.internal;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.gradleware.tooling.toolingclient.*;
 import org.gradle.internal.Factory;
 import org.gradle.tooling.*;
-import org.gradle.tooling.connection.GradleConnection;
-import org.gradle.tooling.connection.GradleConnectionBuilder;
-import org.gradle.tooling.connection.GradleConnectionBuilder.ParticipantBuilder;
-import org.gradle.tooling.connection.ModelResult;
-import org.gradle.tooling.connection.ModelResults;
-import org.gradle.tooling.internal.connection.GradleConnectionBuilderInternal;
 import org.gradle.tooling.internal.consumer.ConnectorServices;
-import org.gradle.tooling.model.build.BuildEnvironment;
-import org.gradle.util.GradleVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.io.File;
 import java.util.Map;
 
 /**
@@ -50,7 +41,6 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     private final Factory<GradleConnector> connectorFactory;
     private final ConnectionStrategy connectionStrategy;
     private final Map<Integer, ProjectConnection> connections;
-    private final Map<Integer, GradleConnection> compositeConnections;
 
 
     public DefaultToolingClient() {
@@ -65,7 +55,6 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         this.connectorFactory = connectorFactory;
         this.connectionStrategy = connectionStrategy;
         this.connections = Maps.newHashMap();
-        this.compositeConnections = Maps.newHashMap();
     }
 
     @Override
@@ -90,12 +79,6 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
     public TestLaunchRequest newTestLaunchRequest(TestConfig tests) {
         Preconditions.checkNotNull(tests);
         return new DefaultTestLaunchRequest(this, tests);
-    }
-
-    @Override
-    public <T> CompositeBuildModelRequest<T> newCompositeModelRequest(Class<T> modelType) {
-        Preconditions.checkNotNull(modelType);
-        return new DefaultCompositeBuildModelRequest<T>(this, modelType);
     }
 
     @Override
@@ -172,31 +155,8 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         return closeConnectionIfNecessary(LongRunningOperationPromise.forTestLauncher(operation), connection);
     }
 
-    @Override
-    public <T> LongRunningOperationPromise<ModelResults<T>> execute(InspectableCompositeBuildModelRequest<T> modelRequest) {
-        GradleConnection connection = getCompositeConnection(modelRequest);
-        ModelBuilder<ModelResults<T>> modelBuilder = mapToModelBuilder(modelRequest, connection);
-        return closeConnectionIfNecessary(LongRunningOperationPromise.forModelBuilder(modelBuilder), connection);
-    }
-
-    @Override
-    public <T> ModelResults<T> executeAndWait(InspectableCompositeBuildModelRequest<T> modelRequest) {
-        GradleConnection connection = getCompositeConnection(modelRequest);
-        ModelBuilder<ModelResults<T>> modelBuilder = mapToModelBuilder(modelRequest, connection);
-        try {
-            ModelResults<T> modelResults = modelBuilder.get();
-            return modelResults;
-        } finally {
-            closeConnectionIfNecessary(connection);
-        }
-    }
-
     private ProjectConnection getProjectConnection(InspectableBuildRequest<?> request) {
         return getOrCreateProjectConnection(request);
-    }
-
-    private GradleConnection getCompositeConnection(InspectableCompositeBuildModelRequest<?> request) {
-        return getOrCreateCompositeConnection(request);
     }
 
     private ProjectConnection getOrCreateProjectConnection(InspectableBuildRequest<?> simpleRequest) {
@@ -216,24 +176,6 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         return connection;
     }
 
-
-    private GradleConnection getOrCreateCompositeConnection(InspectableCompositeBuildModelRequest<?> compositeRequest) {
-        Preconditions.checkNotNull(compositeRequest);
-        if (this.connectionStrategy == ConnectionStrategy.PER_REQUEST) {
-            return createIntegratedCompositeIfPossible(compositeRequest);
-        }
-        GradleConnection connection;
-        int connectionKey = calculateCompositeConnectionKey(compositeRequest);
-        synchronized (this.compositeConnections) {
-            connection = this.compositeConnections.get(connectionKey);
-            if (connection == null) {
-                connection = createIntegratedCompositeIfPossible(compositeRequest);
-                this.compositeConnections.put(connectionKey, connection);
-            }
-        }
-        return connection;
-    }
-
     private int calculateConnectionKey(InspectableBuildRequest<?> modelRequest) {
         return Objects.hashCode(
                 modelRequest.getProjectDir(),
@@ -241,82 +183,18 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
                 modelRequest.getGradleDistribution());
     }
 
-    private int calculateCompositeConnectionKey(InspectableCompositeBuildModelRequest<?> compositeRequest) {
-        List<Object> connectionProperties = Lists.newArrayList();
-        connectionProperties.add(compositeRequest.getProjectDir());
-        connectionProperties.add(compositeRequest.getGradleDistribution());
-        connectionProperties.add(compositeRequest.getGradleUserHomeDir());
-        return connectionProperties.hashCode();
-    }
-
     private ProjectConnection openConnection(InspectableBuildRequest<?> modelRequest) {
         GradleConnector connector = this.connectorFactory.create();
         connector.forProjectDirectory(modelRequest.getProjectDir());
         connector.useGradleUserHomeDir(modelRequest.getGradleUserHomeDir());
         modelRequest.getGradleDistribution().apply(connector);
+        connector.useInstallation(new File("/Development/git/gradle/build/integ test")); // TODO (donat) delete this line!!!
         return connector.connect();
-    }
-
-    private GradleConnection createIntegratedCompositeIfPossible(InspectableCompositeBuildModelRequest<?> compositeRequest) {
-        GradleConnectionBuilder connectionBuilder = configureBasicCompositeConnection(compositeRequest);
-        GradleConnection aggregateConnection = connectionBuilder.build();
-
-        if (!(connectionBuilder instanceof GradleConnectionBuilderInternal)) {
-            return aggregateConnection;
-        }
-
-        GradleVersion commonGradleVersion = getCommonGradleVersion(aggregateConnection, compositeRequest);
-        if (commonGradleVersion == null || commonGradleVersion.compareTo(GradleVersion.version("2.14-rc-1")) < 0) {
-            return aggregateConnection;
-        } else {
-            ((GradleConnectionBuilderInternal) connectionBuilder).integratedComposite(true);
-            ((GradleConnectionBuilderInternal) connectionBuilder).useGradleVersion(commonGradleVersion.getVersion());
-            return connectionBuilder.build();
-        }
-    }
-
-    private GradleVersion getCommonGradleVersion(GradleConnection aggregateConnection, InspectableCompositeBuildModelRequest<?> compositeRequest) {
-        ModelResults<BuildEnvironment> results = fetchBuildEnvironments(aggregateConnection, compositeRequest);
-
-        String commonVersion = null;
-
-        for (ModelResult<BuildEnvironment> result : results) {
-            if (result.getFailure() != null) {
-                return null;
-            }
-            BuildEnvironment buildEnvironment = result.getModel();
-            String gradleVersion = buildEnvironment.getGradle().getGradleVersion();
-            if (commonVersion != null && !commonVersion.equals(gradleVersion)) {
-                return null;
-            }
-            commonVersion = gradleVersion;
-        }
-
-        return GradleVersion.version(commonVersion);
-    }
-
-    private GradleConnectionBuilder configureBasicCompositeConnection(InspectableCompositeBuildModelRequest<?> compositeRequest) {
-        GradleConnectionBuilder connectionBuilder = GradleConnector.newGradleConnection();
-        connectionBuilder.useGradleUserHomeDir(compositeRequest.getGradleUserHomeDir());
-        ParticipantBuilder participantBuilder = connectionBuilder.addParticipant(compositeRequest.getProjectDir());
-        compositeRequest.getGradleDistribution().apply(participantBuilder);
-        return connectionBuilder;
-    }
-
-    private ModelResults<BuildEnvironment> fetchBuildEnvironments(GradleConnection aggregateConnection, InspectableCompositeBuildModelRequest<?> compositeRequest) {
-        ModelBuilder<ModelResults<BuildEnvironment>> builder = aggregateConnection.models(BuildEnvironment.class);
-        mapToLongRunningOperation(compositeRequest, builder);
-        return builder.get();
     }
 
     private <T> ModelBuilder<T> mapToModelBuilder(InspectableModelRequest<T> modelRequest, ProjectConnection connection) {
         ModelBuilder<T> modelBuilder = connection.model(modelRequest.getModelType());
         modelBuilder.forTasks(modelRequest.getTasks());
-        return mapToLongRunningOperation(modelRequest, modelBuilder);
-    }
-
-    private <T> ModelBuilder<ModelResults<T>> mapToModelBuilder(InspectableCompositeBuildModelRequest<T> modelRequest, GradleConnection connection) {
-        ModelBuilder<ModelResults<T>> modelBuilder = connection.models(modelRequest.getModelType());
         return mapToLongRunningOperation(modelRequest, modelBuilder);
     }
 
@@ -346,9 +224,7 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
             setJvmArguments(request.getJvmArguments()).
             withArguments(request.getArguments()).
             withCancellationToken(request.getCancellationToken());
-            if (!(request instanceof CompositeBuildModelRequest)) {
-                operation.setStandardInput(request.getStandardInput());
-            }
+            operation.setStandardInput(request.getStandardInput());
             for (ProgressListener progressListener : request.getProgressListeners()) {
             operation.addProgressListener(progressListener);
         }
@@ -378,11 +254,6 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
                 closeConnection(connection);
             }
         }
-        synchronized (this.compositeConnections) {
-            for (GradleConnection connection : this.compositeConnections.values()) {
-                closeConnection(connection);
-            }
-        }
     }
 
     private void closeConnection(ProjectConnection connection) {
@@ -393,46 +264,13 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         }
     }
 
-    private void closeConnection(GradleConnection connection) {
-        try {
-            connection.close();
-        } catch (Exception e) {
-            LOG.warn("Problem closing the composite connection: " + e.getMessage(), e);
-        }
-    }
-
     private <T> void closeConnectionIfNecessary(ProjectConnection connection) {
         if (DefaultToolingClient.this.connectionStrategy == ConnectionStrategy.PER_REQUEST) {
             closeConnection(connection);
         }
     }
 
-    private <T> void closeConnectionIfNecessary(GradleConnection connection) {
-        if (DefaultToolingClient.this.connectionStrategy == ConnectionStrategy.PER_REQUEST) {
-            closeConnection(connection);
-        }
-    }
-
     private <T> LongRunningOperationPromise<T> closeConnectionIfNecessary(final LongRunningOperationPromise<T> delegate, final ProjectConnection connection) {
-        return new LongRunningOperationPromise<T>() {
-
-            @Override
-            public LongRunningOperationPromise<T> onComplete(Consumer<? super T> completeHandler) {
-                closeConnectionIfNecessary(connection);
-                delegate.onComplete(completeHandler);
-                return this;
-            }
-
-            @Override
-            public LongRunningOperationPromise<T> onFailure(Consumer<? super GradleConnectionException> failureHandler) {
-                closeConnectionIfNecessary(connection);
-                delegate.onFailure(failureHandler);
-                return this;
-            }
-        };
-    }
-
-    private <T> LongRunningOperationPromise<T> closeConnectionIfNecessary(final LongRunningOperationPromise<T> delegate, final GradleConnection connection) {
         return new LongRunningOperationPromise<T>() {
 
             @Override

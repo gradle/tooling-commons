@@ -20,7 +20,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.gradleware.tooling.toolingclient.*;
@@ -29,9 +28,7 @@ import com.gradleware.tooling.toolingmodel.buildaction.BuildActionFactory;
 import com.gradleware.tooling.toolingmodel.buildaction.ModelForAllProjectsBuildAction;
 import com.gradleware.tooling.toolingmodel.repository.*;
 import org.gradle.tooling.BuildAction;
-import org.gradle.tooling.connection.ModelResults;
 import org.gradle.tooling.model.GradleProject;
-import org.gradle.tooling.model.ProjectIdentifier;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.gradle.BuildInvocations;
@@ -251,34 +248,6 @@ public final class DefaultModelRepository implements ModelRepository {
         return executeRequest(request, successHandler, fetchStrategy, OmniBuildInvocationsContainer.class, converter);
     }
 
-    @Override
-    public ModelResults<OmniEclipseProject> fetchEclipseProjects(final TransientRequestAttributes transientAttributes, FetchStrategy fetchStrategy) {
-        CompositeBuildModelRequest<EclipseProject> modelRequest = createCompositeModelRequest(EclipseProject.class, this.fixedRequestAttributes, transientAttributes);
-        final Map<Path, DefaultOmniEclipseProject> knownEclipseProjects = Maps.newHashMap();
-        final Map<ProjectIdentifier, DefaultOmniGradleProject> knownGradleProjects = Maps.newHashMap();
-        Converter<EclipseProject, OmniEclipseProject> converter = new BaseConverter<EclipseProject, OmniEclipseProject>() {
-
-            @Override
-            public OmniEclipseProject apply(EclipseProject eclipseProject) {
-                return DefaultOmniEclipseProject.from(eclipseProject, knownEclipseProjects, knownGradleProjects);
-            }
-        };
-        return executeRequest(modelRequest, fetchStrategy, OmniEclipseProject.class, converter);
-    }
-
-    @Override
-    public ModelResults<OmniBuildEnvironment> fetchBuildEnvironments(TransientRequestAttributes transientAttributes, FetchStrategy fetchStrategy) {
-        CompositeBuildModelRequest<BuildEnvironment> modelRequest = createCompositeModelRequest(BuildEnvironment.class, this.fixedRequestAttributes, transientAttributes);
-        Converter<BuildEnvironment, OmniBuildEnvironment> converter = new BaseConverter<BuildEnvironment, OmniBuildEnvironment>() {
-
-            @Override
-            public OmniBuildEnvironment apply(BuildEnvironment buildEnvironment) {
-                return DefaultOmniBuildEnvironment.from(buildEnvironment);
-            }
-        };
-        return executeRequest(modelRequest, fetchStrategy, OmniBuildEnvironment.class, converter);
-    }
-
     private OmniBuildInvocationsContainer deriveBuildInvocationsFromOtherModel(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         // for fetch strategy FORCE_RELOAD, we re-fetch the GradleBuild model and derive the build invocations from it
         if (fetchStrategy == FetchStrategy.FORCE_RELOAD) {
@@ -349,13 +318,6 @@ public final class DefaultModelRepository implements ModelRepository {
         return request;
     }
 
-    private <T> CompositeBuildModelRequest<T> createCompositeModelRequest(Class<T> model, FixedRequestAttributes fixedAttribute, TransientRequestAttributes transientAttributes) {
-        CompositeBuildModelRequest<T> request = this.toolingClient.newCompositeModelRequest(model);
-        fixedAttribute.apply(request);
-        transientAttributes.apply(request);
-        return request;
-    }
-
     protected <T, U> U executeRequest(final Request<T> request, final Consumer<U> newCacheEntryHandler, FetchStrategy fetchStrategy, Class<?> cacheKey,
                                       final Converter<T, U> resultConverter) {
         return executeRequest(new Supplier<T>() {
@@ -368,16 +330,6 @@ public final class DefaultModelRepository implements ModelRepository {
                 return request.executeAndWait();
             }
         }, newCacheEntryHandler, fetchStrategy, cacheKey, resultConverter);
-    }
-
-    protected <T, U> ModelResults<U> executeRequest(Request<ModelResults<T>> request, FetchStrategy fetchStrategy, Class<?> cacheKey, Converter<T, U> resultConverter) {
-        Consumer<ModelResults<U>> dontSendEvents = new Consumer<ModelResults<U>>() {
-
-            @Override
-            public void accept(ModelResults<U> input) {
-            }
-        };
-        return executeRequest(request, dontSendEvents, fetchStrategy, cacheKey, new ModelResultsConverter<T, U>(resultConverter));
     }
 
     protected <T, U> U executeRequest(final Supplier<T> operation, final Consumer<U> newCacheEntryHandler, FetchStrategy fetchStrategy, Class<?> cacheKey,

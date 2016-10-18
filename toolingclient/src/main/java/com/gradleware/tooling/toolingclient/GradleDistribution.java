@@ -16,16 +16,14 @@
 
 package com.gradleware.tooling.toolingclient;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import org.gradle.tooling.GradleConnector;
+
 import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
-
-import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.connection.GradleConnectionBuilder.ParticipantBuilder;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 
 /**
  * Represents a Gradle distribution that can be located locally or remotely, be a fixed version, or be project-specific.
@@ -72,24 +70,6 @@ public final class GradleDistribution {
             connector.useGradleVersion(this.version);
         } else {
             connector.useBuildDistribution();
-        }
-    }
-
-    /**
-     * Configures the specified participant to use this distribution.
-     *
-     * @param participant the participant to configure
-     */
-    public void apply(ParticipantBuilder participant) {
-        Preconditions.checkNotNull(participant);
-        if (this.localInstallationDir != null) {
-            participant.useInstallation(this.localInstallationDir);
-        } else if (this.remoteDistributionUri != null) {
-            participant.useDistribution(this.remoteDistributionUri);
-        } else if (this.version != null) {
-            participant.useGradleVersion(this.version);
-        } else {
-            participant.useBuildDistribution();
         }
     }
 

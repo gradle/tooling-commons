@@ -17,7 +17,6 @@
 package com.gradleware.tooling.toolingmodel.repository;
 
 import com.gradleware.tooling.toolingmodel.*;
-import org.gradle.tooling.connection.ModelResults;
 
 /**
  * Repository for Gradle build models sourced from a Gradle build.
@@ -86,24 +85,4 @@ public interface ModelRepository {
      * @return the build invocations container, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
      */
     OmniBuildInvocationsContainer fetchBuildInvocations(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
-
-    /**
-     * Fetches the {@link OmniEclipseProject} models synchronously.
-     *
-     * @param transientRequestAttributes the transient request attributes
-     * @param fetchStrategy              the fetch strategy
-     * @return the result, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is
-     * not in the cache
-     */
-    ModelResults<OmniEclipseProject> fetchEclipseProjects(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
-
-    /**
-     * Fetches the {@link OmniBuildEnvironment} models synchronously.
-     *
-     * @param transientRequestAttributes the transient request attributes
-     * @param fetchStrategy              the fetch strategy
-     * @return the result, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is
-     * not in the cache
-     */
-    ModelResults<OmniBuildEnvironment> fetchBuildEnvironments(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 }
