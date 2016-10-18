@@ -59,7 +59,7 @@ class ToolingClientTest extends ToolingClientSpecification {
     BuildActionRequest<Integer> buildActionRequest = toolingClient.newBuildActionRequest(action)
     buildActionRequest.projectDir(directoryProvider.testDirectory)
     int numberOfTasks = buildActionRequest.executeAndWait()
-    assert numberOfTasks == 12
+    assert numberOfTasks == 13
   }
 
   def "executeBuild"() {
@@ -156,7 +156,7 @@ class ToolingClientTest extends ToolingClientSpecification {
 
     then:
     Integer result = resultRef.get()
-    result == 12
+    result == 13
   }
 
   def "executeBuildAsynchronously"() {

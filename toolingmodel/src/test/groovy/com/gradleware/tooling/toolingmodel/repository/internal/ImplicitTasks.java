@@ -28,7 +28,7 @@ import java.util.List;
 public final class ImplicitTasks {
 
     public static final List<String> ALL = ImmutableList.of(
-            "init", "wrapper", "help", "projects", "tasks", "properties", "components", "dependencies", "dependencyInsight", "setupBuild", "model", "buildEnvironment");
+            "init", "wrapper", "help", "projects", "tasks", "properties", "components", "dependencies", "dependencyInsight", "setupBuild", "model", "buildEnvironment", "dependentComponents");
 
     private ImplicitTasks() {
     }
