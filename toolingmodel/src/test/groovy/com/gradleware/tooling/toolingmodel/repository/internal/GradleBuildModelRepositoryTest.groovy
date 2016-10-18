@@ -140,6 +140,31 @@ class GradleBuildModelRepositoryTest extends ModelRepositorySpec {
         [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.2")
     }
 
+    def "can handle composite builds"(GradleDistribution distribution, Environment environment) {
+        given:
+        def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderCompositeBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+        def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+
+        when:
+        def gradleBuild = repository.fetchGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+
+        then:
+        gradleBuild.rootProject.name == 'root'
+        if (higherOrEqual('3.3', distribution)) {
+            assert gradleBuild.includedRootProjects.size() == 2
+            assert gradleBuild.includedRootProjects[0].name == 'included1'
+            assert gradleBuild.includedRootProjects[0].children*.name == ['sub1', 'sub2']
+            assert gradleBuild.includedRootProjects[1].name == 'included2'
+            assert gradleBuild.includedRootProjects[1].children*.name == ['sub1', 'sub2']
+        } else {
+            //assert gradleBuild.includedRootProjects.isEmpty() // TODO (donat) uncomment once DefaultToolingClient doesn't use locally built Gradle distribution
+        }
+
+        where:
+        [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.2")
+    }
+
     def "when exception is thrown"(GradleDistribution distribution, Environment environment) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())

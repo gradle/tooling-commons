@@ -20,12 +20,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.gradleware.tooling.toolingclient.*;
 import com.gradleware.tooling.toolingmodel.*;
 import com.gradleware.tooling.toolingmodel.buildaction.BuildActionFactory;
 import com.gradleware.tooling.toolingmodel.buildaction.ModelForAllProjectsBuildAction;
+import com.gradleware.tooling.toolingmodel.buildaction.RootModelsForCompositeProjectBuildAction;
 import com.gradleware.tooling.toolingmodel.repository.*;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.model.GradleProject;
@@ -35,7 +37,7 @@ import org.gradle.tooling.model.gradle.BuildInvocations;
 import org.gradle.tooling.model.gradle.GradleBuild;
 import org.gradle.util.GradleVersion;
 
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -157,24 +159,46 @@ public final class DefaultModelRepository implements ModelRepository {
     public OmniGradleBuild fetchGradleBuild(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         Preconditions.checkNotNull(transientRequestAttributes);
         Preconditions.checkNotNull(fetchStrategy);
+        if (!supportsCompositeBuilds(transientRequestAttributes)) {
+            ModelRequest<GradleProject> request = createModelRequestForBuildModel(GradleProject.class, transientRequestAttributes);
+            Consumer<OmniGradleBuild> successHandler = new Consumer<OmniGradleBuild>() {
+                @Override
+                public void accept(OmniGradleBuild result) {
+                    DefaultModelRepository.this.eventBus.post(new GradleBuildUpdateEvent(result));
+                }
+            };
+            Converter<GradleProject, OmniGradleBuild> converter = new BaseConverter<GradleProject, OmniGradleBuild>() {
 
-        ModelRequest<GradleProject> request = createModelRequestForBuildModel(GradleProject.class, transientRequestAttributes);
-        Consumer<OmniGradleBuild> successHandler = new Consumer<OmniGradleBuild>() {
-            @Override
-            public void accept(OmniGradleBuild result) {
-                DefaultModelRepository.this.eventBus.post(new GradleBuildUpdateEvent(result));
-            }
-        };
-        Converter<GradleProject, OmniGradleBuild> converter = new BaseConverter<GradleProject, OmniGradleBuild>() {
+                @Override
+                public OmniGradleBuild apply(GradleProject gradleProject) {
+                    return DefaultOmniGradleBuild.from(gradleProject);
+                }
 
-            @Override
-            public OmniGradleBuild apply(GradleProject gradleProject) {
-                return DefaultOmniGradleBuild.from(gradleProject);
-            }
+            };
+            return executeRequest(request, successHandler, fetchStrategy, OmniGradleBuild.class, converter);
+        } else {
+            BuildActionRequest<Collection<GradleProject>> request = createBuildActionRequestForCompositeModel(GradleProject.class, transientRequestAttributes);
+            Consumer<OmniGradleBuild> successHandler = new Consumer<OmniGradleBuild>() {
+                @Override
+                public void accept(OmniGradleBuild result) {
+                    DefaultModelRepository.this.eventBus.post(new GradleBuildUpdateEvent(result));
+                }
+            };
+            Converter<Collection<GradleProject>, OmniGradleBuild> converter = new BaseConverter<Collection<GradleProject>, OmniGradleBuild>() {
 
-        };
+                @Override
+                public OmniGradleBuild apply(Collection<GradleProject> gradleProjects) {
+                    if (gradleProjects.isEmpty()) {
+                        throw new RuntimeException("At least one element is expected in the result");
+                    }
+                    ArrayList<GradleProject> includedProjects = Lists.newArrayList(gradleProjects);
+                    GradleProject rootProject = includedProjects.remove(0); // TODO (donat) find a better way to separate root project and included projects
+                    return DefaultOmniGradleBuild.from(rootProject, includedProjects);
+                }
 
-        return executeRequest(request, successHandler, fetchStrategy, OmniGradleBuild.class, converter);
+            };
+            return executeRequest(request, successHandler, fetchStrategy, OmniGradleBuild.class, converter);
+        }
     }
 
     /*
@@ -286,6 +310,11 @@ public final class DefaultModelRepository implements ModelRepository {
         }
     }
 
+    private boolean supportsCompositeBuilds(TransientRequestAttributes transientRequestAttributes) {
+        // TODO (donat) replace it with 3.3
+        return targetGradleVersionIsEqualOrHigherThan("3.3-snapshot-1", transientRequestAttributes);
+    }
+
     private boolean targetGradleVersionIsEqualOrHigherThan(String refVersion, TransientRequestAttributes transientRequestAttributes) {
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
         GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
@@ -304,6 +333,15 @@ public final class DefaultModelRepository implements ModelRepository {
         // build the request
         ModelForAllProjectsBuildAction<T> buildAction = BuildActionFactory.getModelForAllProjects(model);
         BuildActionRequest<Map<String, T>> request = this.toolingClient.newBuildActionRequest(buildAction);
+        this.fixedRequestAttributes.apply(request);
+        transientRequestAttributes.apply(request);
+        return request;
+    }
+
+    private <T> BuildActionRequest<Collection<T>> createBuildActionRequestForCompositeModel(Class<T> model, TransientRequestAttributes transientRequestAttributes) {
+        // build the request
+        RootModelsForCompositeProjectBuildAction<T> buildAction = BuildActionFactory.getModelForCompositeProjects(model);
+        BuildActionRequest<Collection<T>> request = this.toolingClient.newBuildActionRequest(buildAction);
         this.fixedRequestAttributes.apply(request);
         transientRequestAttributes.apply(request);
         return request;

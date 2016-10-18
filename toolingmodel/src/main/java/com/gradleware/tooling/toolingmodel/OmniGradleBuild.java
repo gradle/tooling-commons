@@ -16,6 +16,10 @@
 
 package com.gradleware.tooling.toolingmodel;
 
+import com.gradleware.tooling.toolingutils.ImmutableCollection;
+
+import java.util.List;
+
 /**
  * Provides detailed information about the Gradle build.
  *
@@ -30,5 +34,15 @@ public interface OmniGradleBuild extends BuildScopedModel {
      * @return the root project
      */
     OmniGradleProject getRootProject();
+
+    /**
+     * Returns the included build roots from the composite.
+     * <p>
+     * If called on a non-composite project, the method returns an empty list.
+     *
+     * @return the included builds' root projects
+     */
+    @ImmutableCollection
+    List<OmniGradleProject> getIncludedRootProjects();
 
 }

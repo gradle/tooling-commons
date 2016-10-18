@@ -53,6 +53,18 @@ public final class BuildActionFactory {
     }
 
     /**
+     * Creates a new {@code RootModelsForCompositeProjectBuildAction} that fetches the given model for all projects of the composite build.
+     *
+     * @param modelType the model to fetch
+     * @param <T> the model type
+     * @return the build action
+     */
+    public static <T> RootModelsForCompositeProjectBuildAction<T> getModelForCompositeProjects(Class<T> modelType) {
+        Preconditions.checkNotNull(modelType);
+        return new RootModelsForCompositeProjectBuildAction<T>(modelType);
+    }
+
+    /**
      * Creates a new {@code GlobalModelBuildAction} that fetches the given global build model.
      *
      * @param modelType the model to fetch

@@ -35,6 +35,9 @@ abstract class ModelRepositorySpec extends ToolingModelToolingClientSpecificatio
     TestDirectoryProvider directoryProviderMultiProjectBuild = new TestDirectoryProvider("multi-project");
 
     @Rule
+    TestDirectoryProvider directoryProviderCompositeBuild = new TestDirectoryProvider("composite-project");
+
+    @Rule
     TestDirectoryProvider directoryProviderErroneousBuildStructure = new TestDirectoryProvider("erroneous-build-structure");
 
     @Rule
@@ -121,6 +124,24 @@ abstract class ModelRepositorySpec extends ToolingModelToolingClientSpecificatio
                 compile project(':api')
                 compile 'log4j:log4j:1.2.17'
             }
+        '''
+
+        directoryProviderCompositeBuild.createFile('settings.gradle') << '''
+            rootProject.name='root'
+            includeBuild 'included1'
+            includeBuild 'included2'
+        '''
+        directoryProviderCompositeBuild.createDir('included1', 'sub1')
+        directoryProviderCompositeBuild.createDir('included1', 'sub2')
+        directoryProviderCompositeBuild.createDir('included2', 'sub1')
+        directoryProviderCompositeBuild.createDir('included2', 'sub2')
+        directoryProviderCompositeBuild.createFile('included1', 'settings.gradle') << '''
+            rootProject.name = 'included1'
+            include 'sub1', 'sub2'
+        '''
+        directoryProviderCompositeBuild.createFile('included2', 'settings.gradle') << '''
+            rootProject.name = 'included2'
+            include 'sub1', 'sub2'
         '''
 
         // prepare a Gradle build that has an erroneous structure
