@@ -88,6 +88,32 @@ class GradleBuildStructureModelRepositoryTest extends ModelRepositorySpec {
         [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.2")
     }
 
+    def "can handle composite builds"(GradleDistribution distribution, Environment environment) {
+        given:
+        def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderCompositeBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+        def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
+        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+
+        when:
+        def gradleBuildStructure = repository.fetchGradleBuildStructure(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+
+        then:
+        gradleBuildStructure.rootProject.name == 'root'
+        if (higherOrEqual('3.3', distribution)) {
+            assert gradleBuildStructure.includedRootProjects.size() == 2
+            assert gradleBuildStructure.includedRootProjects[0].name == 'included1'
+            assert gradleBuildStructure.includedRootProjects[0].children*.name == ['sub1', 'sub2']
+            assert gradleBuildStructure.includedRootProjects[1].name == 'included2'
+            assert gradleBuildStructure.includedRootProjects[1].children*.name == ['sub1', 'sub2']
+        } else {
+            assert gradleBuildStructure.includedRootProjects.isEmpty()
+        }
+
+        where:
+        [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=3.1")
+    }
+
+
     def "when exception is thrown"(GradleDistribution distribution, Environment environment) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildStructure.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
