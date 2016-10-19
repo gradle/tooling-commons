@@ -22,6 +22,7 @@ import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
 import com.gradleware.tooling.toolingmodel.repository.internal.compatibility.ForwardCompatibilityClasspathEntry;
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
+import org.gradle.tooling.model.eclipse.HierarchicalEclipseProject;
 
 import java.io.File;
 import java.util.List;
@@ -33,19 +34,19 @@ import java.util.List;
  */
 public final class DefaultOmniEclipseProjectDependency extends AbstractOmniClasspathEntry implements OmniEclipseProjectDependency {
 
-    private final File targetProjectDir;
+    private final Optional<File> targetProjectDir;
     private final String path;
     private final boolean exported;
 
     private DefaultOmniEclipseProjectDependency(File targetProjectDir, String path, boolean exported, Optional<List<OmniClasspathAttribute>> attributes, Optional<List<OmniAccessRule>> accessRules) {
         super(attributes, accessRules);
-        this.targetProjectDir = targetProjectDir;
+        this.targetProjectDir = Optional.fromNullable(targetProjectDir);
         this.path = path;
         this.exported = exported;
     }
 
     @Override
-    public File getTargetProjectDir() {
+    public Optional<File> getTargetProjectDir() {
         return this.targetProjectDir;
     }
 
@@ -62,8 +63,10 @@ public final class DefaultOmniEclipseProjectDependency extends AbstractOmniClass
     @SuppressWarnings("deprecation")
     public static DefaultOmniEclipseProjectDependency from(EclipseProjectDependency projectDependency) {
         ForwardCompatibilityClasspathEntry compatibilityDependency = ForwardCompatibilityConverter.convert(projectDependency, ForwardCompatibilityClasspathEntry.class);
+        // TODO (donat) make targetProject Optional to express it's relation to composite builds
+        HierarchicalEclipseProject targetProject = projectDependency.getTargetProject();
         return new DefaultOmniEclipseProjectDependency(
-                projectDependency.getTargetProject().getProjectDirectory(),
+                targetProject == null ? null : targetProject.getProjectDirectory(),
                 projectDependency.getPath(),
                 getIsExported(projectDependency),
                 getClasspathAttributes(projectDependency),
