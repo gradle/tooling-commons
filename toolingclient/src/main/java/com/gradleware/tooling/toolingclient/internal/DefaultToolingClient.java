@@ -23,10 +23,10 @@ import com.gradleware.tooling.toolingclient.*;
 import org.gradle.internal.Factory;
 import org.gradle.tooling.*;
 import org.gradle.tooling.internal.consumer.ConnectorServices;
+import org.gradle.tooling.internal.consumer.DefaultGradleConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.util.Map;
 
 /**
@@ -188,7 +188,6 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         connector.forProjectDirectory(modelRequest.getProjectDir());
         connector.useGradleUserHomeDir(modelRequest.getGradleUserHomeDir());
         modelRequest.getGradleDistribution().apply(connector);
-        connector.useInstallation(new File("/Development/git/gradle/build/integ test")); // TODO (donat) delete this line!!!
         return connector.connect();
     }
 
