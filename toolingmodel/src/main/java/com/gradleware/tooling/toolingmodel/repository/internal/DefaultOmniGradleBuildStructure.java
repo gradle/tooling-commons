@@ -16,9 +16,13 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
+import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
 import org.gradle.tooling.model.gradle.GradleBuild;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Default implementation of the {@link OmniGradleBuildStructure} interface.
@@ -29,8 +33,11 @@ public final class DefaultOmniGradleBuildStructure implements OmniGradleBuildStr
 
     private final OmniGradleProjectStructure rootProject;
 
-    private DefaultOmniGradleBuildStructure(OmniGradleProjectStructure rootProject) {
+    private final ImmutableList<OmniGradleProjectStructure> includedRootProjects;
+
+    private DefaultOmniGradleBuildStructure(OmniGradleProjectStructure rootProject, List<OmniGradleProjectStructure> includedRootProjects) {
         this.rootProject = rootProject;
+        this.includedRootProjects = ImmutableList.copyOf(includedRootProjects);
     }
 
     @Override
@@ -38,8 +45,18 @@ public final class DefaultOmniGradleBuildStructure implements OmniGradleBuildStr
         return this.rootProject;
     }
 
+    @Override
+    public List<OmniGradleProjectStructure> getIncludedRootProjects() {
+        return includedRootProjects;
+    }
+
     public static DefaultOmniGradleBuildStructure from(GradleBuild gradleBuild) {
-        return new DefaultOmniGradleBuildStructure(DefaultOmniGradleProjectStructure.from(gradleBuild.getRootProject()));
+        DefaultOmniGradleProjectStructure root = DefaultOmniGradleProjectStructure.from(gradleBuild.getRootProject());
+        List<OmniGradleProjectStructure> includedRoots = new ArrayList<OmniGradleProjectStructure>();
+        for (GradleBuild included : gradleBuild.getIncludedBuilds()) {
+            includedRoots.add(DefaultOmniGradleProjectStructure.from(included.getRootProject()));
+        }
+        return new DefaultOmniGradleBuildStructure(root, includedRoots);
     }
 
 }
