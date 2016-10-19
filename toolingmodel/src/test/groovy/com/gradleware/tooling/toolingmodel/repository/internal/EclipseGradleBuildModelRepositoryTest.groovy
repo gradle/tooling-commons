@@ -748,11 +748,11 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
             assert eclipseProject.includedRootProjects[1].name == 'included2'
             assert eclipseProject.includedRootProjects[1].children*.name == ['sub1', 'sub2']
         } else {
-            //assert gradleBuild.includedRootProjects.isEmpty() // TODO (donat) uncomment once DefaultToolingClient doesn't use locally built Gradle distribution
+            assert eclipseProject.includedRootProjects.isEmpty()
         }
 
         where:
-        [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=3.1")
     }
 
 

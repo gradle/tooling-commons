@@ -158,11 +158,11 @@ class GradleBuildModelRepositoryTest extends ModelRepositorySpec {
             assert gradleBuild.includedRootProjects[1].name == 'included2'
             assert gradleBuild.includedRootProjects[1].children*.name == ['sub1', 'sub2']
         } else {
-            //assert gradleBuild.includedRootProjects.isEmpty() // TODO (donat) uncomment once DefaultToolingClient doesn't use locally built Gradle distribution
+            assert gradleBuild.includedRootProjects.isEmpty()
         }
 
         where:
-        [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=3.1")
     }
 
     def "when exception is thrown"(GradleDistribution distribution, Environment environment) {
