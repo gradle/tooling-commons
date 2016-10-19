@@ -63,7 +63,6 @@ public final class DefaultOmniEclipseProjectDependency extends AbstractOmniClass
     @SuppressWarnings("deprecation")
     public static DefaultOmniEclipseProjectDependency from(EclipseProjectDependency projectDependency) {
         ForwardCompatibilityClasspathEntry compatibilityDependency = ForwardCompatibilityConverter.convert(projectDependency, ForwardCompatibilityClasspathEntry.class);
-        // TODO (donat) make targetProject Optional to express it's relation to composite builds
         HierarchicalEclipseProject targetProject = projectDependency.getTargetProject();
         return new DefaultOmniEclipseProjectDependency(
                 targetProject == null ? null : targetProject.getProjectDirectory(),
