@@ -61,12 +61,6 @@ public final class ReleasedGradleVersions {
             public boolean apply(GradleVersion version) {
                 return !version.getVersion().contains("-milestone-");
             }
-        }).filter(new Predicate<GradleVersion>() {
-            @Override
-            public boolean apply(GradleVersion version) {
-                // TODO (donat) Gradle 3.1 removed the composite builder API. Delete this predicate once composite build models are again accessible
-                return version.compareTo(GradleVersion.version("3.0")) <= 0;
-            }
         }).toSet();
         return createFromGradleVersions(nonMilestoneReleases);
     }
