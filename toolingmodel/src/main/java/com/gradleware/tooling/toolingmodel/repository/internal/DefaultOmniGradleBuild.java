@@ -46,8 +46,17 @@ public final class DefaultOmniGradleBuild implements OmniGradleBuild {
         return this.rootProject;
     }
 
+    @Override
     public List<OmniGradleProject> getIncludedRootProjects() {
         return this.includedRootProjects;
+    }
+
+    @Override
+    public List<OmniGradleProject> getAllRootProjects() {
+        ImmutableList.Builder<OmniGradleProject> result = ImmutableList.builder();
+        result.add(this.rootProject);
+        result.addAll(this.includedRootProjects);
+        return result.build();
     }
 
     public static DefaultOmniGradleBuild from(GradleProject gradleRootProject) {

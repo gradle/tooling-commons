@@ -45,4 +45,12 @@ public interface OmniGradleBuild extends BuildScopedModel {
     @ImmutableCollection
     List<OmniGradleProject> getIncludedRootProjects();
 
+    /**
+     * Convenience method to get the root project and the included root projects in one collection.
+     *
+     * @return a list of all root projects
+     */
+    @ImmutableCollection
+    List<OmniGradleProject> getAllRootProjects();
+
 }
