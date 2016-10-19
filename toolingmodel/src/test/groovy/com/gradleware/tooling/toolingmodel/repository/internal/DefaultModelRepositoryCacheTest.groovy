@@ -22,15 +22,10 @@ import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.Path
-import com.gradleware.tooling.toolingmodel.repository.Environment
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
-import com.gradleware.tooling.toolingmodel.repository.ModelRepository
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
+import com.gradleware.tooling.toolingmodel.repository.*
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
 import org.junit.Rule
-import spock.lang.Ignore
 
 class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecification {
 
@@ -184,7 +179,6 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
     thirdLookUp.asMap()[Path.from(':')].taskSelectors.size() == fourthLookUp.asMap()[Path.from(':')].taskSelectors.size()
   }
 
-  @Ignore // TODO (donat) investigate why this test fails
   def "fetchBuildInvocations - fallback scenarios"() {
     given:
     def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, GradleDistribution.forVersion('2.2'), null, ImmutableList.of(), ImmutableList.of())

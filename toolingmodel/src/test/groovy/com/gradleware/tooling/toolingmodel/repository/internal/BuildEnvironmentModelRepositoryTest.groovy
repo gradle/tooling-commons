@@ -22,21 +22,15 @@ import com.google.common.eventbus.Subscribe
 import com.gradleware.tooling.spock.VerboseUnroll
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
-import com.gradleware.tooling.toolingmodel.repository.BuildEnvironmentUpdateEvent
-import com.gradleware.tooling.toolingmodel.repository.Environment
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
+import com.gradleware.tooling.toolingmodel.repository.*
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
-import spock.lang.Ignore
 
 import java.util.concurrent.atomic.AtomicReference
 
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
 class BuildEnvironmentModelRepositoryTest extends ModelRepositorySpec {
 
-    @Ignore // TODO (donat) investigate why the test fails
     def "send event after cache update"(GradleDistribution distribution, Environment environment) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
