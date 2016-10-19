@@ -188,6 +188,11 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         connector.forProjectDirectory(modelRequest.getProjectDir());
         connector.useGradleUserHomeDir(modelRequest.getGradleUserHomeDir());
         modelRequest.getGradleDistribution().apply(connector);
+        // TODO (donat) Delete the if branch once the TAPI is fixed
+        if (connector instanceof DefaultGradleConnector) {
+            // The tooling API is not functional in embedded model if target Gradle version != current.
+            ((DefaultGradleConnector)connector).embedded(false);
+        }
         return connector.connect();
     }
 
