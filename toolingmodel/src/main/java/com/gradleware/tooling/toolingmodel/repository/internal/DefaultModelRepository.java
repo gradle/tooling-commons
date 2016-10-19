@@ -337,8 +337,7 @@ public final class DefaultModelRepository implements ModelRepository {
     }
 
     private boolean supportsCompositeBuilds(TransientRequestAttributes transientRequestAttributes) {
-        // TODO (donat) replace it with 3.3
-        return targetGradleVersionIsEqualOrHigherThan("3.3-snapshot-1", transientRequestAttributes);
+        return targetGradleVersionIsEqualOrHigherThan("3.3", transientRequestAttributes);
     }
 
     private boolean targetGradleVersionIsEqualOrHigherThan(String refVersion, TransientRequestAttributes transientRequestAttributes) {
