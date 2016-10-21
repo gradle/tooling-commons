@@ -237,7 +237,7 @@ public final class DefaultModelRepository implements ModelRepository {
                 }
 
             };
-            return executeRequest(request, successHandler, fetchStrategy, OmniGradleBuild.class, converter);
+            return executeRequest(request, successHandler, fetchStrategy, OmniEclipseGradleBuild.class, converter);
         }
     }
 
