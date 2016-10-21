@@ -47,7 +47,9 @@ abstract class ToolingModelToolingClientSpecification extends Specification {
         def connector = GradleConnector.newConnector()
 
         // connect to Gradle either through a separate daemon process or embedded in the same JVM
-        def embedded = Boolean.valueOf(System.getProperty(EMBEDDED_MODE_SYSTEM_PROPERTY_NAME, Boolean.TRUE.toString()))
+        // TODO (donat) Restore system property usage below once TAPI is fixed: https://github.com/gradle/gradle/blob/93006765be8206c4a380f8230f9e93933a0f3b47/subprojects/tooling-api/src/testFixtures/groovy/org/gradle/integtests/tooling/fixture/ToolingApi.groovy#L176
+        // def embedded = Boolean.valueOf(System.getProperty(EMBEDDED_MODE_SYSTEM_PROPERTY_NAME, Boolean.TRUE.toString()))
+        def embedded = false
         ((DefaultGradleConnector) connector).embedded(embedded)
         LOG.debug("Connection to target Gradle in '{}' mode ", (embedded ? 'embedded' : 'daemon'))
 

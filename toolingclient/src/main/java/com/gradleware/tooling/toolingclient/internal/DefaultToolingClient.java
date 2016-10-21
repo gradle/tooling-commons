@@ -23,7 +23,6 @@ import com.gradleware.tooling.toolingclient.*;
 import org.gradle.internal.Factory;
 import org.gradle.tooling.*;
 import org.gradle.tooling.internal.consumer.ConnectorServices;
-import org.gradle.tooling.internal.consumer.DefaultGradleConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -188,11 +187,6 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
         connector.forProjectDirectory(modelRequest.getProjectDir());
         connector.useGradleUserHomeDir(modelRequest.getGradleUserHomeDir());
         modelRequest.getGradleDistribution().apply(connector);
-        // TODO (donat) Delete the if branch once the TAPI is fixed
-        if (connector instanceof DefaultGradleConnector) {
-            // The tooling API is not functional in embedded model if target Gradle version != current.
-            ((DefaultGradleConnector)connector).embedded(false);
-        }
         return connector.connect();
     }
 
