@@ -16,15 +16,13 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableSet;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Collection;
+import java.util.Set;
 
 /**
  * Default implementation of the {@link OmniEclipseGradleBuild} interface.
@@ -33,47 +31,31 @@ import java.util.List;
  */
 public final class DefaultOmniEclipseGradleBuild implements OmniEclipseGradleBuild {
 
-    private final OmniEclipseProject rootEclipseProject;
+    private final ImmutableSet<OmniEclipseProject> rootProjects;
 
-    private final ImmutableList<OmniEclipseProject> includedRootEclipseProjects;
-
-    private DefaultOmniEclipseGradleBuild(OmniEclipseProject rootEclipseProject, List<OmniEclipseProject> includedRootEclipseProjects) {
-        this.rootEclipseProject = rootEclipseProject;
-        this.includedRootEclipseProjects = ImmutableList.copyOf(includedRootEclipseProjects);
+    private DefaultOmniEclipseGradleBuild(Set<OmniEclipseProject> rootProjects) {
+        this.rootProjects = ImmutableSet.copyOf(rootProjects);
     }
 
     @Override
-    public OmniEclipseProject getRootEclipseProject() {
-        return this.rootEclipseProject;
+    public Set<OmniEclipseProject> getRootProjects() {
+        return this.rootProjects;
     }
 
     @Override
-    public List<OmniEclipseProject> getIncludedRootProjects() {
-        return this.includedRootEclipseProjects;
-    }
-
-    @Override
-    public List<OmniEclipseProject> getAllRootProjects() {
-        ImmutableList.Builder<OmniEclipseProject> result = ImmutableList.builder();
-        result.add(this.rootEclipseProject);
-        result.addAll(this.includedRootEclipseProjects);
+    public Set<OmniEclipseProject> getAllProjects() {
+        ImmutableSet.Builder<OmniEclipseProject> result = ImmutableSet.builder();
+        for (OmniEclipseProject rootProject : this.rootProjects) {
+            result.addAll(rootProject.getAll());
+        }
         return result.build();
     }
 
-    public static DefaultOmniEclipseGradleBuild from(EclipseProject eclipseRootProject) {
-        Preconditions.checkState(eclipseRootProject.getParent() == null, "Provided Eclipse project is not the root project.");
-        return new DefaultOmniEclipseGradleBuild(DefaultOmniEclipseProject.from(eclipseRootProject), Collections.<OmniEclipseProject>emptyList());
-    }
-
-    public static DefaultOmniEclipseGradleBuild from(EclipseProject eclipseRootProject, List<EclipseProject> includedRootProjects) {
-        Preconditions.checkState(eclipseRootProject.getParent() == null, "Provided Eclipse project is not the root project.");
-        DefaultOmniEclipseProject root = DefaultOmniEclipseProject.from(eclipseRootProject);
-        List<OmniEclipseProject> included = Lists.newArrayList();
-        for (EclipseProject includedRootProject : includedRootProjects) {
-            Preconditions.checkState(includedRootProject.getParent() == null, "Included Gradle project is not a root project.");
-            included.add(DefaultOmniEclipseProject.from(includedRootProject));
+    public static DefaultOmniEclipseGradleBuild from(Collection<EclipseProject> rootProjects) {
+        ImmutableSet.Builder<OmniEclipseProject> roots = ImmutableSet.builder();
+        for (EclipseProject rootProject : rootProjects) {
+            roots.add(DefaultOmniEclipseProject.from(rootProject));
         }
-        return new DefaultOmniEclipseGradleBuild(root, included);
+        return new DefaultOmniEclipseGradleBuild(roots.build());
     }
-
 }

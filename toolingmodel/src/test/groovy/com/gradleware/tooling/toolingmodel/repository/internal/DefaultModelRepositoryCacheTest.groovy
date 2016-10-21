@@ -21,7 +21,6 @@ import com.google.common.eventbus.EventBus
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
 import com.gradleware.tooling.toolingclient.GradleDistribution
-import com.gradleware.tooling.toolingmodel.Path
 import com.gradleware.tooling.toolingmodel.repository.*
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
@@ -97,8 +96,8 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
     then:
     thirdLookUp != null
     !thirdLookUp.is(fourthLookUp)
-    thirdLookUp.rootProject.path == fourthLookUp.rootProject.path
-    thirdLookUp.rootProject.all.size() == fourthLookUp.rootProject.all.size()
+    thirdLookUp.rootProjects[0].path == fourthLookUp.rootProjects[0].path
+    thirdLookUp.rootProjects[0].all.size() == fourthLookUp.rootProjects[0].all.size()
   }
 
   def "fetchGradleBuild"() {
@@ -123,8 +122,8 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
     then:
     thirdLookUp != null
     !thirdLookUp.is(fourthLookUp)
-    thirdLookUp.rootProject.path == fourthLookUp.rootProject.path
-    thirdLookUp.rootProject.all.size() == fourthLookUp.rootProject.all.size()
+    thirdLookUp.rootProjects[0].path == fourthLookUp.rootProjects[0].path
+    thirdLookUp.rootProjects[0].all.size() == fourthLookUp.rootProjects[0].all.size()
   }
 
   def "fetchEclipseGradleBuild"() {
@@ -149,8 +148,8 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
     then:
     thirdLookUp != null
     !thirdLookUp.is(fourthLookUp)
-    thirdLookUp.rootEclipseProject.gradleProject.path == fourthLookUp.rootEclipseProject.gradleProject.path
-    thirdLookUp.rootEclipseProject.gradleProject.all.size() == fourthLookUp.rootEclipseProject.gradleProject.all.size()
+    thirdLookUp.rootProjects[0].gradleProject.path == fourthLookUp.rootProjects[0].gradleProject.path
+    thirdLookUp.rootProjects[0].gradleProject.all.size() == fourthLookUp.rootProjects[0].gradleProject.all.size()
   }
 
 }

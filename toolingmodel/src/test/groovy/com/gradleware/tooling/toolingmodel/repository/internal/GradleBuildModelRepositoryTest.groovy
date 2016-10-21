@@ -58,39 +58,39 @@ class GradleBuildModelRepositoryTest extends ModelRepositorySpec {
 
         then:
         gradleBuild != null
-        gradleBuild.rootProject != null
-        gradleBuild.rootProject.name == 'my root project'
-        gradleBuild.rootProject.description == 'a sample root project'
-        gradleBuild.rootProject.path == Path.from(':')
-        gradleBuild.rootProject.projectIdentifier
+        gradleBuild.rootProjects[0] != null
+        gradleBuild.rootProjects[0].name == 'my root project'
+        gradleBuild.rootProjects[0].description == 'a sample root project'
+        gradleBuild.rootProjects[0].path == Path.from(':')
+        gradleBuild.rootProjects[0].projectIdentifier
         if (higherOrEqual('2.4', distribution)) {
-            assert gradleBuild.rootProject.projectDirectory.get().absolutePath == directoryProvider.testDirectory.absolutePath
+            assert gradleBuild.rootProjects[0].projectDirectory.get().absolutePath == directoryProvider.testDirectory.absolutePath
         } else {
-            assert !gradleBuild.rootProject.projectDirectory.isPresent()
+            assert !gradleBuild.rootProjects[0].projectDirectory.isPresent()
         }
         if (higherOrEqual('2.0', distribution)) {
-            assert gradleBuild.rootProject.buildDirectory.get().absolutePath == directoryProvider.file('build').absolutePath
+            assert gradleBuild.rootProjects[0].buildDirectory.get().absolutePath == directoryProvider.file('build').absolutePath
         } else {
-            assert !gradleBuild.rootProject.buildDirectory.isPresent()
+            assert !gradleBuild.rootProjects[0].buildDirectory.isPresent()
         }
         if (higherOrEqual('1.8', distribution)) {
-            assert gradleBuild.rootProject.buildScript.get().sourceFile.absolutePath == directoryProvider.file('build.gradle').absolutePath
+            assert gradleBuild.rootProjects[0].buildScript.get().sourceFile.absolutePath == directoryProvider.file('build.gradle').absolutePath
         } else {
-            assert !gradleBuild.rootProject.buildScript.isPresent()
+            assert !gradleBuild.rootProjects[0].buildScript.isPresent()
         }
-        gradleBuild.rootProject.projectTasks.findAll { !ImplicitTasks.ALL.contains(it.name) }.size() == 1
-        gradleBuild.rootProject.root == gradleBuild.rootProject
-        gradleBuild.rootProject.parent == null
-        gradleBuild.rootProject.children.size() == 2
-        gradleBuild.rootProject.children*.name == ['sub1', 'sub2']
-        gradleBuild.rootProject.children*.description == ['sub project 1', 'sub project 2']
-        gradleBuild.rootProject.children*.path.path == [':sub1', ':sub2']
-        gradleBuild.rootProject.children*.root == [gradleBuild.rootProject, gradleBuild.rootProject]
-        gradleBuild.rootProject.children*.parent == [gradleBuild.rootProject, gradleBuild.rootProject]
-        gradleBuild.rootProject.all.size() == 4
-        gradleBuild.rootProject.all*.name == ['my root project', 'sub1', 'sub2', 'subSub1']
+        gradleBuild.rootProjects[0].projectTasks.findAll { !ImplicitTasks.ALL.contains(it.name) }.size() == 1
+        gradleBuild.rootProjects[0].root == gradleBuild.rootProjects[0]
+        gradleBuild.rootProjects[0].parent == null
+        gradleBuild.rootProjects[0].children.size() == 2
+        gradleBuild.rootProjects[0].children*.name == ['sub1', 'sub2']
+        gradleBuild.rootProjects[0].children*.description == ['sub project 1', 'sub project 2']
+        gradleBuild.rootProjects[0].children*.path.path == [':sub1', ':sub2']
+        gradleBuild.rootProjects[0].children*.root == [gradleBuild.rootProjects[0], gradleBuild.rootProjects[0]]
+        gradleBuild.rootProjects[0].children*.parent == [gradleBuild.rootProjects[0], gradleBuild.rootProjects[0]]
+        gradleBuild.rootProjects[0].all.size() == 4
+        gradleBuild.rootProjects[0].all*.name == ['my root project', 'sub1', 'sub2', 'subSub1']
 
-        def projectSub1 = gradleBuild.rootProject.tryFind({ OmniGradleProject input ->
+        def projectSub1 = gradleBuild.rootProjects[0].tryFind({ OmniGradleProject input ->
             input.path.path == ':sub1'
         } as Spec).get()
         projectSub1.projectTasks.findAll { !ImplicitTasks.ALL.contains(it.name) }.size() == 2
@@ -117,7 +117,7 @@ class GradleBuildModelRepositoryTest extends ModelRepositorySpec {
             assert !mySecondTaskOfSub1.group.present
         }
 
-        def projectSub2 = gradleBuild.rootProject.tryFind({ OmniGradleProject input ->
+        def projectSub2 = gradleBuild.rootProjects[0].tryFind({ OmniGradleProject input ->
             input.path.path == ':sub2'
         } as Spec).get()
         projectSub2.taskSelectors.findAll { !ImplicitTasks.ALL.contains(it.name) }.size() == 5
@@ -150,15 +150,19 @@ class GradleBuildModelRepositoryTest extends ModelRepositorySpec {
         def gradleBuild = repository.fetchGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
         then:
-        gradleBuild.rootProject.name == 'root'
+        gradleBuild.rootProjects[0].name == 'root'
         if (higherOrEqual('3.3', distribution)) {
-            assert gradleBuild.includedRootProjects.size() == 2
-            assert gradleBuild.includedRootProjects[0].name == 'included1'
-            assert gradleBuild.includedRootProjects[0].children*.name == ['sub1', 'sub2']
-            assert gradleBuild.includedRootProjects[1].name == 'included2'
-            assert gradleBuild.includedRootProjects[1].children*.name == ['sub1', 'sub2']
+            assert gradleBuild.rootProjects.size() == 3
+            assert gradleBuild.rootProjects[0].name == 'root'
+            assert gradleBuild.rootProjects[0].children.isEmpty()
+            assert gradleBuild.rootProjects[1].name == 'included1'
+            assert gradleBuild.rootProjects[1].children*.name == ['sub1', 'sub2']
+            assert gradleBuild.rootProjects[2].name == 'included2'
+            assert gradleBuild.rootProjects[2].children*.name == ['sub1', 'sub2']
         } else {
-            assert gradleBuild.includedRootProjects.isEmpty()
+            assert gradleBuild.rootProjects.size() == 1
+            assert gradleBuild.rootProjects[0].name == 'root'
+            assert gradleBuild.rootProjects[0].children.isEmpty()
         }
 
         where:

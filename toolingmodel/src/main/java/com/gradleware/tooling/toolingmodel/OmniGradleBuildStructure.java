@@ -18,7 +18,7 @@ package com.gradleware.tooling.toolingmodel;
 
 import com.gradleware.tooling.toolingutils.ImmutableCollection;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Provides information about the Gradle build structure.
@@ -29,27 +29,21 @@ import java.util.List;
 public interface OmniGradleBuildStructure extends BuildScopedModel {
 
     /**
-     * Returns the root project of the build.
+     * Returns the root project of the build and all project roots from the included builds.
      *
      * @return the root project
      */
-    OmniGradleProjectStructure getRootProject();
+    @ImmutableCollection
+    Set<OmniGradleProjectStructure> getRootProjects();
+
 
     /**
-     * Returns the root projects of the included builds.
-     * <p>
-     * If called on a non-composite project, the method returns an empty list.
+     * Returns all projects from the build including the included builds.
      *
-     * @return the included builds' root projects
+     * @return all projects
      */
     @ImmutableCollection
-    List<OmniGradleProjectStructure> getIncludedRootProjects();
+    Set<OmniGradleProjectStructure> getAllProjects();
 
-    /**
-     * Convenience method to get the root project and the included root projects in one collection.
-     *
-     * @return a list of all root projects
-     */
-    @ImmutableCollection
-    List<OmniGradleProjectStructure> getAllRootProjects();
+
 }

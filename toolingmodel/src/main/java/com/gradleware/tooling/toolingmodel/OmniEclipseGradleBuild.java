@@ -18,7 +18,7 @@ package com.gradleware.tooling.toolingmodel;
 
 import com.gradleware.tooling.toolingutils.ImmutableCollection;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Provides detailed information about the Gradle build, suited for consumption in Eclipse.
@@ -29,27 +29,18 @@ import java.util.List;
 public interface OmniEclipseGradleBuild extends BuildScopedModel {
 
     /**
-     * Returns the root Eclipse project of the build.
+     * Returns the root project of the build and all project roots from the included builds.
      *
-     * @return the root Eclipse project
-     */
-    OmniEclipseProject getRootEclipseProject();
-
-    /**
-     * Returns the included root Eclipse projects from the composite build.
-     * <p>
-     * If called on a non-composite project, the method returns an empty list.
-     *
-     * @return the included builds' Eclipse models
+     * @return the root project
      */
     @ImmutableCollection
-    List<OmniEclipseProject> getIncludedRootProjects();
+    Set<OmniEclipseProject> getRootProjects();
 
     /**
-     * Convenience method to get the root project and the included root projects in one collection.
+     * Returns all projects from the build including the included builds.
      *
-     * @return a list of all root projects
+     * @return all projects
      */
     @ImmutableCollection
-    List<OmniEclipseProject> getAllRootProjects();
+    Set<OmniEclipseProject> getAllProjects();
 }

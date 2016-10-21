@@ -20,7 +20,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.gradleware.tooling.toolingclient.*;
@@ -38,7 +37,7 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.gradle.GradleBuild;
 import org.gradle.util.GradleVersion;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -173,7 +172,7 @@ public final class DefaultModelRepository implements ModelRepository {
 
                 @Override
                 public OmniGradleBuild apply(GradleProject gradleProject) {
-                    return DefaultOmniGradleBuild.from(gradleProject);
+                    return DefaultOmniGradleBuild.from(Arrays.asList(gradleProject));
                 }
 
             };
@@ -190,12 +189,7 @@ public final class DefaultModelRepository implements ModelRepository {
 
                 @Override
                 public OmniGradleBuild apply(Collection<GradleProject> gradleProjects) {
-                    if (gradleProjects.isEmpty()) {
-                        throw new RuntimeException("At least one element is expected in the result");
-                    }
-                    ArrayList<GradleProject> includedProjects = Lists.newArrayList(gradleProjects);
-                    GradleProject rootProject = includedProjects.remove(0); // TODO (donat) find a better way to separate root project and included projects
-                    return DefaultOmniGradleBuild.from(rootProject, includedProjects);
+                    return DefaultOmniGradleBuild.from(gradleProjects);
                 }
 
             };
@@ -223,7 +217,7 @@ public final class DefaultModelRepository implements ModelRepository {
 
                 @Override
                 public OmniEclipseGradleBuild apply(EclipseProject eclipseProject) {
-                    return DefaultOmniEclipseGradleBuild.from(eclipseProject);
+                    return DefaultOmniEclipseGradleBuild.from(Arrays.asList(eclipseProject));
                 }
             };
         return executeRequest(request, successHandler, fetchStrategy, OmniEclipseGradleBuild.class, converter);
@@ -239,12 +233,7 @@ public final class DefaultModelRepository implements ModelRepository {
 
                 @Override
                 public OmniEclipseGradleBuild apply(Collection<EclipseProject> eclipseProjects) {
-                    if (eclipseProjects.isEmpty()) {
-                        throw new RuntimeException("At least one element is expected in the result");
-                    }
-                    ArrayList<EclipseProject> includedProjects = Lists.newArrayList(eclipseProjects);
-                    EclipseProject rootProject = includedProjects.remove(0); // TODO (donat) find a better way to separate root project and included projects
-                    return DefaultOmniEclipseGradleBuild.from(rootProject, includedProjects);
+                    return DefaultOmniEclipseGradleBuild.from(eclipseProjects);
                 }
 
             };

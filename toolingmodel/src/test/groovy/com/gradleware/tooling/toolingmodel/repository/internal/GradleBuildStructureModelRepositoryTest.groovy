@@ -56,26 +56,26 @@ class GradleBuildStructureModelRepositoryTest extends ModelRepositorySpec {
 
         then:
         gradleBuildStructure != null
-        gradleBuildStructure.rootProject != null
-        gradleBuildStructure.rootProject.name == 'my root project'
-        gradleBuildStructure.rootProject.path == Path.from(':')
+        gradleBuildStructure.rootProjects[0] != null
+        gradleBuildStructure.rootProjects[0].name == 'my root project'
+        gradleBuildStructure.rootProjects[0].path == Path.from(':')
         if (higherOrEqual('1.8', distribution)) {
-            assert gradleBuildStructure.rootProject.projectDirectory.get().absolutePath == directoryProvider.testDirectory.absolutePath
+            assert gradleBuildStructure.rootProjects[0].projectDirectory.get().absolutePath == directoryProvider.testDirectory.absolutePath
         } else {
-            assert !gradleBuildStructure.rootProject.projectDirectory.isPresent()
+            assert !gradleBuildStructure.rootProjects[0].projectDirectory.isPresent()
         }
-        gradleBuildStructure.rootProject.root == gradleBuildStructure.rootProject
-        gradleBuildStructure.rootProject.parent == null
-        gradleBuildStructure.rootProject.children.size() == 2
-        gradleBuildStructure.rootProject.children*.name == ['sub1', 'sub2']
-        gradleBuildStructure.rootProject.children*.path.path == [':sub1', ':sub2']
-        gradleBuildStructure.rootProject.children*.projectDirectory.collect {
+        gradleBuildStructure.rootProjects[0].root == gradleBuildStructure.rootProjects[0]
+        gradleBuildStructure.rootProjects[0].parent == null
+        gradleBuildStructure.rootProjects[0].children.size() == 2
+        gradleBuildStructure.rootProjects[0].children*.name == ['sub1', 'sub2']
+        gradleBuildStructure.rootProjects[0].children*.path.path == [':sub1', ':sub2']
+        gradleBuildStructure.rootProjects[0].children*.projectDirectory.collect {
             it.present ? it.get().absolutePath : null
         } == (higherOrEqual('1.8', distribution) ? ['sub1', 'sub2'].collect { new File(directoryProvider.testDirectory, it).absolutePath } : [null, null])
-        gradleBuildStructure.rootProject.children*.root == [gradleBuildStructure.rootProject, gradleBuildStructure.rootProject]
-        gradleBuildStructure.rootProject.children*.parent == [gradleBuildStructure.rootProject, gradleBuildStructure.rootProject]
-        gradleBuildStructure.rootProject.all.size() == 4
-        gradleBuildStructure.rootProject.all*.name == ['my root project', 'sub1', 'sub2', 'subSub1']
+        gradleBuildStructure.rootProjects[0].children*.root == [gradleBuildStructure.rootProjects[0], gradleBuildStructure.rootProjects[0]]
+        gradleBuildStructure.rootProjects[0].children*.parent == [gradleBuildStructure.rootProjects[0], gradleBuildStructure.rootProjects[0]]
+        gradleBuildStructure.rootProjects[0].all.size() == 4
+        gradleBuildStructure.rootProjects[0].all*.name == ['my root project', 'sub1', 'sub2', 'subSub1']
 
         def event = publishedEvent.get()
         event != null
@@ -98,15 +98,18 @@ class GradleBuildStructureModelRepositoryTest extends ModelRepositorySpec {
         def gradleBuildStructure = repository.fetchGradleBuildStructure(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
         then:
-        gradleBuildStructure.rootProject.name == 'root'
+        gradleBuildStructure.rootProjects[0].name == 'root'
         if (higherOrEqual('3.3', distribution)) {
-            assert gradleBuildStructure.includedRootProjects.size() == 2
-            assert gradleBuildStructure.includedRootProjects[0].name == 'included1'
-            assert gradleBuildStructure.includedRootProjects[0].children*.name == ['sub1', 'sub2']
-            assert gradleBuildStructure.includedRootProjects[1].name == 'included2'
-            assert gradleBuildStructure.includedRootProjects[1].children*.name == ['sub1', 'sub2']
+            assert gradleBuildStructure.rootProjects.size() == 3
+            assert gradleBuildStructure.rootProjects[0].name == 'root'
+            assert gradleBuildStructure.rootProjects[0].children.isEmpty()
+            assert gradleBuildStructure.rootProjects[1].name == 'included1'
+            assert gradleBuildStructure.rootProjects[1].children*.name == ['sub1', 'sub2']
+            assert gradleBuildStructure.rootProjects[2].name == 'included2'
+            assert gradleBuildStructure.rootProjects[2].children*.name == ['sub1', 'sub2']
         } else {
-            assert gradleBuildStructure.includedRootProjects.isEmpty()
+            assert gradleBuildStructure.rootProjects.size() == 1
+            assert gradleBuildStructure.rootProjects[0].name == 'root'
         }
 
         where:

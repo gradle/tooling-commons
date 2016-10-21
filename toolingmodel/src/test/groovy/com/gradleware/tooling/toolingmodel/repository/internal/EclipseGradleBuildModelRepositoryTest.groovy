@@ -740,15 +740,18 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         def eclipseProject = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
         then:
-        eclipseProject.rootEclipseProject.name == 'root'
+        eclipseProject.rootProjects[0].name == 'root'
         if (higherOrEqual('3.3', distribution)) {
-            assert eclipseProject.includedRootProjects.size() == 2
-            assert eclipseProject.includedRootProjects[0].name == 'included1'
-            assert eclipseProject.includedRootProjects[0].children*.name == ['sub1', 'sub2']
-            assert eclipseProject.includedRootProjects[1].name == 'included2'
-            assert eclipseProject.includedRootProjects[1].children*.name == ['sub1', 'sub2']
+            assert eclipseProject.rootProjects.size() == 3
+            assert eclipseProject.rootProjects[0].name == 'root'
+            assert eclipseProject.rootProjects[0].children.isEmpty()
+            assert eclipseProject.rootProjects[1].name == 'included1'
+            assert eclipseProject.rootProjects[1].children*.name == ['sub1', 'sub2']
+            assert eclipseProject.rootProjects[2].name == 'included2'
+            assert eclipseProject.rootProjects[2].children*.name == ['sub1', 'sub2']
         } else {
-            assert eclipseProject.includedRootProjects.isEmpty()
+            assert eclipseProject.rootProjects[0].name == 'root'
+            assert eclipseProject.rootProjects[0].children.isEmpty()
         }
 
         where:
@@ -786,7 +789,7 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
         repository.register(listener)
         OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-        return eclipseGradleBuild.rootEclipseProject
+        return eclipseGradleBuild.rootProjects[0]
     }
 
     private static ImmutableList<List<Object>> fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(String versionPattern) {
