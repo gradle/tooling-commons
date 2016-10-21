@@ -24,22 +24,22 @@ import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.gradleware.tooling.toolingclient.*;
-import com.gradleware.tooling.toolingmodel.*;
+import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
+import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
+import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
+import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 import com.gradleware.tooling.toolingmodel.buildaction.BuildActionFactory;
-import com.gradleware.tooling.toolingmodel.buildaction.ModelForAllProjectsBuildAction;
 import com.gradleware.tooling.toolingmodel.buildaction.RootModelsForCompositeProjectBuildAction;
 import com.gradleware.tooling.toolingmodel.repository.*;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
-import org.gradle.tooling.model.gradle.BuildInvocations;
 import org.gradle.tooling.model.gradle.GradleBuild;
 import org.gradle.util.GradleVersion;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -250,90 +250,6 @@ public final class DefaultModelRepository implements ModelRepository {
             };
             return executeRequest(request, successHandler, fetchStrategy, OmniGradleBuild.class, converter);
         }
-
-    }
-
-    /*
-     * natively supported by all Gradle versions >= 1.12, artificially constructable from a GradleProject model for all Gradle versions >= 1.0
-     * native support requires BuildActions which are available in standalone environments for Gradle versions >= 1.8 and in Eclipse environments for Gradle versions >= 2.3
-     */
-    @Override
-    public OmniBuildInvocationsContainer fetchBuildInvocations(final TransientRequestAttributes transientRequestAttributes, final FetchStrategy fetchStrategy) {
-        Preconditions.checkNotNull(transientRequestAttributes);
-        Preconditions.checkNotNull(fetchStrategy);
-
-        // natively supported by all Gradle versions >= 1.12, if BuildActions supported in the running environment
-        if (!supportsBuildInvocations(transientRequestAttributes) || !supportsBuildActions(transientRequestAttributes)) {
-            Supplier<OmniBuildInvocationsContainer> operation = new Supplier<OmniBuildInvocationsContainer>() {
-                @Override
-                public OmniBuildInvocationsContainer get() {
-                    return deriveBuildInvocationsFromOtherModel(transientRequestAttributes, fetchStrategy);
-                }
-            };
-            Consumer<OmniBuildInvocationsContainer> successHandler = new Consumer<OmniBuildInvocationsContainer>() {
-                @Override
-                public void accept(OmniBuildInvocationsContainer result) {
-                    DefaultModelRepository.this.eventBus.post(new BuildInvocationsUpdateEvent(result));
-                }
-            };
-            Converter<OmniBuildInvocationsContainer, OmniBuildInvocationsContainer> converter = Converter.identity();
-            return executeRequest(operation, successHandler, fetchStrategy, OmniBuildInvocationsContainer.class, converter);
-        }
-
-        BuildActionRequest<Map<String, BuildInvocations>> request = createBuildActionRequestForProjectModel(BuildInvocations.class, transientRequestAttributes);
-        Consumer<OmniBuildInvocationsContainer> successHandler = new Consumer<OmniBuildInvocationsContainer>() {
-            @Override
-            public void accept(OmniBuildInvocationsContainer result) {
-                DefaultModelRepository.this.eventBus.post(new BuildInvocationsUpdateEvent(result));
-            }
-        };
-        Converter<Map<String, BuildInvocations>, OmniBuildInvocationsContainer> converter = new BaseConverter<Map<String, BuildInvocations>, OmniBuildInvocationsContainer>() {
-
-            @Override
-            public OmniBuildInvocationsContainer apply(Map<String, BuildInvocations> buildInvocations) {
-                return DefaultOmniBuildInvocationsContainer.from(buildInvocations);
-            }
-
-        };
-        return executeRequest(request, successHandler, fetchStrategy, OmniBuildInvocationsContainer.class, converter);
-    }
-
-    private OmniBuildInvocationsContainer deriveBuildInvocationsFromOtherModel(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
-        // for fetch strategy FORCE_RELOAD, we re-fetch the GradleBuild model and derive the build invocations from it
-        if (fetchStrategy == FetchStrategy.FORCE_RELOAD) {
-            OmniGradleBuild gradleBuild = fetchGradleBuild(transientRequestAttributes, FetchStrategy.FORCE_RELOAD);
-            return DefaultOmniBuildInvocationsContainer.from(gradleBuild.getRootProject());
-        }
-
-        // for the fetch strategies other than FORCE_RELOAD, we first check if there is a model already available from which we can derive the build invocations
-        OmniGradleBuild gradleBuild = fetchGradleBuild(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY);
-        if (gradleBuild != null) {
-            return DefaultOmniBuildInvocationsContainer.from(gradleBuild.getRootProject());
-        } else {
-            OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY);
-            if (eclipseGradleBuild != null) {
-                return DefaultOmniBuildInvocationsContainer.from(eclipseGradleBuild.getRootEclipseProject().getGradleProject());
-            }
-        }
-
-        // for fetch strategy LOAD_IF_NOT_CACHED, fetch the GradleBuild model and derive the build invocations from it
-        gradleBuild = fetchGradleBuild(transientRequestAttributes, fetchStrategy);
-        return DefaultOmniBuildInvocationsContainer.from(gradleBuild.getRootProject());
-    }
-
-    private boolean supportsBuildInvocations(TransientRequestAttributes transientRequestAttributes) {
-        return targetGradleVersionIsEqualOrHigherThan("1.12", transientRequestAttributes);
-    }
-
-    private boolean supportsBuildActions(TransientRequestAttributes transientRequestAttributes) {
-        if (this.environment == Environment.ECLIPSE) {
-            // in an Eclipse/OSGi environment, the Tooling API supports BuildActions only in Gradle versions >= 2.3
-            return targetGradleVersionIsEqualOrHigherThan("2.3", transientRequestAttributes);
-
-        } else {
-            // in all other environments, BuildActions are supported as of Gradle version >= 1.8
-            return targetGradleVersionIsEqualOrHigherThan("1.8", transientRequestAttributes);
-        }
     }
 
     private boolean supportsCompositeBuilds(TransientRequestAttributes transientRequestAttributes) {
@@ -349,15 +265,6 @@ public final class DefaultModelRepository implements ModelRepository {
     private <T> ModelRequest<T> createModelRequestForBuildModel(Class<T> model, TransientRequestAttributes transientRequestAttributes) {
         // build the request
         ModelRequest<T> request = this.toolingClient.newModelRequest(model);
-        this.fixedRequestAttributes.apply(request);
-        transientRequestAttributes.apply(request);
-        return request;
-    }
-
-    private <T> BuildActionRequest<Map<String, T>> createBuildActionRequestForProjectModel(Class<T> model, TransientRequestAttributes transientRequestAttributes) {
-        // build the request
-        ModelForAllProjectsBuildAction<T> buildAction = BuildActionFactory.getModelForAllProjects(model);
-        BuildActionRequest<Map<String, T>> request = this.toolingClient.newBuildActionRequest(buildAction);
         this.fixedRequestAttributes.apply(request);
         transientRequestAttributes.apply(request);
         return request;

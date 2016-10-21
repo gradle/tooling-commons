@@ -76,13 +76,4 @@ public interface ModelRepository {
      * @return the eclipse project, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
      */
     OmniEclipseGradleBuild fetchEclipseGradleBuild(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
-
-    /**
-     * Fetches the {@link OmniBuildInvocationsContainer} synchronously and broadcasts it through a {@link BuildInvocationsUpdateEvent}.
-     *
-     * @param transientRequestAttributes the transient request attributes
-     * @param fetchStrategy              the fetch strategy
-     * @return the build invocations container, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
-     */
-    OmniBuildInvocationsContainer fetchBuildInvocations(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 }
