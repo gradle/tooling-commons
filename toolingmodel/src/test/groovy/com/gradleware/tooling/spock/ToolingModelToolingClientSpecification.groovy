@@ -16,6 +16,8 @@
 
 package com.gradleware.tooling.spock
 
+import com.gradleware.tooling.testing.GradleVersionParameterization
+import com.gradleware.tooling.testing.GradleVersionProvider
 import com.gradleware.tooling.toolingclient.ToolingClient
 import org.gradle.internal.Factory
 import org.gradle.tooling.GradleConnector
@@ -58,8 +60,21 @@ abstract class ToolingModelToolingClientSpecification extends Specification {
     })
   }
 
-  def cleanupSpec() {
-    toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
-  }
+    def cleanup() {
+      if (allVersionsTested()) {
+        toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
+      }
+    }
+
+    def cleanupSpec() {
+      if (!allVersionsTested()) {
+        toolingClient.stop(ToolingClient.CleanUpStrategy.GRACEFULLY)
+      }
+    }
+
+    private boolean allVersionsTested() {
+      def versions = System.getProperty(GradleVersionParameterization.Default.CROSS_VERSION_SYSTEM_PROPERTY_NAME, GradleVersionProvider.LATEST)
+      versions == GradleVersionProvider.ALL
+    }
 
 }
