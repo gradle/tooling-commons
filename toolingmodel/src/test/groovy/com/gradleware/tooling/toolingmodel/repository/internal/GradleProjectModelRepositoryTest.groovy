@@ -145,18 +145,18 @@ class GradleProjectModelRepositoryTest extends ModelRepositorySpec {
         def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
 
         when:
-        def gradleProjects = repository.fetchGradleProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED) as List
+        def rootProjects = repository.fetchGradleProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED).findAll { it.parent == null }
 
         then:
-        gradleProjects[0].name == 'root'
+        rootProjects[0].name == 'root'
         if (higherOrEqual('3.3', distribution)) {
-            assert gradleProjects.size() == 3
-            assert gradleProjects[1].name == 'included1'
-            assert gradleProjects[1].children*.name == ['sub1', 'sub2']
-            assert gradleProjects[2].name == 'included2'
-            assert gradleProjects[2].children*.name == ['sub1', 'sub2']
+            assert rootProjects.size() == 3
+            assert rootProjects[1].name == 'included1'
+            assert rootProjects[1].children*.name == ['sub1', 'sub2']
+            assert rootProjects[2].name == 'included2'
+            assert rootProjects[2].children*.name == ['sub1', 'sub2']
         } else {
-            assert gradleProjects.size() == 1
+            assert rootProjects.size() == 1
         }
 
         where:

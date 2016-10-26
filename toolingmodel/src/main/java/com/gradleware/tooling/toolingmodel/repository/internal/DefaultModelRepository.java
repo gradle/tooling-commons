@@ -162,7 +162,7 @@ public final class DefaultModelRepository implements ModelRepository {
 
                 @Override
                 public Set<OmniGradleProject> apply(GradleProject gradleProject) {
-                    return ImmutableSet.<OmniGradleProject>of(DefaultOmniGradleProject.from(gradleProject));
+                    return ImmutableSet.copyOf(DefaultOmniGradleProject.from(gradleProject).getAll());
                 }
 
             };
@@ -181,7 +181,7 @@ public final class DefaultModelRepository implements ModelRepository {
                 public Set<OmniGradleProject> apply(Collection<GradleProject> gradleProjects) {
                     ImmutableSet.Builder<OmniGradleProject> projects = ImmutableSet.builder();
                     for (GradleProject gradleProject : gradleProjects) {
-                        projects.add(DefaultOmniGradleProject.from(gradleProject));
+                        projects.addAll(DefaultOmniGradleProject.from(gradleProject).getAll());
                     }
                     return projects.build();
                 }
@@ -211,7 +211,7 @@ public final class DefaultModelRepository implements ModelRepository {
 
                 @Override
                 public Set<OmniEclipseProject> apply(EclipseProject eclipseProject) {
-                    return ImmutableSet.<OmniEclipseProject>of(DefaultOmniEclipseProject.from(eclipseProject));
+                    return ImmutableSet.copyOf(DefaultOmniEclipseProject.from(eclipseProject).getAll());
                 }
             };
         return executeRequest(request, successHandler, fetchStrategy, OmniEclipseProject.class, converter);
@@ -229,7 +229,7 @@ public final class DefaultModelRepository implements ModelRepository {
                 public Set<OmniEclipseProject> apply(Collection<EclipseProject> eclipseProjects) {
                     ImmutableSet.Builder<OmniEclipseProject> projects = ImmutableSet.builder();
                     for (EclipseProject eclipseProject : eclipseProjects) {
-                        projects.add(DefaultOmniEclipseProject.from(eclipseProject));
+                        projects.addAll(DefaultOmniEclipseProject.from(eclipseProject).getAll());
                     }
                     return projects.build();
                 }

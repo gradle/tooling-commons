@@ -734,7 +734,7 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
 
         when:
-        def rootProjects = repository.fetchEclipseGradleProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+        def rootProjects = repository.fetchEclipseGradleProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED).findAll { it.parent == null }
 
         then:
         rootProjects[0].name == 'root'
