@@ -16,26 +16,12 @@
 
 package com.gradleware.tooling.toolingmodel;
 
-import com.google.common.base.Optional;
-
-import java.io.File;
-
 /**
  * Describes a dependency on another Eclipse project.
  *
  * @author Etienne Studer
  */
 public interface OmniEclipseProjectDependency extends OmniClasspathEntry {
-
-    /**
-     * Returns the directory of the target project of this dependency.
-     * <p>
-     * This method returns {@link Optional#absent()} if the dependency points to project from a different build in the
-     * composite.
-     *
-     * @return the directory of the target project of this dependency
-     */
-    Optional<File> getTargetProjectDir();
 
     /**
      * Returns the path to use for this project dependency.

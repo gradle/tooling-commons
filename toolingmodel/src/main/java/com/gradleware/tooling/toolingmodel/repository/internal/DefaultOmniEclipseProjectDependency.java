@@ -24,7 +24,6 @@ import com.gradleware.tooling.toolingmodel.repository.internal.compatibility.For
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
 import org.gradle.tooling.model.eclipse.HierarchicalEclipseProject;
 
-import java.io.File;
 import java.util.List;
 
 /**
@@ -34,20 +33,13 @@ import java.util.List;
  */
 public final class DefaultOmniEclipseProjectDependency extends AbstractOmniClasspathEntry implements OmniEclipseProjectDependency {
 
-    private final Optional<File> targetProjectDir;
     private final String path;
     private final boolean exported;
 
-    private DefaultOmniEclipseProjectDependency(File targetProjectDir, String path, boolean exported, Optional<List<OmniClasspathAttribute>> attributes, Optional<List<OmniAccessRule>> accessRules) {
+    private DefaultOmniEclipseProjectDependency(String path, boolean exported, Optional<List<OmniClasspathAttribute>> attributes, Optional<List<OmniAccessRule>> accessRules) {
         super(attributes, accessRules);
-        this.targetProjectDir = Optional.fromNullable(targetProjectDir);
         this.path = path;
         this.exported = exported;
-    }
-
-    @Override
-    public Optional<File> getTargetProjectDir() {
-        return this.targetProjectDir;
     }
 
     @Override
@@ -65,7 +57,6 @@ public final class DefaultOmniEclipseProjectDependency extends AbstractOmniClass
         ForwardCompatibilityClasspathEntry compatibilityDependency = ForwardCompatibilityConverter.convert(projectDependency, ForwardCompatibilityClasspathEntry.class);
         HierarchicalEclipseProject targetProject = projectDependency.getTargetProject();
         return new DefaultOmniEclipseProjectDependency(
-                targetProject == null ? null : targetProject.getProjectDirectory(),
                 projectDependency.getPath(),
                 getIsExported(projectDependency),
                 getClasspathAttributes(projectDependency),
