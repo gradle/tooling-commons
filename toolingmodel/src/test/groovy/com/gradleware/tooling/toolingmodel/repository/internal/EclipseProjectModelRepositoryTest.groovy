@@ -23,7 +23,6 @@ import com.gradleware.tooling.junit.TestFile
 import com.gradleware.tooling.spock.VerboseUnroll
 import com.gradleware.tooling.testing.GradleVersionParameterization
 import com.gradleware.tooling.toolingclient.GradleDistribution
-import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject
 import com.gradleware.tooling.toolingmodel.OmniGradleProject
 import com.gradleware.tooling.toolingmodel.Path
@@ -37,7 +36,7 @@ import org.gradle.tooling.ProgressListener
 import java.util.concurrent.atomic.AtomicReference
 
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
-class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
+class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
 
     def "projects have correct structure and tasks" (GradleDistribution distribution, Environment environment) {
         given:
@@ -45,7 +44,7 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
 
         when:
-        OmniEclipseProject rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment)
+        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment)
 
         then:
         rootProject != null
@@ -111,20 +110,20 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
         def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
-        AtomicReference<EclipseGradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
-        AtomicReference<OmniEclipseGradleBuild> modelInRepository = new AtomicReference<>();
+        AtomicReference<EclipseProjectUpdateEvent> publishedEvent = new AtomicReference<>();
+        AtomicReference<Set<OmniEclipseProject>> modelInRepository = new AtomicReference<>();
         repository.register(new Object() {
 
             @SuppressWarnings("GroovyUnusedDeclaration")
             @Subscribe
-            public void listen(EclipseGradleBuildUpdateEvent event) {
+            public void listen(EclipseProjectUpdateEvent event) {
                 publishedEvent.set(event)
-                modelInRepository.set(repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
+                modelInRepository.set(repository.fetchEclipseGradleProjects(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY))
             }
         })
 
         when:
-        OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+        def eclipseGradleBuild = repository.fetchEclipseGradleProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
         then:
         def model = modelInRepository.get()
@@ -736,21 +735,21 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
 
         when:
-        def eclipseProject = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+        def rootProjects = repository.fetchEclipseGradleProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
         then:
-        eclipseProject.rootProjects[0].name == 'root'
+        rootProjects[0].name == 'root'
         if (higherOrEqual('3.3', distribution)) {
-            assert eclipseProject.rootProjects.size() == 3
-            assert eclipseProject.rootProjects[0].name == 'root'
-            assert eclipseProject.rootProjects[0].children.isEmpty()
-            assert eclipseProject.rootProjects[1].name == 'included1'
-            assert eclipseProject.rootProjects[1].children*.name == ['sub1', 'sub2']
-            assert eclipseProject.rootProjects[2].name == 'included2'
-            assert eclipseProject.rootProjects[2].children*.name == ['sub1', 'sub2']
+            assert rootProjects.size() == 3
+            assert rootProjects[0].name == 'root'
+            assert rootProjects[0].children.isEmpty()
+            assert rootProjects[1].name == 'included1'
+            assert rootProjects[1].children*.name == ['sub1', 'sub2']
+            assert rootProjects[2].name == 'included2'
+            assert rootProjects[2].children*.name == ['sub1', 'sub2']
         } else {
-            assert eclipseProject.rootProjects[0].name == 'root'
-            assert eclipseProject.rootProjects[0].children.isEmpty()
+            assert rootProjects[0].name == 'root'
+            assert rootProjects[0].children.isEmpty()
         }
 
         where:
@@ -767,7 +766,7 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
         def listener = new Object() {
             @SuppressWarnings("GroovyUnusedDeclaration")
             @Subscribe
-            public void listen(EclipseGradleBuildUpdateEvent event) {
+            public void listen(EclipseProjectUpdateEvent event) {
                 publishedEvent.set(event)
             }
         }
@@ -787,8 +786,7 @@ class EclipseGradleBuildModelRepositoryTest extends ModelRepositorySpec {
     private fetchRootEclipseProject(FixedRequestAttributes fixedRequestAttributes, TransientRequestAttributes transientRequestAttributes, Environment environment, Object listener = new Object()) {
         def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
         repository.register(listener)
-        OmniEclipseGradleBuild eclipseGradleBuild = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-        return eclipseGradleBuild.rootProjects[0]
+        return (repository.fetchEclipseGradleProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED) as List)[0]
     }
 
     private static ImmutableList<List<Object>> fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(String versionPattern) {

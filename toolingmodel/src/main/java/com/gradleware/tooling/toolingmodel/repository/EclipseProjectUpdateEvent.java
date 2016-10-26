@@ -17,22 +17,24 @@
 package com.gradleware.tooling.toolingmodel.repository;
 
 import com.google.common.base.Preconditions;
-import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
+
+import java.util.Set;
 
 /**
- * Event that is broadcast when {@code OmniEclipseGradleBuild} has been updated.
+ * Event that is broadcast when {@code OmniEclipseProject} has been updated.
  *
  * @author Etienne Studer
  */
-public final class EclipseGradleBuildUpdateEvent {
+public final class EclipseProjectUpdateEvent {
 
-    private final OmniEclipseGradleBuild eclipseGradleBuild;
+    private final Set<OmniEclipseProject> eclipseGradleBuild;
 
-    public EclipseGradleBuildUpdateEvent(OmniEclipseGradleBuild eclipseGradleBuild) {
+    public EclipseProjectUpdateEvent(Set<OmniEclipseProject> eclipseGradleBuild) {
         this.eclipseGradleBuild = Preconditions.checkNotNull(eclipseGradleBuild);
     }
 
-    public OmniEclipseGradleBuild getEclipseGradleBuild() {
+    public Set<OmniEclipseProject> getEclipseGradleBuild() {
         return this.eclipseGradleBuild;
     }
 

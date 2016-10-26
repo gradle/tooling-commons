@@ -21,7 +21,10 @@ import com.google.common.eventbus.EventBus
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
 import com.gradleware.tooling.toolingclient.GradleDistribution
-import com.gradleware.tooling.toolingmodel.repository.*
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
+import com.gradleware.tooling.toolingmodel.repository.ModelRepository
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProgressListener
 import org.junit.Rule
@@ -128,28 +131,28 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
 
   def "fetchEclipseGradleBuild"() {
     when:
-    def lookUp = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
+    def lookUp = repository.fetchEclipseGradleProjects(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
 
     then:
     lookUp == null
 
     when:
-    def firstLookUp = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-    def secondLookUp = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    def firstLookUp = repository.fetchEclipseGradleProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    def secondLookUp = repository.fetchEclipseGradleProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
 
     then:
     firstLookUp != null
     firstLookUp.is(secondLookUp)
 
     when:
-    def thirdLookUp = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
-    def fourthLookUp = repository.fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
+    def thirdLookUp = repository.fetchEclipseGradleProjects(transientRequestAttributes, FetchStrategy.FORCE_RELOAD) as List
+    def fourthLookUp = repository.fetchEclipseGradleProjects(transientRequestAttributes, FetchStrategy.FORCE_RELOAD) as List
 
     then:
     thirdLookUp != null
     !thirdLookUp.is(fourthLookUp)
-    thirdLookUp.rootProjects[0].gradleProject.path == fourthLookUp.rootProjects[0].gradleProject.path
-    thirdLookUp.rootProjects[0].gradleProject.all.size() == fourthLookUp.rootProjects[0].gradleProject.all.size()
+    thirdLookUp[0].gradleProject.path == fourthLookUp[0].gradleProject.path
+    thirdLookUp[0].gradleProject.all.size() == fourthLookUp[0].gradleProject.all.size()
   }
 
 }

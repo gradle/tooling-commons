@@ -20,13 +20,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.gradleware.tooling.toolingclient.*;
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
+import com.gradleware.tooling.toolingmodel.*;
 import com.gradleware.tooling.toolingmodel.buildaction.BuildActionFactory;
 import com.gradleware.tooling.toolingmodel.buildaction.RootModelsForCompositeProjectBuildAction;
 import com.gradleware.tooling.toolingmodel.repository.*;
@@ -39,6 +37,7 @@ import org.gradle.util.GradleVersion;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -201,43 +200,47 @@ public final class DefaultModelRepository implements ModelRepository {
      * natively supported by all Gradle versions >= 1.0
      */
     @Override
-    public OmniEclipseGradleBuild fetchEclipseGradleBuild(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
+    public Set<OmniEclipseProject> fetchEclipseGradleProjects(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         Preconditions.checkNotNull(transientRequestAttributes);
         Preconditions.checkNotNull(fetchStrategy);
 
         if (!supportsCompositeBuilds(transientRequestAttributes)) {
             ModelRequest<EclipseProject> request = createModelRequestForBuildModel(EclipseProject.class, transientRequestAttributes);
-            Consumer<OmniEclipseGradleBuild> successHandler = new Consumer<OmniEclipseGradleBuild>() {
+            Consumer<Set<OmniEclipseProject>> successHandler = new Consumer<Set<OmniEclipseProject>>() {
                 @Override
-                public void accept(OmniEclipseGradleBuild result) {
-                    DefaultModelRepository.this.eventBus.post(new EclipseGradleBuildUpdateEvent(result));
+                public void accept(Set<OmniEclipseProject> result) {
+                    DefaultModelRepository.this.eventBus.post(new EclipseProjectUpdateEvent(result));
                 }
             };
-            Converter<EclipseProject, OmniEclipseGradleBuild> converter = new BaseConverter<EclipseProject, OmniEclipseGradleBuild>() {
+            Converter<EclipseProject, Set<OmniEclipseProject>> converter = new BaseConverter<EclipseProject, Set<OmniEclipseProject>>() {
 
                 @Override
-                public OmniEclipseGradleBuild apply(EclipseProject eclipseProject) {
-                    return DefaultOmniEclipseGradleBuild.from(Arrays.asList(eclipseProject));
+                public Set<OmniEclipseProject> apply(EclipseProject eclipseProject) {
+                    return ImmutableSet.<OmniEclipseProject>of(DefaultOmniEclipseProject.from(eclipseProject));
                 }
             };
-        return executeRequest(request, successHandler, fetchStrategy, OmniEclipseGradleBuild.class, converter);
+        return executeRequest(request, successHandler, fetchStrategy, OmniEclipseProject.class, converter);
         } else {
             BuildActionRequest<Collection<EclipseProject>> request = createBuildActionRequestForCompositeModel(EclipseProject.class, transientRequestAttributes);
-            Consumer<OmniEclipseGradleBuild> successHandler = new Consumer<OmniEclipseGradleBuild>() {
+            Consumer<Set<OmniEclipseProject>> successHandler = new Consumer<Set<OmniEclipseProject>>() {
                 @Override
-                public void accept(OmniEclipseGradleBuild result) {
-                    DefaultModelRepository.this.eventBus.post(new EclipseGradleBuildUpdateEvent(result));
+                public void accept(Set<OmniEclipseProject> result) {
+                    DefaultModelRepository.this.eventBus.post(new EclipseProjectUpdateEvent(result));
                 }
             };
-            Converter<Collection<EclipseProject>, OmniEclipseGradleBuild> converter = new BaseConverter<Collection<EclipseProject>, OmniEclipseGradleBuild>() {
+            Converter<Collection<EclipseProject>, Set<OmniEclipseProject>> converter = new BaseConverter<Collection<EclipseProject>, Set<OmniEclipseProject>>() {
 
                 @Override
-                public OmniEclipseGradleBuild apply(Collection<EclipseProject> eclipseProjects) {
-                    return DefaultOmniEclipseGradleBuild.from(eclipseProjects);
+                public Set<OmniEclipseProject> apply(Collection<EclipseProject> eclipseProjects) {
+                    ImmutableSet.Builder<OmniEclipseProject> projects = ImmutableSet.builder();
+                    for (EclipseProject eclipseProject : eclipseProjects) {
+                        projects.add(DefaultOmniEclipseProject.from(eclipseProject));
+                    }
+                    return projects.build();
                 }
 
             };
-            return executeRequest(request, successHandler, fetchStrategy, OmniEclipseGradleBuild.class, converter);
+            return executeRequest(request, successHandler, fetchStrategy, OmniEclipseProject.class, converter);
         }
     }
 

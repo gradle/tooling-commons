@@ -18,6 +18,8 @@ package com.gradleware.tooling.toolingmodel.repository;
 
 import com.gradleware.tooling.toolingmodel.*;
 
+import java.util.Set;
+
 /**
  * Repository for Gradle build models sourced from a Gradle build.
  * <p/>
@@ -69,11 +71,11 @@ public interface ModelRepository {
     OmniGradleBuild fetchGradleBuild(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 
     /**
-     * Fetches the {@link OmniEclipseGradleBuild} synchronously and broadcasts it through a {@link EclipseGradleBuildUpdateEvent}.
+     * Fetches the {@link OmniEclipseProject} synchronously and broadcasts it through a {@link EclipseProjectUpdateEvent}.
      *
      * @param transientRequestAttributes the transient request attributes
      * @param fetchStrategy              the fetch strategy
      * @return the eclipse project, never null unless strategy {@link FetchStrategy#FROM_CACHE_ONLY} is used and the value is not in the cache
      */
-    OmniEclipseGradleBuild fetchEclipseGradleBuild(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
+    Set<OmniEclipseProject> fetchEclipseGradleProjects(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy);
 }
