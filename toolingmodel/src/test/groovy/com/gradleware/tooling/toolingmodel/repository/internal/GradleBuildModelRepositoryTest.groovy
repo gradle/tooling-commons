@@ -33,11 +33,11 @@ import java.util.concurrent.atomic.AtomicReference
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
 class GradleBuildModelRepositoryTest extends ModelRepositorySpec {
 
-    def "send event after cache update"(GradleDistribution distribution, Environment environment) {
+    def "send event after cache update"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
 
         AtomicReference<GradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
         AtomicReference<OmniGradleBuild> modelInRepository = new AtomicReference<>();
@@ -86,14 +86,14 @@ class GradleBuildModelRepositoryTest extends ModelRepositorySpec {
         model == gradleBuild
 
         where:
-        [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 
-    def "can handle composite builds"(GradleDistribution distribution, Environment environment) {
+    def "can handle composite builds"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderCompositeBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
 
         when:
         def gradleBuild = repository.fetchGradleBuild(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
@@ -112,15 +112,14 @@ class GradleBuildModelRepositoryTest extends ModelRepositorySpec {
         }
 
         where:
-        [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=3.1")
+        distribution << gradleDistributionRange(">=3.1")
     }
 
-
-    def "when exception is thrown"(GradleDistribution distribution, Environment environment) {
+    def "when exception is thrown"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildStructure.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
 
         AtomicReference<GradleBuildUpdateEvent> publishedEvent = new AtomicReference<>();
         repository.register(new Object() {
@@ -141,6 +140,6 @@ class GradleBuildModelRepositoryTest extends ModelRepositorySpec {
         publishedEvent.get() == null
 
         where:
-        [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 }

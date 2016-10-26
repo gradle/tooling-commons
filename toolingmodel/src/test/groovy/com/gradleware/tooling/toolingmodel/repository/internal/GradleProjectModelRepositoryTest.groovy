@@ -21,7 +21,6 @@ import com.google.common.eventbus.EventBus
 import com.google.common.eventbus.Subscribe
 import com.gradleware.tooling.spock.VerboseUnroll
 import com.gradleware.tooling.toolingclient.GradleDistribution
-import com.gradleware.tooling.toolingmodel.OmniGradleBuild
 import com.gradleware.tooling.toolingmodel.OmniGradleProject
 import com.gradleware.tooling.toolingmodel.Path
 import com.gradleware.tooling.toolingmodel.repository.*
@@ -35,11 +34,11 @@ import java.util.concurrent.atomic.AtomicReference
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
 class GradleProjectModelRepositoryTest extends ModelRepositorySpec {
 
-    def "send event after cache update"(GradleDistribution distribution, Environment environment) {
+    def "send event after cache update"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
 
         AtomicReference<GradleProjectUpdateEvent> publishedEvent = new AtomicReference<>();
         AtomicReference<OmniGradleProject> modelInRepository = new AtomicReference<>();
@@ -136,14 +135,14 @@ class GradleProjectModelRepositoryTest extends ModelRepositorySpec {
         model == gradleProjects
 
         where:
-        [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 
-    def "can handle composite builds"(GradleDistribution distribution, Environment environment) {
+    def "can handle composite builds"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderCompositeBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
 
         when:
         def gradleProjects = repository.fetchGradleProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED) as List
@@ -161,14 +160,14 @@ class GradleProjectModelRepositoryTest extends ModelRepositorySpec {
         }
 
         where:
-        [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=3.1")
+        distribution << gradleDistributionRange(">=3.1")
     }
 
-    def "when exception is thrown"(GradleDistribution distribution, Environment environment) {
+    def "when exception is thrown"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
 
         AtomicReference<GradleProjectUpdateEvent> publishedEvent = new AtomicReference<>();
         repository.register(new Object() {
@@ -189,6 +188,6 @@ class GradleProjectModelRepositoryTest extends ModelRepositorySpec {
         publishedEvent.get() == null
 
         where:
-        [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 }

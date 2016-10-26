@@ -21,7 +21,6 @@ import com.google.common.eventbus.EventBus
 import com.google.common.eventbus.Subscribe
 import com.gradleware.tooling.junit.TestFile
 import com.gradleware.tooling.spock.VerboseUnroll
-import com.gradleware.tooling.testing.GradleVersionParameterization
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject
 import com.gradleware.tooling.toolingmodel.OmniGradleProject
@@ -38,13 +37,13 @@ import java.util.concurrent.atomic.AtomicReference
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
 class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
 
-    def "projects have correct structure and tasks" (GradleDistribution distribution, Environment environment) {
+    def "projects have correct structure and tasks" (GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
 
         when:
-        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment)
+        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes)
 
         then:
         rootProject != null
@@ -101,14 +100,14 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         myTaskSelector.selectedTaskPaths*.path as List == [':sub2:myTask', ':sub2:subSub1:myTask']
 
         where:
-        [distribution, environment] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 
-    def "send event after cache update"(GradleDistribution distribution, Environment environment) {
+    def "send event after cache update"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
 
         AtomicReference<EclipseProjectUpdateEvent> publishedEvent = new AtomicReference<>();
         AtomicReference<Set<OmniEclipseProject>> modelInRepository = new AtomicReference<>();
@@ -130,11 +129,11 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         model == eclipseGradleBuild
 
         where:
-        [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 
     @SuppressWarnings("GroovyTrivialConditional")
-    def "sources and project/external dependencies "(GradleDistribution distribution, Environment environment) {
+    def "sources and project/external dependencies "(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderMultiProjectBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -153,7 +152,7 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         }
 
         when:
-        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment)
+        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes)
 
         then:
         rootProject != null
@@ -223,10 +222,10 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         }
 
         where:
-        [distribution, environment] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 
-    def "build commands and natures"(GradleDistribution distribution, Environment environment) {
+    def "build commands and natures"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderMultiProjectBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -243,7 +242,7 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         """
 
         when:
-        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment)
+        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes)
 
         then:
         def apiEclipseProject = rootProject.tryFind({ it.name == 'api' } as Spec).get()
@@ -262,26 +261,26 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         }
 
         where:
-        [distribution, environment] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 
-    def "source version settings for non-JVM projects"(GradleDistribution distribution, Environment environment) {
+    def "source version settings for non-JVM projects"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
 
         when:
-        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment)
+        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes)
 
         then:
         def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
         !eclipseProject.javaSourceSettings.isPresent()
 
         where:
-        [distribution, environment] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 
-    def "source version settings for JVM projects"(GradleDistribution distribution, Environment environment) {
+    def "source version settings for JVM projects"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -298,7 +297,7 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         new TestFile(this.directoryProvider.testDirectory, 'sub1/src/main/java').mkdirs()
 
         when:
-        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment)
+        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes)
 
         then:
         def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
@@ -322,10 +321,10 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         }
 
         where:
-        [distribution, environment] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 
-    def "classpath containers"(GradleDistribution distribution, Environment environment) {
+    def "classpath containers"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -340,7 +339,7 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         """
 
         when:
-        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment)
+        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes)
 
         then:
         def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
@@ -355,10 +354,10 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         }
 
         where:
-        [distribution, environment] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 
-    def "classpath container with classpath attributes"(GradleDistribution distribution, Environment environment) {
+    def "classpath container with classpath attributes"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -378,7 +377,7 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         """
 
         when:
-        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment)
+        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes)
 
         then:
         def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
@@ -391,10 +390,10 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         }
 
         where:
-        [distribution, environment] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 
-    def "classpath container with access rules"(GradleDistribution distribution, Environment environment) {
+    def "classpath container with access rules"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -417,7 +416,7 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         """
 
         when:
-        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment)
+        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes)
 
         then:
         def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
@@ -432,10 +431,10 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         }
 
         where:
-        [distribution, environment] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 
-    def "source directory excludes and includes"(GradleDistribution distribution, Environment environment) {
+    def "source directory excludes and includes"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -454,7 +453,7 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
 
 
         when:
-        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment)
+        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes)
 
         then:
         def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
@@ -470,10 +469,10 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         }
 
         where:
-        [distribution, environment] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 
-    def "source directory classpath attributes"(GradleDistribution distribution, Environment environment) {
+    def "source directory classpath attributes"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -494,7 +493,7 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         new TestFile(this.directoryProvider.testDirectory, 'sub1/src/main/resources').mkdirs()
 
         when:
-        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment)
+        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes)
 
         then:
         def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
@@ -511,10 +510,10 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         }
 
         where:
-        [distribution, environment] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 
-    def "source directory access rules"(GradleDistribution distribution, Environment environment) {
+    def "source directory access rules"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -538,7 +537,7 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         new TestFile(this.directoryProvider.testDirectory, 'sub1/src/main/resources').mkdirs()
 
         when:
-        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment)
+        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes)
 
         then:
         def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
@@ -557,10 +556,10 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         }
 
         where:
-        [distribution, environment] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 
-    def "source directory output"(GradleDistribution distribution, Environment environment) {
+    def "source directory output"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -583,7 +582,7 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         new TestFile(this.directoryProvider.testDirectory, 'sub1/src/main/resources').mkdirs()
 
         when:
-        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment)
+        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes)
 
         then:
         def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
@@ -598,10 +597,10 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         }
 
         where:
-        [distribution, environment] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 
-    def "output location"(GradleDistribution distribution, Environment environment) {
+    def "output location"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -622,7 +621,7 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         """
 
         when:
-        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment)
+        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes)
 
         then:
         def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
@@ -634,10 +633,10 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         }
 
         where:
-        [distribution, environment] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 
-    def "dependency classpath attributes"(GradleDistribution distribution, Environment environment) {
+    def "dependency classpath attributes"(GradleDistribution distribution) {
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderMultiProjectBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
         new TestFile(directoryProviderMultiProjectBuild.testDirectory, 'impl/build.gradle') << """
@@ -656,7 +655,7 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         """
 
         when:
-        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment)
+        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes)
 
         then:
         def eclipseProject = rootProject.tryFind({ it.name == 'impl' } as Spec).get()
@@ -677,10 +676,10 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         }
 
         where:
-        [distribution, environment] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 
-    def "dependency access rules"(GradleDistribution distribution, Environment environment) {
+    def "dependency access rules"(GradleDistribution distribution) {
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderMultiProjectBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
         new TestFile(directoryProviderMultiProjectBuild.testDirectory, 'impl/build.gradle') << """
@@ -704,7 +703,7 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         """
 
         when:
-        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment)
+        def rootProject = fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes)
 
         then:
         def eclipseProject = rootProject.tryFind({ it.name == 'impl' } as Spec).get()
@@ -725,14 +724,14 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         }
 
         where:
-        [distribution, environment] << fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 
-    def "can handle composite builds"(GradleDistribution distribution, Environment environment) {
+    def "can handle composite builds"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderCompositeBuild.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
 
         when:
         def rootProjects = repository.fetchEclipseGradleProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
@@ -753,11 +752,11 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         }
 
         where:
-        [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=3.1")
+        distribution << gradleDistributionRange(">=3.1")
     }
 
 
-    def "when exception is thrown"(GradleDistribution distribution, Environment environment) {
+    def "when exception is thrown"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProviderErroneousBuildFile.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
@@ -772,7 +771,7 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         }
 
         when:
-        fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, environment, listener)
+        fetchRootEclipseProject(fixedRequestAttributes, transientRequestAttributes, listener)
 
         then:
         thrown(GradleConnectionException)
@@ -780,16 +779,12 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         publishedEvent.get() == null
 
         where:
-        [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 
-    private fetchRootEclipseProject(FixedRequestAttributes fixedRequestAttributes, TransientRequestAttributes transientRequestAttributes, Environment environment, Object listener = new Object()) {
-        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+    private fetchRootEclipseProject(FixedRequestAttributes fixedRequestAttributes, TransientRequestAttributes transientRequestAttributes, Object listener = new Object()) {
+        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
         repository.register(listener)
         return (repository.fetchEclipseGradleProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED) as List)[0]
-    }
-
-    private static ImmutableList<List<Object>> fetchFromBothRepositoriesInAllEnvironmentsForGradleTargetVersions(String versionPattern) {
-        GradleVersionParameterization.Default.INSTANCE.getPermutations(versionPattern, Environment.values() as List)
     }
 }

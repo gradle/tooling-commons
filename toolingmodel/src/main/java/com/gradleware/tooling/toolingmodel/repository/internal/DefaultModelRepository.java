@@ -43,8 +43,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Repository for Gradle build models.
- * <p/>
- * This repository is aware of the different constraints given by the Environment in which the repository is used and given by the target Gradle version.
  *
  * @author Etienne Studer
  */
@@ -54,18 +52,12 @@ public final class DefaultModelRepository implements ModelRepository {
     private final EventBus eventBus;
     private final Cache<Object, Object> cache;
     private final FixedRequestAttributes fixedRequestAttributes;
-    private final Environment environment;
 
     public DefaultModelRepository(FixedRequestAttributes fixedRequestAttributes, ToolingClient toolingClient, EventBus eventBus) {
-        this(fixedRequestAttributes, toolingClient, eventBus, Environment.STANDALONE);
-    }
-
-    public DefaultModelRepository(FixedRequestAttributes fixedRequestAttributes, ToolingClient toolingClient, EventBus eventBus, Environment environment) {
         this.toolingClient = Preconditions.checkNotNull(toolingClient);
         this.eventBus = Preconditions.checkNotNull(eventBus);
         this.cache = CacheBuilder.newBuilder().build();
         this.fixedRequestAttributes = Preconditions.checkNotNull(fixedRequestAttributes);
-        this.environment = environment;
     }
 
     /**

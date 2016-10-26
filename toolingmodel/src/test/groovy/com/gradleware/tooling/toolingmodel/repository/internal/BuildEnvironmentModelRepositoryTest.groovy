@@ -31,11 +31,11 @@ import java.util.concurrent.atomic.AtomicReference
 @VerboseUnroll(formatter = GradleDistributionFormatter.class)
 class BuildEnvironmentModelRepositoryTest extends ModelRepositorySpec {
 
-    def "send event after cache update"(GradleDistribution distribution, Environment environment) {
+    def "send event after cache update"(GradleDistribution distribution) {
         given:
         def fixedRequestAttributes = new FixedRequestAttributes(directoryProvider.testDirectory, null, distribution, null, ImmutableList.of(), ImmutableList.of())
         def transientRequestAttributes = new TransientRequestAttributes(true, null, null, null, ImmutableList.of(Mock(ProgressListener)), ImmutableList.of(Mock(org.gradle.tooling.events.ProgressListener)), GradleConnector.newCancellationTokenSource().token())
-        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus(), environment)
+        def repository = new DefaultModelRepository(fixedRequestAttributes, toolingClient, new EventBus())
 
         AtomicReference<BuildEnvironmentUpdateEvent> publishedEvent = new AtomicReference<>();
         AtomicReference<OmniBuildEnvironment> modelInRepository = new AtomicReference<>();
@@ -74,6 +74,6 @@ class BuildEnvironmentModelRepositoryTest extends ModelRepositorySpec {
         model == buildEnvironment
 
         where:
-        [distribution, environment] << runInAllEnvironmentsForGradleTargetVersions(">=1.2")
+        distribution << gradleDistributionRange(">=1.2")
     }
 }

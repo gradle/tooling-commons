@@ -42,23 +42,11 @@ public final class ModelRepositoryProviderFactory {
      * Creates a new instance.
      *
      * @param toolingClient the backing tooling client
-     * @param environment the environment in which the model repository is used
-     * @return the new repository provider instance
-     */
-    public static ModelRepositoryProvider create(ToolingClient toolingClient, Environment environment) {
-        return new DefaultModelRepositoryProvider(toolingClient, environment);
-    }
-
-    /**
-     * Creates a new instance.
-     *
-     * @param toolingClient the backing tooling client
-     * @param environment the environment in which the model repository is used
      * @param eventBusFactory the factory for the event bus that is used to send events upon model changes
      * @return the new repository provider instance
      */
-    public static ModelRepositoryProvider create(ToolingClient toolingClient, Environment environment, Factory<EventBus> eventBusFactory) {
-        return new DefaultModelRepositoryProvider(toolingClient, environment, eventBusFactory);
+    public static ModelRepositoryProvider create(ToolingClient toolingClient, Factory<EventBus> eventBusFactory) {
+        return new DefaultModelRepositoryProvider(toolingClient, eventBusFactory);
     }
 
 }

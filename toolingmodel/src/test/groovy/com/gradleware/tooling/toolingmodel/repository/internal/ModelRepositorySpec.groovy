@@ -16,13 +16,12 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal
 
-import com.google.common.collect.ImmutableList
 import com.gradleware.tooling.junit.TestDirectoryProvider
 import com.gradleware.tooling.spock.ToolingModelToolingClientSpecification
 import com.gradleware.tooling.testing.GradleVersionExtractor
 import com.gradleware.tooling.testing.GradleVersionParameterization
 import com.gradleware.tooling.toolingclient.GradleDistribution
-import com.gradleware.tooling.toolingmodel.repository.Environment
+
 import org.gradle.util.GradleVersion
 import org.junit.Rule
 
@@ -168,8 +167,8 @@ abstract class ModelRepositorySpec extends ToolingModelToolingClientSpecificatio
         }
     }
 
-    protected static ImmutableList<List<Object>> runInAllEnvironmentsForGradleTargetVersions(String versionPattern) {
-        GradleVersionParameterization.Default.INSTANCE.getPermutations(versionPattern, Environment.values() as List)
+    protected static List<GradleDistribution> gradleDistributionRange(String versionPattern) {
+        GradleVersionParameterization.Default.INSTANCE.getGradleDistributions(versionPattern)
     }
 
 }

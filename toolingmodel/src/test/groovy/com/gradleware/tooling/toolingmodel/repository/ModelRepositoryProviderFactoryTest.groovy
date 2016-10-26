@@ -34,25 +34,25 @@ class ModelRepositoryProviderFactoryTest extends Specification {
     modelRepositoryProvider != null
   }
 
-  def "create with two-args constructor"() {
+  def "create with one-arg constructor"() {
     setup:
     def toolingClient = Mock(ToolingClient)
 
     when:
-    def modelRepositoryProvider = ModelRepositoryProviderFactory.create(toolingClient, Environment.STANDALONE)
+    def modelRepositoryProvider = ModelRepositoryProviderFactory.create(toolingClient)
 
     then:
     noExceptionThrown()
     modelRepositoryProvider != null
   }
 
-  def "create with three-args constructor"() {
+  def "create with two-args constructor"() {
     setup:
     def toolingClient = Mock(ToolingClient)
     def factory = Mock(Factory)
 
     when:
-    def modelRepositoryProvider = ModelRepositoryProviderFactory.create(toolingClient, Environment.STANDALONE, factory)
+    def modelRepositoryProvider = ModelRepositoryProviderFactory.create(toolingClient, factory)
 
     then:
     noExceptionThrown()
