@@ -35,7 +35,6 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.gradle.GradleBuild;
 import org.gradle.util.GradleVersion;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -129,70 +128,74 @@ public final class DefaultModelRepository implements ModelRepository {
      * from this model repository, it needs to be fetched again (and then gets cached)
      */
     @Override
-    public OmniGradleBuildStructure fetchGradleBuildStructure(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
+    public OmniGradleBuild fetchGradleBuild(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         Preconditions.checkNotNull(transientRequestAttributes);
         Preconditions.checkNotNull(fetchStrategy);
 
         ModelRequest<GradleBuild> request = createModelRequestForBuildModel(GradleBuild.class, transientRequestAttributes);
-        Consumer<OmniGradleBuildStructure> successHandler = new Consumer<OmniGradleBuildStructure>() {
+        Consumer<OmniGradleBuild> successHandler = new Consumer<OmniGradleBuild>() {
             @Override
-            public void accept(OmniGradleBuildStructure result) {
-                DefaultModelRepository.this.eventBus.post(new GradleBuildStructureUpdateEvent(result));
+            public void accept(OmniGradleBuild result) {
+                DefaultModelRepository.this.eventBus.post(new GradleBuildUpdateEvent(result));
             }
         };
-        Converter<GradleBuild, OmniGradleBuildStructure> converter = new BaseConverter<GradleBuild, OmniGradleBuildStructure>() {
+        Converter<GradleBuild, OmniGradleBuild> converter = new BaseConverter<GradleBuild, OmniGradleBuild>() {
 
             @Override
-            public OmniGradleBuildStructure apply(GradleBuild gradleBuild) {
-                return DefaultOmniGradleBuildStructure.from(gradleBuild);
+            public OmniGradleBuild apply(GradleBuild gradleBuild) {
+                return DefaultOmniGradleBuild.from(gradleBuild);
             }
 
         };
 
-        return executeRequest(request, successHandler, fetchStrategy, OmniGradleBuildStructure.class, converter);
+        return executeRequest(request, successHandler, fetchStrategy, GradleBuild.class, converter);
     }
 
     /*
      * natively supported by all Gradle versions >= 1.0
      */
     @Override
-    public OmniGradleBuild fetchGradleBuild(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
+    public Set<OmniGradleProject> fetchGradleProjects(TransientRequestAttributes transientRequestAttributes, FetchStrategy fetchStrategy) {
         Preconditions.checkNotNull(transientRequestAttributes);
         Preconditions.checkNotNull(fetchStrategy);
         if (!supportsCompositeBuilds(transientRequestAttributes)) {
             ModelRequest<GradleProject> request = createModelRequestForBuildModel(GradleProject.class, transientRequestAttributes);
-            Consumer<OmniGradleBuild> successHandler = new Consumer<OmniGradleBuild>() {
+            Consumer<Set<OmniGradleProject>> successHandler = new Consumer<Set<OmniGradleProject>>() {
                 @Override
-                public void accept(OmniGradleBuild result) {
-                    DefaultModelRepository.this.eventBus.post(new GradleBuildUpdateEvent(result));
+                public void accept(Set<OmniGradleProject> result) {
+                    DefaultModelRepository.this.eventBus.post(new GradleProjectUpdateEvent(result));
                 }
             };
-            Converter<GradleProject, OmniGradleBuild> converter = new BaseConverter<GradleProject, OmniGradleBuild>() {
+            Converter<GradleProject, Set<OmniGradleProject>> converter = new BaseConverter<GradleProject, Set<OmniGradleProject>>() {
 
                 @Override
-                public OmniGradleBuild apply(GradleProject gradleProject) {
-                    return DefaultOmniGradleBuild.from(Arrays.asList(gradleProject));
+                public Set<OmniGradleProject> apply(GradleProject gradleProject) {
+                    return ImmutableSet.<OmniGradleProject>of(DefaultOmniGradleProject.from(gradleProject));
                 }
 
             };
-            return executeRequest(request, successHandler, fetchStrategy, OmniGradleBuild.class, converter);
+            return executeRequest(request, successHandler, fetchStrategy, OmniGradleProject.class, converter);
         } else {
             BuildActionRequest<Collection<GradleProject>> request = createBuildActionRequestForCompositeModel(GradleProject.class, transientRequestAttributes);
-            Consumer<OmniGradleBuild> successHandler = new Consumer<OmniGradleBuild>() {
+            Consumer<Set<OmniGradleProject>> successHandler = new Consumer<Set<OmniGradleProject>>() {
                 @Override
-                public void accept(OmniGradleBuild result) {
-                    DefaultModelRepository.this.eventBus.post(new GradleBuildUpdateEvent(result));
+                public void accept(Set<OmniGradleProject> result) {
+                    DefaultModelRepository.this.eventBus.post(new GradleProjectUpdateEvent(result));
                 }
             };
-            Converter<Collection<GradleProject>, OmniGradleBuild> converter = new BaseConverter<Collection<GradleProject>, OmniGradleBuild>() {
+            Converter<Collection<GradleProject>, Set<OmniGradleProject>> converter = new BaseConverter<Collection<GradleProject>, Set<OmniGradleProject>>() {
 
                 @Override
-                public OmniGradleBuild apply(Collection<GradleProject> gradleProjects) {
-                    return DefaultOmniGradleBuild.from(gradleProjects);
+                public Set<OmniGradleProject> apply(Collection<GradleProject> gradleProjects) {
+                    ImmutableSet.Builder<OmniGradleProject> projects = ImmutableSet.builder();
+                    for (GradleProject gradleProject : gradleProjects) {
+                        projects.add(DefaultOmniGradleProject.from(gradleProject));
+                    }
+                    return projects.build();
                 }
 
             };
-            return executeRequest(request, successHandler, fetchStrategy, OmniGradleBuild.class, converter);
+            return executeRequest(request, successHandler, fetchStrategy, OmniGradleProject.class, converter);
         }
     }
 

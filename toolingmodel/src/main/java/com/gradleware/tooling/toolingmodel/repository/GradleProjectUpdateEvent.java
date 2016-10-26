@@ -17,23 +17,25 @@
 package com.gradleware.tooling.toolingmodel.repository;
 
 import com.google.common.base.Preconditions;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
+import com.gradleware.tooling.toolingmodel.OmniGradleProject;
+
+import java.util.Set;
 
 /**
- * Event that is broadcast when {@code OmniGradleBuildStructure} has been updated. *
+ * Event that is broadcast when {@code OmniGradleBuild} has been updated.
  *
  * @author Etienne Studer
  */
-public final class GradleBuildStructureUpdateEvent {
+public final class GradleProjectUpdateEvent {
 
-    private final OmniGradleBuildStructure gradleBuildStructure;
+    private final Set<OmniGradleProject> gradleProjects;
 
-    public GradleBuildStructureUpdateEvent(OmniGradleBuildStructure gradleBuildStructure) {
-        this.gradleBuildStructure = Preconditions.checkNotNull(gradleBuildStructure);
+    public GradleProjectUpdateEvent(Set<OmniGradleProject> gradleProjects) {
+        this.gradleProjects = Preconditions.checkNotNull(gradleProjects);
     }
 
-    public OmniGradleBuildStructure getGradleBuildStructure() {
-        return this.gradleBuildStructure;
+    public Set<OmniGradleProject> getGradleProjects() {
+        return this.gradleProjects;
     }
 
 }

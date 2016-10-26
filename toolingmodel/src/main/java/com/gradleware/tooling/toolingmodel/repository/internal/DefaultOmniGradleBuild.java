@@ -16,12 +16,12 @@
 
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
-import com.gradleware.tooling.toolingmodel.OmniGradleProject;
-import org.gradle.tooling.model.GradleProject;
+import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
+import org.gradle.tooling.model.gradle.GradleBuild;
 
-import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -31,31 +31,30 @@ import java.util.Set;
  */
 public final class DefaultOmniGradleBuild implements OmniGradleBuild {
 
-    private final ImmutableSet<OmniGradleProject> rootProjects;
+    private final OmniGradleProjectStructure rootProject;
+    private final ImmutableSet<OmniGradleBuild> includedBuilds;
 
-    private DefaultOmniGradleBuild(Set<OmniGradleProject> rootProjects) {
-        this.rootProjects = ImmutableSet.copyOf(rootProjects);
+    private DefaultOmniGradleBuild(OmniGradleProjectStructure rootProject, ImmutableSet<OmniGradleBuild> includedBuilds) {
+        this.rootProject = Preconditions.checkNotNull(rootProject);
+        this.includedBuilds = ImmutableSet.copyOf(includedBuilds);
     }
 
     @Override
-    public Set<OmniGradleProject> getRootProjects() {
-        return this.rootProjects;
+    public OmniGradleProjectStructure getRootProject() {
+        return this.rootProject;
     }
 
     @Override
-    public Set<OmniGradleProject> getAllProjects() {
-        ImmutableSet.Builder<OmniGradleProject> result = ImmutableSet.builder();
-        for (OmniGradleProject rootProject : this.rootProjects) {
-            result.addAll(rootProject.getAll());
-        }
-        return result.build();
+    public Set<OmniGradleBuild> getIncludedBuilds() {
+        return this.includedBuilds;
     }
 
-    public static DefaultOmniGradleBuild from(Collection<GradleProject> rootProjects) {
-        ImmutableSet.Builder<OmniGradleProject> roots = ImmutableSet.builder();
-        for (GradleProject rootProject : rootProjects) {
-            roots.add(DefaultOmniGradleProject.from(rootProject));
+    public static DefaultOmniGradleBuild from(GradleBuild gradleBuild) {
+        DefaultOmniGradleProjectStructure rootProject = DefaultOmniGradleProjectStructure.from(gradleBuild.getRootProject());
+        ImmutableSet.Builder<OmniGradleBuild> includedBuilds = ImmutableSet.builder();
+        for (GradleBuild includedBuild : gradleBuild.getIncludedBuilds()) {
+            includedBuilds.add(from(includedBuild));
         }
-        return new DefaultOmniGradleBuild(roots.build());
+        return new DefaultOmniGradleBuild(rootProject, includedBuilds.build());
     }
 }

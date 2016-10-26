@@ -16,13 +16,15 @@
 
 package com.gradleware.tooling.toolingmodel;
 
+import com.gradleware.tooling.toolingutils.ImmutableCollection;
+
 import java.util.Set;
 
 /**
  * Provides detailed information about the Gradle build.
  *
  * @author Etienne Studer
- * @see org.gradle.tooling.model.GradleProject
+ * @see org.gradle.tooling.model.gradle.GradleBuild
  */
 public interface OmniGradleBuild extends BuildScopedModel {
 
@@ -31,12 +33,13 @@ public interface OmniGradleBuild extends BuildScopedModel {
      *
      * @return the root project
      */
-    Set<OmniGradleProject> getRootProjects();
+    OmniGradleProjectStructure getRootProject();
 
     /**
      * Returns all projects from the build including the included builds.
      *
      * @return all projects
      */
-    Set<OmniGradleProject> getAllProjects();
+    @ImmutableCollection
+    Set<OmniGradleBuild> getIncludedBuilds();
 }

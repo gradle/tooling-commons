@@ -79,32 +79,6 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
 
   def "fetchGradleBuildStructure"() {
     when:
-    def lookUp = repository.fetchGradleBuildStructure(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
-
-    then:
-    lookUp == null
-
-    when:
-    def firstLookUp = repository.fetchGradleBuildStructure(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-    def secondLookUp = repository.fetchGradleBuildStructure(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
-
-    then:
-    firstLookUp != null
-    firstLookUp.is(secondLookUp)
-
-    when:
-    def thirdLookUp = repository.fetchGradleBuildStructure(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
-    def fourthLookUp = repository.fetchGradleBuildStructure(transientRequestAttributes, FetchStrategy.FORCE_RELOAD)
-
-    then:
-    thirdLookUp != null
-    !thirdLookUp.is(fourthLookUp)
-    thirdLookUp.rootProjects[0].path == fourthLookUp.rootProjects[0].path
-    thirdLookUp.rootProjects[0].all.size() == fourthLookUp.rootProjects[0].all.size()
-  }
-
-  def "fetchGradleBuild"() {
-    when:
     def lookUp = repository.fetchGradleBuild(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
 
     then:
@@ -125,8 +99,34 @@ class DefaultModelRepositoryCacheTest extends ToolingModelToolingClientSpecifica
     then:
     thirdLookUp != null
     !thirdLookUp.is(fourthLookUp)
-    thirdLookUp.rootProjects[0].path == fourthLookUp.rootProjects[0].path
-    thirdLookUp.rootProjects[0].all.size() == fourthLookUp.rootProjects[0].all.size()
+    thirdLookUp.rootProject.path == fourthLookUp.rootProject.path
+    thirdLookUp.rootProject.all.size() == fourthLookUp.rootProject.all.size()
+  }
+
+  def "fetchGradleBuild"() {
+    when:
+    def lookUp = repository.fetchGradleProjects(transientRequestAttributes, FetchStrategy.FROM_CACHE_ONLY)
+
+    then:
+    lookUp == null
+
+    when:
+    def firstLookUp = repository.fetchGradleProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+    def secondLookUp = repository.fetchGradleProjects(transientRequestAttributes, FetchStrategy.LOAD_IF_NOT_CACHED)
+
+    then:
+    firstLookUp != null
+    firstLookUp.is(secondLookUp)
+
+    when:
+    def thirdLookUp = repository.fetchGradleProjects(transientRequestAttributes, FetchStrategy.FORCE_RELOAD) as List
+    def fourthLookUp = repository.fetchGradleProjects(transientRequestAttributes, FetchStrategy.FORCE_RELOAD) as List
+
+    then:
+    thirdLookUp != null
+    !thirdLookUp.is(fourthLookUp)
+    thirdLookUp[0].path == fourthLookUp[0].path
+    thirdLookUp[0].all.size() == fourthLookUp[0].all.size()
   }
 
   def "fetchEclipseGradleBuild"() {
