@@ -60,6 +60,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     private OmniGradleProject gradleProject;
     private Optional<List<OmniEclipseClasspathContainer>> classpathContainers;
     private Optional<OmniEclipseOutputLocation> outputLocation;
+    private ProjectIdentifier projectIdentifier;
 
     private DefaultOmniEclipseProject(Comparator<? super OmniEclipseProject> comparator) {
         this.hierarchyHelper = new HierarchyHelper<OmniEclipseProject>(this, Preconditions.checkNotNull(comparator));
@@ -200,6 +201,15 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     }
 
     @Override
+    public ProjectIdentifier getProjectIdentifier() {
+        return this.projectIdentifier;
+    }
+
+    private void setProjectIdentifier(ProjectIdentifier projectIdentifier) {
+        this.projectIdentifier = projectIdentifier;
+    }
+
+    @Override
     public OmniEclipseProject getRoot() {
         return this.hierarchyHelper.getRoot();
     }
@@ -251,6 +261,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
         DefaultOmniEclipseProject eclipseProject = new DefaultOmniEclipseProject(OmniEclipseProjectComparator.INSTANCE);
         knownProjects.put(path, eclipseProject);
 
+        eclipseProject.setProjectIdentifier(project.getProjectIdentifier());
         eclipseProject.setName(project.getName());
         eclipseProject.setDescription(project.getDescription());
         eclipseProject.setPath(Path.from(project.getGradleProject().getPath()));

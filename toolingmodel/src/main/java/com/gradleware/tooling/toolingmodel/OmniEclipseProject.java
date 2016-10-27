@@ -25,6 +25,7 @@ import org.gradle.api.specs.Spec;
 import com.google.common.base.Optional;
 
 import com.gradleware.tooling.toolingutils.ImmutableCollection;
+import org.gradle.tooling.model.ProjectIdentifier;
 
 /**
  * Provides detailed information about the Eclipse project and its hierarchy.
@@ -203,4 +204,11 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
      * @return the output location
      */
     Optional<OmniEclipseOutputLocation> getOutputLocation();
+
+    /**
+     * Returns the project identifier of this project.
+     *
+     * @return the project identifier, never null.
+     */
+    ProjectIdentifier getProjectIdentifier();
 }
