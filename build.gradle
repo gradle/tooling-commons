@@ -69,9 +69,9 @@ subprojects {
   // apply Java plugin (production code) and Groovy plugin (test code)
   apply plugin: 'groovy'
 
-  // make sure it compiles and runs with Java 6
-  sourceCompatibility = 1.6
-  targetCompatibility = 1.6
+  // make sure it compiles and runs with Java 7
+  sourceCompatibility = 1.7
+  targetCompatibility = 1.7
 
   // 1) fork the compilation
   // 2) report all compiler warnings

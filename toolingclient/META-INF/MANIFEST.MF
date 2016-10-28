@@ -5,7 +5,7 @@ Bundle-Name: Gradle Tooling Commons - Tooling Client
 Bundle-SymbolicName: com.gradleware.tooling.client
 Bundle-Version: 0.17.0.qualifier
 Bundle-ClassPath: .
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.gradleware.tooling.toolingclient;version="0.17.0"
 Require-Bundle: org.gradle.toolingapi;bundle-version="[3.3.0,3.4.0)",
  com.google.guava;bundle-version="[15.0.0,16.0.0)",

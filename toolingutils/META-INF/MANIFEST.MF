@@ -5,7 +5,7 @@ Bundle-Name: Gradle Tooling Commons - Tooling Utils
 Bundle-SymbolicName: com.gradleware.tooling.utils
 Bundle-Version: 0.17.0.qualifier
 Bundle-ClassPath: .
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.gradleware.tooling.toolingutils;version="0.17.0",
  com.gradleware.tooling.toolingutils.binding;version="0.17.0",
  com.gradleware.tooling.toolingutils.distribution;version="0.17.0"
