@@ -47,7 +47,8 @@ class ProcessOsgiBundlesTask extends DefaultTask {
     }
 
     void createNewBundle(ResolvedArtifact jar, BundleInfo bundleInfo) {
-        Set<String> packageNames = packageNames(jar.file, bundleInfo.filteredPackagesPattern)
+        List<String> packageNames = packageNames(jar.file, bundleInfo.filteredPackagesPattern) as List
+        packageNames.sort()
         String fullVersion = "${bundleInfo.bundleVersion}.${bundleInfo.versionQualifier}"
         String manifest = manifestFor(bundleInfo.manifestTemplate, packageNames, bundleInfo.bundleVersion, fullVersion)
 
@@ -96,7 +97,7 @@ class ProcessOsgiBundlesTask extends DefaultTask {
         result
     }
 
-    String manifestFor(String manifestTemplate, Set<String> packageNames, String mainVersion, String fullVersion) {
+    String manifestFor(String manifestTemplate, Collection<String> packageNames, String mainVersion, String fullVersion) {
         StringBuilder manifest = new StringBuilder(manifestTemplate)
 
         if (!packageNames.isEmpty()) {
