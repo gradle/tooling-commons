@@ -18,7 +18,7 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.google.common.base.Preconditions;
 import com.gradleware.tooling.toolingmodel.OmniAccessRule;
-import com.gradleware.tooling.toolingmodel.repository.internal.compatibility.ForwardCompatibilityAccessRule;
+import org.gradle.tooling.model.eclipse.AccessRule;
 
 
 /**
@@ -46,7 +46,7 @@ final class DefaultOmniAccessRule implements OmniAccessRule {
         return this.pattern;
     }
 
-    static DefaultOmniAccessRule from(ForwardCompatibilityAccessRule rule) {
+    static DefaultOmniAccessRule from(AccessRule rule) {
         return new DefaultOmniAccessRule(rule.getKind(), rule.getPattern());
     }
 }

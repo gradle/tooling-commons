@@ -20,9 +20,7 @@ import com.google.common.base.Optional;
 import com.gradleware.tooling.toolingmodel.OmniAccessRule;
 import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
-import com.gradleware.tooling.toolingmodel.repository.internal.compatibility.ForwardCompatibilityClasspathEntry;
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
-import org.gradle.tooling.model.eclipse.HierarchicalEclipseProject;
 
 import java.util.List;
 
@@ -54,13 +52,11 @@ public final class DefaultOmniEclipseProjectDependency extends AbstractOmniClass
 
     @SuppressWarnings("deprecation")
     public static DefaultOmniEclipseProjectDependency from(EclipseProjectDependency projectDependency) {
-        ForwardCompatibilityClasspathEntry compatibilityDependency = ForwardCompatibilityConverter.convert(projectDependency, ForwardCompatibilityClasspathEntry.class);
-        HierarchicalEclipseProject targetProject = projectDependency.getTargetProject();
         return new DefaultOmniEclipseProjectDependency(
                 projectDependency.getPath(),
                 getIsExported(projectDependency),
                 getClasspathAttributes(projectDependency),
-                getAccessRules(compatibilityDependency));
+                getAccessRules(projectDependency));
     }
 
     /**

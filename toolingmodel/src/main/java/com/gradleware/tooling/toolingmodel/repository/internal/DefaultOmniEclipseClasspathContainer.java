@@ -20,7 +20,7 @@ import com.google.common.base.Optional;
 import com.gradleware.tooling.toolingmodel.OmniAccessRule;
 import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
 import com.gradleware.tooling.toolingmodel.OmniEclipseClasspathContainer;
-import com.gradleware.tooling.toolingmodel.repository.internal.compatibility.ForwardCompatibilityEclipseClasspathContainer;
+import org.gradle.tooling.model.eclipse.EclipseClasspathContainer;
 
 import java.util.List;
 
@@ -50,7 +50,7 @@ public class DefaultOmniEclipseClasspathContainer extends AbstractOmniClasspathE
         return this.isExported;
     }
 
-    public static DefaultOmniEclipseClasspathContainer from(ForwardCompatibilityEclipseClasspathContainer container) {
+    public static DefaultOmniEclipseClasspathContainer from(EclipseClasspathContainer container) {
         return new DefaultOmniEclipseClasspathContainer(
                 container.getPath(),
                 container.isExported(),

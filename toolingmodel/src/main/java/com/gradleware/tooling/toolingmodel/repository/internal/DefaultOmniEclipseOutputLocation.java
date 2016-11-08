@@ -17,7 +17,7 @@
 package com.gradleware.tooling.toolingmodel.repository.internal;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseOutputLocation;
-import com.gradleware.tooling.toolingmodel.repository.internal.compatibility.ForwardCompatibilityEclipseOutputLocation;
+import org.gradle.tooling.model.eclipse.EclipseOutputLocation;
 
 /**
  * Default implementation of {@link OmniEclipseOutputLocation}.
@@ -37,7 +37,7 @@ final class DefaultOmniEclipseOutputLocation implements OmniEclipseOutputLocatio
         return this.path;
     }
 
-    public static DefaultOmniEclipseOutputLocation from(ForwardCompatibilityEclipseOutputLocation outputLocation) {
+    public static DefaultOmniEclipseOutputLocation from(EclipseOutputLocation outputLocation) {
         return new DefaultOmniEclipseOutputLocation(outputLocation.getPath());
     }
 }
