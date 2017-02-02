@@ -19,7 +19,6 @@ package com.gradleware.tooling.toolingmodel.repository.internal;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
@@ -299,12 +298,7 @@ public final class DefaultOmniEclipseProject implements OmniEclipseProject {
     private static ImmutableList<OmniExternalDependency> toExternalDependencies(DomainObjectSet<? extends EclipseExternalDependency> externalDependencies) {
         // filter out invalid external dependencies
         // Gradle versions <= 1.10 return external dependencies from dependent projects that are not valid, i.e. all fields are null except the file with name 'unresolved dependency...'
-        return FluentIterable.from(externalDependencies).filter(new Predicate<EclipseExternalDependency>() {
-            @Override
-            public boolean apply(EclipseExternalDependency input) {
-                return input.getFile().exists();
-            }
-        }).transform(new Function<EclipseExternalDependency, OmniExternalDependency>() {
+        return FluentIterable.from(externalDependencies).transform(new Function<EclipseExternalDependency, OmniExternalDependency>() {
             @Override
             public OmniExternalDependency apply(EclipseExternalDependency input) {
                 return DefaultOmniExternalDependency.from(input);
