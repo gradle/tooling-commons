@@ -7,6 +7,6 @@ Bundle-Version: 0.18.0.qualifier
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.gradleware.tooling.toolingclient;version="0.18.0"
-Require-Bundle: org.gradle.toolingapi;bundle-version="[3.3.0,3.4.0)",
+Require-Bundle: org.gradle.toolingapi;bundle-version="[3.4.0,3.5.0)",
  com.google.guava;bundle-version="[15.0.0,16.0.0)",
  org.slf4j.api;bundle-version="1.7.2"
