@@ -9,6 +9,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.gradleware.tooling.toolingmodel;version="0.19.0",
  com.gradleware.tooling.toolingmodel.buildaction;version="0.19.0",
  com.gradleware.tooling.toolingmodel.repository;version="0.19.0",
+ com.gradleware.tooling.toolingmodel.repository.internal;version="0.19.0",
  com.gradleware.tooling.toolingmodel.util;version="0.19.0"
 Require-Bundle: org.gradle.toolingapi;bundle-version="[3.4.0,3.5.0)";visibility:=reexport,
  com.gradleware.tooling.utils;bundle-version="[0.19.0,0.20.0)",
