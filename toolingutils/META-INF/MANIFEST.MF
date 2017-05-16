@@ -10,6 +10,6 @@ Export-Package: com.gradleware.tooling.toolingutils;version="0.20.0",
  com.gradleware.tooling.toolingutils.binding;version="0.20.0",
  com.gradleware.tooling.toolingutils.distribution;version="0.20.0"
 Require-Bundle: org.gradle.toolingapi;bundle-version="[3.5.0,3.6.0)",
- com.google.guava;bundle-version="[15.0.0,16.0.0)",
+ com.google.guava;bundle-version="[15.0.0,22.0.0)",
  com.google.gson;bundle-version="2.2.4",
  org.slf4j.api;bundle-version="1.7.2"

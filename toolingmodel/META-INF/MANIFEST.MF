@@ -14,5 +14,5 @@ Export-Package: com.gradleware.tooling.toolingmodel;version="0.20.0",
 Require-Bundle: org.gradle.toolingapi;bundle-version="[3.5.0,3.6.0)";visibility:=reexport,
  com.gradleware.tooling.utils;bundle-version="[0.20.0,0.21.0)",
  com.gradleware.tooling.client;bundle-version="[0.20.0,0.21.0)",
- com.google.guava;bundle-version="[15.0.0,16.0.0)";visibility:=reexport,
+ com.google.guava;bundle-version="[15.0.0,22.0.0)";visibility:=reexport,
  org.slf4j.api;bundle-version="1.7.2"
