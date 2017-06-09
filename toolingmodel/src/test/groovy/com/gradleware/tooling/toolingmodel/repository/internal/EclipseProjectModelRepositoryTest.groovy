@@ -738,7 +738,15 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
 
         then:
         rootProjects[0].name == 'root'
-        if (higherOrEqual('3.3', distribution)) {
+        if (higherOrEqual('4.0', distribution)) {
+            assert rootProjects.size() == 3
+            assert rootProjects[0].name == 'root'
+            assert rootProjects[0].children.isEmpty()
+            assert rootProjects[1].name == 'included1'
+            assert rootProjects[1].children*.name == ['included1-sub1', 'included1-sub2']
+            assert rootProjects[2].name == 'included2'
+            assert rootProjects[2].children*.name == ['included2-sub1', 'included2-sub2']
+        } else if (higherOrEqual('3.3', distribution)) {
             assert rootProjects.size() == 3
             assert rootProjects[0].name == 'root'
             assert rootProjects[0].children.isEmpty()
