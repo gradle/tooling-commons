@@ -3,16 +3,16 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: Gradle Inc.
 Bundle-Name: Gradle Tooling Commons - Tooling Model
 Bundle-SymbolicName: com.gradleware.tooling.model
-Bundle-Version: 0.19.1.qualifier
+Bundle-Version: 0.19.2.qualifier
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: com.gradleware.tooling.toolingmodel;version="0.19.1",
- com.gradleware.tooling.toolingmodel.buildaction;version="0.19.1",
- com.gradleware.tooling.toolingmodel.repository;version="0.19.1",
- com.gradleware.tooling.toolingmodel.repository.internal;version="0.19.1",
- com.gradleware.tooling.toolingmodel.util;version="0.19.1"
+Export-Package: com.gradleware.tooling.toolingmodel;version="0.19.2",
+ com.gradleware.tooling.toolingmodel.buildaction;version="0.19.2",
+ com.gradleware.tooling.toolingmodel.repository;version="0.19.2",
+ com.gradleware.tooling.toolingmodel.repository.internal;version="0.19.2",
+ com.gradleware.tooling.toolingmodel.util;version="0.19.2"
 Require-Bundle: org.gradle.toolingapi;bundle-version="[3.5.0,3.6.0)";visibility:=reexport,
- com.gradleware.tooling.utils;bundle-version="[0.19.1,0.20.0)",
- com.gradleware.tooling.client;bundle-version="[0.19.1,0.20.0)",
+ com.gradleware.tooling.utils;bundle-version="[0.19.2,0.20.0)",
+ com.gradleware.tooling.client;bundle-version="[0.19.2,0.20.0)",
  com.google.guava;bundle-version="[15.0.0,22.0.0)";visibility:=reexport,
  org.slf4j.api;bundle-version="1.7.2"
