@@ -18,7 +18,6 @@ package com.gradleware.tooling.toolingmodel;
 
 import com.google.common.base.Optional;
 import com.gradleware.tooling.toolingutils.ImmutableCollection;
-import org.gradle.api.Nullable;
 import org.gradle.api.specs.Spec;
 
 import java.util.List;
@@ -43,7 +42,6 @@ public interface HierarchicalModel<T extends HierarchicalModel<T>> {
      *
      * @return the parent model, can be null
      */
-    @Nullable
     T getParent();
 
     /**

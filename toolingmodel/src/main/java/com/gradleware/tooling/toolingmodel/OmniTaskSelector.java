@@ -18,8 +18,6 @@ package com.gradleware.tooling.toolingmodel;
 
 import java.util.SortedSet;
 
-import org.gradle.api.Nullable;
-
 import com.gradleware.tooling.toolingmodel.util.Maybe;
 import com.gradleware.tooling.toolingutils.ImmutableCollection;
 
@@ -43,7 +41,6 @@ public interface OmniTaskSelector {
      *
      * @return the description of this task selector, or {@code null} if it has no description
      */
-    @Nullable
     String getDescription();
 
     /**

@@ -22,7 +22,6 @@ import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.BuildRequest;
 import com.gradleware.tooling.toolingutils.ImmutableCollection;
-import org.gradle.api.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -77,7 +76,6 @@ public final class FixedRequestAttributes {
         return this.projectDir;
     }
 
-    @Nullable
     @SuppressWarnings("UnusedDeclaration")
     public File getGradleUserHome() {
         return this.gradleUserHome;
@@ -88,7 +86,6 @@ public final class FixedRequestAttributes {
         return this.gradleDistribution;
     }
 
-    @Nullable
     @SuppressWarnings("UnusedDeclaration")
     public File getJavaHome() {
         return this.javaHome;

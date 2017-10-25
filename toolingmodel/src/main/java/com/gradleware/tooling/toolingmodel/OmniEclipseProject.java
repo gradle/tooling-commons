@@ -19,7 +19,6 @@ package com.gradleware.tooling.toolingmodel;
 import java.io.File;
 import java.util.List;
 
-import org.gradle.api.Nullable;
 import org.gradle.api.specs.Spec;
 
 import com.google.common.base.Optional;
@@ -47,7 +46,6 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
      *
      * @return the parent project, can be null
      */
-    @Nullable
     @Override
     OmniEclipseProject getParent();
 
@@ -100,7 +98,6 @@ public interface OmniEclipseProject extends HierarchicalModel<OmniEclipseProject
      *
      * @return the description of this project
      */
-    @Nullable
     String getDescription();
 
     /**

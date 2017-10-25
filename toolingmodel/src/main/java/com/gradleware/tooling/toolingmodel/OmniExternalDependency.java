@@ -17,7 +17,6 @@
 package com.gradleware.tooling.toolingmodel;
 
 import com.gradleware.tooling.toolingmodel.util.Maybe;
-import org.gradle.api.Nullable;
 
 import java.io.File;
 
@@ -40,7 +39,6 @@ public interface OmniExternalDependency extends OmniClasspathEntry {
      *
      * @return the source directory or archive for this dependency, or {@code null} if no source is available
      */
-    @Nullable
     File getSource();
 
     /**
@@ -48,7 +46,6 @@ public interface OmniExternalDependency extends OmniClasspathEntry {
      *
      * @return the Javadoc directory or archive for this dependency, or {@code null} if no Javadoc is available
      */
-    @Nullable
     File getJavadoc();
 
     /**

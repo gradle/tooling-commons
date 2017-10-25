@@ -17,7 +17,6 @@
 package com.gradleware.tooling.toolingmodel;
 
 import com.gradleware.tooling.toolingmodel.util.Maybe;
-import org.gradle.api.Nullable;
 
 /**
  * Represents a project task which is executable by Gradle.
@@ -38,7 +37,6 @@ public interface OmniProjectTask {
      *
      * @return the description of this task, or {@code null} if it has no description
      */
-    @Nullable
     String getDescription();
 
     /**
