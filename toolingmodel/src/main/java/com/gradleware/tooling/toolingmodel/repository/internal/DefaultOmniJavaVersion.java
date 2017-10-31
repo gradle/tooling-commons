@@ -28,8 +28,8 @@ public final class DefaultOmniJavaVersion implements OmniJavaVersion {
 
     private final String name;
 
-    private DefaultOmniJavaVersion(JavaVersion name) {
-        this.name = name.toString();
+    private DefaultOmniJavaVersion(JavaVersion javaVersion) {
+        this.name = javaVersion.isJava9Compatible() ? javaVersion.getMajorVersion() : javaVersion.toString();
     }
 
     @Override
