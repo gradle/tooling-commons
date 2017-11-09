@@ -223,7 +223,7 @@ task incrementVersion {
     // add/commit change
     execCommand "git", "commit", "-a", "-m", "Increase version to $nextVersion"
     // push change
-    execCommand "git", "push", "origin", "master"
+    //execCommand "git", "push", "origin", "master"
   }
 }
 
