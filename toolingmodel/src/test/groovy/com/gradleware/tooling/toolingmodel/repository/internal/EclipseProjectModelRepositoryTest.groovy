@@ -204,7 +204,12 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         }
 
         // verify classpath attributes
-        if (higherOrEqual('3.0', distribution)) {
+        if (higherOrEqual('4.4', distribution)) {
+            assert apiProjectDependency.classpathAttributes.get() == []
+            assert apiProjectDependency.accessRules.get() == []
+            assert guavaDependency.classpathAttributes.get().size() == 1
+            assert guavaDependency.accessRules.get() == []
+        } else if (higherOrEqual('3.0', distribution)) {
             assert apiProjectDependency.classpathAttributes.get() == []
             assert apiProjectDependency.accessRules.get() == []
             assert guavaDependency.classpathAttributes.get() == []
@@ -499,7 +504,12 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
         def javaDir = eclipseProject.sourceDirectories.find { it.path == 'src/main/java' }
         def resourcesDir = eclipseProject.sourceDirectories.find { it.path == 'src/main/resources' }
-        if (higherOrEqual('3.0', distribution)) {
+        if (higherOrEqual('4.4', distribution)) {
+            assert javaDir.classpathAttributes.get().size() == 3
+            assert javaDir.classpathAttributes.get()[2].name == 'customKey'
+            assert javaDir.classpathAttributes.get()[2].value == 'customValue'
+            assert !resourcesDir.classpathAttributes.get().isEmpty()
+        } else if (higherOrEqual('3.0', distribution)) {
             assert javaDir.classpathAttributes.get().size() == 1
             assert javaDir.classpathAttributes.get()[0].name == 'customKey'
             assert javaDir.classpathAttributes.get()[0].value == 'customValue'
@@ -543,7 +553,14 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
         def javaDir = eclipseProject.sourceDirectories.find { it.path == 'src/main/java' }
         def resourcesDir = eclipseProject.sourceDirectories.find { it.path == 'src/main/resources' }
-        if (higherOrEqual('3.0', distribution)) {
+        if (higherOrEqual('4.4', distribution)) {
+            assert javaDir.accessRules.get().size() == 2
+            assert javaDir.accessRules.get()[0].kind == 0
+            assert javaDir.accessRules.get()[0].pattern == 'accessibleFilesPattern'
+            assert javaDir.accessRules.get()[1].kind == 1
+            assert javaDir.accessRules.get()[1].pattern == 'nonAccessibleFilesPattern'
+            assert !resourcesDir.classpathAttributes.get().isEmpty()
+        } else if (higherOrEqual('3.0', distribution)) {
             assert javaDir.accessRules.get().size() == 2
             assert javaDir.accessRules.get()[0].kind == 0
             assert javaDir.accessRules.get()[0].pattern == 'accessibleFilesPattern'
@@ -588,7 +605,10 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         def eclipseProject = rootProject.tryFind({ it.name == 'sub1' } as Spec).get()
         def javaDir = eclipseProject.sourceDirectories.find { it.path == 'src/main/java' }
         def resourcesDir = eclipseProject.sourceDirectories.find { it.path == 'src/main/resources' }
-        if (higherOrEqual('3.0', distribution)) {
+        if (higherOrEqual('4.4', distribution)) {
+            assert javaDir.output.get() == 'mainClasses'
+            assert resourcesDir.output.get() == 'bin/main'
+        } else if (higherOrEqual('3.0', distribution)) {
             assert javaDir.output.get() == 'mainClasses'
             assert resourcesDir.output.get() == null
         } else {
@@ -660,7 +680,16 @@ class EclipseProjectModelRepositoryTest extends ModelRepositorySpec {
         then:
         def eclipseProject = rootProject.tryFind({ it.name == 'impl' } as Spec).get()
 
-        if (higherOrEqual('3.0', distribution)) {
+        if (higherOrEqual('4.4', distribution)) {
+            assert eclipseProject.projectDependencies[0].classpathAttributes.get().size() == 1
+            assert eclipseProject.projectDependencies[0].classpathAttributes.get()[0].name == 'customKey'
+            assert eclipseProject.projectDependencies[0].classpathAttributes.get()[0].value == 'customValue'
+            assert eclipseProject.externalDependencies[0].classpathAttributes.get().size() == 2
+            assert eclipseProject.externalDependencies[0].classpathAttributes.get()[0].name == 'javadoc_location'
+            assert eclipseProject.externalDependencies[0].classpathAttributes.get()[0].value.contains('log4j')
+            assert eclipseProject.externalDependencies[0].classpathAttributes.get()[1].name == 'gradle_used_by_scope'
+            assert eclipseProject.externalDependencies[0].classpathAttributes.get()[1].value == 'main,test'
+        } else if (higherOrEqual('3.0', distribution)) {
             assert eclipseProject.projectDependencies[0].classpathAttributes.get().size() == 1
             assert eclipseProject.projectDependencies[0].classpathAttributes.get()[0].name == 'customKey'
             assert eclipseProject.projectDependencies[0].classpathAttributes.get()[0].value == 'customValue'
