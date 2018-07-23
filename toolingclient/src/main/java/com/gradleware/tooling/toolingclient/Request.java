@@ -16,12 +16,13 @@
 
 package com.gradleware.tooling.toolingclient;
 
-import org.gradle.tooling.CancellationToken;
-import org.gradle.tooling.ProgressListener;
-
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
+
+import org.gradle.tooling.CancellationToken;
+import org.gradle.tooling.ProgressListener;
 
 /**
  * Describes the state and actions common to all requests issued through the tooling client.
@@ -86,6 +87,13 @@ public interface Request<T> {
      * @return this
      */
     Request<T> arguments(String... arguments);
+
+    /**
+     * Specifies the environment variables to use for this operation.
+     * @param environmentVariables the environment variables to use for the Gradle process
+     * @return this
+     */
+    Request<T> environmentVariables(Map<String, String> environmentVariables);
 
     /**
      * Specifies the progress listeners which will receive progress events as the request is executed.
