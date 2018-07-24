@@ -16,34 +16,17 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
-import java.util.Map;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import com.gradleware.tooling.toolingclient.BuildActionRequest;
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-import com.gradleware.tooling.toolingclient.Consumer;
-import com.gradleware.tooling.toolingclient.LaunchableConfig;
-import com.gradleware.tooling.toolingclient.LongRunningOperationPromise;
-import com.gradleware.tooling.toolingclient.ModelRequest;
-import com.gradleware.tooling.toolingclient.TestConfig;
-import com.gradleware.tooling.toolingclient.TestLaunchRequest;
-import com.gradleware.tooling.toolingclient.ToolingClient;
+import com.gradleware.tooling.toolingclient.*;
 import org.gradle.internal.Factory;
-import org.gradle.tooling.BuildAction;
-import org.gradle.tooling.BuildActionExecuter;
-import org.gradle.tooling.BuildLauncher;
-import org.gradle.tooling.GradleConnectionException;
-import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.LongRunningOperation;
-import org.gradle.tooling.ModelBuilder;
-import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.ProjectConnection;
-import org.gradle.tooling.TestLauncher;
+import org.gradle.tooling.*;
 import org.gradle.tooling.internal.consumer.ConnectorServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * Internal implementation of the {@link ToolingClient} API.

@@ -16,14 +16,14 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
+import com.gradleware.tooling.toolingclient.Request;
+import org.gradle.tooling.CancellationToken;
+import org.gradle.tooling.ProgressListener;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
-
-import com.gradleware.tooling.toolingclient.Request;
-import org.gradle.tooling.CancellationToken;
-import org.gradle.tooling.ProgressListener;
 
 /**
  * Internal interface that describes the configurable attributes of a request.
