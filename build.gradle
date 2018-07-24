@@ -274,4 +274,3 @@ def assertEquals(String message, Object expected, Object actual) {
     throw new RuntimeException("${message}. Expected: ${expected}, actual: ${actual}.")
   }
 }
-

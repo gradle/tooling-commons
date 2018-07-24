@@ -52,4 +52,3 @@ configurations {
 }
 
 build.dependsOn sampleClasses
-

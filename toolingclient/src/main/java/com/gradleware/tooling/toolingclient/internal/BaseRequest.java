@@ -16,17 +16,17 @@
 
 package com.gradleware.tooling.toolingclient.internal;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Map;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
+
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Map;
 
 /**
  * Internal base class for all tooling client request objects.
