@@ -23,6 +23,7 @@ import org.gradle.tooling.ProgressListener;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 
 /**
  * Internal interface that describes the configurable attributes of a request.
@@ -53,6 +54,12 @@ interface InspectableRequest<T> extends Request<T> {
      * @see org.gradle.tooling.internal.consumer.parameters.ConsumerOperationParameters.Builder#setJvmArguments(java.util.List)
      */
     String[] getArguments();
+
+    /**
+     * @return never null, ConsumerOperationParameters builder takes care of converting null and empty arrays to null
+     * @see org.gradle.tooling.internal.consumer.parameters.ConsumerOperationParameters.Builder#setEnvironmentVariables(java.util.Map)
+     */
+    Map<String, String> getEnvironmentVariables();
 
     /**
      * @return never null, facilitates iteration when adding the listeners to AbstractLongRunningOperation

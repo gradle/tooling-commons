@@ -215,15 +215,16 @@ public final class DefaultToolingClient extends ToolingClient implements Executa
 
     private <T extends LongRunningOperation> T mapToLongRunningOperation(InspectableRequest<?> request, T operation) {
         operation.
-            setColorOutput(request.isColorOutput()).
-            setStandardOutput(request.getStandardOutput()).
-            setStandardError(request.getStandardError()).
-            setJavaHome(request.getJavaHomeDir()).
-            setJvmArguments(request.getJvmArguments()).
-            withArguments(request.getArguments()).
-            withCancellationToken(request.getCancellationToken());
-            operation.setStandardInput(request.getStandardInput());
-            for (ProgressListener progressListener : request.getProgressListeners()) {
+                setColorOutput(request.isColorOutput()).
+                setStandardOutput(request.getStandardOutput()).
+                setStandardError(request.getStandardError()).
+                setJavaHome(request.getJavaHomeDir()).
+                setJvmArguments(request.getJvmArguments()).
+                setEnvironmentVariables(request.getEnvironmentVariables()).
+                withArguments(request.getArguments()).
+                withCancellationToken(request.getCancellationToken());
+        operation.setStandardInput(request.getStandardInput());
+        for (ProgressListener progressListener : request.getProgressListeners()) {
             operation.addProgressListener(progressListener);
         }
         for (org.gradle.tooling.events.ProgressListener progressListener : request.getTypedProgressListeners()) {

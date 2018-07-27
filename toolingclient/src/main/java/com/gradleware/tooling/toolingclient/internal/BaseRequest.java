@@ -18,6 +18,7 @@ package com.gradleware.tooling.toolingclient.internal;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
@@ -25,6 +26,7 @@ import org.gradle.tooling.ProgressListener;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 
 /**
  * Internal base class for all tooling client request objects.
@@ -44,6 +46,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Insp
     private File javaHomeDir;
     private ImmutableList<String> jvmArguments;
     private ImmutableList<String> arguments;
+    private Map<String, String> envVariables;
     private ImmutableList<ProgressListener> progressListeners;
     private ImmutableList<org.gradle.tooling.events.ProgressListener> typedProgressListeners;
     private CancellationToken cancellationToken;
@@ -52,6 +55,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Insp
         this.toolingClient = Preconditions.checkNotNull(toolingClient);
         this.jvmArguments = ImmutableList.of();
         this.arguments = ImmutableList.of();
+        this.envVariables = ImmutableMap.of();
         this.progressListeners = ImmutableList.of();
         this.typedProgressListeners = ImmutableList.of();
         this.cancellationToken = GradleConnector.newCancellationTokenSource().token();
@@ -129,6 +133,17 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Insp
     }
 
     @Override
+    public SELF environmentVariables(Map<String, String> envVariables) {
+        this.envVariables = ImmutableMap.copyOf(envVariables);
+        return getThis();
+    }
+
+    @Override
+    public Map<String, String> getEnvironmentVariables() {
+        return this.envVariables;
+    }
+
+    @Override
     public SELF arguments(String... arguments) {
         this.arguments = ImmutableList.copyOf(arguments);
         return getThis();
@@ -192,6 +207,7 @@ abstract class BaseRequest<T, SELF extends BaseRequest<T, SELF>> implements Insp
                 standardInput(getStandardInput()).
                 javaHomeDir(getJavaHomeDir()).
                 jvmArguments(getJvmArguments()).
+                environmentVariables(getEnvironmentVariables()).
                 arguments(getArguments()).
                 progressListeners(getProgressListeners()).
                 typedProgressListeners(getTypedProgressListeners()).

@@ -148,25 +148,6 @@ class DefaultOmniBuildInvocationsContainerBuilderTest extends ToolingModelToolin
         assertTask('zeta', null, false, ':sub2:subSub:zeta', Maybe.of(null), invocationsAtSubSub.projectTasks)
     }
 
-    def "convertFromGradleProjectWithoutTasks"() {
-        given:
-        def modelRequest = toolingClient.newModelRequest(GradleProject.class)
-        modelRequest.projectDir(directoryProviderProjectsWithoutTasks.testDirectory)
-        modelRequest.gradleDistribution(GradleDistribution.forVersion('1.2'))
-        def gradleProject = modelRequest.executeAndWait()
-
-        when:
-        DefaultOmniBuildInvocationsContainer buildInvocations = DefaultOmniBuildInvocationsContainerBuilder.build(gradleProject)
-
-        then:
-        buildInvocations != null
-        buildInvocations.asMap().keySet() == [Path.from(':'), Path.from(':sub1'), Path.from(':sub2')] as Set
-        buildInvocations.asMap().keySet().each {
-            assert buildInvocations.get(it).get().projectTasks == []
-            assert buildInvocations.get(it).get().taskSelectors == []
-        }
-  }
-
     private static Set<String> collectNamesOfNonImplicitTaskSelectors(List<OmniTaskSelector> tasks) {
         tasks.collect { it.name }.findAll { !ImplicitTasks.ALL.contains(it) } as Set
     }
