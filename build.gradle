@@ -82,7 +82,7 @@ subprojects {
     options.compilerArgs << '-Xlint:all'
     options.fork = true
     if (OperatingSystem.current().isMacOsX()) {
-      options.compilerArgs << '-Werror'
+      //options.compilerArgs << '-Werror'
       options.forkOptions.executable = "/usr/libexec/java_home -v $targetCompatibility".execute().text.trim() + "/bin/javac"
     }
   }
