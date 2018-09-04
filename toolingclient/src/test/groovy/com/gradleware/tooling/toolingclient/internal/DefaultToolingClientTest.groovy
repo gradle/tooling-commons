@@ -353,7 +353,7 @@ class DefaultToolingClientTest extends Specification {
     noExceptionThrown()
 
     result.find { ((JvmTestOperationDescriptor) it.descriptor).className == 'example.MyTest1' } != null
-    result.find { ((JvmTestOperationDescriptor) it.descriptor).className == 'example.MyTest2' } != null
+    result.find { ((JvmTestOperationDescriptor) it.descriptor).className == 'example.MyTest2' } == null
 
     result.find { ((JvmTestOperationDescriptor) it.descriptor).displayName == 'Test foo(example.MyTest1)' } != null
     result.find { ((JvmTestOperationDescriptor) it.descriptor).displayName == 'Test bar(example.MyTest2)' } == null
